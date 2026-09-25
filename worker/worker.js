@@ -2,7 +2,7 @@ const API_VERSION='2026-03-10';
 const SETTINGS='site/data/settings.json',PRESETS='site/data/presets.json',INDEX='portfolio/index.json';
 const enc=new TextEncoder(),dec=new TextDecoder();
 export default {async fetch(req,env){try{if(req.method==='OPTIONS')return cors(new Response(null,{status:204}),req,env);const u=new URL(req.url),p=u.pathname;
-if(p==='/health')return cors(json({ok:true,version:'1.0.0'}),req,env);
+if(p==='/health')return cors(json({ok:true,version:'1.0.0',vars:{owner:!!env.GITHUB_OWNER,repo:!!env.GITHUB_REPO,branch:!!env.GITHUB_BRANCH,password:!!env.ADMIN_PASSWORD,session:!!env.SESSION_SECRET,token:!!env.GITHUB_TOKEN}}),req,env);
 if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='/auth/logout'&&req.method==='POST')return logout(req,env);
 if(p==='/api/public/settings')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
