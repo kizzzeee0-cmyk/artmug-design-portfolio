@@ -2,3 +2,10 @@ name = "artmug-portfolio-api"
 main = "worker.js"
 compatibility_date = "2026-09-25"
 workers_dev = true
+
+[vars]
+GITHUB_OWNER = "kizzzeee0-cmyk"
+GITHUB_REPO = "artmug-design-portfolio"
+GITHUB_BRANCH = "main"
+ADMIN_GITHUB_LOGINS = "kizzzeee0-cmyk"
+ALLOWED_ORIGINS = "https://artmug-portfolio.pages.dev"
