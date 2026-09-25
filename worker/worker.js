@@ -12,7 +12,7 @@ if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
 if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
 if(p==='/api/admin/settings'&&req.method==='PUT')return cors(await saveSettings(req,env,s),req,env);
-if(p==='/api/admin/portfolio'&&req.method==='GET')return cors(json({items:await adminPortfolio(env,s.token)}),req,env);
+if(p==='/api/admin/portfolio'&&req.method==='GET'){try{return cors(json({items:await listItems(env,s.token,'')}),req,env)}catch(e){return cors(json({error:`포트폴리오 목록을 불러오지 못했습니다: ${String(e.message||e)}`},500),req,env)}}
 if(p==='/api/admin/presets'&&req.method==='GET')return cors(json({items:await ghJson(env,s.token,PRESETS).catch(()=>[])}),req,env);
 if(p==='/api/admin/upload'&&req.method==='POST')return cors(await upload(req,env,s,false),req,env);
 if(p==='/api/admin/preset-upload'&&req.method==='POST')return cors(await upload(req,env,s,true),req,env);
