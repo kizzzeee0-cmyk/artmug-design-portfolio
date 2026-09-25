@@ -10,7 +10,7 @@ if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
 if(p.startsWith('/media/'))return cors(await media(p.slice(7),env),req,env);
 if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors(json({error:'로그인이 필요합니다.'},401),req,env);
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
-if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await ghJson(env,s.token,SETTINGS)}),req,env);
+if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
 if(p==='/api/admin/settings'&&req.method==='PUT')return cors(await saveSettings(req,env,s),req,env);
 if(p==='/api/admin/portfolio'&&req.method==='GET')return cors(json({items:await adminPortfolio(env,s.token)}),req,env);
 if(p==='/api/admin/presets'&&req.method==='GET')return cors(json({items:await ghJson(env,s.token,PRESETS).catch(()=>[])}),req,env);
