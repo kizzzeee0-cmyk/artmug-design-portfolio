@@ -28,8 +28,9 @@ function cors(r, req, env) {
   const h = new Headers(r.headers);
   const origin = req.headers.get("Origin") || "";
 
+  const configured = origins(env);
   const allowed =
-    origin === "https://artmug-portfolio.pages.dev" ||
+    configured.includes(origin) ||
     /^https:\/\/[a-z0-9-]+\.artmug-portfolio\.pages\.dev$/i.test(origin);
 
   if (allowed) {
