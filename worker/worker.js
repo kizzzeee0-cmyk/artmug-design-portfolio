@@ -12,7 +12,7 @@ if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
 if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
 if(p==='/api/admin/settings'&&req.method==='PUT')return cors(await saveSettings(req,env,s),req,env);
-if(p==='/api/admin/portfolio'&&req.method==='GET'){try{return cors(json({items:await listItems(env,s.token,'')}),req,env)}catch(e){return cors(json({error:`포트폴리오 목록을 불러오지 못했습니다: ${String(e.message||e)}`},500),req,env)}}
+if(p==='/api/admin/portfolio'&&req.method==='GET'){const st=await publicJson(env,SETTINGS);const cats=Array.isArray(st.portfolioCategories)?st.portfolioCategories:[];const all=[];for(const c of cats){const fs=await publicList(env,`portfolio/${c.id}`);for(const f of fs){if(f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path)))all.push(item(f.path,c.id,c))}}all.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));return cors(json({items:all}),req,env)}
 if(p==='/api/admin/presets'&&req.method==='GET')return cors(json({items:await ghJson(env,s.token,PRESETS).catch(()=>[])}),req,env);
 if(p==='/api/admin/upload'&&req.method==='POST')return cors(await upload(req,env,s,false),req,env);
 if(p==='/api/admin/preset-upload'&&req.method==='POST')return cors(await upload(req,env,s,true),req,env);
