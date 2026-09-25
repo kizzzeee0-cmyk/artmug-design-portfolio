@@ -24,7 +24,28 @@ if(p==='/api/admin/preset-delete'&&req.method==='POST')return cors(await del(req
 return cors(json({error:'Not found'},404),req,env)}catch(e){console.error(e);return cors(json({error:env.DEBUG==='true'?String(e.message||e):'서버 처리 중 오류가 발생했습니다.'},500),req,env)}}};
 function json(x,status=200,extra={}){return new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json; charset=utf-8',...extra}})}
 function origins(env){return String(env.ALLOWED_ORIGINS||'').split(',').map(x=>x.trim().replace(/\/$/,'')).filter(Boolean)}
-function cors(r,req,env){const h=new Headers(r.headers),o=req.headers.get('Origin');if(o&&origins(env).includes(o.replace(/\/$/,''))){h.set('Access-Control-Allow-Origin',o);h.set('Access-Control-Allow-Credentials','true')}h.set('Access-Control-Allow-Headers','Content-Type,Authorization');h.set('Access-Control-Allow-Methods','GET,POST,PUT,OPTIONS');h.set('Vary','Origin');return new Response(r.body,{status:r.status,headers:h})}
+function cors(r, req, env) {
+  const h = new Headers(r.headers);
+  const origin = req.headers.get("Origin") || "";
+
+  const allowed = origin === "https://artmug-portfolio.pages.dev"
+    || /^https:\/\/[a-z0-9-]+\.artmug-portfolio\.pages\.dev$/i.test(origin);
+
+  if (allowed) {
+    h.set("Access-Control-Allow-Origin", origin);
+    h.set("Access-Control-Allow-Credentials", "true");
+  }
+
+  h.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  h.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  h.set("Vary", "Origin");
+
+  return new Response(r.body, {
+    status: r.status,
+    statusText: r.statusText,
+    headers: h
+  });
+}
 function b64u(bytes){let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function unb64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s);return Uint8Array.from(bin,c=>c.charCodeAt(0))}
 function random(n=32){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64u(a)}
