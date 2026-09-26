@@ -138,9 +138,9 @@ function renderRequestFields(card,typeId,prev){
 
   var html='';
   if(t.showSignatureFields){
-    html+='<div class="request-field-grid signature-fields">'+
-      '<label><span>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
-      '<label><span>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><textarea data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></textarea></label>'+
+    html+='<div class="signature-fields signature-inline-fields">'+
+      '<label class="signature-inline-row"><span>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
+      '<label class="signature-inline-row"><span>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><input data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></label>'+
     '</div>';
   }
 
