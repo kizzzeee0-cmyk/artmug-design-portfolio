@@ -47,7 +47,7 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true
+      "showReviewEvent": false
     },
     {
       "id": "signature-style",
