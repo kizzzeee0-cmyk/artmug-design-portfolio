@@ -295,3 +295,29 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
   .form-action-buttons button{flex:1 1 0}
   .form-actions .status-text{width:100%}
 }
+
+
+/* Artmug split embed pages */
+body.artmug-part-inquiry .portfolio-card,
+body.artmug-part-inquiry #presetSection,
+body.artmug-part-inquiry .footer,
+body.artmug-part-inquiry #artmugButton {
+  display:none !important;
+}
+body.artmug-part-inquiry .form-actions {
+  justify-content:flex-start;
+}
+
+body.artmug-part-portfolio .author-intro,
+body.artmug-part-portfolio .notice-stack,
+body.artmug-part-portfolio #eventsSection,
+body.artmug-part-portfolio .form-card {
+  display:none !important;
+}
+body.artmug-part {
+  min-height:0;
+}
+body.artmug-part .site-shell {
+  padding-top:12px;
+  padding-bottom:12px;
+}
