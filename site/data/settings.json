@@ -311,5 +311,26 @@
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
-  "scheduleDate": "2026-09-26"
+  "scheduleDate": "2026-09-26",
+  "quoteConfig": {
+    "designPrices": {
+      "profile-a": 0,
+      "profile-b": 0,
+      "signature-style": 0,
+      "banner": 0
+    },
+    "bannerPrices": {
+      "top": 0,
+      "floating": 0,
+      "bottom1": 0,
+      "bottom3": 0,
+      "bottom6": 0
+    },
+    "optionPrices": {
+      "sameDay": 0,
+      "fast": 0,
+      "private": 0
+    },
+    "customItems": []
+  }
 }
