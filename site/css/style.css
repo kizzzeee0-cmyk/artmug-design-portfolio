@@ -215,7 +215,7 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
   transition:background .16s ease,color .16s ease,transform .16s ease;
 }
 .form-actions .primary-button.is-copied{
-  background:#e95b98;
+  background:var(--accent);
   color:#fff;
   font-weight:600;
 }
