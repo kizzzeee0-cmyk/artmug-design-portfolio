@@ -40,28 +40,32 @@
       "label": "움짤프사 A",
       "showFrameRetention": true,
       "showSignatureFields": false,
-      "showBannerFields": false
+      "showBannerFields": false,
+      "enabled": true
     },
     {
       "id": "profile-b",
       "label": "움짤프사 B",
       "showFrameRetention": true,
       "showSignatureFields": false,
-      "showBannerFields": false
+      "showBannerFields": false,
+      "enabled": true
     },
     {
       "id": "signature-style",
       "label": "시그니처풍",
       "showFrameRetention": false,
       "showSignatureFields": true,
-      "showBannerFields": false
+      "showBannerFields": false,
+      "enabled": true
     },
     {
       "id": "banner",
       "label": "배너 디자인",
       "showFrameRetention": false,
       "showSignatureFields": false,
-      "showBannerFields": true
+      "showBannerFields": true,
+      "enabled": true
     }
   ],
   "frameKeepLabel": "움짤프사 틀 보관 여부",
@@ -88,7 +92,8 @@
       "formats": [
         "gif"
       ],
-      "emptyText": "등록된 움짤 프사 작업물이 아직 없습니다."
+      "emptyText": "등록된 움짤 프사 작업물이 아직 없습니다.",
+      "enabled": true
     },
     {
       "id": "signature",
@@ -105,7 +110,8 @@
         "gif",
         "webp"
       ],
-      "emptyText": "등록된 시그니처풍 작업물이 아직 없습니다."
+      "emptyText": "등록된 시그니처풍 작업물이 아직 없습니다.",
+      "enabled": true
     },
     {
       "id": "top-banner",
@@ -122,7 +128,8 @@
         "gif",
         "webp"
       ],
-      "emptyText": "등록된 상단 배너 작업물이 아직 없습니다."
+      "emptyText": "등록된 상단 배너 작업물이 아직 없습니다.",
+      "enabled": true
     },
     {
       "id": "floating-banner",
@@ -139,7 +146,8 @@
         "gif",
         "webp"
       ],
-      "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다."
+      "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다.",
+      "enabled": true
     },
     {
       "id": "bottom-banner",
@@ -156,7 +164,8 @@
         "gif",
         "webp"
       ],
-      "emptyText": "등록된 하단 배너 작업물이 아직 없습니다."
+      "emptyText": "등록된 하단 배너 작업물이 아직 없습니다.",
+      "enabled": true
     },
     {
       "id": "bottom-split",
@@ -173,7 +182,8 @@
         "gif",
         "webp"
       ],
-      "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다."
+      "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
+      "enabled": true
     }
   ],
   "comparisonTitle": "움짤프사 A / B 비교",
@@ -186,22 +196,130 @@
   "comparisonBDescription": "움짤프사 B의 특징과 추천 포인트를 입력해 주세요.",
   "comparisonFooter": "원하시는 분위기와 구성에 가까운 타입을 선택해 문의해 주세요.",
   "aboutImage": "",
-  "authorEnabled": false,
+  "authorEnabled": true,
   "authorText": "",
   "authorFontSize": 15,
   "signatureNumberLabel": "시그풍 숫자",
   "signatureNumberPlaceholder": "예: 1 / 2 / 3",
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "시그니처풍에 들어갈 문구나 내용을 적어주세요.",
-  "eventsEnabled": false,
+  "eventsEnabled": true,
   "eventsKicker": "EVENTS",
   "eventsTitle": "이벤트 안내",
   "eventsText": "",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
-  "presetEnabled": false,
+  "presetEnabled": true,
   "presetTitle": "미판매 프리셋",
   "presetNotice": "아직 판매되지 않은 프리셋입니다.\n그대로 제작을 원하실 경우 문의해주세요.",
-  "presetCategories": [],
-  "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지"
+  "presetCategories": [
+    {
+      "id": "profile",
+      "label": "움짤 프사",
+      "enabled": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": true,
+      "uploadWidth": 200,
+      "uploadHeight": 200,
+      "maxBytes": 2097152,
+      "formats": [
+        "gif"
+      ],
+      "emptyText": "등록된 움짤 프사 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "signature",
+      "label": "시그니처풍",
+      "enabled": true,
+      "displayWidth": 293,
+      "displayHeight": 165,
+      "strictSize": true,
+      "uploadWidth": 293,
+      "uploadHeight": 165,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 시그니처풍 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "top-banner",
+      "label": "상단 배너",
+      "enabled": true,
+      "displayWidth": 500,
+      "displayHeight": 73,
+      "strictSize": true,
+      "uploadWidth": 2320,
+      "uploadHeight": 338,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 상단 배너 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "floating-banner",
+      "label": "플로팅 배너",
+      "enabled": true,
+      "displayWidth": 100,
+      "displayHeight": 261,
+      "strictSize": true,
+      "uploadWidth": 80,
+      "uploadHeight": 209,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 플로팅 배너 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "bottom-banner",
+      "label": "하단 배너 일반",
+      "enabled": true,
+      "displayWidth": 320,
+      "displayHeight": 67,
+      "strictSize": true,
+      "uploadWidth": 720,
+      "uploadHeight": 150,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 하단 배너 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "bottom-split",
+      "label": "하단 배너 분할",
+      "enabled": true,
+      "displayWidth": 240,
+      "displayHeight": 150,
+      "strictSize": true,
+      "uploadWidth": 720,
+      "uploadHeight": 450,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 하단 배너 분할 프리셋이 아직 없습니다."
+    }
+  ],
+  "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
+  "demoMode": true,
+  "scheduleDate": "2026-09-26"
 }
