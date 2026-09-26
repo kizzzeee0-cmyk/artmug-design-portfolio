@@ -485,3 +485,16 @@ body::after{
   font-weight:600!important;
   line-height:1.45;
 }
+
+/* preserve author intro manual line breaks on mobile */
+@media(max-width:680px){
+  .author-intro p{
+    max-width:none;
+    white-space:pre!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all;
+    font-size:clamp(10px,2.9vw,13px)!important;
+    line-height:1.95;
+    letter-spacing:-.015em;
+  }
+}
