@@ -222,3 +222,23 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
 
 /* 2026-09 small empty-state readability tweak */
 .empty-state{font-size:12px}
+
+/* 2026-09 inquiry typography aligned with notice cards */
+.form-card .section-heading>p,
+.empty-state,
+.field-help,
+.contact-form input::placeholder,
+.contact-form textarea::placeholder,
+.choice-pill,
+.choice-pill span{
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55;
+}
+.contact-form>label>span,
+.contact-form .signature-fields label>span,
+.choice-field legend{
+  font-size:14px;
+  font-weight:600;
+  line-height:1.45;
+}
