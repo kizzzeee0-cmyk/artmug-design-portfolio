@@ -22,5 +22,25 @@ async function loadPresets(){try{$('presetStatus').textContent='불러오는 중
 function bindLightboxes(){document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>{const d=$('lightbox');$('lightboxImage').src=b.dataset.image;d.showModal()})}
 function buildInquiryText(){const t=currentType(),keep=document.querySelector('input[name="frameKeep"]:checked')?.value||'';const lines=[`방송 닉네임: ${$('nicknameInput').value}`,`신청하시는 디자인 종류: ${t.label||''}`];if(t.showSignatureFields){lines.push(`${S.signatureNumberLabel}: ${$('signatureNumberInput').value}`,`${S.signatureContentLabel}: ${$('signatureContentInput').value}`)}if(t.showFrameRetention)lines.push(`${S.frameKeepLabel}: ${keep}`);if(t.showBannerFields){const banners=[...document.querySelectorAll('input[name="bannerType"]:checked')].map(x=>x.value);lines.push(`신청 배너 종류: ${banners.length?banners.join(', '):'선택 없음'}`,`배너 입력 문구: ${$('bannerTextInput').value}`)}lines.push(`${S.conceptLabel}: ${$('conceptInput').value}`,`${S.extraLabel}: ${$('extraInput').value}`);if(t.showReviewEvent){const review=document.querySelector('input[name="reviewEvent"]:checked')?.value||'미참여';lines.push(`리뷰이벤트 참여 여부: ${review}`)}const options=[...document.querySelectorAll('input[name="extraOption"]:checked')].map(x=>x.value);lines.push(`추가 옵션: ${options.length?options.join(', '):'선택 없음'}`);return lines.join('\n')}
 function showCopied(btn,text='✓ 복사 완료'){const original=btn.textContent;btn.classList.add('is-copied');btn.textContent=text;setTimeout(()=>{btn.classList.remove('is-copied');btn.textContent=original},1800)}
-$('lightboxClose').onclick=()=>$('lightbox').close();$('designTypeInput').onchange=updateDesignType;$('copyButton').onclick=async()=>{const btn=$('copyButton');try{await navigator.clipboard.writeText(buildInquiryText());$('copyStatus').textContent='';showCopied(btn)}catch{$('copyStatus').textContent='복사에 실패했습니다.'}};
+async function copyText(text){
+  if(navigator.clipboard&&window.isSecureContext){
+    try{await navigator.clipboard.writeText(text);return true}catch{}
+  }
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.setAttribute('readonly','');
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  ta.style.top='0';
+  ta.style.opacity='0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0,ta.value.length);
+  let ok=false;
+  try{ok=document.execCommand('copy')}catch{}
+  ta.remove();
+  return ok
+}
+$('lightboxClose').onclick=()=>$('lightbox').close();$('designTypeInput').onchange=updateDesignType;$('copyButton').onclick=async()=>{const btn=$('copyButton'),ok=await copyText(buildInquiryText());if(ok){$('copyStatus').textContent='';showCopied(btn)}else{$('copyStatus').textContent='복사에 실패했습니다.'}};
 (async()=>{try{const d=await api('/api/public/settings');renderSettings(d.settings);renderPortfolioTabs(visibleCats(S.portfolioCategories||[]));loadPortfolio()}catch(e){$('portfolioStatus').textContent='설정을 불러오지 못했습니다.'}})();
