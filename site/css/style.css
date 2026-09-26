@@ -475,3 +475,13 @@ body::after{
     gap:6px;
   }
 }
+
+/* unify inquiry field label typography */
+.request-type-selector>.field-label-row,
+.request-type-label,
+.request-full-field>span,
+.request-full-field>.field-label-row{
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.45;
+}
