@@ -87,3 +87,47 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
 .portfolio-card .tabs,.preset-section .tabs{display:flex;flex-wrap:wrap;gap:7px;width:100%;margin-top:11px;padding:13px 0 0}
 .portfolio-card .tab,.preset-section .tab{flex:0 0 auto;min-height:0;padding:6px 10px;border-radius:8px;font-size:12.5px;line-height:1.35}
 @media(max-width:680px){.portfolio-card .tabs,.preset-section .tabs{display:flex;overflow:visible;flex-wrap:wrap}.portfolio-card .tab,.preset-section .tab{flex:0 0 auto}}
+
+/* 2026-09 layout alignment refinement */
+.portfolio-card .tabs,.preset-section .tabs{justify-content:center}
+.preset-section .portfolio-header{gap:4px}
+.preset-section .preset-notice{margin-top:8px}
+
+/* A/B comparison: compact cards */
+.comparison-section{padding:20px 24px}
+.comparison-section .comparison-heading{max-width:430px}
+.comparison-grid{grid-template-columns:repeat(2,minmax(0,190px));max-width:400px;gap:10px;justify-content:start;margin-top:10px}
+.comparison-item{border-radius:16px}
+.comparison-copy{padding:10px 11px 12px}
+.comparison-copy h3{font-size:13px;margin-bottom:4px}
+.comparison-copy p,.comparison-footer{font-size:11px;line-height:1.55}
+.comparison-type-pill{font-size:9px;padding:3px 7px;margin-bottom:6px}
+.comparison-footer{max-width:400px;margin-top:10px;padding:9px 11px}
+
+/* portfolio + preset use exactly the same category layouts */
+.portfolio-grid.layout-profile{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.portfolio-grid.layout-profile .media-wrap{aspect-ratio:1}
+.portfolio-grid.layout-top-banner{grid-template-columns:repeat(2,minmax(0,1fr))}
+.portfolio-grid.layout-bottom-banner{grid-template-columns:repeat(2,minmax(0,1fr))}
+.portfolio-grid.layout-bottom-split{grid-template-columns:repeat(2,minmax(0,1fr))}
+.portfolio-grid.layout-signature{grid-template-columns:repeat(4,minmax(0,1fr))}
+.portfolio-grid.layout-floating-banner{grid-template-columns:repeat(8,minmax(0,1fr))}
+
+@media(max-width:760px){
+  .comparison-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:400px}
+  .portfolio-grid.layout-top-banner{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .portfolio-grid.layout-bottom-banner{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .portfolio-grid.layout-bottom-split{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .portfolio-grid.layout-profile{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .portfolio-grid.layout-signature{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .portfolio-grid.layout-floating-banner{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+}
+@media(max-width:420px){
+  .portfolio-grid.layout-top-banner{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .portfolio-grid.layout-bottom-banner{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .portfolio-grid.layout-bottom-split{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .portfolio-grid.layout-profile{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .portfolio-grid.layout-signature{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .portfolio-grid.layout-floating-banner{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .portfolio-grid .work-card{border-radius:9px}
+}
