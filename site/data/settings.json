@@ -9,24 +9,24 @@
   "noticeText": "",
   "noticeItems": [
     {
-      "icon": "🎞️",
-      "title": "움짤 프사는 동영상 원본으로 보내주세요",
-      "description": "GIF 파일보다 동영상 파일로 전달해 주시면 화질 저하를 최소화할 수 있습니다."
+      "icon": "",
+      "title": "",
+      "description": ""
     },
     {
-      "icon": "📎",
-      "title": "가능한 동영상 파일을 함께 첨부해 주세요",
-      "description": "제작에 사용할 원본 영상을 함께 보내주시면 확인과 작업 진행이 더 원활합니다."
+      "icon": "",
+      "title": "",
+      "description": ""
     },
     {
-      "icon": "🏷️",
-      "title": "여러 건은 파일명을 닉네임으로 구분해 주세요",
-      "description": "어떤 영상으로 어떤 닉네임을 제작할지 알 수 있도록 동영상 파일명을 해당 닉네임으로 저장해 주시면 감사하겠습니다."
+      "icon": "",
+      "title": "",
+      "description": ""
     },
     {
-      "icon": "🗓️",
-      "title": "희망 마감일이 있다면 말씀해 주세요",
-      "description": "문의 시 희망 마감일을 함께 알려주시면 작업 일정을 확인한 뒤 가능한 범위에서 최대한 맞춰드리겠습니다."
+      "icon": "",
+      "title": "",
+      "description": ""
     }
   ],
   "formTitle": "문의양식",
@@ -37,34 +37,34 @@
   "designTypes": [
     {
       "id": "profile-a",
-      "label": "움짤프사 A",
-      "showFrameRetention": true,
+      "label": "",
+      "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true
     },
     {
       "id": "profile-b",
-      "label": "움짤프사 B",
-      "showFrameRetention": true,
+      "label": "",
+      "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true
     },
     {
       "id": "signature-style",
-      "label": "시그니처풍",
+      "label": "",
       "showFrameRetention": false,
-      "showSignatureFields": true,
+      "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true
     },
     {
       "id": "banner",
-      "label": "배너 디자인",
+      "label": "",
       "showFrameRetention": false,
       "showSignatureFields": false,
-      "showBannerFields": true,
+      "showBannerFields": false,
       "enabled": true
     }
   ],
@@ -98,8 +98,8 @@
     {
       "id": "signature",
       "label": "시그니처풍",
-      "displayWidth": 293,
-      "displayHeight": 165,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 293,
       "uploadHeight": 165,
@@ -116,8 +116,8 @@
     {
       "id": "top-banner",
       "label": "상단 배너",
-      "displayWidth": 500,
-      "displayHeight": 73,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 2320,
       "uploadHeight": 338,
@@ -134,8 +134,8 @@
     {
       "id": "floating-banner",
       "label": "플로팅 배너",
-      "displayWidth": 100,
-      "displayHeight": 261,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 80,
       "uploadHeight": 209,
@@ -152,8 +152,8 @@
     {
       "id": "bottom-banner",
       "label": "하단 배너 일반",
-      "displayWidth": 320,
-      "displayHeight": 67,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 150,
@@ -170,8 +170,8 @@
     {
       "id": "bottom-split",
       "label": "하단 배너 분할",
-      "displayWidth": 240,
-      "displayHeight": 150,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 450,
@@ -187,8 +187,8 @@
     }
   ],
   "aboutImage": "",
-  "authorEnabled": false,
-  "authorText": "",
+  "authorEnabled": true,
+  "authorText": "ㄴㅁㄻㄴㄹ\n안녕하세요 칠공작가입니다\n반갑습니다",
   "authorFontSize": 15,
   "signatureNumberLabel": "시그풍 숫자",
   "signatureNumberPlaceholder": "예: 1 / 2 / 3",
@@ -223,8 +223,8 @@
       "id": "signature",
       "label": "시그니처풍",
       "enabled": true,
-      "displayWidth": 293,
-      "displayHeight": 165,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 293,
       "uploadHeight": 165,
@@ -241,8 +241,8 @@
       "id": "top-banner",
       "label": "상단 배너",
       "enabled": true,
-      "displayWidth": 500,
-      "displayHeight": 73,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 2320,
       "uploadHeight": 338,
@@ -259,8 +259,8 @@
       "id": "floating-banner",
       "label": "플로팅 배너",
       "enabled": true,
-      "displayWidth": 100,
-      "displayHeight": 261,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 80,
       "uploadHeight": 209,
@@ -277,8 +277,8 @@
       "id": "bottom-banner",
       "label": "하단 배너 일반",
       "enabled": true,
-      "displayWidth": 320,
-      "displayHeight": 67,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 150,
@@ -295,8 +295,8 @@
       "id": "bottom-split",
       "label": "하단 배너 분할",
       "enabled": true,
-      "displayWidth": 240,
-      "displayHeight": 150,
+      "displayWidth": 200,
+      "displayHeight": 200,
       "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 450,
@@ -311,26 +311,5 @@
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
-  "scheduleDate": "2026-09-26",
-  "quoteConfig": {
-    "designPrices": {
-      "profile-a": 0,
-      "profile-b": 0,
-      "signature-style": 0,
-      "banner": 0
-    },
-    "bannerPrices": {
-      "top": 0,
-      "floating": 0,
-      "bottom1": 0,
-      "bottom3": 0,
-      "bottom6": 0
-    },
-    "optionPrices": {
-      "sameDay": 0,
-      "fast": 0,
-      "private": 0
-    },
-    "customItems": []
-  }
+  "scheduleDate": "2026-09-26"
 }
