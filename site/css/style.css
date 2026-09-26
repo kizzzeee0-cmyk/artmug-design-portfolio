@@ -219,3 +219,6 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
   color:#fff;
   font-weight:600;
 }
+
+/* 2026-09 small empty-state readability tweak */
+.empty-state{font-size:12px}
