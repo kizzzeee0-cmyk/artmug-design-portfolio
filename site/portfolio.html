@@ -1,28 +1,12 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#9389de"><title>칠공 포트폴리오</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css"><link rel="stylesheet" href="/css/style.css"></head><body class="artmug-part artmug-part-portfolio"><main class="site-shell"><section class="author-intro" id="authorIntro" hidden><img id="authorImage" alt="작가 소개 이미지"><p id="authorText" class="preline"></p></section>
 <section class="notice-stack"><article class="card info-card schedule-card"><span class="section-kicker">SCHEDULE</span><h2 id="scheduleTitle">작업 일정 안내</h2><p id="scheduleText" class="preline"></p></article><article class="card info-card notice-card"><div class="notice-heading"><div><span class="section-kicker">NOTICE</span><h2 id="noticeTitle">공지사항</h2><p id="noticeText" class="preline muted"></p></div></div><div id="noticeItems" class="notice-list"></div></article></section>
 <section class="events-section" id="eventsSection" hidden><span id="eventsKicker" class="section-kicker">EVENTS</span><h2 id="eventsTitle"></h2><p id="eventsText" class="preline"></p></section>
-<section class="card form-card"><div class="section-heading"><div><span class="section-kicker">INQUIRY</span><h2 id="formTitle">문의양식</h2></div><p id="formDescription" class="muted"></p></div><div class="contact-form"><label><span class="field-label-row"><span id="nicknameLabel"></span><small class="required-badge">필수</small></span><input id="nicknameInput" type="text" aria-required="true"></label><label><span id="designTypeLabel"></span><select id="designTypeInput"></select></label><div id="signatureFields" class="span-2 signature-fields" hidden><label><span id="signatureNumberLabel"></span><input id="signatureNumberInput"></label><label><span id="signatureContentLabel"></span><textarea id="signatureContentInput"></textarea></label></div><fieldset id="frameKeepField" class="span-2 choice-field"><legend id="frameKeepLabel"></legend><p id="frameKeepDescription" class="field-help preline"></p><div class="choice-row"><label class="choice-pill"><input name="frameKeep" type="radio" value="O" checked><span id="frameKeepYes"></span></label><label class="choice-pill"><input name="frameKeep" type="radio" value="X"><span id="frameKeepNo"></span></label></div></fieldset><label class="span-2"><span class="field-label-row"><span id="conceptLabel"></span><small class="required-badge">필수</small></span><textarea id="conceptInput" aria-required="true"></textarea></label><label class="span-2"><span id="extraLabel"></span><textarea id="extraInput"></textarea></label>
-<div id="bannerFields" class="span-2 banner-fields" hidden>
-  <fieldset class="choice-field"><legend>신청 배너 종류</legend><p class="field-help">필요한 배너를 모두 체크해 주세요.</p>
-    <div class="check-grid">
-      <label class="choice-pill"><input type="checkbox" name="bannerType" value="상단"><span>상단</span></label>
-      <label class="choice-pill"><input type="checkbox" name="bannerType" value="플로팅"><span>플로팅</span></label>
-      <label class="choice-pill"><input type="checkbox" name="bannerType" value="하단 1칸"><span>하단 1칸</span></label>
-      <label class="choice-pill"><input type="checkbox" name="bannerType" value="하단 3칸"><span>하단 3칸</span></label>
-      <label class="choice-pill"><input type="checkbox" name="bannerType" value="하단 6칸"><span>하단 6칸</span></label>
-    </div>
-  </fieldset>
-  <label><span>배너 입력 문구</span><textarea id="bannerTextInput" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>
-</div>
-<fieldset id="reviewEventField" class="span-2 choice-field review-event-field" hidden><legend>리뷰이벤트 참여 여부</legend><div class="choice-row"><label class="choice-pill"><input name="reviewEvent" type="radio" value="참여"><span>참여</span></label><label class="choice-pill"><input name="reviewEvent" type="radio" value="미참여" checked><span>미참여</span></label></div></fieldset>
-<fieldset class="span-2 choice-field option-field"><legend>추가 옵션</legend><p class="field-help">해당되는 항목이 있을 경우 체크해 주세요.</p>
-  <div class="check-grid">
-    <label class="choice-pill"><input type="checkbox" name="extraOption" value="당일마감"><span>당일마감</span></label>
-    <label class="choice-pill"><input type="checkbox" name="extraOption" value="빠른 마감"><span>빠른 마감</span></label>
-    <label class="choice-pill"><input type="checkbox" name="extraOption" value="포트폴리오 비공개"><span>포트폴리오 비공개</span></label>
-  </div>
-</fieldset>
-<div class="span-2 form-actions"><div class="form-action-buttons"><button id="copyButton" class="primary-button" type="button"></button><button id="artmugButton" class="secondary-button" type="button">아트머그 문의창 열기</button></div><span id="copyStatus" class="status-text"></span></div></div></section>
+<section class="card form-card"><div class="section-heading"><div><span class="section-kicker">INQUIRY</span><h2 id="formTitle">문의양식</h2></div><p id="formDescription" class="muted"></p></div><div class="contact-form">
+<label class="span-2 inquiry-nickname-field"><span class="field-label-row"><span id="nicknameLabel"></span><small class="required-badge">필수</small></span><input id="nicknameInput" type="text" aria-required="true"></label>
+<div id="requestsContainer" class="span-2 request-list"></div>
+<div id="requestAddRow" class="span-2 request-add-row" hidden><button id="addRequestButton" class="request-add-button" type="button"><span class="request-add-icon">+</span><span>신청 항목 추가</span></button></div>
+<div class="span-2 form-actions"><div class="form-action-buttons"><button id="copyButton" class="primary-button" type="button"></button></div><span id="copyStatus" class="status-text"></span></div>
+</div></section>
 <section class="card portfolio-card"><div class="portfolio-header"><div><span class="section-kicker">PORTFOLIO</span><h2 id="portfolioTitle">포트폴리오</h2></div><div id="portfolioTabs" class="tabs"></div></div><div id="portfolioStatus" class="portfolio-status"></div><div id="portfolioGrid" class="portfolio-grid"></div><nav id="pagination" class="pagination"></nav></section>
 <section class="card preset-section" id="presetSection" hidden><div class="portfolio-header"><div><h2 id="presetTitle">미판매 프리셋</h2></div></div><p id="presetNotice" class="preset-notice preline"></p><div id="presetTabs" class="tabs"></div><div id="presetStatus" class="portfolio-status"></div><div id="presetGrid" class="portfolio-grid"></div><nav id="presetPagination" class="pagination"></nav></section>
 <footer id="footerText" class="footer muted"></footer></main><dialog id="lightbox" class="lightbox"><button id="lightboxClose" class="lightbox-close">×</button><img id="lightboxImage" alt="확대 이미지"></dialog><script src="/js/config.js"></script><script src="/js/app.js"></script></body></html>
