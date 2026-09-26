@@ -69,7 +69,7 @@
     }
   ],
   "frameKeepLabel": "움짤프사 틀 보관 여부",
-  "frameKeepDescription": "추후 닉네임 변경 / 움짤 변경을 하실 경우 O를 체크해 주세요. \nX를 선택하신 경우에는 작업 완료 후 틀을 별도로 보관하지 않습니다.",
+  "frameKeepDescription": "추후 같은 디자인으로 닉네임 변경 / 움짤 변경을 하실 경우 O를 체크해 주세요. \nX를 선택하신 경우에는 작업 완료 후 틀을 별도로 보관하지 않습니다.",
   "frameKeepYes": "O",
   "frameKeepNo": "X",
   "conceptLabel": "원하는 디자인 컨셉 및 색상",
