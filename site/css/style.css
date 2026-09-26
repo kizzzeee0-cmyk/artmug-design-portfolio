@@ -209,3 +209,13 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
   font-size:12px!important;
   font-weight:400!important;
 }
+
+/* 2026-09 copy success feedback */
+.form-actions .primary-button{
+  transition:background .16s ease,color .16s ease,transform .16s ease;
+}
+.form-actions .primary-button.is-copied{
+  background:#e95b98;
+  color:#fff;
+  font-weight:600;
+}
