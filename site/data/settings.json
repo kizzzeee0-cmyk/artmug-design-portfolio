@@ -46,7 +46,8 @@
       "showFrameRetention": true,
       "showSignatureFields": false,
       "showBannerFields": false,
-      "enabled": true
+      "enabled": true,
+      "showReviewEvent": true
     },
     {
       "id": "signature-style",
@@ -54,7 +55,8 @@
       "showFrameRetention": false,
       "showSignatureFields": true,
       "showBannerFields": false,
-      "enabled": false
+      "enabled": false,
+      "showReviewEvent": false
     },
     {
       "id": "banner",
@@ -62,7 +64,8 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
-      "enabled": false
+      "enabled": false,
+      "showReviewEvent": false
     }
   ],
   "frameKeepLabel": "움짤프사 틀 보관 여부",
