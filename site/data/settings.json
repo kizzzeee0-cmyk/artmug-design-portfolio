@@ -191,7 +191,7 @@
   "signatureNumberPlaceholder": "예: 170 / 486",
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "예: 하나뿐인 칠공 / 사랑해 칠공",
-  "eventsEnabled": true,
+  "eventsEnabled": false,
   "eventsKicker": "EVENTS",
   "eventsTitle": "오픈 이벤트 할인 안내",
   "eventsText": "움짤프사 15000 -> 13000\n\n*오픈 이벤트는 예고 없이 조기 종료될 수 있습니다*",
