@@ -351,3 +351,6 @@ body::after{
 #portfolioTabs[hidden]{
   display:none!important;
 }
+
+/* review event visibility */
+.review-event-field[hidden]{display:none!important;}
