@@ -106,6 +106,74 @@
         "webp"
       ],
       "emptyText": "등록된 시그니처풍 작업물이 아직 없습니다."
+    },
+    {
+      "id": "top-banner",
+      "label": "상단 배너",
+      "displayWidth": 500,
+      "displayHeight": 73,
+      "strictSize": true,
+      "uploadWidth": 2320,
+      "uploadHeight": 338,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 상단 배너 작업물이 아직 없습니다."
+    },
+    {
+      "id": "floating-banner",
+      "label": "플로팅 배너",
+      "displayWidth": 100,
+      "displayHeight": 261,
+      "strictSize": true,
+      "uploadWidth": 80,
+      "uploadHeight": 209,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다."
+    },
+    {
+      "id": "bottom-banner",
+      "label": "하단 배너 일반",
+      "displayWidth": 320,
+      "displayHeight": 67,
+      "strictSize": true,
+      "uploadWidth": 720,
+      "uploadHeight": 150,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 하단 배너 작업물이 아직 없습니다."
+    },
+    {
+      "id": "bottom-split",
+      "label": "하단 배너 분할",
+      "displayWidth": 240,
+      "displayHeight": 150,
+      "strictSize": true,
+      "uploadWidth": 720,
+      "uploadHeight": 450,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다."
     }
   ],
   "comparisonTitle": "움짤프사 A / B 비교",
