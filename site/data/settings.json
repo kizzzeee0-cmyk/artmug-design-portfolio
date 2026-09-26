@@ -324,9 +324,9 @@
       "bottom6": 0
     },
     "optionPrices": {
-      "sameDay": 0,
-      "fast": 0,
-      "private": 0
+      "sameDay": 10000,
+      "fast": 5000,
+      "private": 10000
     },
     "customItems": [
       {
