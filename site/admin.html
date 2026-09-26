@@ -5,10 +5,10 @@
 <nav class="card admin-tabs"><button class="tab is-active" data-panel="text">페이지 내용</button><button class="tab" data-panel="portfolio">포트폴리오 · 프리셋</button><button class="tab" data-panel="status">연결 상태</button></nav>
 
 <section class="card admin-section" data-section="text">
-<div class="head admin-save-head"><div><span class="section-kicker">PAGE CONTENT</span><h2>공개 페이지 내용 관리</h2><p class="muted">아래 순서는 실제 공개 페이지의 위 → 아래 순서와 같습니다.</p></div><button id="save" class="primary-button">전체 변경사항 저장</button></div>
+<div class="head admin-save-head"><div><span class="section-kicker">PAGE CONTENT</span><h2>공개 페이지 내용 관리</h2><p class="muted">아래 순서는 실제 공개 페이지의 위 → 아래 순서와 같습니다.</p></div><div class="admin-save-actions"><label class="toggle demo-toggle"><input id="demoModeEnabled" type="checkbox"> 샘플 미리보기</label><button id="save" class="primary-button">전체 변경사항 저장</button></div></div>
 
 <div class="admin-flow">
-<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">01</span><div><h3>작가 소개</h3><p class="muted">공개 페이지 가장 위에 표시되는 소개 영역입니다.</p></div><label class="toggle"><input id="authorEnabled" type="checkbox"> 공개 표시</label></div><div class="fields"><label class="wide">작가 소개 문구<textarea id="authorText"></textarea></label><label>글씨 크기<input id="authorFontSize" type="number" min="10" max="40"></label></div><div class="image-tools single-image"><label>작가 소개 이미지<input id="aboutFile" type="file" accept="image/*"></label><button id="uploadAbout" class="ghost">소개 이미지 업로드</button></div></div>
+<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">01</span><div><h3>작가 소개</h3><p class="muted">공개 페이지 가장 위에 표시되는 소개 영역입니다.</p></div><label class="toggle"><input id="authorEnabled" type="checkbox"> 공개 표시</label></div><div class="fields"><label class="wide">작가 소개 문구<textarea id="authorText"></textarea></label><label>글씨 크기<input id="authorFontSize" type="number" min="10" max="40"></label></div><div class="image-tools author-image-tools"><label>작가 소개 이미지<input id="aboutFile" type="file" accept="image/*"></label><button id="uploadAbout" class="ghost">소개 이미지 업로드</button><button id="deleteAbout" class="danger">소개 이미지 삭제</button></div></div>
 
 <div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">02</span><div><h3>작업 일정 안내</h3><p class="muted">현재 작업 일정이나 시작 예정일을 안내합니다.</p></div></div><div id="scheduleFields" class="fields"></div></div>
 
