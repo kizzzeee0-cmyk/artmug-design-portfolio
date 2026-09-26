@@ -493,7 +493,7 @@ body::after{
     white-space:pre!important;
     overflow-wrap:normal!important;
     word-break:keep-all;
-    font-size:clamp(10px,2.9vw,13px)!important;
+    font-size:clamp(11px,3.2vw,13.5px)!important;
     line-height:1.95;
     letter-spacing:-.015em;
   }
