@@ -108,7 +108,7 @@
         "webp"
       ],
       "emptyText": "등록된 시그니처풍 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "top-banner",
@@ -126,7 +126,7 @@
         "webp"
       ],
       "emptyText": "등록된 상단 배너 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "floating-banner",
@@ -144,7 +144,7 @@
         "webp"
       ],
       "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "bottom-banner",
@@ -162,7 +162,7 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "bottom-split",
@@ -180,7 +180,7 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": false
     }
   ],
   "aboutImage": "",
@@ -198,7 +198,7 @@
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
   "presetEnabled": false,
-  "presetTitle": "미판매 프리셋",
+  "presetTitle": "고정틀 프리셋",
   "presetNotice": "아직 판매되지 않은 프리셋입니다.\n그대로 제작을 원하실 경우 문의해주세요.",
   "presetCategories": [
     {
@@ -219,7 +219,7 @@
     {
       "id": "signature",
       "label": "시그니처풍",
-      "enabled": true,
+      "enabled": false,
       "displayWidth": 293,
       "displayHeight": 165,
       "strictSize": true,
@@ -237,7 +237,7 @@
     {
       "id": "top-banner",
       "label": "상단 배너",
-      "enabled": true,
+      "enabled": false,
       "displayWidth": 500,
       "displayHeight": 73,
       "strictSize": true,
@@ -255,7 +255,7 @@
     {
       "id": "floating-banner",
       "label": "플로팅 배너",
-      "enabled": true,
+      "enabled": false,
       "displayWidth": 100,
       "displayHeight": 261,
       "strictSize": true,
@@ -273,7 +273,7 @@
     {
       "id": "bottom-banner",
       "label": "하단 배너 일반",
-      "enabled": true,
+      "enabled": false,
       "displayWidth": 320,
       "displayHeight": 67,
       "strictSize": true,
@@ -291,7 +291,7 @@
     {
       "id": "bottom-split",
       "label": "하단 배너 분할",
-      "enabled": true,
+      "enabled": false,
       "displayWidth": 240,
       "displayHeight": 150,
       "strictSize": true,
