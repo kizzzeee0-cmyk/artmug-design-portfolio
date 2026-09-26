@@ -425,3 +425,53 @@ body::after{
   font-size:14px;
   font-weight:600;
 }
+
+/* inquiry request layout cleanup */
+.request-card{
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+.request-card + .request-card{
+  margin-top:20px;
+  padding-top:20px;
+}
+.request-type-selector{
+  gap:7px;
+}
+.request-type-selector>.field-label-row,
+.request-type-label{
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.45;
+}
+.request-type-options{
+  gap:8px;
+}
+.signature-inline-fields{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.signature-inline-row{
+  display:grid!important;
+  grid-template-columns:110px minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+}
+.signature-inline-row>span{
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.45;
+}
+.signature-inline-row input{
+  min-height:38px;
+  padding:9px 12px;
+}
+@media(max-width:560px){
+  .signature-inline-row{
+    grid-template-columns:1fr;
+    gap:6px;
+  }
+}
