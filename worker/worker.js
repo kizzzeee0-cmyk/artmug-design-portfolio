@@ -4,7 +4,7 @@ const enc=new TextEncoder(),dec=new TextDecoder();
 export default {async fetch(req,env){try{if(req.method==='OPTIONS')return cors(new Response(null,{status:204}),req,env);const u=new URL(req.url),p=u.pathname;
 if(p==='/health')return cors(json({ok:true,version:'1.0.0',vars:{owner:!!env.GITHUB_OWNER,repo:!!env.GITHUB_REPO,branch:!!env.GITHUB_BRANCH,password:!!env.ADMIN_PASSWORD,session:!!env.SESSION_SECRET,token:!!env.GITHUB_TOKEN}}),req,env);
 if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='/auth/logout'&&req.method==='POST')return logout(req,env);
-if(p==='/api/public/settings')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
+if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings},200,{'Cache-Control':'no-store'}),req,env);}
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
 if(p.startsWith('/media/'))return cors(await media(p.slice(7),env),req,env);
