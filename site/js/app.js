@@ -69,7 +69,7 @@ function addRequest(typeId){
       '<button class="request-remove" type="button" aria-label="신청 항목 삭제">×</button>'+
     '</div>'+
     '<div class="request-type-selector '+(types.length===1?'is-single':'')+'">'+
-      '<span class="request-type-label">'+htmlAttr(S.designTypeLabel||'신청하시는 디자인 종류')+'</span>'+
+      requiredLabel(S.designTypeLabel||'신청하시는 디자인 종류')+
       '<div class="request-type-options">'+requestTypeOptions(id,typeId)+'</div>'+
     '</div>'+
     '<div class="request-fields"></div>';
@@ -99,9 +99,12 @@ function addRequest(typeId){
 function updateRequestCardMeta(){
   var cards=Array.from(document.querySelectorAll('.request-card'));
   cards.forEach(function(card,i){
+    var head=card.querySelector('.request-card-head');
     var seq=card.querySelector('.request-seq');
-    seq.textContent=cards.length>1?'신청 항목 '+String(i+1).padStart(2,'0'):'';
-    card.querySelector('.request-remove').hidden=cards.length===1;
+    var multi=cards.length>1;
+    head.hidden=!multi;
+    seq.textContent=multi?'신청 항목 '+String(i+1).padStart(2,'0'):'';
+    card.querySelector('.request-remove').hidden=!multi;
   });
 }
 
@@ -129,7 +132,7 @@ function renderRequestFields(card,typeId,prev){
   var rid=card.dataset.requestId;
 
   if(!typeId||!t.id){
-    fields.innerHTML='<div class="request-type-prompt">신청하실 디자인 종류를 선택해주세요.</div>';
+    fields.innerHTML='';
     return;
   }
 
