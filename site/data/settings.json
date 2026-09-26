@@ -37,7 +37,7 @@
   "formTitle": "문의양식",
   "formDescription": "아래 내용을 작성한 뒤 복사하여 아트머그 작가 문의란에 붙여넣어 주세요.",
   "nicknameLabel": "방송 닉네임 및 주소",
-  "nicknamePlaceholder": "방송 닉네임과 주소를 입력해주세",
+  "nicknamePlaceholder": "방송 닉네임과 주소를 입력해주세요",
   "designTypeLabel": "신청하시는 디자인 종류",
   "designTypes": [
     {
