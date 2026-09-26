@@ -54,7 +54,7 @@
       "showFrameRetention": false,
       "showSignatureFields": true,
       "showBannerFields": false,
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "banner",
@@ -62,7 +62,7 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
-      "enabled": true
+      "enabled": false
     }
   ],
   "frameKeepLabel": "움짤프사 틀 보관 여부",
