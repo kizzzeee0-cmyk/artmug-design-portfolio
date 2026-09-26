@@ -78,3 +78,12 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
   .portfolio-grid.layout-floating-banner{grid-template-columns:repeat(3,minmax(0,1fr))}
   .portfolio-grid.layout-bottom-split,.portfolio-grid.layout-signature{grid-template-columns:1fr}
 }
+
+/* 2026-09 compact typography + preview refinements */
+.schedule-date{color:var(--accent);font-weight:800}
+.schedule-card h2,.notice-card h2,.comparison-section>div h2,.form-card h2,.portfolio-card h2,.preset-section h2,.events-section h2{font-size:clamp(20px,2.4vw,25px)}
+.notice-item-title{font-weight:600}
+.notice-item-description{font-weight:400}
+.portfolio-card .tabs,.preset-section .tabs{display:flex;flex-wrap:wrap;gap:7px;width:100%;margin-top:11px;padding:13px 0 0}
+.portfolio-card .tab,.preset-section .tab{flex:0 0 auto;min-height:0;padding:6px 10px;border-radius:8px;font-size:12.5px;line-height:1.35}
+@media(max-width:680px){.portfolio-card .tabs,.preset-section .tabs{display:flex;overflow:visible;flex-wrap:wrap}.portfolio-card .tab,.preset-section .tab{flex:0 0 auto}}
