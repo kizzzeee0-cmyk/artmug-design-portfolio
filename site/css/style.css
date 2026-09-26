@@ -242,3 +242,19 @@ html,body,button,input,select,textarea{font-family:"Paperlogy",-apple-system,Bli
   font-weight:600;
   line-height:1.45;
 }
+
+/* 2026-09 unify inquiry detail text */
+.contact-form select{
+  font-size:12.5px!important;
+  font-weight:400;
+}
+.form-card .section-heading>p,
+.field-help,
+.contact-form input::placeholder,
+.contact-form textarea::placeholder,
+.choice-pill,
+.choice-pill span,
+.notice-item-description,
+.empty-state{
+  color:#666273!important;
+}
