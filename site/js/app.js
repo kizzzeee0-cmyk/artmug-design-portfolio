@@ -42,5 +42,29 @@ async function copyText(text){
   ta.remove();
   return ok
 }
-$('lightboxClose').onclick=()=>$('lightbox').close();$('designTypeInput').onchange=updateDesignType;$('copyButton').onclick=async()=>{const btn=$('copyButton'),ok=await copyText(buildInquiryText());if(ok){$('copyStatus').textContent='';showCopied(btn)}else{$('copyStatus').textContent='복사에 실패했습니다.'}};
+function validateRequiredInquiryFields(){
+  const fields=[$('nicknameInput'),$('conceptInput')];
+  let firstMissing=null;
+  fields.forEach(el=>{
+    const missing=!String(el.value||'').trim();
+    el.classList.toggle('is-required-missing',missing);
+    el.setAttribute('aria-invalid',missing?'true':'false');
+    if(missing&&!firstMissing)firstMissing=el;
+  });
+  if(firstMissing){
+    $('copyStatus').textContent='필수 항목을 확인해주세요.';
+    firstMissing.focus();
+    return false;
+  }
+  $('copyStatus').textContent='';
+  return true;
+}
+[$('nicknameInput'),$('conceptInput')].forEach(el=>el.addEventListener('input',()=>{
+  if(String(el.value||'').trim()){
+    el.classList.remove('is-required-missing');
+    el.setAttribute('aria-invalid','false');
+  }
+  if(String($('nicknameInput').value||'').trim()&&String($('conceptInput').value||'').trim())$('copyStatus').textContent='';
+}));
+$('lightboxClose').onclick=()=>$('lightbox').close();$('designTypeInput').onchange=updateDesignType;$('copyButton').onclick=async()=>{if(!validateRequiredInquiryFields())return;const btn=$('copyButton'),ok=await copyText(buildInquiryText());if(ok){$('copyStatus').textContent='';showCopied(btn)}else{$('copyStatus').textContent='복사에 실패했습니다.'}};
 (async()=>{try{const d=await api('/api/public/settings');renderSettings(d.settings);renderPortfolioTabs(visibleCats(S.portfolioCategories||[]));loadPortfolio()}catch(e){$('portfolioStatus').textContent='설정을 불러오지 못했습니다.'}})();
