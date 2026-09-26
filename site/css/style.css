@@ -498,3 +498,13 @@ body::after{
     letter-spacing:-.015em;
   }
 }
+
+/* schedule card spacing + mobile text tweak */
+.schedule-card>p{
+  margin-bottom:0;
+}
+@media(max-width:680px){
+  .schedule-card>p{
+    font-size:15px;
+  }
+}
