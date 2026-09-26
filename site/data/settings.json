@@ -186,30 +186,21 @@
       "enabled": true
     }
   ],
-  "comparisonTitle": "움짤프사 A / B 비교",
-  "comparisonDescription": "두 타입의 예시와 특징을 한눈에 비교해 보세요.",
-  "comparisonAImage": "",
-  "comparisonALabel": "움짤프사 A",
-  "comparisonADescription": "움짤프사 A의 특징과 추천 포인트를 입력해 주세요.",
-  "comparisonBImage": "",
-  "comparisonBLabel": "움짤프사 B",
-  "comparisonBDescription": "움짤프사 B의 특징과 추천 포인트를 입력해 주세요.",
-  "comparisonFooter": "원하시는 분위기와 구성에 가까운 타입을 선택해 문의해 주세요.",
   "aboutImage": "",
-  "authorEnabled": true,
+  "authorEnabled": false,
   "authorText": "",
   "authorFontSize": 15,
   "signatureNumberLabel": "시그풍 숫자",
   "signatureNumberPlaceholder": "예: 1 / 2 / 3",
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "시그니처풍에 들어갈 문구나 내용을 적어주세요.",
-  "eventsEnabled": true,
+  "eventsEnabled": false,
   "eventsKicker": "EVENTS",
   "eventsTitle": "이벤트 안내",
   "eventsText": "",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
-  "presetEnabled": true,
+  "presetEnabled": false,
   "presetTitle": "미판매 프리셋",
   "presetNotice": "아직 판매되지 않은 프리셋입니다.\n그대로 제작을 원하실 경우 문의해주세요.",
   "presetCategories": [
@@ -320,6 +311,5 @@
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
-  "demoMode": true,
   "scheduleDate": "2026-09-26"
 }
