@@ -108,7 +108,7 @@
         "webp"
       ],
       "emptyText": "등록된 시그니처풍 작업물이 아직 없습니다.",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "top-banner",
