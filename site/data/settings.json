@@ -76,8 +76,8 @@
   "conceptPlaceholder": "예: 라벤더 + 화이트 / 귀엽고 깔끔한 느낌",
   "extraLabel": "추가 요청사항",
   "extraPlaceholder": "참고 링크, 꼭 들어갔으면 하는 요소 등을 적어주세요.",
-  "copyButton": "문의 양식 복사하기",
-  "copySuccess": "문의 양식을 복사했어요.",
+  "copyButton": "작성한 내용으로 문의하기",
+  "copySuccess": "문의 내용을 복사하고 아트머그 페이지를 열었어요.",
   "portfolioTitle": "포트폴리오",
   "portfolioCategories": [
     {
