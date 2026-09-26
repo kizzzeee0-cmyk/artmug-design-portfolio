@@ -346,3 +346,8 @@ body::after{
   position:relative;
   z-index:1;
 }
+
+/* portfolio tabs must respect hidden state */
+#portfolioTabs[hidden]{
+  display:none!important;
+}
