@@ -542,3 +542,16 @@ body::after{
     line-height:1.6;
   }
 }
+
+/* mobile wider content area */
+@media(max-width:680px){
+  .site-shell{
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+  .schedule-card,
+  .notice-card{
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
+}
