@@ -508,3 +508,37 @@ body::after{
     font-size:15px;
   }
 }
+
+/* mobile notice card compact flow */
+@media(max-width:680px){
+  .notice-card{
+    padding-left:16px;
+    padding-right:16px;
+  }
+  .notice-list{
+    gap:9px;
+  }
+  .notice-item{
+    display:block;
+    padding:12px 13px 13px;
+    border-radius:16px;
+    overflow:hidden;
+  }
+  .notice-icon{
+    float:left;
+    width:30px;
+    height:30px;
+    margin:1px 9px 3px 0;
+    border-radius:10px;
+    font-size:15px;
+  }
+  .notice-item-title{
+    font-size:13.5px;
+    line-height:1.45;
+  }
+  .notice-item-description{
+    margin-top:4px;
+    font-size:12px;
+    line-height:1.6;
+  }
+}
