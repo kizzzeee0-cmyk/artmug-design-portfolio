@@ -595,3 +595,8 @@ body::after{
     line-height:1.6;
   }
 }
+
+/* preserve notice description line breaks */
+.notice-item-description{
+  white-space:pre-line;
+}
