@@ -546,8 +546,8 @@ body::after{
 /* mobile wider content area */
 @media(max-width:680px){
   .site-shell{
-    padding-left:6px!important;
-    padding-right:6px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
   }
   .schedule-card,
   .notice-card{
