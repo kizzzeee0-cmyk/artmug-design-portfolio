@@ -45,24 +45,6 @@
       "showReviewEvent": true
     },
     {
-      "id": "signature-style",
-      "label": "시그니처풍",
-      "showFrameRetention": false,
-      "showSignatureFields": true,
-      "showBannerFields": false,
-      "enabled": false,
-      "showReviewEvent": false
-    },
-    {
-      "id": "banner",
-      "label": "배너",
-      "showFrameRetention": false,
-      "showSignatureFields": false,
-      "showBannerFields": true,
-      "enabled": false,
-      "showReviewEvent": false
-    },
-    {
       "id": "type-1790697439491",
       "label": "움짤프사 B",
       "enabled": true,
@@ -78,6 +60,24 @@
       "showFrameRetention": true,
       "showSignatureFields": false,
       "showBannerFields": false,
+      "showReviewEvent": true
+    },
+    {
+      "id": "signature-style",
+      "label": "시그니처풍",
+      "showFrameRetention": false,
+      "showSignatureFields": true,
+      "showBannerFields": false,
+      "enabled": false,
+      "showReviewEvent": true
+    },
+    {
+      "id": "banner",
+      "label": "배너",
+      "showFrameRetention": false,
+      "showSignatureFields": false,
+      "showBannerFields": true,
+      "enabled": false,
       "showReviewEvent": true
     }
   ],
