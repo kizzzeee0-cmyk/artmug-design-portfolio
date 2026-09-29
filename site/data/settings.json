@@ -227,7 +227,7 @@
   "eventsFontSize": 15,
   "presetEnabled": true,
   "presetTitle": "고정틀 프리셋",
-  "presetNotice": "아직 판매되지 않은 프리셋입니다.\n그대로 제작을 원하실 경우 문의해주세요.",
+  "presetNotice": "",
   "presetCategories": [
     {
       "id": "profile",
@@ -262,7 +262,7 @@
     {
       "id": "profile-c",
       "label": "움짤프사 C",
-      "enabled": true,
+      "enabled": false,
       "displayWidth": 200,
       "displayHeight": 200,
       "strictSize": true,
