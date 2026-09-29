@@ -20,6 +20,12 @@ function adminEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&q
 function ensurePresetGroups(){if(!Array.isArray(S.presetGroups))S.presetGroups=[];S.presetGroups.forEach(g=>{if(!Array.isArray(g.miniCategories))g.miniCategories=[]});return S.presetGroups}
 function presetGroupById(id){return ensurePresetGroups().find(g=>g.id===id)}
 function presetGroupAllowsDescription(id){return !!presetGroupById(id)?.descriptionEnabled}
+function parsePresetOriginalName(name){
+  const raw=String(name||''),m=raw.match(/^__PG_(.+?)__PM_(.+?)__(.+)$/);
+  return m?{groupId:m[1],miniCategory:m[2],cleanName:m[3]}:{groupId:'',miniCategory:'',cleanName:raw}
+}
+function ensurePresetMeta(){if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};return S.presetMeta}
+function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{},p=parsePresetOriginalName(x.originalName);return {groupId:x.groupId||p.groupId,miniCategory:x.miniCategory||p.miniCategory,name:meta.name||x.name||p.cleanName.replace(/\.[^.]+$/,''),description:meta.description??x.description??'',enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false}}
 function render(){
 $('scheduleFields').innerHTML=`<label class="wide"><span>작업 시작 기준 날짜</span><input id="scheduleDate" type="date" value="${S.scheduleDate||''}"><small class="field-note">공개 페이지에는 “현재 신청시 <b>월 일</b>부터 작업이 진행됩니다!”로 고정 표시됩니다. 설정 날짜가 오늘보다 과거가 되면 오늘 날짜로 자동 변경됩니다.</small></label>`;
 $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+area('공지 안내 문구','noticeText',S.noticeText,true);
@@ -153,23 +159,25 @@ function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.queryS
 async function saveSettings(){collect();collectCats(S.portfolioCategories||[],'cat');S.scheduleDate=$('scheduleDate').value;S.presetEnabled=$('presetEnabled').checked;S.presetTitle=$('presetTitle').value;S.presetNotice=$('presetNotice').value;S.authorEnabled=$('authorEnabled').checked;S.authorText=$('authorText').value;S.authorFontSize=Number($('authorFontSize').value||15);S.eventsEnabled=$('eventsEnabled').checked;S.eventsKicker=$('eventsKicker').value;S.eventsTitle=$('eventsTitle').value;S.eventsText=$('eventsText').value;S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);S.eventsFontSize=Number($('eventsFontSize').value||15);collectCats(S.presetCategories||[],'preset');collectPresetGroups();try{$('saveStatus').textContent='저장 중…';await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});$('saveStatus').textContent='저장되었습니다.';showToast('저장되었습니다.')}catch(e){$('saveStatus').textContent=e.message;alert('저장에 실패했습니다.\n'+e.message)}}
 async function loadItems(){try{const d=await api('/api/admin/portfolio');items=d.items||[];renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));presetItems=q.items||[];renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
 function presetLocationText(x){
-  const cat=(S.presetCategories||[]).find(c=>c.id===x.category)?.label||x.category||'',g=presetGroupById(x.groupId),m=(g?.miniCategories||[]).find(v=>v.id===x.miniCategory);
+  const meta=presetMetaFor(x),cat=(S.presetCategories||[]).find(c=>c.id===x.category)?.label||x.category||'',g=presetGroupById(meta.groupId),m=(g?.miniCategories||[]).find(v=>v.id===meta.miniCategory);
   return [cat,g?.label,m?.label].filter(Boolean).join(' › ')
 }
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
-  const name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`);
-  if(name)x.name=name.value;if(desc)x.description=desc.value;if(enabled)x.enabled=enabled.checked;
-  const d=await api('/api/admin/presets',{method:'PUT',body:JSON.stringify({items:presetItems})});
-  presetItems=d.items||presetItems;showToast('프리셋 정보가 저장되었습니다.');renderPresetItems()
+  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`);
+  const store=ensurePresetMeta();
+  store[x.file]={name:name?name.value:meta.name,description:desc?desc.value:meta.description,enabled:enabled?enabled.checked:meta.enabled};
+  await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});
+  showToast('프리셋 정보가 저장되었습니다.');
+  renderPresetItems()
 }
 function renderPresetItems(){
   $('presetItems').innerHTML=presetItems.map((x,i)=>{
-    const allowDesc=presetGroupAllowsDescription(x.groupId);
-    return `<div class="preset-admin-item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div class="preset-admin-fields"><div class="muted preset-location">${adminEsc(presetLocationText(x))}</div><label>프리셋 이름<input data-preset-name="${i}" value="${adminEsc(x.name||String(x.originalName||'').replace(/\.[^.]+$/,''))}"></label>${allowDesc?`<label>짧은 설명<input data-preset-desc="${i}" value="${adminEsc(x.description||'')}" placeholder="예: 핑크 / 화이트 색상 변경 가능"></label>`:''}<label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${x.enabled!==false?'checked':''}> 공개</label></div><div class="preset-admin-actions"><button class="ghost admin-compact" data-save-preset="${i}">정보 저장</button><button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button></div></div>`
+    const meta=presetMetaFor(x),allowDesc=presetGroupAllowsDescription(meta.groupId);
+    return `<div class="preset-admin-item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div class="preset-admin-fields"><div class="muted preset-location">${adminEsc(presetLocationText(x))}</div><label>프리셋 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}"></label>${allowDesc?`<label>짧은 설명<input data-preset-desc="${i}" value="${adminEsc(meta.description)}" placeholder="예: 핑크 / 화이트 색상 변경 가능"></label>`:''}<label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label></div><div class="preset-admin-actions"><button class="ghost admin-compact" data-save-preset="${i}">정보 저장</button><button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button></div></div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
-  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:decodeURIComponent(b.dataset.deletePreset)})});loadItems()})
+  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;delete ensurePresetMeta()[decodeURIComponent(b.dataset.deletePreset)];await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:decodeURIComponent(b.dataset.deletePreset)})});await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})}).catch(()=>{});loadItems()})
 }
 function renderItems(){ $('items').innerHTML=items.map(x=>`<div class="item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div><strong>${x.originalName}</strong><div class="muted">${x.category}</div></div><button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button></div>`).join('');document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file:decodeURIComponent(b.dataset.delete)})});loadItems()})}
 async function uploadFiles(kind){
@@ -178,11 +186,14 @@ async function uploadFiles(kind){
   try{
     for(let i=0;i<files.length;i++){
       status.textContent=`${i+1}/${files.length} 업로드 중…`;
-      const fd=new FormData();fd.append('file',files[i]);fd.append('category',cat);
+      const fd=new FormData();let uploadFile=files[i];fd.append('category',cat);
       if(kind==='preset'&&cat==='profile'){
-        if(!$('presetUploadGroup').value||!$('presetUploadMini').value)throw new Error('큰 카테고리와 미니 카테고리를 선택해주세요.');
-        fd.append('groupId',$('presetUploadGroup').value);fd.append('miniCategory',$('presetUploadMini').value)
+        const groupId=$('presetUploadGroup').value,miniCategory=$('presetUploadMini').value;
+        if(!groupId||!miniCategory)throw new Error('큰 카테고리와 미니 카테고리를 선택해주세요.');
+        uploadFile=new File([files[i]],`__PG_${groupId}__PM_${miniCategory}__${files[i].name}`,{type:files[i].type,lastModified:files[i].lastModified});
+        fd.append('groupId',groupId);fd.append('miniCategory',miniCategory)
       }
+      fd.append('file',uploadFile);
       const r=await fetch(API+(kind==='preset'?'/api/admin/preset-upload':'/api/admin/upload'),{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`)
     }
