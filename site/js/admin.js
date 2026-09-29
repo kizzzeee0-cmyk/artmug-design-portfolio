@@ -25,7 +25,7 @@ function parsePresetOriginalName(name){
   return m?{groupId:m[1],miniCategory:m[2],cleanName:m[3]}:{groupId:'',miniCategory:'',cleanName:raw}
 }
 function ensurePresetMeta(){if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};return S.presetMeta}
-function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{};return {name:String(meta.name||''),description:String(meta.description??''),enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false}}
+function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{};return {name:String(meta.name||''),description:String(meta.description??''),enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,isNew:meta.isNew===true}}
 
 function ensureBackgroundGuide(){
   if(!S.backgroundGuide||typeof S.backgroundGuide!=='object')S.backgroundGuide={};
@@ -216,14 +216,60 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),review=document.querySelector(`[data-type-review="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(review)x.showReviewEvent=review.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked})}
 async function saveSettings(){collect();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');S.scheduleDate=$('scheduleDate').value;S.presetEnabled=$('presetEnabled').checked;S.presetTitle=$('presetTitle').value;S.presetNotice=$('presetNotice').value;S.authorEnabled=$('authorEnabled').checked;S.authorText=$('authorText').value;S.authorFontSize=Number($('authorFontSize').value||15);S.eventsEnabled=$('eventsEnabled').checked;S.eventsKicker=$('eventsKicker').value;S.eventsTitle=$('eventsTitle').value;S.eventsText=$('eventsText').value;S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);S.eventsFontSize=Number($('eventsFontSize').value||15);collectCats(S.presetCategories||[],'preset');collectPresetGroups();try{$('saveStatus').textContent='저장 중…';await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});$('saveStatus').textContent='저장되었습니다.';showToast('저장되었습니다.')}catch(e){$('saveStatus').textContent=e.message;alert('저장에 실패했습니다.\n'+e.message)}}
-async function loadItems(){try{const d=await api('/api/admin/portfolio');items=d.items||[];renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));presetItems=q.items||[];renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
+function applyAdminOrder(list,order){
+  if(!Array.isArray(order)||!order.length)return [...list];
+  const pos=new Map(order.map((file,i)=>[file,i]));
+  return [...list].sort((a,b)=>{
+    const ai=pos.has(a.file)?pos.get(a.file):Number.MAX_SAFE_INTEGER;
+    const bi=pos.has(b.file)?pos.get(b.file):Number.MAX_SAFE_INTEGER;
+    return ai-bi
+  })
+}
+function capturePresetEditorValues(){
+  (presetItems||[]).forEach((x,i)=>{
+    const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`),isNew=document.querySelector(`[data-preset-new="${i}"]`);
+    ensurePresetMeta()[x.file]={
+      name:name?name.value.trim():meta.name,
+      description:desc?desc.value.trim():meta.description,
+      enabled:enabled?enabled.checked:meta.enabled,
+      isNew:isNew?isNew.checked:meta.isNew
+    }
+  })
+}
+async function saveMediaOrder(kind){
+  const key=kind==='preset'?'presetOrder':'portfolioOrder',list=kind==='preset'?presetItems:items,order=list.map(x=>x.file);
+  S[key]=order;
+  const write=async()=>{
+    const latest=(await api('/api/public/settings')).settings||{};
+    latest[key]=order;
+    await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:latest})})
+  };
+  try{await write()}
+  catch(e){
+    if(!/GitHub 409|\b409\b/i.test(String(e.message||e)))throw e;
+    await new Promise(r=>setTimeout(r,300));
+    await write()
+  }
+  showToast('순서가 저장되었습니다.')
+}
+async function moveMediaItem(kind,index,dir){
+  const list=kind==='preset'?presetItems:items,x=list[index];if(!x)return;
+  if(kind==='preset')capturePresetEditorValues();
+  const same=list.map((v,i)=>({v,i})).filter(o=>o.v.category===x.category),pos=same.findIndex(o=>o.i===index),next=pos+dir;
+  if(next<0||next>=same.length)return;
+  const target=same[next].i;
+  [list[index],list[target]]=[list[target],list[index]];
+  if(kind==='preset')renderPresetItems();else renderItems();
+  try{await saveMediaOrder(kind)}catch(e){alert('순서 저장에 실패했습니다.\n'+e.message)}
+}
+async function loadItems(){try{const d=await api('/api/admin/portfolio');items=applyAdminOrder(d.items||[],S?.portfolioOrder);renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));const presetBase=[...(q.items||[])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));presetItems=applyAdminOrder(presetBase,S?.presetOrder);renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
 function presetLocationText(x){
   return (S.presetCategories||[]).find(c=>c.id===x.category)?.label||x.category||''
 }
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
-  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`);
-  const entry={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description,enabled:enabled?enabled.checked:meta.enabled};
+  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`),isNew=document.querySelector(`[data-preset-new="${i}"]`);
+  const entry={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description,enabled:enabled?enabled.checked:meta.enabled,isNew:isNew?isNew.checked:meta.isNew};
   ensurePresetMeta()[x.file]=entry;
 
   try{
@@ -245,14 +291,39 @@ async function savePresetItem(i){
 }
 function renderPresetItems(){
   $('presetItems').innerHTML=presetItems.map((x,i)=>{
-    const meta=presetMetaFor(x),allowDesc=['profile','profile-b'].includes(x.category);
-    return `<div class="preset-admin-item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div class="preset-admin-fields"><div class="muted preset-location">${adminEsc(presetLocationText(x))}</div><label>작은 표시 이름 · 선택<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>${allowDesc?`<label>짧은 설명 · 선택<input data-preset-desc="${i}" value="${adminEsc(meta.description)}" placeholder="예: 핑크 / 화이트 색상 변경 가능"></label>`:''}<label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label></div><div class="preset-admin-actions"><button class="ghost admin-compact" data-save-preset="${i}">정보 저장</button><button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button></div></div>`
+    const meta=presetMetaFor(x),allowDesc=['profile','profile-b'].includes(x.category),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
+    return `<div class="preset-admin-item">
+      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy">
+      <div class="preset-admin-fields">
+        <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
+        <label>작은 표시 이름 · 선택<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
+        ${allowDesc?`<label>짧은 설명 · 선택<input data-preset-desc="${i}" value="${adminEsc(meta.description)}" placeholder="예: 핑크 / 화이트 색상 변경 가능"></label>`:''}
+        <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
+      </div>
+      <div class="preset-admin-actions">
+        <div class="media-order-controls">
+          <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button>
+          <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
+        </div>
+        <button class="ghost admin-compact" data-save-preset="${i}">정보 저장</button>
+        <button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button>
+      </div>
+    </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
+  document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
-  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;delete ensurePresetMeta()[decodeURIComponent(b.dataset.deletePreset)];await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:decodeURIComponent(b.dataset.deletePreset)})});await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.deletePreset);delete ensurePresetMeta()[file];S.presetOrder=(S.presetOrder||[]).filter(x=>x!==file);await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})}).catch(()=>{});loadItems()})
 }
 
-function renderItems(){ $('items').innerHTML=items.map(x=>`<div class="item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div><strong>${x.originalName}</strong><div class="muted">${x.category}</div></div><button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button></div>`).join('');document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file:decodeURIComponent(b.dataset.delete)})});loadItems()})}
+function renderItems(){
+  $('items').innerHTML=items.map((x,i)=>{
+    const same=items.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
+    return `<div class="item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div><strong>${adminEsc(x.originalName)}</strong><div class="muted">${adminEsc(x.category)}</div></div><div class="item-actions"><div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div><button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button></div></div>`
+  }).join('');
+  document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})}).catch(()=>{});loadItems()})
+}
 async function uploadFiles(kind){
   const fileInput=kind==='preset'?$('presetFiles'):$('files'),cat=kind==='preset'?$('presetUploadCat').value:$('uploadCat').value,status=$(kind==='preset'?'presetUploadStatus':'uploadStatus'),files=[...fileInput.files];
   if(!files.length)return;
