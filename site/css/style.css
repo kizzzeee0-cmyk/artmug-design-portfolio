@@ -809,3 +809,19 @@ body::after{
     margin-top:14px!important;
   }
 }
+
+/* mobile gallery gap matched to reference */
+@media(max-width:680px){
+  .portfolio-card .tabs,
+  .preset-section .tabs{
+    margin-bottom:10px!important;
+  }
+  .portfolio-card .tabs.is-multiline,
+  .preset-section .tabs.is-multiline{
+    margin-bottom:14px!important;
+  }
+  .portfolio-grid,
+  .preset-grid{
+    margin-top:0!important;
+  }
+}
