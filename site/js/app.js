@@ -280,6 +280,14 @@ function visiblePresetMinis(group){
 function currentPresetGroup(){
   return (S?.presetGroups||[]).find(x=>x.id===presetState.group)||null
 }
+function parsePresetOriginalName(name){
+  const raw=String(name||''),m=raw.match(/^__PG_(.+?)__PM_(.+?)__(.+)$/);
+  return m?{groupId:m[1],miniCategory:m[2],cleanName:m[3]}:{groupId:'',miniCategory:'',cleanName:raw}
+}
+function presetMetaForItem(x){
+  const p=parsePresetOriginalName(x.originalName),saved=(S?.presetMeta&&S.presetMeta[x.file])||{};
+  return {groupId:x.groupId||p.groupId,miniCategory:x.miniCategory||p.miniCategory,name:saved.name||x.name||p.cleanName.replace(/\.[^.]+$/,''),description:saved.description??x.description??'',enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false}
+}
 function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
   sec.hidden=!on;
@@ -350,9 +358,8 @@ function presetGrid(items,cat){
   g.style.setProperty('--display-width',`${c.displayWidth||240}px`);
   g.style.setProperty('--display-height',`${c.displayHeight||240}px`);
   g.innerHTML=items.length?items.map(x=>{
-    const showDesc=!!group?.descriptionEnabled&&!!String(x.description||'').trim();
-    const name=String(x.name||x.originalName||'프리셋').replace(/\.[^.]+$/,'');
-    return `<article class="work-card preset-work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(name)}" loading="lazy"></div></button><div class="preset-card-copy"><strong>${esc(name)}</strong>${showDesc?`<p>${esc(x.description)}</p>`:''}</div></article>`
+    const meta=presetMetaForItem(x),showDesc=!!group?.descriptionEnabled&&!!String(meta.description||'').trim();
+    return `<article class="work-card preset-work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(meta.name||'프리셋')}" loading="lazy"></div></button><div class="preset-card-copy"><strong>${esc(meta.name||'프리셋')}</strong>${showDesc?`<p>${esc(meta.description)}</p>`:''}</div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
   bindLightboxes()
 }
@@ -361,13 +368,19 @@ async function loadPortfolio(){try{$('portfolioStatus').textContent='불러오�
 async function loadPresets(){
   try{
     $('presetStatus').textContent='불러오는 중…';
-    const params=new URLSearchParams({category:presetState.category,page:String(presetState.page),perPage:String(PER)});
-    if(presetState.group)params.set('group',presetState.group);
-    if(presetState.mini)params.set('mini',presetState.mini);
-    const d=await api('/api/public/presets?'+params.toString());
-    presetGrid(d.items||[],presetState.category);
-    $('presetStatus').textContent=d.total?`${d.total}개의 프리셋`:'';
-    pages($('presetPagination'),d.totalPages||1,d.page||1,p=>{presetState.page=p;loadPresets()})
+    const first=await api('/api/public/presets?category='+encodeURIComponent(presetState.category)+'&page=1&perPage=30');
+    let all=[...(first.items||[])];
+    const pagesCount=Number(first.totalPages||1);
+    if(pagesCount>1){
+      const more=await Promise.all(Array.from({length:pagesCount-1},(_,i)=>api('/api/public/presets?category='+encodeURIComponent(presetState.category)+'&page='+(i+2)+'&perPage=30').catch(()=>({items:[]}))));
+      more.forEach(d=>all.push(...(d.items||[])))
+    }
+    all=all.map(x=>({item:x,meta:presetMetaForItem(x)})).filter(({meta})=>meta.enabled&&(!presetState.group||meta.groupId===presetState.group)&&(!presetState.mini||meta.miniCategory===presetState.mini)).map(x=>x.item);
+    const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
+    presetState.page=page;
+    presetGrid(items,presetState.category);
+    $('presetStatus').textContent=total?`${total}개의 프리셋`:'';
+    pages($('presetPagination'),totalPages,page,p=>{presetState.page=p;loadPresets()})
   }catch(e){$('presetStatus').textContent='프리셋을 불러오지 못했습니다.'}
 }
 function bindLightboxes(){document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>{const d=$('lightbox');$('lightboxImage').src=b.dataset.image;d.showModal()})}
