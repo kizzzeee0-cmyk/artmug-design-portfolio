@@ -825,3 +825,90 @@ body::after{
     margin-top:0!important;
   }
 }
+
+/* mobile unified section rhythm + preset sizing */
+@media(max-width:680px){
+  /* Same mobile title size as NOTICE / INQUIRY / PORTFOLIO / PRESET. */
+  #backgroundGuideTitle{
+    font-size:20px!important;
+    line-height:1.3!important;
+    margin-bottom:0!important;
+  }
+  .background-guide-subtitle{
+    display:none!important;
+  }
+
+  /* NOTICE is the spacing reference: heading block -> first content = 10px. */
+  .notice-card .notice-heading,
+  .background-type-section .background-type-heading,
+  .form-card .section-heading{
+    margin-bottom:10px!important;
+  }
+  .background-type-section .background-type-heading{
+    gap:0!important;
+  }
+  .form-card .contact-form{
+    margin-top:0!important;
+  }
+
+  /* Portfolio: title -> category buttons = the same 10px. */
+  .portfolio-card .portfolio-header{
+    gap:10px!important;
+  }
+  .portfolio-card .portfolio-header h2{
+    margin-bottom:0!important;
+  }
+  .portfolio-card .tabs{
+    margin-top:0!important;
+    padding-top:0!important;
+    border-top:0!important;
+  }
+
+  /* Preset: title -> notice/category = the same 10px. */
+  .preset-section .portfolio-header{
+    gap:0!important;
+    margin-bottom:0!important;
+  }
+  .preset-section .portfolio-header h2{
+    margin-bottom:0!important;
+  }
+  .preset-section .preset-notice:not([hidden]){
+    margin:10px 0 0!important;
+  }
+  .preset-section #presetTabs{
+    margin-top:10px!important;
+    padding-top:0!important;
+    border-top:0!important;
+  }
+
+  /* Keep the reference-like 10px category -> first image gap. */
+  .portfolio-card .tabs,
+  .preset-section .tabs{
+    margin-bottom:10px!important;
+  }
+  .portfolio-card .tabs.is-multiline,
+  .preset-section .tabs.is-multiline{
+    margin-bottom:14px!important;
+  }
+
+  /* Preset thumbnails use exactly the same 4-column size/gap as profile portfolio. */
+  .preset-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+
+  /* A / B / C: last line -> button gap is identical on every card. */
+  .background-type-card .background-type-jump,
+  .background-type-card:nth-child(2) .background-type-jump{
+    margin-top:14px!important;
+    flex:0 0 36px!important;
+    height:36px!important;
+    min-height:36px!important;
+  }
+}
+@media(max-width:420px){
+  .preset-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+}
