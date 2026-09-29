@@ -42,7 +42,7 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": false
+      "showReviewEvent": true
     },
     {
       "id": "signature-style",
@@ -438,13 +438,11 @@
         "title": "간단한 패턴 무늬",
         "description": "체크, 땡땡이, 그라데이션 등 비교적 간단한 패턴과 색상 조합을 이용해 제작하는 방식입니다.",
         "details": [
-          "체크 패턴",
-          "도트 / 땡땡이 패턴",
-          "간단한 반복 패턴",
+          "체크 / 도트 / 땡땡이 / 간단한 반복 패턴",
           "그라데이션 색상 배경",
           "원하는 색상으로 자유롭게 변경 가능"
         ],
-        "note": "프리셋에 없는 무늬나 패턴이라도 조금 다른 원하는 느낌이 있다면 편하게 문의해주세요.",
+        "note": "프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 문의해주세요",
         "buttonLabel": "디자인 보러가기",
         "targetKind": "preset",
         "targetCategory": "profile"
@@ -470,7 +468,7 @@
         "title": "개인 맞춤 제작",
         "description": "신청자의 원하는 컨셉과 색상 등을 참고하여 새롭게 제작하는 방식입니다.",
         "details": [],
-        "note": "아직 디자인 실력이 많이 부족하지만, 원하시는 분위기에 최대한 맞출 수 있도록 노력해서 제작하겠습니다.",
+        "note": "아직 디자인 실력이 많이 부족하지만, 원하시는 분위기에 최대한 맞출 수 있도록 노력하겠습니다.",
         "buttonLabel": "디자인 보러가기",
         "targetKind": "portfolio",
         "targetCategory": "profile-c"
