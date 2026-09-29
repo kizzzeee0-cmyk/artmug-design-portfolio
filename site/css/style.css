@@ -1316,3 +1316,10 @@ body::after{
     margin-top:0;
   }
 }
+
+/* desktop A option tighter description spacing */
+@media(min-width:681px){
+  .background-type-card:first-child .background-type-secondary{
+    margin-top:-10px;
+  }
+}
