@@ -271,21 +271,6 @@
       "emptyText": "등록된 움짤프사 B 프리셋이 아직 없습니다."
     },
     {
-      "id": "profile-c",
-      "label": "움짤프사 C",
-      "enabled": false,
-      "displayWidth": 200,
-      "displayHeight": 200,
-      "strictSize": true,
-      "uploadWidth": 200,
-      "uploadHeight": 200,
-      "maxBytes": 2097152,
-      "formats": [
-        "gif"
-      ],
-      "emptyText": "등록된 움짤프사 C 프리셋이 아직 없습니다."
-    },
-    {
       "id": "signature",
       "label": "시그니처풍",
       "enabled": false,
