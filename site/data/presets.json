@@ -115,5 +115,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929172956"
+  },
+  {
+    "id": "preset-eXKYMSV6Kbs",
+    "category": "profile",
+    "file": "preset/profile/20260929173023-vg4bXhAO-1.png",
+    "originalName": "1.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929173023"
   }
 ]
