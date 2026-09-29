@@ -406,33 +406,7 @@
       "label": "움짤프사 A",
       "enabled": true,
       "descriptionEnabled": true,
-      "miniCategories": [
-        {
-          "id": "check",
-          "label": "체크 패턴",
-          "enabled": true
-        },
-        {
-          "id": "simple",
-          "label": "간단 패턴",
-          "enabled": true
-        },
-        {
-          "id": "dot",
-          "label": "도트 패턴",
-          "enabled": true
-        },
-        {
-          "id": "gradient",
-          "label": "그라데이션",
-          "enabled": true
-        },
-        {
-          "id": "etc",
-          "label": "기타",
-          "enabled": true
-        }
-      ]
+      "miniCategories": []
     },
     {
       "id": "profile-b",
@@ -440,28 +414,7 @@
       "label": "움짤프사 B",
       "enabled": true,
       "descriptionEnabled": true,
-      "miniCategories": [
-        {
-          "id": "preset-1",
-          "label": "프리셋 종류 1",
-          "enabled": true
-        },
-        {
-          "id": "preset-2",
-          "label": "프리셋 종류 2",
-          "enabled": true
-        },
-        {
-          "id": "preset-3",
-          "label": "프리셋 종류 3",
-          "enabled": true
-        },
-        {
-          "id": "etc",
-          "label": "기타",
-          "enabled": true
-        }
-      ]
+      "miniCategories": []
     },
     {
       "id": "profile-c",
@@ -469,13 +422,7 @@
       "label": "움짤프사 C",
       "enabled": true,
       "descriptionEnabled": false,
-      "miniCategories": [
-        {
-          "id": "etc",
-          "label": "기타",
-          "enabled": true
-        }
-      ]
+      "miniCategories": []
     }
   ],
   "presetMeta": {},
@@ -494,10 +441,11 @@
           "체크 패턴",
           "도트 / 땡땡이 패턴",
           "간단한 반복 패턴",
-          "그라데이션 색상 배경"
+          "그라데이션 색상 배경",
+          "원하는 색상으로 자유롭게 변경 가능"
         ],
-        "note": "",
-        "buttonLabel": "움짤프사 A 프리셋 보기",
+        "note": "프리셋에 없는 무늬나 패턴이라도 조금 다른 원하는 느낌이 있다면 편하게 문의해주세요.",
+        "buttonLabel": "디자인 보러가기",
         "targetKind": "preset",
         "targetCategory": "profile"
       },
@@ -512,7 +460,7 @@
           "제공되는 여러 프리셋 중 원하는 디자인 선택 가능"
         ],
         "note": "",
-        "buttonLabel": "움짤프사 B 프리셋 보기",
+        "buttonLabel": "디자인 보러가기",
         "targetKind": "preset",
         "targetCategory": "profile-b"
       },
@@ -523,7 +471,7 @@
         "description": "신청자의 원하는 컨셉과 색상 등을 참고하여 새롭게 제작하는 방식입니다.",
         "details": [],
         "note": "아직 디자인 실력이 많이 부족하지만, 원하시는 분위기에 최대한 맞출 수 있도록 노력해서 제작하겠습니다.",
-        "buttonLabel": "움짤프사 C 포트폴리오 보기",
+        "buttonLabel": "디자인 보러가기",
         "targetKind": "portfolio",
         "targetCategory": "profile-c"
       }
