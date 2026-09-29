@@ -1063,3 +1063,11 @@ body::after{
     margin-bottom:18px!important;
   }
 }
+
+/* desktop wider category-to-gallery gap */
+@media(min-width:681px){
+  .portfolio-grid,
+  .preset-grid{
+    margin-top:28px!important;
+  }
+}
