@@ -26,26 +26,99 @@ function parsePresetOriginalName(name){
 }
 function ensurePresetMeta(){if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};return S.presetMeta}
 function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{},p=parsePresetOriginalName(x.originalName);return {groupId:x.groupId||p.groupId,miniCategory:x.miniCategory||p.miniCategory,name:meta.name||x.name||p.cleanName.replace(/\.[^.]+$/,''),description:meta.description??x.description??'',enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false}}
+
+function ensureBackgroundGuide(){
+  if(!S.backgroundGuide||typeof S.backgroundGuide!=='object')S.backgroundGuide={};
+  const g=S.backgroundGuide;
+  if(g.enabled===undefined)g.enabled=true;
+  if(!Array.isArray(g.options))g.options=[];
+  const defaults=[
+    {key:'a',badge:'A',title:'간단한 패턴 무늬',description:'',details:[],note:'',buttonLabel:'움짤프사 A 프리셋 보기',targetKind:'preset',targetCategory:'profile'},
+    {key:'b',badge:'B',title:'고정틀 프리셋',description:'',details:[],note:'',buttonLabel:'움짤프사 B 프리셋 보기',targetKind:'preset',targetCategory:'profile-b'},
+    {key:'c',badge:'C',title:'개인 맞춤 제작',description:'',details:[],note:'',buttonLabel:'움짤프사 C 포트폴리오 보기',targetKind:'portfolio',targetCategory:'profile-c'}
+  ];
+  defaults.forEach((d,i)=>{
+    if(!g.options[i])g.options[i]={...d};
+    else g.options[i]={...d,...g.options[i],details:Array.isArray(g.options[i].details)?g.options[i].details:[]}
+  });
+  return g
+}
+function renderBackgroundGuideAdmin(){
+  if(!$('backgroundGuideFields'))return;
+  const g=ensureBackgroundGuide();
+  $('backgroundGuideEnabled').checked=g.enabled!==false;
+  $('backgroundGuideFields').innerHTML=
+    '<label><span>상단 작은 문구</span><input id="backgroundGuideKickerInput" value="'+adminEsc(g.kicker||'')+'"></label>'+
+    '<label><span>큰 제목</span><input id="backgroundGuideTitleInput" value="'+adminEsc(g.title||'')+'"></label>'+
+    '<label class="wide"><span>부제목</span><input id="backgroundGuideSubtitleInput" value="'+adminEsc(g.subtitle||'')+'"></label>';
+  const targetNames=['움짤프사 A 프리셋','움짤프사 B 프리셋','움짤프사 C 포트폴리오'];
+  $('backgroundGuideOptions').innerHTML=g.options.slice(0,3).map((x,i)=>`
+    <div class="background-guide-admin-card">
+      <div class="background-guide-admin-head"><strong>${adminEsc(x.badge||String.fromCharCode(65+i))} 유형</strong><span class="muted">버튼 이동 위치: ${targetNames[i]}</span></div>
+      <div class="fields">
+        <label><span>표시 문자</span><input data-bg-badge="${i}" value="${adminEsc(x.badge||'')}"></label>
+        <label><span>유형 제목</span><input data-bg-title="${i}" value="${adminEsc(x.title||'')}"></label>
+        <label class="wide"><span>설명</span><textarea data-bg-description="${i}">${adminEsc(x.description||'')}</textarea></label>
+        <label class="wide"><span>세부 문구 · 한 줄에 하나씩</span><textarea data-bg-details="${i}">${adminEsc((x.details||[]).join('\n'))}</textarea></label>
+        <label class="wide"><span>추가 안내 문구</span><textarea data-bg-note="${i}">${adminEsc(x.note||'')}</textarea></label>
+        <label class="wide"><span>버튼 문구</span><input data-bg-button="${i}" value="${adminEsc(x.buttonLabel||'')}"></label>
+      </div>
+    </div>`).join('')
+}
+function collectBackgroundGuide(){
+  if(!$('backgroundGuideEnabled'))return;
+  const g=ensureBackgroundGuide();
+  g.enabled=$('backgroundGuideEnabled').checked;
+  g.kicker=$('backgroundGuideKickerInput')?.value||'';
+  g.title=$('backgroundGuideTitleInput')?.value||'';
+  g.subtitle=$('backgroundGuideSubtitleInput')?.value||'';
+  g.options.slice(0,3).forEach((x,i)=>{
+    x.badge=document.querySelector(`[data-bg-badge="${i}"]`)?.value||'';
+    x.title=document.querySelector(`[data-bg-title="${i}"]`)?.value||'';
+    x.description=document.querySelector(`[data-bg-description="${i}"]`)?.value||'';
+    x.details=(document.querySelector(`[data-bg-details="${i}"]`)?.value||'').split(/\r?\n/).map(v=>v.trim()).filter(Boolean);
+    x.note=document.querySelector(`[data-bg-note="${i}"]`)?.value||'';
+    x.buttonLabel=document.querySelector(`[data-bg-button="${i}"]`)?.value||'';
+  })
+}
 function render(){
 $('scheduleFields').innerHTML=`<label class="wide"><span>작업 시작 기준 날짜</span><input id="scheduleDate" type="date" value="${S.scheduleDate||''}"><small class="field-note">공개 페이지에는 “현재 신청시 <b>월 일</b>부터 작업이 진행됩니다!”로 고정 표시됩니다. 설정 날짜가 오늘보다 과거가 되면 오늘 날짜로 자동 변경됩니다.</small></label>`;
 $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+area('공지 안내 문구','noticeText',S.noticeText,true);
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 항목','conceptLabel',S.conceptLabel)+input('컨셉 placeholder','conceptPlaceholder',S.conceptPlaceholder)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderQuoteAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'EVENTS';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderQuoteAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'EVENTS';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
 function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
 function renderTypes(){$('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit"><label class="type-name">디자인 이름<input data-type-label="${i}" value="${x.label||''}"></label><div class="type-options"><label><input type="checkbox" data-type-enabled="${i}" ${x.enabled!==false?'checked':''}> 공개</label><label><input type="checkbox" data-type-frame="${i}" ${x.showFrameRetention?'checked':''}> 틀 보관</label><label><input type="checkbox" data-type-sign="${i}" ${x.showSignatureFields?'checked':''}> 시그풍</label><label><input type="checkbox" data-type-banner="${i}" ${x.showBannerFields?'checked':''}> 배너</label><label><input type="checkbox" data-type-review="${i}" ${x.showReviewEvent?'checked':''}> 리뷰이벤트</label></div><button class="danger" data-del-type="${i}">삭제</button></div>`).join('');document.querySelectorAll('[data-del-type]').forEach(b=>b.onclick=()=>{S.designTypes.splice(+b.dataset.delType,1);renderTypes()})}
-function catRow(c,i,prefix='cat'){return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${c.label||''}"></label><label>ID<input data-${prefix}-id="${i}" value="${c.id||''}"></label><label>가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label><label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`}
-function renderCats(){$('cats').innerHTML=(S.portfolioCategories||[]).map((c,i)=>catRow(c,i,'cat')).join('');$('uploadCat').innerHTML=(S.portfolioCategories||[]).map(c=>`<option value="${c.id}">${c.label}</option>`).join('');document.querySelectorAll('[data-del-cat]').forEach(b=>b.onclick=()=>{S.portfolioCategories.splice(+b.dataset.delCat,1);renderCats()})}
+function catRow(c,i,prefix='cat'){
+  return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label><label>ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label><label>가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label><label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`
+}
+function moveCategory(arr,prefix,index,dir){
+  collectCats(arr,prefix);
+  const next=index+dir;
+  if(next<0||next>=arr.length)return;
+  [arr[index],arr[next]]=[arr[next],arr[index]];
+  if(prefix==='cat')renderCats();else renderPresetCats()
+}
+function bindCategoryOrder(arr,prefix){
+  document.querySelectorAll(`[data-move-${prefix}]`).forEach(b=>b.onclick=()=>moveCategory(arr,prefix,Number(b.getAttribute(`data-move-${prefix}`)),Number(b.dataset.dir)))
+}
+function renderCats(){
+  $('cats').innerHTML=(S.portfolioCategories||[]).map((c,i)=>catRow(c,i,'cat')).join('');
+  $('uploadCat').innerHTML=(S.portfolioCategories||[]).map(c=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
+  document.querySelectorAll('[data-del-cat]').forEach(b=>b.onclick=()=>{collectCats(S.portfolioCategories||[],'cat');S.portfolioCategories.splice(+b.dataset.delCat,1);renderCats()});
+  bindCategoryOrder(S.portfolioCategories||[],'cat')
+}
 function renderPresetCats(){
   $('presetCats').innerHTML=(S.presetCategories||[]).map((c,i)=>catRow(c,i,'preset')).join('');
   $('presetUploadCat').innerHTML=(S.presetCategories||[]).map(c=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
-  document.querySelectorAll('[data-del-preset]').forEach(b=>b.onclick=()=>{S.presetCategories.splice(+b.dataset.delPreset,1);renderPresetCats()});
+  document.querySelectorAll('[data-del-preset]').forEach(b=>b.onclick=()=>{collectCats(S.presetCategories||[],'preset');S.presetCategories.splice(+b.dataset.delPreset,1);renderPresetCats()});
+  bindCategoryOrder(S.presetCategories||[],'preset');
   $('presetUploadCat').onchange=updatePresetUploadSelectors;
   updatePresetUploadSelectors()
 }
 function renderPresetGroups(){
-  const groups=ensurePresetGroups().filter(g=>g.category==='profile');
+  const groups=ensurePresetGroups().filter(g=>/^profile(?:-|$)/.test(g.category));
   $('presetGroups').innerHTML=groups.map((g,gi)=>`
     <div class="preset-group-edit">
       <div class="preset-group-head">
@@ -81,7 +154,7 @@ function updatePresetUploadSelectors(){
   collectPresetGroups();
   const cat=$('presetUploadCat').value,groupSel=$('presetUploadGroup'),miniSel=$('presetUploadMini');
   const groups=ensurePresetGroups().filter(g=>g.category===cat&&g.enabled!==false);
-  if(cat!=='profile'||!groups.length){groupSel.hidden=true;miniSel.hidden=true;groupSel.innerHTML='';miniSel.innerHTML='';return}
+  if(!/^profile(?:-|$)/.test(cat)||!groups.length){groupSel.hidden=true;miniSel.hidden=true;groupSel.innerHTML='';miniSel.innerHTML='';return}
   const oldGroup=groupSel.value;
   groupSel.hidden=false;
   groupSel.innerHTML=groups.map(g=>`<option value="${adminEsc(g.id)}">${adminEsc(g.label)}</option>`).join('');
@@ -156,7 +229,7 @@ async function copyQuote(){
 
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),review=document.querySelector(`[data-type-review="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(review)x.showReviewEvent=review.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked})}
-async function saveSettings(){collect();collectCats(S.portfolioCategories||[],'cat');S.scheduleDate=$('scheduleDate').value;S.presetEnabled=$('presetEnabled').checked;S.presetTitle=$('presetTitle').value;S.presetNotice=$('presetNotice').value;S.authorEnabled=$('authorEnabled').checked;S.authorText=$('authorText').value;S.authorFontSize=Number($('authorFontSize').value||15);S.eventsEnabled=$('eventsEnabled').checked;S.eventsKicker=$('eventsKicker').value;S.eventsTitle=$('eventsTitle').value;S.eventsText=$('eventsText').value;S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);S.eventsFontSize=Number($('eventsFontSize').value||15);collectCats(S.presetCategories||[],'preset');collectPresetGroups();try{$('saveStatus').textContent='저장 중…';await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});$('saveStatus').textContent='저장되었습니다.';showToast('저장되었습니다.')}catch(e){$('saveStatus').textContent=e.message;alert('저장에 실패했습니다.\n'+e.message)}}
+async function saveSettings(){collect();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');S.scheduleDate=$('scheduleDate').value;S.presetEnabled=$('presetEnabled').checked;S.presetTitle=$('presetTitle').value;S.presetNotice=$('presetNotice').value;S.authorEnabled=$('authorEnabled').checked;S.authorText=$('authorText').value;S.authorFontSize=Number($('authorFontSize').value||15);S.eventsEnabled=$('eventsEnabled').checked;S.eventsKicker=$('eventsKicker').value;S.eventsTitle=$('eventsTitle').value;S.eventsText=$('eventsText').value;S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);S.eventsFontSize=Number($('eventsFontSize').value||15);collectCats(S.presetCategories||[],'preset');collectPresetGroups();try{$('saveStatus').textContent='저장 중…';await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});$('saveStatus').textContent='저장되었습니다.';showToast('저장되었습니다.')}catch(e){$('saveStatus').textContent=e.message;alert('저장에 실패했습니다.\n'+e.message)}}
 async function loadItems(){try{const d=await api('/api/admin/portfolio');items=d.items||[];renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));presetItems=q.items||[];renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
 function presetLocationText(x){
   const meta=presetMetaFor(x),cat=(S.presetCategories||[]).find(c=>c.id===x.category)?.label||x.category||'',g=presetGroupById(meta.groupId),m=(g?.miniCategories||[]).find(v=>v.id===meta.miniCategory);
@@ -187,7 +260,7 @@ async function uploadFiles(kind){
     for(let i=0;i<files.length;i++){
       status.textContent=`${i+1}/${files.length} 업로드 중…`;
       const fd=new FormData();let uploadFile=files[i];fd.append('category',cat);
-      if(kind==='preset'&&cat==='profile'){
+      if(kind==='preset'&&/^profile(?:-|$)/.test(cat)){
         const groupId=$('presetUploadGroup').value,miniCategory=$('presetUploadMini').value;
         if(!groupId||!miniCategory)throw new Error('큰 카테고리와 미니 카테고리를 선택해주세요.');
         uploadFile=new File([files[i]],`__PG_${groupId}__PM_${miniCategory}__${files[i].name}`,{type:files[i].type,lastModified:files[i].lastModified});
@@ -201,7 +274,7 @@ async function uploadFiles(kind){
   }catch(e){status.textContent=e.message;alert('업로드에 실패했습니다.\n'+e.message)}
 }
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=d.settings;render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
-$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'새 공지',description:'설명을 입력해 주세요.'}];renderNotices()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showReviewEvent:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'new-category',label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,strictSize:false,uploadWidth:0,uploadHeight:0,maxBytes:6291456,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'new-preset',label:'새 프리셋',enabled:true,displayWidth:240,displayHeight:240,maxBytes:6291456,formats:['png','jpeg','gif','webp']}];renderPresetCats()};if($('addPresetGroup'))$('addPresetGroup').onclick=()=>{collectPresetGroups();ensurePresetGroups().push({id:'profile-'+Date.now(),category:'profile',label:'움짤 프사 새 카테고리',enabled:true,descriptionEnabled:false,miniCategories:[{id:'etc',label:'기타',enabled:true}]});renderPresetGroups()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'새 공지',description:'설명을 입력해 주세요.'}];renderNotices()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showReviewEvent:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'new-category',label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,strictSize:false,uploadWidth:0,uploadHeight:0,maxBytes:6291456,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'new-preset',label:'새 프리셋',enabled:true,displayWidth:240,displayHeight:240,maxBytes:6291456,formats:['png','jpeg','gif','webp']}];renderPresetCats()};if($('addPresetGroup'))$('addPresetGroup').onclick=()=>{collectPresetGroups();const selected=$('presetUploadCat')?.value||'profile',category=/^profile(?:-|$)/.test(selected)?selected:'profile';ensurePresetGroups().push({id:category+'-'+Date.now(),category,label:'새 세부 카테고리',enabled:true,descriptionEnabled:false,miniCategories:[{id:'etc',label:'기타',enabled:true}]});renderPresetGroups()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
