@@ -13,8 +13,8 @@ function guideDefaults(){
   return {
     enabled:true,kicker:'PROFILE OPTIONS',title:'움짤 프사 옵션 구성',subtitle:'',
     options:[
-      {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
-      {key:'b',badge:'B',title:'심플형 움짤 프사',description:'체크, 도트, 땡땡이, 그라데이션 등 비교적 간단한 패턴 배경이나 직접 제작한 고정형 프리셋을 활용해 제작하는 방식입니다.',details:['색상은 원하는 분위기에 맞게 자유롭게 변경 가능합니다.'],note:'프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'}
+      {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
+      {key:'b',badge:'B',title:'심플형 움짤 프사',description:'체크, 도트, 땡땡이, 그라데이션 등 비교적 간단한 패턴 배경이나 직접 제작한 고정형 프리셋을 활용해 제작하는 방식입니다.',details:['색상은 원하는 분위기에 맞게 자유롭게 변경 가능합니다.'],note:'프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'}
     ]
   }
 }
@@ -33,12 +33,18 @@ function renderBackgroundGuide(s){
     const targetAvailable=x.targetKind==='preset'
       ? !!s.presetEnabled&&visibleCats(s.presetCategories||[]).some(c=>c.id===x.targetCategory)
       : visiblePortfolioCats(s.portfolioCategories||[]).some(c=>c.id===x.targetCategory);
+    const reference=x.referenceImage?`<div class="background-type-reference"><img src="${esc(media(x.referenceImage))}" alt="${htmlAttr(x.title||'')} 참고 움" loading="lazy"></div>`:'';
     return `<article class="background-type-card">
       <span class="background-type-letter">${htmlAttr(x.badge||String.fromCharCode(65+i))}</span>
       <h3>${htmlAttr(x.title||'')}</h3>
-      ${x.description?`<p>${htmlAttr(x.description)}</p>`:''}
-      ${details.length?`<ul class="background-type-details">${details.map(v=>`<li>${htmlAttr(v)}</li>`).join('')}</ul>`:''}
-      ${x.note?`<p class="background-type-note">${htmlAttr(x.note)}</p>`:''}
+      <div class="background-type-content ${reference?'has-reference':''}">
+        ${reference}
+        <div class="background-type-copy">
+          ${x.description?`<p>${htmlAttr(x.description)}</p>`:''}
+          ${details.length?`<ul class="background-type-details">${details.map(v=>`<li>${htmlAttr(v)}</li>`).join('')}</ul>`:''}
+          ${x.note?`<p class="background-type-note">${htmlAttr(x.note)}</p>`:''}
+        </div>
+      </div>
       <button type="button" class="background-type-jump" data-guide-kind="${htmlAttr(x.targetKind||'')}" data-guide-category="${htmlAttr(x.targetCategory||'')}" ${targetAvailable?'':'disabled'}>${htmlAttr(x.buttonLabel||'디자인 보기')}</button>
     </article>`
   }).join('');
