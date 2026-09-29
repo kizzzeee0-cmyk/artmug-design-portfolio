@@ -81,15 +81,6 @@
     "createdAt": "20260929162257"
   },
   {
-    "id": "preset-W9AjKaCJ-2U",
-    "category": "profile",
-    "file": "preset/profile/20260929162302-UhqiMGvX-cute-pattern-2000x2000__8_.png",
-    "originalName": "cute-pattern-2000x2000 (8).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20260929162302"
-  },
-  {
     "id": "preset-IWR3EVxRRG8",
     "category": "profile",
     "file": "preset/profile/20260929172952-51cQIYWY-cute-pattern-512x512__2_.png",
@@ -178,14 +169,5 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173617"
-  },
-  {
-    "id": "preset-OuhXPzDT3wc",
-    "category": "profile",
-    "file": "preset/profile/20260929173622-gihHBkDm-cute-pattern-2000x2000__13_.png",
-    "originalName": "cute-pattern-2000x2000 (13).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20260929173622"
   }
 ]
