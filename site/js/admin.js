@@ -15,6 +15,38 @@ function showToast(message,type='success'){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>{el.classList.remove('is-show')},2200);
 }const api=(p,o={})=>fetch(API+p,{...o,credentials:'include',headers:{'Content-Type':'application/json',...(o.headers||{})}}).then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});
+let settingsWriteQueue=Promise.resolve();
+function isSettingsConflict(err){
+  const m=String(err?.message||err||'');
+  return /GitHub\s*409|\b409\b|does not match|\bexpected\s+[0-9a-f]{7,40}\b/i.test(m)
+}
+const settingsDelay=ms=>new Promise(r=>setTimeout(r,ms));
+async function fetchFreshSettings(){
+  const d=await api('/api/public/settings?fresh='+Date.now());
+  return d.settings||{}
+}
+function queueSettingsMutation(mutator){
+  const run=settingsWriteQueue.then(async()=>{
+    let lastError;
+    for(let attempt=0;attempt<8;attempt++){
+      const latest=await fetchFreshSettings();
+      const next=JSON.parse(JSON.stringify(latest));
+      mutator(next);
+      try{
+        const saved=await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:next})});
+        return saved.settings||next
+      }catch(e){
+        lastError=e;
+        if(!isSettingsConflict(e)||attempt===7)throw e;
+        await settingsDelay(220+attempt*180)
+      }
+    }
+    throw lastError
+  });
+  settingsWriteQueue=run.catch(()=>{});
+  return run
+}
+
 function input(label,key,val,wide=false){return `<label class="${wide?'wide':''}"><span>${label}</span><input data-key="${key}" value="${String(val??'').replaceAll('"','&quot;')}"></label>`}function area(label,key,val,wide=false){return `<label class="${wide?'wide':''}"><span>${label}</span><textarea data-key="${key}">${String(val??'')}</textarea></label>`}
 function adminEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function ensurePresetGroups(){if(!Array.isArray(S.presetGroups))S.presetGroups=[];S.presetGroups.forEach(g=>{if(!Array.isArray(g.miniCategories))g.miniCategories=[]});return S.presetGroups}
@@ -215,7 +247,34 @@ async function copyQuote(){
 
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),review=document.querySelector(`[data-type-review="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(review)x.showReviewEvent=review.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked})}
-async function saveSettings(){collect();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');S.scheduleDate=$('scheduleDate').value;S.presetEnabled=$('presetEnabled').checked;S.presetTitle=$('presetTitle').value;S.presetNotice=$('presetNotice').value;S.authorEnabled=$('authorEnabled').checked;S.authorText=$('authorText').value;S.authorFontSize=Number($('authorFontSize').value||15);S.eventsEnabled=$('eventsEnabled').checked;S.eventsKicker=$('eventsKicker').value;S.eventsTitle=$('eventsTitle').value;S.eventsText=$('eventsText').value;S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);S.eventsFontSize=Number($('eventsFontSize').value||15);collectCats(S.presetCategories||[],'preset');collectPresetGroups();try{$('saveStatus').textContent='저장 중…';await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});$('saveStatus').textContent='저장되었습니다.';showToast('저장되었습니다.')}catch(e){$('saveStatus').textContent=e.message;alert('저장에 실패했습니다.\n'+e.message)}}
+async function saveSettings(){
+  collect();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');
+  S.scheduleDate=$('scheduleDate').value;
+  S.presetEnabled=$('presetEnabled').checked;
+  S.presetTitle=$('presetTitle').value;
+  S.presetNotice=$('presetNotice').value;
+  S.authorEnabled=$('authorEnabled').checked;
+  S.authorText=$('authorText').value;
+  S.authorFontSize=Number($('authorFontSize').value||15);
+  S.eventsEnabled=$('eventsEnabled').checked;
+  S.eventsKicker=$('eventsKicker').value;
+  S.eventsTitle=$('eventsTitle').value;
+  S.eventsText=$('eventsText').value;
+  S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
+  S.eventsFontSize=Number($('eventsFontSize').value||15);
+  collectCats(S.presetCategories||[],'preset');collectPresetGroups();
+  const snapshot=JSON.parse(JSON.stringify(S));
+  try{
+    $('saveStatus').textContent='저장 중…';
+    const saved=await queueSettingsMutation(latest=>Object.assign(latest,snapshot));
+    S=saved;
+    $('saveStatus').textContent='저장되었습니다.';
+    showToast('저장되었습니다.')
+  }catch(e){
+    $('saveStatus').textContent=e.message;
+    alert('저장에 실패했습니다.\n'+e.message)
+  }
+}
 function applyAdminOrder(list,order){
   if(!Array.isArray(order)||!order.length)return [...list];
   const pos=new Map(order.map((file,i)=>[file,i]));
@@ -239,17 +298,8 @@ function capturePresetEditorValues(){
 async function saveMediaOrder(kind){
   const key=kind==='preset'?'presetOrder':'portfolioOrder',list=kind==='preset'?presetItems:items,order=list.map(x=>x.file);
   S[key]=order;
-  const write=async()=>{
-    const latest=(await api('/api/public/settings')).settings||{};
-    latest[key]=order;
-    await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:latest})})
-  };
-  try{await write()}
-  catch(e){
-    if(!/GitHub 409|\b409\b/i.test(String(e.message||e)))throw e;
-    await new Promise(r=>setTimeout(r,300));
-    await write()
-  }
+  const saved=await queueSettingsMutation(latest=>{latest[key]=order});
+  S[key]=saved[key]||order;
   showToast('순서가 저장되었습니다.')
 }
 async function moveMediaItem(kind,index,dir){
@@ -272,20 +322,11 @@ async function savePresetItem(i){
   const entry={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description,enabled:enabled?enabled.checked:meta.enabled,isNew:isNew?isNew.checked:meta.isNew};
   ensurePresetMeta()[x.file]=entry;
 
-  try{
-    await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});
-  }catch(e){
-    if(!/GitHub 409|\b409\b/i.test(String(e.message||e)))throw e;
-
-    await new Promise(r=>setTimeout(r,350));
-    const latest=(await api('/api/public/settings')).settings||{};
+  const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-    latest.presetMeta[x.file]=entry;
-
-    await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:latest})});
-    S=latest;
-  }
-
+    latest.presetMeta[x.file]=entry
+  });
+  S.presetMeta=saved.presetMeta||S.presetMeta||{};
   showToast('프리셋 정보가 저장되었습니다.');
   renderPresetItems()
 }
@@ -313,7 +354,7 @@ function renderPresetItems(){
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
-  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.deletePreset);delete ensurePresetMeta()[file];S.presetOrder=(S.presetOrder||[]).filter(x=>x!==file);await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.deletePreset);delete ensurePresetMeta()[file];S.presetOrder=(S.presetOrder||[]).filter(x=>x!==file);await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{if(latest.presetMeta&&typeof latest.presetMeta==='object')delete latest.presetMeta[file];latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file)}).catch(()=>{});loadItems()})
 }
 
 function renderItems(){
@@ -322,7 +363,7 @@ function renderItems(){
     return `<div class="item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div><strong>${adminEsc(x.originalName)}</strong><div class="muted">${adminEsc(x.category)}</div></div><div class="item-actions"><div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div><button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button></div></div>`
   }).join('');
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
-  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file)}).catch(()=>{});loadItems()})
 }
 async function uploadFiles(kind){
   const fileInput=kind==='preset'?$('presetFiles'):$('files'),cat=kind==='preset'?$('presetUploadCat').value:$('uploadCat').value,status=$(kind==='preset'?'presetUploadStatus':'uploadStatus'),files=[...fileInput.files];
