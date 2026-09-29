@@ -912,3 +912,117 @@ body::after{
     gap:5px!important;
   }
 }
+
+/* mobile unified vertical rhythm v2 */
+@media(max-width:680px){
+  .site-shell{
+    --mobile-rhythm:14px;
+  }
+
+  /* One title size for every major mobile section. */
+  .schedule-card h2,
+  .notice-card h2,
+  #backgroundGuideTitle,
+  .form-card h2,
+  .portfolio-card h2,
+  .preset-section h2{
+    font-size:20px!important;
+    line-height:1.3!important;
+    margin-bottom:0!important;
+  }
+
+  /* Empty helper copy must not create invisible spacing. */
+  #noticeText:empty,
+  #formDescription:empty,
+  .preset-notice[hidden]{
+    display:none!important;
+    margin:0!important;
+  }
+
+  /* Major title/heading block -> next content: always 14px. */
+  .schedule-card>p{
+    margin:var(--mobile-rhythm) 0 0!important;
+  }
+  .notice-card .notice-heading,
+  .background-type-section .background-type-heading,
+  .form-card .section-heading{
+    margin-bottom:var(--mobile-rhythm)!important;
+  }
+  .background-type-section .background-type-heading{
+    gap:0!important;
+  }
+  .form-card .contact-form{
+    margin-top:0!important;
+  }
+
+  /* Portfolio title -> category, then category -> gallery: both 14px. */
+  .portfolio-card .portfolio-header{
+    gap:var(--mobile-rhythm)!important;
+    margin-bottom:0!important;
+  }
+  .portfolio-card .tabs{
+    margin:0!important;
+    padding-top:0!important;
+    border-top:0!important;
+  }
+
+  /* Preset title -> optional notice/category: always 14px. */
+  .preset-section .portfolio-header{
+    gap:0!important;
+    margin-bottom:0!important;
+  }
+  .preset-section .preset-notice:not([hidden]){
+    margin:var(--mobile-rhythm) 0 0!important;
+  }
+  .preset-section #presetTabs{
+    margin:var(--mobile-rhythm) 0 0!important;
+    padding-top:0!important;
+    border-top:0!important;
+  }
+
+  /* Category row -> first image: always 14px, regardless of line count. */
+  .portfolio-card .tabs,
+  .preset-section .tabs,
+  .portfolio-card .tabs.is-multiline,
+  .preset-section .tabs.is-multiline{
+    margin-bottom:0!important;
+  }
+  .portfolio-grid,
+  .preset-grid{
+    margin-top:var(--mobile-rhythm)!important;
+  }
+
+  /* Option cards use the same rhythm around the CTA. */
+  .background-type-grid{
+    gap:var(--mobile-rhythm)!important;
+  }
+  .background-type-card{
+    padding:var(--mobile-rhythm)!important;
+  }
+  .background-type-card p{
+    margin-bottom:0!important;
+  }
+  .background-type-note{
+    margin:10px 0 0!important;
+  }
+  .background-type-card .background-type-jump,
+  .background-type-card:nth-child(2) .background-type-jump{
+    margin-top:var(--mobile-rhythm)!important;
+    margin-bottom:0!important;
+    flex:0 0 36px!important;
+    height:36px!important;
+    min-height:36px!important;
+  }
+
+  /* Same visual grid density for profile portfolio and presets. */
+  .preset-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+}
+@media(max-width:420px){
+  .preset-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+}
