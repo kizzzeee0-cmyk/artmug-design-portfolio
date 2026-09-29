@@ -425,7 +425,13 @@
       "miniCategories": []
     }
   ],
-  "presetMeta": {},
+  "presetMeta": {
+    "preset/profile/20260929150538-_Nm_fv_J-__PG_profile-a__PM_check__cute-pattern-2000x2000.png": {
+      "name": "체크 01",
+      "description": "",
+      "enabled": true
+    }
+  },
   "backgroundGuide": {
     "enabled": true,
     "kicker": "PROFILE OPTIONS",
@@ -442,7 +448,7 @@
           "그라데이션 색상 배경",
           "원하는 색상으로 자유롭게 변경 가능"
         ],
-        "note": "프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 문의해주세요",
+        "note": "프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해주세요",
         "buttonLabel": "디자인 보러가기",
         "targetKind": "preset",
         "targetCategory": "profile"
