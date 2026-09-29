@@ -160,5 +160,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173617"
+  },
+  {
+    "id": "preset-PQ0H3K28Jek",
+    "category": "profile",
+    "file": "preset/profile/20260929174459-VzeG42vV-cute-pattern-2000x2000__13_.png",
+    "originalName": "cute-pattern-2000x2000 (13).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929174459"
   }
 ]
