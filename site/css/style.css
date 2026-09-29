@@ -1234,3 +1234,23 @@ body::after{
     border-radius:13px;
   }
 }
+
+/* mobile option text wraps under reference media */
+@media(max-width:680px){
+  .background-type-content.has-reference{
+    display:flow-root!important;
+  }
+  .background-type-content.has-reference .background-type-reference{
+    float:left;
+    width:86px;
+    margin:0 11px 4px 0;
+  }
+  .background-type-content.has-reference .background-type-copy{
+    display:block;
+    min-width:0;
+  }
+  .background-type-content.has-reference .background-type-copy p,
+  .background-type-content.has-reference .background-type-copy ul{
+    max-width:none;
+  }
+}
