@@ -455,7 +455,7 @@
       "name": "패턴 01",
       "description": "",
       "enabled": true,
-      "isNew": false
+      "isNew": true
     },
     "preset/profile/20260929162138-fIempjBs-cute-pattern-2000x2000.png": {
       "name": "체크 01",
