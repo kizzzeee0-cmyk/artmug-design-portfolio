@@ -106,5 +106,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929172952"
+  },
+  {
+    "id": "preset-UOv5zxmQGhI",
+    "category": "profile",
+    "file": "preset/profile/20260929172956-ZJ3jBQ89-cute-pattern-512x512__1_.png",
+    "originalName": "cute-pattern-512x512 (1).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929172956"
   }
 ]
