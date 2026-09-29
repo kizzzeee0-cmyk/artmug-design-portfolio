@@ -42,23 +42,18 @@
 <div class="head"><div><span class="section-kicker">PORTFOLIO</span><h2>포트폴리오 · 프리셋 관리</h2><p class="muted">공개 페이지의 포트폴리오 → 미판매 프리셋 순서로 정리되어 있습니다.</p></div><button id="reload" class="ghost">목록 새로고침</button></div>
 <div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오</h3><p class="muted">카테고리 크기 설정과 작업물 업로드를 관리합니다.</p></div></div><div class="head"><h4>카테고리</h4><button id="addCat" class="ghost">+ 카테고리 추가</button></div><div id="cats"></div><button id="saveCats" class="primary-button">카테고리 설정 저장</button><div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="uploadStatus" class="status"></p><div id="items"></div></div>
 <div class="sub card-in admin-block">
-  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>고정틀 프리셋</h3><p class="muted">움짤 프사는 큰 카테고리 → 미니 카테고리 → 이미지 순서로 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
+  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>고정틀 프리셋</h3><p class="muted">움짤프사 A / B / C 카테고리별로 프리셋을 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
   <div class="fields"><label>영역 제목<input id="presetTitle"></label><label class="wide">상단 안내 문구<textarea id="presetNotice"></textarea></label></div>
 
   <div class="head"><h4>기본 프리셋 카테고리</h4><button id="addPresetCat" class="ghost">+ 프리셋 카테고리 추가</button></div>
   <div id="presetCats"></div>
 
-  <div class="inner-divider"></div>
-  <div class="head"><div><h4>움짤 프사 세부 카테고리</h4><p class="muted">움짤 프사 A / B / C 같은 큰 카테고리와 그 안의 미니 카테고리를 자유롭게 추가할 수 있습니다.</p></div><button id="addPresetGroup" class="ghost">+ 큰 카테고리 추가</button></div>
-  <div id="presetGroups" class="preset-group-admin"></div>
   <button id="savePresetCats" class="primary-button">프리셋 설정 저장</button>
 
   <div class="inner-divider"></div>
   <h4>프리셋 업로드</h4>
   <div class="upload-row preset-upload-row">
     <select id="presetUploadCat"></select>
-    <select id="presetUploadGroup" hidden></select>
-    <select id="presetUploadMini" hidden></select>
     <input id="presetFiles" type="file" multiple>
     <button id="uploadPreset" class="primary-button">프리셋 업로드</button>
   </div>
