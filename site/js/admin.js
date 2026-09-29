@@ -193,9 +193,23 @@ function presetLocationText(x){
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
   const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`);
-  const store=ensurePresetMeta();
-  store[x.file]={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description,enabled:enabled?enabled.checked:meta.enabled};
-  await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});
+  const entry={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description,enabled:enabled?enabled.checked:meta.enabled};
+  ensurePresetMeta()[x.file]=entry;
+
+  try{
+    await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:S})});
+  }catch(e){
+    if(!/GitHub 409|\b409\b/i.test(String(e.message||e)))throw e;
+
+    await new Promise(r=>setTimeout(r,350));
+    const latest=(await api('/api/public/settings')).settings||{};
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    latest.presetMeta[x.file]=entry;
+
+    await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:latest})});
+    S=latest;
+  }
+
   showToast('프리셋 정보가 저장되었습니다.');
   renderPresetItems()
 }
