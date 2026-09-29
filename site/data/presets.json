@@ -151,5 +151,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173038"
+  },
+  {
+    "id": "preset-sRd4yIjwLr4",
+    "category": "profile",
+    "file": "preset/profile/20260929173042-YX6KNlN6-5.png",
+    "originalName": "5.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929173042"
   }
 ]
