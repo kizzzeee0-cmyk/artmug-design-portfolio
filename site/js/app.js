@@ -334,7 +334,8 @@ function presetMetaForItem(x){
   return {
     name:String(saved.name||''),
     description:String(saved.description??''),
-    enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false
+    enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false,
+    isNew:saved.isNew===true
   }
 }
 function renderPreset(s){
@@ -379,6 +380,15 @@ function renderPresetTabs(cats){
 }
 function renderPortfolioTabs(cats){cats=visibleCats(cats);if(!portfolioState.category||!cats.some(c=>c.id===portfolioState.category))portfolioState.category=cats[0]?.id||'';const tabs=$('portfolioTabs');tabs.hidden=cats.length<=1;tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===portfolioState.category?'is-active':''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');updateTabWrapState(tabs);tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{portfolioState.category=b.dataset.cat;portfolioState.page=1;renderPortfolioTabs(cats);loadPortfolio()})}
 function portfolioLayout(c={}){const w=Number(c.uploadWidth||0),h=Number(c.uploadHeight||0),label=String(c.label||'').replace(/\s/g,'');if(w===2320&&h===338||label.includes('상단배너'))return'top-banner';if(w===80&&h===209||label.includes('플로팅'))return'floating-banner';if(w===720&&h===150||label.includes('하단배너일반'))return'bottom-banner';if(w===720&&h===450||label.includes('하단배너분할'))return'bottom-split';if(w===293&&h===165||label.includes('시그'))return'signature';if(w===200&&h===200||label.includes('움짤프사')||/^profile(?:-|$)/.test(String(c.id||'')))return'profile';return'default'}
+function applyManualOrder(items,order){
+  if(!Array.isArray(order)||!order.length)return [...items];
+  const pos=new Map(order.map((file,i)=>[file,i]));
+  return [...items].sort((a,b)=>{
+    const ai=pos.has(a.file)?pos.get(a.file):Number.MAX_SAFE_INTEGER;
+    const bi=pos.has(b.file)?pos.get(b.file):Number.MAX_SAFE_INTEGER;
+    return ai-bi
+  })
+}
 function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);g.className='portfolio-grid layout-'+layout;g.style.setProperty('--display-width',`${c.displayWidth||200}px`);g.style.setProperty('--display-height',`${c.displayHeight||200}px`);g.innerHTML=items.length?items.map(x=>`<article class="work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(x.alt||x.originalName)}" loading="lazy"></div></button></article>`).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;bindLightboxes()}
 function presetGrid(items,cat){
   const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
@@ -386,7 +396,8 @@ function presetGrid(items,cat){
   g.innerHTML=items.length?items.map(x=>{
     const meta=presetMetaForItem(x),showName=!!meta.name.trim(),showDesc=['profile','profile-b'].includes(cat)&&!!meta.description.trim();
     const copy=(showName||showDesc)?`<div class="preset-card-copy">${showName?`<strong>${esc(meta.name)}</strong>`:''}${showDesc?`<p>${esc(meta.description)}</p>`:''}</div>`:'';
-    return `<article class="work-card preset-work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(meta.name||'프리셋')}" loading="lazy"></div></button>${copy}</article>`
+    const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
+    return `<article class="work-card preset-work-card">${badge}<button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(meta.name||'프리셋')}" loading="lazy"></div></button>${copy}</article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
   bindLightboxes()
 }
@@ -399,17 +410,36 @@ function getPortfolioPage(category,page){
   }
   return portfolioCache.get(key)
 }
+function fetchAllPortfolio(category){
+  const allKey='all::'+category;
+  if(portfolioCache.has(allKey))return portfolioCache.get(allKey);
+  const promise=(async()=>{
+    const first=await getPortfolioPage(category,1);
+    let all=[...(first.items||[])];
+    const count=Number(first.totalPages||1);
+    if(count>1){
+      const more=await Promise.all(Array.from({length:count-1},(_,i)=>getPortfolioPage(category,i+2).catch(()=>({items:[]}))));
+      more.forEach(d=>all.push(...(d.items||[])))
+    }
+    return all
+  })().catch(e=>{portfolioCache.delete(allKey);throw e});
+  portfolioCache.set(allKey,promise);
+  return promise
+}
 function prefetchPortfolioCategories(cats){
-  (cats||[]).forEach(c=>{if(c.id!==portfolioState.category)getPortfolioPage(c.id,1).catch(()=>{})})
+  (cats||[]).forEach(c=>{if(c.id!==portfolioState.category)fetchAllPortfolio(c.id).catch(()=>{})})
 }
 async function loadPortfolio(){
   try{
-    const key=portfolioCacheKey(portfolioState.category,portfolioState.page);
-    if(!portfolioCache.has(key))$('portfolioStatus').textContent='불러오는 중…';
-    const d=await getPortfolioPage(portfolioState.category,portfolioState.page);
-    grid(d.items||[],portfolioState.category);
+    const allKey='all::'+portfolioState.category;
+    if(!portfolioCache.has(allKey))$('portfolioStatus').textContent='불러오는 중…';
+    let all=await fetchAllPortfolio(portfolioState.category);
+    all=applyManualOrder(all,S?.portfolioOrder);
+    const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,portfolioState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
+    portfolioState.page=page;
+    grid(items,portfolioState.category);
     $('portfolioStatus').textContent='';
-    pages($('pagination'),d.totalPages||1,d.page||1,p=>{portfolioState.page=p;loadPortfolio()})
+    pages($('pagination'),totalPages,page,p=>{portfolioState.page=p;loadPortfolio()})
   }catch(e){$('portfolioStatus').textContent='포트폴리오를 불러오지 못했습니다.'}
 }
 function fetchAllPresets(category){
@@ -434,6 +464,7 @@ async function loadPresets(){
   try{
     if(!presetCache.has(presetState.category))$('presetStatus').textContent='불러오는 중…';
     let all=await fetchAllPresets(presetState.category);
+    all=applyManualOrder(all,S?.presetOrder);
     all=all.filter(x=>presetMetaForItem(x).enabled);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     presetState.page=page;
