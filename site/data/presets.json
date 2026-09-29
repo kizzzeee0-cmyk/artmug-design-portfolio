@@ -52,5 +52,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929162217"
+  },
+  {
+    "id": "preset-vz3DaqGuuJs",
+    "category": "profile",
+    "file": "preset/profile/20260929162230-bcOMogfp-cute-pattern-2000x2000__4_.png",
+    "originalName": "cute-pattern-2000x2000 (4).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929162230"
   }
 ]
