@@ -243,3 +243,36 @@
     justify-content:flex-start;
   }
 }
+
+/* media replace + portfolio A/B tag controls */
+.portfolio-item-info{
+  display:grid;
+  gap:4px;
+  min-width:0;
+}
+.portfolio-tag-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 12px;
+  margin-top:5px;
+}
+.portfolio-tag-controls label{
+  display:flex!important;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:650;
+  white-space:nowrap;
+}
+.portfolio-tag-controls input{
+  width:auto;
+}
+.portfolio-admin-item .item-actions,
+.preset-admin-item .preset-admin-actions{
+  align-content:center;
+}
+@media(max-width:720px){
+  .portfolio-tag-controls{
+    gap:7px 12px;
+  }
+}
