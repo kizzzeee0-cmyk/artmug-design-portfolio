@@ -85,7 +85,7 @@ function renderBackgroundGuideAdmin(){
     '<label class="wide"><span>부제목</span><input id="backgroundGuideSubtitleInput" value="'+adminEsc(g.subtitle||'')+'"></label>';
   const targetNames=['포트폴리오 · 움짤프사','프리셋 · 움짤프사'];
   $('backgroundGuideOptions').innerHTML=g.options.slice(0,2).map((x,i)=>{
-    const ref=x.referenceImage||'',src=ref?API+'/media/'+ref.split('/').map(encodeURIComponent).join('/'):'';
+    const ref=x.referenceImage||(i===0?S.comparisonAImage:S.comparisonBImage)||'',src=ref?API+'/media/'+ref.split('/').map(encodeURIComponent).join('/'):'';
     return `
     <div class="background-guide-admin-card">
       <div class="background-guide-admin-head"><strong>${adminEsc(x.badge||String.fromCharCode(65+i))} 유형</strong><span class="muted">버튼 이동 위치: ${targetNames[i]}</span></div>
@@ -108,11 +108,11 @@ function renderBackgroundGuideAdmin(){
   }).join('');
   document.querySelectorAll('[data-guide-reference-upload]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.guideReferenceUpload);
-    siteUpload(i===0?'guide-a':'guide-b','guideReferenceFile'+i)
+    siteUpload(i===0?'comparison-a':'comparison-b','guideReferenceFile'+i)
   });
   document.querySelectorAll('[data-guide-reference-delete]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.guideReferenceDelete);
-    siteDelete(i===0?'guide-a':'guide-b')
+    siteDelete(i===0?'comparison-a':'comparison-b')
   })
 }
 function collectBackgroundGuide(){
