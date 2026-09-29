@@ -368,7 +368,7 @@ async function replaceMediaFile(kind,index){
   const isPreset=kind==='preset',endpoint=isPreset?'/api/admin/preset-upload':'/api/admin/upload',deleteEndpoint=isPreset?'/api/admin/preset-delete':'/api/admin/delete';
   const targetCategory=!isPreset&&isProfilePortfolioCategory(x.category)?'profile':x.category;
   const fd=new FormData();fd.append('category',targetCategory);fd.append('file',file);
-  let newPath='';
+  let newPath='',metadataMoved=false;
   try{
     showToast('새 파일을 업로드하고 있습니다.');
     const r=await fetch(API+endpoint,{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
@@ -395,14 +395,22 @@ async function replaceMediaFile(kind,index){
         latest.portfolioOrder=replaceOrderPath(latest.portfolioOrder,x.file,newPath)
       }
     });
+    metadataMoved=true;
     if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
     else{S.portfolioMeta=saved.portfolioMeta||{};S.portfolioOrder=saved.portfolioOrder||[]}
 
-    await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:x.file})});
+    try{
+      await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:x.file})})
+    }catch(deleteError){
+      await loadItems();
+      alert('새 파일은 정상 반영됐지만 기존 파일 삭제에 실패했습니다.\n목록 새로고침 후 중복 항목이 보이면 기존 파일만 삭제해주세요.\n'+deleteError.message);
+      return
+    }
+
     await loadItems();
     showToast('파일이 변경되었습니다.')
   }catch(e){
-    if(newPath)await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+    if(newPath&&!metadataMoved)await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
     alert('파일 변경에 실패했습니다.\n'+e.message)
   }
 }
