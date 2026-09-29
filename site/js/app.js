@@ -392,7 +392,7 @@ async function loadPortfolio(){
     if(!portfolioCache.has(key))$('portfolioStatus').textContent='불러오는 중…';
     const d=await getPortfolioPage(portfolioState.category,portfolioState.page);
     grid(d.items||[],portfolioState.category);
-    $('portfolioStatus').textContent=d.total?`${d.total}개의 작업물`:'';
+    $('portfolioStatus').textContent='';
     pages($('pagination'),d.totalPages||1,d.page||1,p=>{portfolioState.page=p;loadPortfolio()})
   }catch(e){$('portfolioStatus').textContent='포트폴리오를 불러오지 못했습니다.'}
 }
@@ -422,7 +422,7 @@ async function loadPresets(){
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     presetState.page=page;
     presetGrid(items,presetState.category);
-    $('presetStatus').textContent=total?`${total}개의 프리셋`:'';
+    $('presetStatus').textContent='';
     pages($('presetPagination'),totalPages,page,p=>{presetState.page=p;loadPresets()})
   }catch(e){$('presetStatus').textContent='프리셋을 불러오지 못했습니다.'}
 }
