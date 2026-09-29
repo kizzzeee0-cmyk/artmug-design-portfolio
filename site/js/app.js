@@ -341,7 +341,9 @@ function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
   sec.hidden=!on;
   set('presetTitle',s.presetTitle||'고정틀 프리셋');
-  set('presetNotice',s.presetNotice||'');
+  const notice=$('presetNotice'),noticeText=String(s.presetNotice||'').trim();
+  notice.textContent=noticeText;
+  notice.hidden=!noticeText;
   if(!on)return;
   const cats=visibleCats(s.presetCategories||[]);
   if(!presetState.category||!cats.some(c=>c.id===presetState.category))presetState.category=cats[0]?.id||'';
@@ -349,11 +351,25 @@ function renderPreset(s){
   loadPresets();
   prefetchPresetCategories(cats)
 }
+function updateTabWrapState(tabs){
+  if(!tabs||tabs.hidden)return;
+  const buttons=[...tabs.querySelectorAll('button')];
+  if(buttons.length<2){tabs.classList.remove('is-multiline');return}
+  requestAnimationFrame(()=>{
+    const firstTop=buttons[0]?.offsetTop;
+    tabs.classList.toggle('is-multiline',buttons.some(b=>b.offsetTop!==firstTop))
+  });
+  if(!tabs.dataset.wrapObserved&&'ResizeObserver' in window){
+    tabs.dataset.wrapObserved='1';
+    new ResizeObserver(()=>updateTabWrapState(tabs)).observe(tabs)
+  }
+}
 function renderPresetTabs(cats){
   cats=visibleCats(cats);
   const tabs=$('presetTabs');
   tabs.hidden=cats.length<=1;
   tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===presetState.category?'is-active':''}" data-preset-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');
+  updateTabWrapState(tabs);
   tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
     presetState.category=b.dataset.presetCat;
     presetState.page=1;
@@ -361,7 +377,7 @@ function renderPresetTabs(cats){
     loadPresets()
   })
 }
-function renderPortfolioTabs(cats){cats=visibleCats(cats);if(!portfolioState.category||!cats.some(c=>c.id===portfolioState.category))portfolioState.category=cats[0]?.id||'';const tabs=$('portfolioTabs');tabs.hidden=cats.length<=1;tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===portfolioState.category?'is-active':''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{portfolioState.category=b.dataset.cat;portfolioState.page=1;renderPortfolioTabs(cats);loadPortfolio()})}
+function renderPortfolioTabs(cats){cats=visibleCats(cats);if(!portfolioState.category||!cats.some(c=>c.id===portfolioState.category))portfolioState.category=cats[0]?.id||'';const tabs=$('portfolioTabs');tabs.hidden=cats.length<=1;tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===portfolioState.category?'is-active':''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');updateTabWrapState(tabs);tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{portfolioState.category=b.dataset.cat;portfolioState.page=1;renderPortfolioTabs(cats);loadPortfolio()})}
 function portfolioLayout(c={}){const w=Number(c.uploadWidth||0),h=Number(c.uploadHeight||0),label=String(c.label||'').replace(/\s/g,'');if(w===2320&&h===338||label.includes('상단배너'))return'top-banner';if(w===80&&h===209||label.includes('플로팅'))return'floating-banner';if(w===720&&h===150||label.includes('하단배너일반'))return'bottom-banner';if(w===720&&h===450||label.includes('하단배너분할'))return'bottom-split';if(w===293&&h===165||label.includes('시그'))return'signature';if(w===200&&h===200||label.includes('움짤프사')||/^profile(?:-|$)/.test(String(c.id||'')))return'profile';return'default'}
 function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);g.className='portfolio-grid layout-'+layout;g.style.setProperty('--display-width',`${c.displayWidth||200}px`);g.style.setProperty('--display-height',`${c.displayHeight||200}px`);g.innerHTML=items.length?items.map(x=>`<article class="work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(x.alt||x.originalName)}" loading="lazy"></div></button></article>`).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;bindLightboxes()}
 function presetGrid(items,cat){
