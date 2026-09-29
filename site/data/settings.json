@@ -498,7 +498,8 @@
         "note": "",
         "buttonLabel": "디자인 보러가기",
         "targetKind": "portfolio",
-        "targetCategory": "profile"
+        "targetCategory": "profile",
+        "referenceImage": ""
       },
       {
         "key": "b",
@@ -511,7 +512,8 @@
         "note": "프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.",
         "buttonLabel": "디자인 보러가기",
         "targetKind": "preset",
-        "targetCategory": "profile"
+        "targetCategory": "profile",
+        "referenceImage": ""
       }
     ]
   },
