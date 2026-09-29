@@ -769,3 +769,43 @@ body::after{
     margin-bottom:12px;
   }
 }
+
+/* mobile compact section headings + balanced option buttons */
+/* B card: keep a visible gap before the action even when its text is longest. */
+.background-type-card:nth-child(2) .background-type-jump{
+  margin-top:14px;
+}
+@media(max-width:680px){
+  .background-guide-subtitle{
+    display:none!important;
+  }
+  .background-type-heading{
+    margin-bottom:7px!important;
+    gap:3px!important;
+  }
+  #backgroundGuideTitle{
+    margin-bottom:0!important;
+  }
+
+  .portfolio-card .portfolio-header,
+  .preset-section .portfolio-header{
+    gap:3px!important;
+  }
+  .portfolio-card .portfolio-header h2,
+  .preset-section .portfolio-header h2{
+    margin-bottom:0!important;
+  }
+
+  .portfolio-card .tabs{
+    margin-top:6px!important;
+    padding-top:8px!important;
+  }
+  .preset-section .preset-level-tabs{
+    margin-top:6px!important;
+    padding-top:8px!important;
+  }
+
+  .background-type-card .background-type-jump{
+    margin-top:14px!important;
+  }
+}
