@@ -33,7 +33,8 @@ function renderBackgroundGuide(s){
     const targetAvailable=x.targetKind==='preset'
       ? !!s.presetEnabled&&visibleCats(s.presetCategories||[]).some(c=>c.id===x.targetCategory)
       : visiblePortfolioCats(s.portfolioCategories||[]).some(c=>c.id===x.targetCategory);
-    const reference=x.referenceImage?`<div class="background-type-reference"><img src="${esc(media(x.referenceImage))}" alt="${htmlAttr(x.title||'')} 참고 움" loading="lazy"></div>`:'';
+    const referencePath=x.referenceImage||(i===0?s.comparisonAImage:s.comparisonBImage)||'';
+    const reference=referencePath?`<div class="background-type-reference"><img src="${esc(media(referencePath))}" alt="${htmlAttr(x.title||'')} 참고 움" loading="lazy"></div>`:'';
     return `<article class="background-type-card">
       <span class="background-type-letter">${htmlAttr(x.badge||String.fromCharCode(65+i))}</span>
       <h3>${htmlAttr(x.title||'')}</h3>
