@@ -327,8 +327,7 @@ async function savePresetToggle(i,key,value){
     latest.presetMeta[x.file]={...prev,[key]:value}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
-  showToast(key==='enabled'?(value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.'):(value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.'));
-  renderPresetItems()
+  showToast(key==='enabled'?(value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.'):(value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.'))
 }
 function renderPresetItems(){
   $('presetItems').innerHTML=presetItems.map((x,i)=>{
