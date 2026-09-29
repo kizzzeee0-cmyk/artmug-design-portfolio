@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "preset-o-9zxuj4ntI",
+    "category": "profile",
+    "groupId": "profile-a",
+    "miniCategory": "check",
+    "file": "preset/profile/20260929150538-_Nm_fv_J-__PG_profile-a__PM_check__cute-pattern-2000x2000.png",
+    "originalName": "__PG_profile-a__PM_check__cute-pattern-2000x2000.png",
+    "name": "__PG_profile-a__PM_check__cute-pattern-2000x2000",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929150538"
+  }
+]
