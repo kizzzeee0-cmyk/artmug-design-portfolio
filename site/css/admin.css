@@ -214,3 +214,32 @@
     grid-template-columns:1fr;
   }
 }
+
+/* portfolio preset item ordering */
+.item-actions,
+.preset-admin-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.media-order-controls{
+  display:flex;
+  gap:5px;
+  align-items:center;
+}
+.media-order-controls .cat-order-button:disabled{
+  opacity:.3;
+  cursor:default;
+  pointer-events:none;
+}
+.preset-admin-fields .mini-toggle{
+  align-self:end;
+}
+@media(max-width:720px){
+  .item-actions,
+  .preset-admin-actions{
+    justify-content:flex-start;
+  }
+}
