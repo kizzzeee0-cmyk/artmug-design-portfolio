@@ -133,5 +133,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173028"
+  },
+  {
+    "id": "preset-HwFDXPZxSdA",
+    "category": "profile",
+    "file": "preset/profile/20260929173033-cLmJRA3c-3.png",
+    "originalName": "3.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929173033"
   }
 ]
