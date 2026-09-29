@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',group:'',mini:'',page:1},requestSeq=0;const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
@@ -13,9 +13,9 @@ function guideDefaults(){
   return {
     enabled:true,kicker:'PROFILE OPTIONS',title:'움짤 프사 옵션 구성',subtitle:'배경 디자인 유형',
     options:[
-      {key:'a',badge:'A',title:'간단한 패턴 무늬',description:'',details:[],note:'',buttonLabel:'움짤프사 A 프리셋 보기',targetKind:'preset',targetCategory:'profile'},
-      {key:'b',badge:'B',title:'고정틀 프리셋',description:'',details:[],note:'',buttonLabel:'움짤프사 B 프리셋 보기',targetKind:'preset',targetCategory:'profile-b'},
-      {key:'c',badge:'C',title:'개인 맞춤 제작',description:'',details:[],note:'',buttonLabel:'움짤프사 C 포트폴리오 보기',targetKind:'portfolio',targetCategory:'profile-c'}
+      {key:'a',badge:'A',title:'간단한 패턴 무늬',description:'',details:[],note:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'},
+      {key:'b',badge:'B',title:'고정틀 프리셋',description:'',details:[],note:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile-b'},
+      {key:'c',badge:'C',title:'개인 맞춤 제작',description:'',details:[],note:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile-c'}
     ]
   }
 }
@@ -49,8 +49,8 @@ function jumpToGuideTarget(kind,category){
   if(kind==='preset'){
     const cats=visibleCats(S?.presetCategories||[]);
     if(!cats.some(c=>c.id===category)||!S?.presetEnabled)return;
-    presetState.category=category;presetState.group='';presetState.mini='';presetState.page=1;
-    renderPresetTabs(cats);syncPresetSubcategoryState();loadPresets();
+    presetState.category=category;presetState.page=1;
+    renderPresetTabs(cats);loadPresets();
     requestAnimationFrame(()=>$('presetSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
     return
   }
@@ -325,22 +325,17 @@ function allRequiredInquiryFieldsFilled(){
 function clearRequiredMessageIfComplete(){
   if(allRequiredInquiryFieldsFilled())$('copyStatus').textContent='';
 }
-function visiblePresetGroups(category){
-  return (S?.presetGroups||[]).filter(x=>x.category===category&&x.enabled!==false)
-}
-function visiblePresetMinis(group){
-  return (group?.miniCategories||[]).filter(x=>x.enabled!==false)
-}
-function currentPresetGroup(){
-  return (S?.presetGroups||[]).find(x=>x.id===presetState.group)||null
-}
 function parsePresetOriginalName(name){
   const raw=String(name||''),m=raw.match(/^__PG_(.+?)__PM_(.+?)__(.+)$/);
-  return m?{groupId:m[1],miniCategory:m[2],cleanName:m[3]}:{groupId:'',miniCategory:'',cleanName:raw}
+  return m?{cleanName:m[3]}:{cleanName:raw}
 }
 function presetMetaForItem(x){
-  const p=parsePresetOriginalName(x.originalName),saved=(S?.presetMeta&&S.presetMeta[x.file])||{};
-  return {groupId:x.groupId||p.groupId,miniCategory:x.miniCategory||p.miniCategory,name:saved.name||x.name||p.cleanName.replace(/\.[^.]+$/,''),description:saved.description??x.description??'',enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false}
+  const saved=(S?.presetMeta&&S.presetMeta[x.file])||{};
+  return {
+    name:String(saved.name||''),
+    description:String(saved.description??''),
+    enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false
+  }
 }
 function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
@@ -348,12 +343,11 @@ function renderPreset(s){
   set('presetTitle',s.presetTitle||'고정틀 프리셋');
   set('presetNotice',s.presetNotice||'');
   if(!on)return;
-
   const cats=visibleCats(s.presetCategories||[]);
   if(!presetState.category||!cats.some(c=>c.id===presetState.category))presetState.category=cats[0]?.id||'';
   renderPresetTabs(cats);
-  syncPresetSubcategoryState();
   loadPresets();
+  prefetchPresetCategories(cats)
 }
 function renderPresetTabs(cats){
   cats=visibleCats(cats);
@@ -362,74 +356,69 @@ function renderPresetTabs(cats){
   tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===presetState.category?'is-active':''}" data-preset-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');
   tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
     presetState.category=b.dataset.presetCat;
-    presetState.group='';
-    presetState.mini='';
     presetState.page=1;
     renderPresetTabs(cats);
-    syncPresetSubcategoryState();
-    loadPresets();
-  });
-}
-function syncPresetSubcategoryState(){
-  const groupTabs=$('presetGroupTabs'),miniTabs=$('presetMiniTabs');
-  const groups=visiblePresetGroups(presetState.category);
-  if(!groups.length){
-    presetState.group='';
-    presetState.mini='';
-    groupTabs.hidden=true;groupTabs.innerHTML='';
-    miniTabs.hidden=true;miniTabs.innerHTML='';
-    return;
-  }
-  if(!presetState.group||!groups.some(g=>g.id===presetState.group))presetState.group=groups[0].id;
-  groupTabs.hidden=groups.length<=1;
-  groupTabs.innerHTML=groups.map(g=>`<button class="tab ${g.id===presetState.group?'is-active':''}" data-preset-group="${esc(g.id)}">${esc(g.label)}</button>`).join('');
-  groupTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
-    presetState.group=b.dataset.presetGroup;
-    presetState.mini='';
-    presetState.page=1;
-    syncPresetSubcategoryState();
-    loadPresets();
-  });
-
-  const group=groups.find(g=>g.id===presetState.group);
-  const minis=visiblePresetMinis(group);
-  if(!presetState.mini||!minis.some(m=>m.id===presetState.mini))presetState.mini=minis[0]?.id||'';
-  miniTabs.hidden=minis.length<=1;
-  miniTabs.innerHTML=minis.map(m=>`<button class="tab ${m.id===presetState.mini?'is-active':''}" data-preset-mini="${esc(m.id)}">${esc(m.label)}</button>`).join('');
-  miniTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
-    presetState.mini=b.dataset.presetMini;
-    presetState.page=1;
-    syncPresetSubcategoryState();
-    loadPresets();
-  });
+    loadPresets()
+  })
 }
 function renderPortfolioTabs(cats){cats=visibleCats(cats);if(!portfolioState.category||!cats.some(c=>c.id===portfolioState.category))portfolioState.category=cats[0]?.id||'';const tabs=$('portfolioTabs');tabs.hidden=cats.length<=1;tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===portfolioState.category?'is-active':''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{portfolioState.category=b.dataset.cat;portfolioState.page=1;renderPortfolioTabs(cats);loadPortfolio()})}
 function portfolioLayout(c={}){const w=Number(c.uploadWidth||0),h=Number(c.uploadHeight||0),label=String(c.label||'').replace(/\s/g,'');if(w===2320&&h===338||label.includes('상단배너'))return'top-banner';if(w===80&&h===209||label.includes('플로팅'))return'floating-banner';if(w===720&&h===150||label.includes('하단배너일반'))return'bottom-banner';if(w===720&&h===450||label.includes('하단배너분할'))return'bottom-split';if(w===293&&h===165||label.includes('시그'))return'signature';if(w===200&&h===200||label.includes('움짤프사')||/^profile(?:-|$)/.test(String(c.id||'')))return'profile';return'default'}
 function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);g.className='portfolio-grid layout-'+layout;g.style.setProperty('--display-width',`${c.displayWidth||200}px`);g.style.setProperty('--display-height',`${c.displayHeight||200}px`);g.innerHTML=items.length?items.map(x=>`<article class="work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(x.alt||x.originalName)}" loading="lazy"></div></button></article>`).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;bindLightboxes()}
 function presetGrid(items,cat){
-  const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid'),layout=portfolioLayout(c),group=currentPresetGroup();
-  g.className='portfolio-grid preset-grid layout-'+layout;
-  g.style.setProperty('--display-width',`${c.displayWidth||240}px`);
-  g.style.setProperty('--display-height',`${c.displayHeight||240}px`);
+  const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
+  g.className='portfolio-grid preset-grid';
   g.innerHTML=items.length?items.map(x=>{
-    const meta=presetMetaForItem(x),showDesc=!!group?.descriptionEnabled&&!!String(meta.description||'').trim();
-    return `<article class="work-card preset-work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(meta.name||'프리셋')}" loading="lazy"></div></button><div class="preset-card-copy"><strong>${esc(meta.name||'프리셋')}</strong>${showDesc?`<p>${esc(meta.description)}</p>`:''}</div></article>`
+    const meta=presetMetaForItem(x),showName=!!meta.name.trim(),showDesc=['profile','profile-b'].includes(cat)&&!!meta.description.trim();
+    const copy=(showName||showDesc)?`<div class="preset-card-copy">${showName?`<strong>${esc(meta.name)}</strong>`:''}${showDesc?`<p>${esc(meta.description)}</p>`:''}</div>`:'';
+    return `<article class="work-card preset-work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(meta.name||'프리셋')}" loading="lazy"></div></button>${copy}</article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
   bindLightboxes()
 }
 function pages(el,total,current,fn){el.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="page-button ${i+1===current?'is-active':''}" data-page="${i+1}">${i+1}</button>`).join(''):'';el.querySelectorAll('button').forEach(b=>b.onclick=()=>fn(Number(b.dataset.page)))}
-async function loadPortfolio(){try{$('portfolioStatus').textContent='불러오는 중…';const d=await api(`/api/public/portfolio?category=${encodeURIComponent(portfolioState.category)}&page=${portfolioState.page}&perPage=${PER}`);grid(d.items||[],portfolioState.category);$('portfolioStatus').textContent=d.total?`${d.total}개의 작업물`:'';pages($('pagination'),d.totalPages||1,d.page||1,p=>{portfolioState.page=p;loadPortfolio()})}catch(e){$('portfolioStatus').textContent='포트폴리오를 불러오지 못했습니다.'}}
-async function loadPresets(){
+function portfolioCacheKey(category,page){return category+'::'+page}
+function getPortfolioPage(category,page){
+  const key=portfolioCacheKey(category,page);
+  if(!portfolioCache.has(key)){
+    portfolioCache.set(key,api(`/api/public/portfolio?category=${encodeURIComponent(category)}&page=${page}&perPage=${PER}`).catch(e=>{portfolioCache.delete(key);throw e}))
+  }
+  return portfolioCache.get(key)
+}
+function prefetchPortfolioCategories(cats){
+  (cats||[]).forEach(c=>{if(c.id!==portfolioState.category)getPortfolioPage(c.id,1).catch(()=>{})})
+}
+async function loadPortfolio(){
   try{
-    $('presetStatus').textContent='불러오는 중…';
-    const first=await api('/api/public/presets?category='+encodeURIComponent(presetState.category)+'&page=1&perPage=30');
+    const key=portfolioCacheKey(portfolioState.category,portfolioState.page);
+    if(!portfolioCache.has(key))$('portfolioStatus').textContent='불러오는 중…';
+    const d=await getPortfolioPage(portfolioState.category,portfolioState.page);
+    grid(d.items||[],portfolioState.category);
+    $('portfolioStatus').textContent=d.total?`${d.total}개의 작업물`:'';
+    pages($('pagination'),d.totalPages||1,d.page||1,p=>{portfolioState.page=p;loadPortfolio()})
+  }catch(e){$('portfolioStatus').textContent='포트폴리오를 불러오지 못했습니다.'}
+}
+function fetchAllPresets(category){
+  if(presetCache.has(category))return presetCache.get(category);
+  const promise=(async()=>{
+    const first=await api('/api/public/presets?category='+encodeURIComponent(category)+'&page=1&perPage=30');
     let all=[...(first.items||[])];
-    const pagesCount=Number(first.totalPages||1);
-    if(pagesCount>1){
-      const more=await Promise.all(Array.from({length:pagesCount-1},(_,i)=>api('/api/public/presets?category='+encodeURIComponent(presetState.category)+'&page='+(i+2)+'&perPage=30').catch(()=>({items:[]}))));
+    const count=Number(first.totalPages||1);
+    if(count>1){
+      const more=await Promise.all(Array.from({length:count-1},(_,i)=>api('/api/public/presets?category='+encodeURIComponent(category)+'&page='+(i+2)+'&perPage=30').catch(()=>({items:[]}))));
       more.forEach(d=>all.push(...(d.items||[])))
     }
-    all=all.map(x=>({item:x,meta:presetMetaForItem(x)})).filter(({meta})=>meta.enabled&&(!presetState.group||meta.groupId===presetState.group)&&(!presetState.mini||meta.miniCategory===presetState.mini)).map(x=>x.item);
+    return all
+  })().catch(e=>{presetCache.delete(category);throw e});
+  presetCache.set(category,promise);
+  return promise
+}
+function prefetchPresetCategories(cats){
+  (cats||[]).forEach(c=>{if(c.id!==presetState.category)fetchAllPresets(c.id).catch(()=>{})})
+}
+async function loadPresets(){
+  try{
+    if(!presetCache.has(presetState.category))$('presetStatus').textContent='불러오는 중…';
+    let all=await fetchAllPresets(presetState.category);
+    all=all.filter(x=>presetMetaForItem(x).enabled);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     presetState.page=page;
     presetGrid(items,presetState.category);
@@ -466,4 +455,4 @@ $('copyButton').onclick=async()=>{
   if(ok){$('copyStatus').textContent='';showCopied(btn)}
   else{$('copyStatus').textContent='복사에 실패했습니다.'}
 };
-(async()=>{try{const d=await api('/api/public/settings');renderSettings(d.settings);renderPortfolioTabs(visibleCats(S.portfolioCategories||[]));loadPortfolio()}catch(e){$('portfolioStatus').textContent='설정을 불러오지 못했습니다.'}})();
+(async()=>{try{const d=await api('/api/public/settings');renderSettings(d.settings);const cats=visibleCats(S.portfolioCategories||[]);renderPortfolioTabs(cats);loadPortfolio();prefetchPortfolioCategories(cats)}catch(e){$('portfolioStatus').textContent='설정을 불러오지 못했습니다.'}})();
