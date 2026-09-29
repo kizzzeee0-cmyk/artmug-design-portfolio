@@ -462,12 +462,6 @@
       "enabled": true,
       "isNew": false
     },
-    "preset/profile/20260929162307-_9U_bZ-b-cute-pattern-2000x2000__7_.png": {
-      "name": "하트 01",
-      "description": "",
-      "enabled": true,
-      "isNew": false
-    },
     "preset/profile/20260929162302-UhqiMGvX-cute-pattern-2000x2000__8_.png": {
       "name": "하트 02",
       "description": "",
@@ -476,6 +470,12 @@
     },
     "preset/profile/20260929162257-rntRuW_4-cute-pattern-2000x2000__9_.png": {
       "name": "꽃 01",
+      "description": "",
+      "enabled": true,
+      "isNew": false
+    },
+    "preset/profile/20260929173609-5FvPBzop-cute-pattern-2000x2000__11_.png": {
+      "name": "하트 01",
       "description": "",
       "enabled": true,
       "isNew": false
@@ -525,7 +525,7 @@
     "preset/profile/20260929162243--mYP-wg0-cute-pattern-2000x2000__5_.png",
     "preset/profile/20260929162217-796RsdNt-cute-pattern-2000x2000__3_.png",
     "preset/profile/20260929162230-bcOMogfp-cute-pattern-2000x2000__4_.png",
-    "preset/profile/20260929162307-_9U_bZ-b-cute-pattern-2000x2000__7_.png",
+    "preset/profile/20260929173609-5FvPBzop-cute-pattern-2000x2000__11_.png",
     "preset/profile/20260929162302-UhqiMGvX-cute-pattern-2000x2000__8_.png",
     "preset/profile/20260929162257-rntRuW_4-cute-pattern-2000x2000__9_.png",
     "preset/profile/20260929162109-ASxINwZM-cute-pattern-2000x2000__10_.png",
