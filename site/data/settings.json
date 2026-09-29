@@ -461,7 +461,7 @@
     "enabled": true,
     "kicker": "PROFILE OPTIONS",
     "title": "움짤 프사 옵션 구성",
-    "subtitle": "배경 디자인 유형",
+    "subtitle": "",
     "options": [
       {
         "key": "a",
