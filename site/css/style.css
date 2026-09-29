@@ -1185,3 +1185,52 @@ body::after{
     font-size:8px;
   }
 }
+
+/* option reference media + single preset tab visibility */
+#presetTabs[hidden],
+#portfolioTabs[hidden]{
+  display:none!important;
+}
+.background-type-content{
+  flex:1 1 auto;
+  min-width:0;
+}
+.background-type-content.has-reference{
+  display:grid;
+  grid-template-columns:112px minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+}
+.background-type-reference{
+  width:112px;
+  aspect-ratio:1;
+  overflow:hidden;
+  border:1px solid rgba(147,137,222,.18);
+  border-radius:15px;
+  background:var(--surface-2);
+}
+.background-type-reference img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.background-type-copy{
+  min-width:0;
+}
+.background-type-copy>p:first-child{
+  margin-top:0;
+}
+.background-type-copy .background-type-details:first-child{
+  margin-top:0;
+}
+@media(max-width:680px){
+  .background-type-content.has-reference{
+    grid-template-columns:86px minmax(0,1fr);
+    gap:11px;
+  }
+  .background-type-reference{
+    width:86px;
+    border-radius:13px;
+  }
+}
