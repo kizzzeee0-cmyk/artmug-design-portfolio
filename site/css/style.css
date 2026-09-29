@@ -1099,3 +1099,39 @@ body::after{
     margin-top:15px!important;
   }
 }
+
+/* preset NEW badge */
+.preset-work-card{
+  position:relative;
+}
+.preset-new-badge{
+  position:absolute;
+  top:5px;
+  left:5px;
+  z-index:3;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  height:20px;
+  padding:0 7px;
+  border-radius:999px;
+  background:var(--accent);
+  color:#fff;
+  box-shadow:0 3px 10px rgba(98,90,155,.22);
+  font-size:9px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:.05em;
+  pointer-events:none;
+}
+@media(max-width:680px){
+  .preset-new-badge{
+    top:3px;
+    left:3px;
+    min-width:29px;
+    height:18px;
+    padding:0 6px;
+    font-size:8px;
+  }
+}
