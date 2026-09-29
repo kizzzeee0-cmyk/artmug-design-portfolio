@@ -450,7 +450,14 @@
       "miniCategories": []
     }
   ],
-  "presetMeta": {},
+  "presetMeta": {
+    "preset/profile/20260929162109-ASxINwZM-cute-pattern-2000x2000__10_.png": {
+      "name": "패턴 01",
+      "description": "",
+      "enabled": true,
+      "isNew": false
+    }
+  },
   "backgroundGuide": {
     "enabled": true,
     "kicker": "PROFILE OPTIONS",
