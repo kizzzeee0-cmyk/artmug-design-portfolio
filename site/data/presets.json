@@ -142,5 +142,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173033"
+  },
+  {
+    "id": "preset-6wPZQuvuubk",
+    "category": "profile",
+    "file": "preset/profile/20260929173038-KrE-0oM2-4.png",
+    "originalName": "4.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929173038"
   }
 ]
