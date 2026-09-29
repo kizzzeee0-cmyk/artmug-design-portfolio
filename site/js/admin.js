@@ -284,17 +284,7 @@ function applyAdminOrder(list,order){
     return ai-bi
   })
 }
-function capturePresetEditorValues(){
-  (presetItems||[]).forEach((x,i)=>{
-    const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`),isNew=document.querySelector(`[data-preset-new="${i}"]`);
-    ensurePresetMeta()[x.file]={
-      name:name?name.value.trim():meta.name,
-      description:desc?desc.value.trim():meta.description,
-      enabled:enabled?enabled.checked:meta.enabled,
-      isNew:isNew?isNew.checked:meta.isNew
-    }
-  })
-}
+function capturePresetEditorValues(){}
 async function saveMediaOrder(kind){
   const key=kind==='preset'?'presetOrder':'portfolioOrder',list=kind==='preset'?presetItems:items,order=list.map(x=>x.file);
   S[key]=order;
@@ -304,7 +294,6 @@ async function saveMediaOrder(kind){
 }
 async function moveMediaItem(kind,index,dir){
   const list=kind==='preset'?presetItems:items,x=list[index];if(!x)return;
-  if(kind==='preset')capturePresetEditorValues();
   const same=list.map((v,i)=>({v,i})).filter(o=>o.v.category===x.category),pos=same.findIndex(o=>o.i===index),next=pos+dir;
   if(next<0||next>=same.length)return;
   const target=same[next].i;
@@ -318,16 +307,27 @@ function presetLocationText(x){
 }
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
-  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`),enabled=document.querySelector(`[data-preset-enabled="${i}"]`),isNew=document.querySelector(`[data-preset-new="${i}"]`);
-  const entry={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description,enabled:enabled?enabled.checked:meta.enabled,isNew:isNew?isNew.checked:meta.isNew};
-  ensurePresetMeta()[x.file]=entry;
+  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`);
+  const patch={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description};
 
   const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-    latest.presetMeta[x.file]=entry
+    const prev=latest.presetMeta[x.file]||{};
+    latest.presetMeta[x.file]={...prev,...patch}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
   showToast('프리셋 정보가 저장되었습니다.');
+  renderPresetItems()
+}
+async function savePresetToggle(i,key,value){
+  const x=presetItems[i];if(!x)return;
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    const prev=latest.presetMeta[x.file]||{};
+    latest.presetMeta[x.file]={...prev,[key]:value}
+  });
+  S.presetMeta=saved.presetMeta||S.presetMeta||{};
+  showToast(key==='enabled'?(value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.'):(value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.'));
   renderPresetItems()
 }
 function renderPresetItems(){
@@ -354,6 +354,8 @@ function renderPresetItems(){
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
+  document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.deletePreset);delete ensurePresetMeta()[file];S.presetOrder=(S.presetOrder||[]).filter(x=>x!==file);await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{if(latest.presetMeta&&typeof latest.presetMeta==='object')delete latest.presetMeta[file];latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file)}).catch(()=>{});loadItems()})
 }
 
