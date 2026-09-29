@@ -387,10 +387,12 @@
   "scheduleDate": "2026-10-01",
   "quoteConfig": {
     "designPrices": {
-      "profile-a": 13000,
+      "profile-a": 15000,
       "profile-b": 0,
       "signature-style": 0,
-      "banner": 0
+      "banner": 0,
+      "type-1790697439491": 18000,
+      "type-1790697442247": 20000
     },
     "bannerPrices": {
       "top": 0,
@@ -414,6 +416,11 @@
         "id": "q-1790441909217",
         "name": "이름변경",
         "price": 1000
+      },
+      {
+        "id": "q-1790697563308",
+        "name": "리뷰이벤트 참여",
+        "price": -2000
       }
     ]
   },
