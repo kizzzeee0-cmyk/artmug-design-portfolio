@@ -2,12 +2,66 @@ const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITE
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
-function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s)}
+function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderBackgroundGuide(s);renderInquiryForm();renderPreset(s)}
 function koreaDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return `${o.year}-${o.month}-${o.day}`}
 function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today,effective=chosen>today?chosen:today,[y,m,d]=effective.split('-');$('scheduleText').innerHTML=`현재 신청시 <strong class="schedule-date">${Number(m)}월 ${Number(d)}일</strong>부터 작업이 진행됩니다!`}
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;set('eventsKicker',s.eventsKicker||'EVENTS');set('eventsTitle',s.eventsTitle||'이벤트 안내');set('eventsText',s.eventsText||'');$('eventsTitle').style.fontSize=(s.eventsTitleFontSize||20)+'px';$('eventsText').style.fontSize=(s.eventsFontSize||15)+'px'}
 function renderNotices(items){$('noticeItems').innerHTML=items.map(x=>`<article class="notice-item"><div class="notice-icon">${esc(x.icon||'')}</div><div><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
+
+function guideDefaults(){
+  return {
+    enabled:true,kicker:'PROFILE OPTIONS',title:'움짤 프사 옵션 구성',subtitle:'배경 디자인 유형',
+    options:[
+      {key:'a',badge:'A',title:'간단한 패턴 무늬',description:'',details:[],note:'',buttonLabel:'움짤프사 A 프리셋 보기',targetKind:'preset',targetCategory:'profile'},
+      {key:'b',badge:'B',title:'고정틀 프리셋',description:'',details:[],note:'',buttonLabel:'움짤프사 B 프리셋 보기',targetKind:'preset',targetCategory:'profile-b'},
+      {key:'c',badge:'C',title:'개인 맞춤 제작',description:'',details:[],note:'',buttonLabel:'움짤프사 C 포트폴리오 보기',targetKind:'portfolio',targetCategory:'profile-c'}
+    ]
+  }
+}
+function renderBackgroundGuide(s){
+  const sec=$('backgroundTypeSection');if(!sec)return;
+  const d=guideDefaults(),raw=s.backgroundGuide&&typeof s.backgroundGuide==='object'?s.backgroundGuide:{},g={...d,...raw};
+  g.options=d.options.map((base,i)=>({...base,...((raw.options||[])[i]||{})}));
+  sec.hidden=g.enabled===false;
+  if(sec.hidden)return;
+  set('backgroundGuideKicker',g.kicker||'');
+  set('backgroundGuideTitle',g.title||'움짤 프사 옵션 구성');
+  set('backgroundGuideSubtitle',g.subtitle||'배경 디자인 유형');
+  const grid=$('backgroundTypeGrid');
+  grid.innerHTML=g.options.map((x,i)=>{
+    const details=(Array.isArray(x.details)?x.details:[]).filter(Boolean);
+    const targetAvailable=x.targetKind==='preset'
+      ? visibleCats(s.presetCategories||[]).some(c=>c.id===x.targetCategory)
+      : visibleCats(s.portfolioCategories||[]).some(c=>c.id===x.targetCategory);
+    return `<article class="background-type-card">
+      <span class="background-type-letter">${htmlAttr(x.badge||String.fromCharCode(65+i))}</span>
+      <h3>${htmlAttr(x.title||'')}</h3>
+      ${x.description?`<p>${htmlAttr(x.description)}</p>`:''}
+      ${details.length?`<ul class="background-type-details">${details.map(v=>`<li>${htmlAttr(v)}</li>`).join('')}</ul>`:''}
+      ${x.note?`<p class="background-type-note">${htmlAttr(x.note)}</p>`:''}
+      <button type="button" class="background-type-jump" data-guide-kind="${htmlAttr(x.targetKind||'')}" data-guide-category="${htmlAttr(x.targetCategory||'')}" ${targetAvailable?'':'disabled'}>${htmlAttr(x.buttonLabel||'디자인 보기')}</button>
+    </article>`
+  }).join('');
+  grid.querySelectorAll('[data-guide-kind]').forEach(b=>b.onclick=()=>jumpToGuideTarget(b.dataset.guideKind,b.dataset.guideCategory))
+}
+function jumpToGuideTarget(kind,category){
+  if(kind==='preset'){
+    const cats=visibleCats(S?.presetCategories||[]);
+    if(!cats.some(c=>c.id===category)||!S?.presetEnabled)return;
+    presetState.category=category;presetState.group='';presetState.mini='';presetState.page=1;
+    renderPresetTabs(cats);syncPresetSubcategoryState();loadPresets();
+    requestAnimationFrame(()=>$('presetSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
+    return
+  }
+  if(kind==='portfolio'){
+    const cats=visibleCats(S?.portfolioCategories||[]);
+    if(!cats.some(c=>c.id===category))return;
+    portfolioState.category=category;portfolioState.page=1;
+    renderPortfolioTabs(cats);loadPortfolio();
+    requestAnimationFrame(()=>$('portfolioSection')?.scrollIntoView({behavior:'smooth',block:'start'}))
+  }
+}
 function visibleCats(xs){return (xs||[]).filter(function(x){return x.enabled!==false})}
 function inquiryTypes(){return visibleCats((S&&S.designTypes)||[])}
 function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{}}
@@ -350,7 +404,7 @@ function syncPresetSubcategoryState(){
   });
 }
 function renderPortfolioTabs(cats){cats=visibleCats(cats);if(!portfolioState.category||!cats.some(c=>c.id===portfolioState.category))portfolioState.category=cats[0]?.id||'';const tabs=$('portfolioTabs');tabs.hidden=cats.length<=1;tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===portfolioState.category?'is-active':''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{portfolioState.category=b.dataset.cat;portfolioState.page=1;renderPortfolioTabs(cats);loadPortfolio()})}
-function portfolioLayout(c={}){const w=Number(c.uploadWidth||0),h=Number(c.uploadHeight||0),label=String(c.label||'').replace(/\s/g,'');if(w===2320&&h===338||label.includes('상단배너'))return'top-banner';if(w===80&&h===209||label.includes('플로팅'))return'floating-banner';if(w===720&&h===150||label.includes('하단배너일반'))return'bottom-banner';if(w===720&&h===450||label.includes('하단배너분할'))return'bottom-split';if(w===293&&h===165||label.includes('시그'))return'signature';if(w===200&&h===200||label.includes('움짤프사'))return'profile';return'default'}
+function portfolioLayout(c={}){const w=Number(c.uploadWidth||0),h=Number(c.uploadHeight||0),label=String(c.label||'').replace(/\s/g,'');if(w===2320&&h===338||label.includes('상단배너'))return'top-banner';if(w===80&&h===209||label.includes('플로팅'))return'floating-banner';if(w===720&&h===150||label.includes('하단배너일반'))return'bottom-banner';if(w===720&&h===450||label.includes('하단배너분할'))return'bottom-split';if(w===293&&h===165||label.includes('시그'))return'signature';if(w===200&&h===200||label.includes('움짤프사')||/^profile(?:-|$)/.test(String(c.id||'')))return'profile';return'default'}
 function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);g.className='portfolio-grid layout-'+layout;g.style.setProperty('--display-width',`${c.displayWidth||200}px`);g.style.setProperty('--display-height',`${c.displayHeight||200}px`);g.innerHTML=items.length?items.map(x=>`<article class="work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(x.alt||x.originalName)}" loading="lazy"></div></button></article>`).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;bindLightboxes()}
 function presetGrid(items,cat){
   const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid'),layout=portfolioLayout(c),group=currentPresetGroup();
