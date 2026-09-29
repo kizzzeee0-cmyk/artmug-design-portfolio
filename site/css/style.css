@@ -1036,3 +1036,30 @@ body::after{
     margin-top:auto!important;
   }
 }
+
+/* desktop unified title-to-content spacing */
+@media(min-width:681px){
+  /* Empty helper text must not add invisible spacing. */
+  #noticeText:empty{
+    display:none!important;
+    margin:0!important;
+  }
+
+  /* Remove mixed legacy margins first. */
+  .schedule-card>h2,
+  .notice-card .notice-heading h2,
+  .background-type-section .background-type-heading h2{
+    margin-bottom:0!important;
+  }
+
+  /* Title -> first content: exactly the same gap everywhere. */
+  .schedule-card>p{
+    margin-top:18px!important;
+  }
+  .notice-card .notice-heading{
+    margin-bottom:18px!important;
+  }
+  .background-type-section .background-type-heading{
+    margin-bottom:18px!important;
+  }
+}
