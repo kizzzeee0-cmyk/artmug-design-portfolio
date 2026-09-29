@@ -89,7 +89,37 @@ $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitl
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
 renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderQuoteAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'EVENTS';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
 function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
-function renderTypes(){$('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit"><label class="type-name">디자인 이름<input data-type-label="${i}" value="${x.label||''}"></label><div class="type-options"><label><input type="checkbox" data-type-enabled="${i}" ${x.enabled!==false?'checked':''}> 공개</label><label><input type="checkbox" data-type-frame="${i}" ${x.showFrameRetention?'checked':''}> 틀 보관</label><label><input type="checkbox" data-type-sign="${i}" ${x.showSignatureFields?'checked':''}> 시그풍</label><label><input type="checkbox" data-type-banner="${i}" ${x.showBannerFields?'checked':''}> 배너</label><label><input type="checkbox" data-type-review="${i}" ${x.showReviewEvent?'checked':''}> 리뷰이벤트</label></div><button class="danger" data-del-type="${i}">삭제</button></div>`).join('');document.querySelectorAll('[data-del-type]').forEach(b=>b.onclick=()=>{S.designTypes.splice(+b.dataset.delType,1);renderTypes()})}
+function renderTypes(){
+  $('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit">
+    <label class="type-name">디자인 이름<input data-type-label="${i}" value="${adminEsc(x.label||'')}"></label>
+    <div class="type-options">
+      <label><input type="checkbox" data-type-enabled="${i}" ${x.enabled!==false?'checked':''}> 공개</label>
+      <label><input type="checkbox" data-type-frame="${i}" ${x.showFrameRetention?'checked':''}> 틀 보관</label>
+      <label><input type="checkbox" data-type-sign="${i}" ${x.showSignatureFields?'checked':''}> 시그풍</label>
+      <label><input type="checkbox" data-type-banner="${i}" ${x.showBannerFields?'checked':''}> 배너</label>
+      <label><input type="checkbox" data-type-review="${i}" ${x.showReviewEvent?'checked':''}> 리뷰이벤트</label>
+    </div>
+    <div class="type-order-controls">
+      <button type="button" class="ghost cat-order-button" data-move-type="${i}" data-dir="-1" aria-label="위로 이동" title="위로 이동">↑</button>
+      <button type="button" class="ghost cat-order-button" data-move-type="${i}" data-dir="1" aria-label="아래로 이동" title="아래로 이동">↓</button>
+    </div>
+    <button class="danger" data-del-type="${i}">삭제</button>
+  </div>`).join('');
+
+  document.querySelectorAll('[data-move-type]').forEach(b=>b.onclick=()=>{
+    collect();
+    const i=Number(b.dataset.moveType),next=i+Number(b.dataset.dir);
+    if(next<0||next>=S.designTypes.length)return;
+    [S.designTypes[i],S.designTypes[next]]=[S.designTypes[next],S.designTypes[i]];
+    renderTypes()
+  });
+
+  document.querySelectorAll('[data-del-type]').forEach(b=>b.onclick=()=>{
+    collect();
+    S.designTypes.splice(+b.dataset.delType,1);
+    renderTypes()
+  })
+}
 function catRow(c,i,prefix='cat'){
   return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label><label>ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label><label>가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label><label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`
 }
