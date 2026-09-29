@@ -160,5 +160,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173042"
+  },
+  {
+    "id": "preset-wroObsQnoyo",
+    "category": "profile",
+    "file": "preset/profile/20260929173049-NbS9wTqv-6.png",
+    "originalName": "6.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929173049"
   }
 ]
