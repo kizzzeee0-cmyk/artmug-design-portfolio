@@ -1135,3 +1135,53 @@ body::after{
     font-size:8px;
   }
 }
+
+/* profile A/B options, portfolio tags, Artmug iframe scrollbar */
+@media(min-width:681px){
+  .background-type-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  html.public-page,
+  body.public-page{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  html.public-page::-webkit-scrollbar,
+  body.public-page::-webkit-scrollbar{
+    width:0!important;
+    height:0!important;
+    display:none!important;
+  }
+}
+.portfolio-work-card{
+  position:relative;
+}
+.portfolio-type-badge{
+  position:absolute;
+  top:6px;
+  left:6px;
+  z-index:3;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:22px;
+  padding:0 8px;
+  border-radius:999px;
+  background:var(--accent);
+  color:#fff;
+  box-shadow:0 3px 10px rgba(98,90,155,.22);
+  font-size:9px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:-.01em;
+  pointer-events:none;
+}
+@media(max-width:680px){
+  .portfolio-type-badge{
+    top:4px;
+    left:4px;
+    min-height:19px;
+    padding:0 6px;
+    font-size:8px;
+  }
+}
