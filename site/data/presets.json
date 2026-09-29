@@ -61,5 +61,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929162230"
+  },
+  {
+    "id": "preset-WYTJ_8nDaiE",
+    "category": "profile",
+    "file": "preset/profile/20260929162243--mYP-wg0-cute-pattern-2000x2000__5_.png",
+    "originalName": "cute-pattern-2000x2000 (5).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929162243"
   }
 ]
