@@ -32,7 +32,7 @@ function renderBackgroundGuide(s){
   grid.innerHTML=g.options.map((x,i)=>{
     const details=(Array.isArray(x.details)?x.details:[]).filter(Boolean);
     const targetAvailable=x.targetKind==='preset'
-      ? visibleCats(s.presetCategories||[]).some(c=>c.id===x.targetCategory)
+      ? !!s.presetEnabled&&visibleCats(s.presetCategories||[]).some(c=>c.id===x.targetCategory)
       : visibleCats(s.portfolioCategories||[]).some(c=>c.id===x.targetCategory);
     return `<article class="background-type-card">
       <span class="background-type-letter">${htmlAttr(x.badge||String.fromCharCode(65+i))}</span>
