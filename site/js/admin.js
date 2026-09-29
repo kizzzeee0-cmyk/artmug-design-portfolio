@@ -68,8 +68,8 @@ function ensureBackgroundGuide(){
   const g=S.backgroundGuide;
   if(g.enabled===undefined)g.enabled=true;
   const defaults=[
-    {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
-    {key:'b',badge:'B',title:'심플형 움짤 프사',description:'체크, 도트, 땡땡이, 그라데이션 등 비교적 간단한 패턴 배경이나 직접 제작한 고정형 프리셋을 활용해 제작하는 방식입니다.',details:['색상은 원하는 분위기에 맞게 자유롭게 변경 가능합니다.'],note:'프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'}
+    {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
+    {key:'b',badge:'B',title:'심플형 움짤 프사',description:'체크, 도트, 땡땡이, 그라데이션 등 비교적 간단한 패턴 배경이나 직접 제작한 고정형 프리셋을 활용해 제작하는 방식입니다.',details:['색상은 원하는 분위기에 맞게 자유롭게 변경 가능합니다.'],note:'프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'}
   ];
   if(!Array.isArray(g.options))g.options=[];
   g.options=defaults.map((d,i)=>({...d,...(g.options[i]||{}),details:Array.isArray(g.options[i]?.details)?g.options[i].details:d.details}));
@@ -83,10 +83,19 @@ function renderBackgroundGuideAdmin(){
     '<label><span>상단 작은 문구</span><input id="backgroundGuideKickerInput" value="'+adminEsc(g.kicker||'')+'"></label>'+
     '<label><span>큰 제목</span><input id="backgroundGuideTitleInput" value="'+adminEsc(g.title||'')+'"></label>'+
     '<label class="wide"><span>부제목</span><input id="backgroundGuideSubtitleInput" value="'+adminEsc(g.subtitle||'')+'"></label>';
-  const targetNames=['움짤프사 포트폴리오','움짤프사 프리셋'];
-  $('backgroundGuideOptions').innerHTML=g.options.slice(0,2).map((x,i)=>`
+  const targetNames=['포트폴리오 · 움짤프사','프리셋 · 움짤프사'];
+  $('backgroundGuideOptions').innerHTML=g.options.slice(0,2).map((x,i)=>{
+    const ref=x.referenceImage||'',src=ref?API+'/media/'+ref.split('/').map(encodeURIComponent).join('/'):'';
+    return `
     <div class="background-guide-admin-card">
       <div class="background-guide-admin-head"><strong>${adminEsc(x.badge||String.fromCharCode(65+i))} 유형</strong><span class="muted">버튼 이동 위치: ${targetNames[i]}</span></div>
+      <div class="guide-reference-admin">
+        <div class="guide-reference-preview ${ref?'has-image':''}">${ref?`<img src="${src}" alt="참고 움 미리보기">`:'<span>참고 움 미등록</span>'}</div>
+        <div class="guide-reference-tools">
+          <label><span>설명 왼쪽 참고 움 · 이미지/GIF 1개</span><input id="guideReferenceFile${i}" type="file" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp"></label>
+          <div class="guide-reference-actions"><button type="button" class="ghost admin-compact" data-guide-reference-upload="${i}">${ref?'참고 움 교체':'참고 움 업로드'}</button><button type="button" class="danger admin-compact" data-guide-reference-delete="${i}" ${ref?'':'disabled'}>삭제</button></div>
+        </div>
+      </div>
       <div class="fields">
         <label><span>표시 문자</span><input data-bg-badge="${i}" value="${adminEsc(x.badge||'')}"></label>
         <label><span>유형 제목</span><input data-bg-title="${i}" value="${adminEsc(x.title||'')}"></label>
@@ -95,7 +104,16 @@ function renderBackgroundGuideAdmin(){
         <label class="wide"><span>추가 안내 문구</span><textarea data-bg-note="${i}">${adminEsc(x.note||'')}</textarea></label>
         <label class="wide"><span>버튼 문구</span><input data-bg-button="${i}" value="${adminEsc(x.buttonLabel||'')}"></label>
       </div>
-    </div>`).join('')
+    </div>`
+  }).join('');
+  document.querySelectorAll('[data-guide-reference-upload]').forEach(b=>b.onclick=()=>{
+    const i=Number(b.dataset.guideReferenceUpload);
+    siteUpload(i===0?'guide-a':'guide-b','guideReferenceFile'+i)
+  });
+  document.querySelectorAll('[data-guide-reference-delete]').forEach(b=>b.onclick=()=>{
+    const i=Number(b.dataset.guideReferenceDelete);
+    siteDelete(i===0?'guide-a':'guide-b')
+  })
 }
 function collectBackgroundGuide(){
   if(!$('backgroundGuideEnabled'))return;
