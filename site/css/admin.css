@@ -182,3 +182,11 @@
     flex-direction:column;
   }
 }
+
+/* simplified preset upload admin */
+.preset-upload-row{
+  grid-template-columns:minmax(140px,.7fr) minmax(220px,1.3fr) auto!important;
+}
+@media(max-width:720px){
+  .preset-upload-row{grid-template-columns:1fr!important}
+}
