@@ -58,21 +58,21 @@ function parsePresetOriginalName(name){
 }
 function ensurePresetMeta(){if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};return S.presetMeta}
 function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{};return {name:String(meta.name||''),description:String(meta.description??''),enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,isNew:meta.isNew===true}}
+function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
+function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:''}}
+function isProfilePortfolioCategory(id){return /^profile(?:-|$)/.test(String(id||''))}
+function logicalPortfolioCategory(id){return isProfilePortfolioCategory(id)?'profile':id}
 
 function ensureBackgroundGuide(){
   if(!S.backgroundGuide||typeof S.backgroundGuide!=='object')S.backgroundGuide={};
   const g=S.backgroundGuide;
   if(g.enabled===undefined)g.enabled=true;
-  if(!Array.isArray(g.options))g.options=[];
   const defaults=[
-    {key:'a',badge:'A',title:'간단한 패턴 무늬',description:'',details:[],note:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'},
-    {key:'b',badge:'B',title:'고정틀 프리셋',description:'',details:[],note:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile-b'},
-    {key:'c',badge:'C',title:'개인 맞춤 제작',description:'',details:[],note:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile-c'}
+    {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
+    {key:'b',badge:'B',title:'심플형 움짤 프사',description:'체크, 도트, 땡땡이, 그라데이션 등 비교적 간단한 패턴 배경이나 직접 제작한 고정형 프리셋을 활용해 제작하는 방식입니다.',details:['색상은 원하는 분위기에 맞게 자유롭게 변경 가능합니다.'],note:'프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'}
   ];
-  defaults.forEach((d,i)=>{
-    if(!g.options[i])g.options[i]={...d};
-    else g.options[i]={...d,...g.options[i],details:Array.isArray(g.options[i].details)?g.options[i].details:[]}
-  });
+  if(!Array.isArray(g.options))g.options=[];
+  g.options=defaults.map((d,i)=>({...d,...(g.options[i]||{}),details:Array.isArray(g.options[i]?.details)?g.options[i].details:d.details}));
   return g
 }
 function renderBackgroundGuideAdmin(){
@@ -83,8 +83,8 @@ function renderBackgroundGuideAdmin(){
     '<label><span>상단 작은 문구</span><input id="backgroundGuideKickerInput" value="'+adminEsc(g.kicker||'')+'"></label>'+
     '<label><span>큰 제목</span><input id="backgroundGuideTitleInput" value="'+adminEsc(g.title||'')+'"></label>'+
     '<label class="wide"><span>부제목</span><input id="backgroundGuideSubtitleInput" value="'+adminEsc(g.subtitle||'')+'"></label>';
-  const targetNames=['움짤프사 A 프리셋','움짤프사 B 프리셋','움짤프사 C 포트폴리오'];
-  $('backgroundGuideOptions').innerHTML=g.options.slice(0,3).map((x,i)=>`
+  const targetNames=['움짤프사 포트폴리오','움짤프사 프리셋'];
+  $('backgroundGuideOptions').innerHTML=g.options.slice(0,2).map((x,i)=>`
     <div class="background-guide-admin-card">
       <div class="background-guide-admin-head"><strong>${adminEsc(x.badge||String.fromCharCode(65+i))} 유형</strong><span class="muted">버튼 이동 위치: ${targetNames[i]}</span></div>
       <div class="fields">
@@ -104,7 +104,7 @@ function collectBackgroundGuide(){
   g.kicker=$('backgroundGuideKickerInput')?.value||'';
   g.title=$('backgroundGuideTitleInput')?.value||'';
   g.subtitle=$('backgroundGuideSubtitleInput')?.value||'';
-  g.options.slice(0,3).forEach((x,i)=>{
+  g.options.slice(0,2).forEach((x,i)=>{
     x.badge=document.querySelector(`[data-bg-badge="${i}"]`)?.value||'';
     x.title=document.querySelector(`[data-bg-title="${i}"]`)?.value||'';
     x.description=document.querySelector(`[data-bg-description="${i}"]`)?.value||'';
@@ -157,7 +157,12 @@ function catRow(c,i,prefix='cat'){
 }
 function moveCategory(arr,prefix,index,dir){
   collectCats(arr,prefix);
-  const next=index+dir;
+  let next=index+dir;
+  if(prefix==='cat'){
+    const visible=arr.map((c,i)=>({c,i})).filter(x=>!x.c.hiddenLegacy).map(x=>x.i),pos=visible.indexOf(index);
+    if(pos<0||pos+dir<0||pos+dir>=visible.length)return;
+    next=visible[pos+dir]
+  }
   if(next<0||next>=arr.length)return;
   [arr[index],arr[next]]=[arr[next],arr[index]];
   if(prefix==='cat')renderCats();else renderPresetCats()
@@ -166,8 +171,9 @@ function bindCategoryOrder(arr,prefix){
   document.querySelectorAll(`[data-move-${prefix}]`).forEach(b=>b.onclick=()=>moveCategory(arr,prefix,Number(b.getAttribute(`data-move-${prefix}`)),Number(b.dataset.dir)))
 }
 function renderCats(){
-  $('cats').innerHTML=(S.portfolioCategories||[]).map((c,i)=>catRow(c,i,'cat')).join('');
-  $('uploadCat').innerHTML=(S.portfolioCategories||[]).map(c=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
+  const cats=(S.portfolioCategories||[]).map((c,i)=>({c,i})).filter(x=>!x.c.hiddenLegacy);
+  $('cats').innerHTML=cats.map(({c,i})=>catRow(c,i,'cat')).join('');
+  $('uploadCat').innerHTML=cats.map(({c})=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
   document.querySelectorAll('[data-del-cat]').forEach(b=>b.onclick=()=>{collectCats(S.portfolioCategories||[],'cat');S.portfolioCategories.splice(+b.dataset.delCat,1);renderCats()});
   bindCategoryOrder(S.portfolioCategories||[],'cat')
 }
@@ -294,12 +300,24 @@ async function saveMediaOrder(kind){
 }
 async function moveMediaItem(kind,index,dir){
   const list=kind==='preset'?presetItems:items,x=list[index];if(!x)return;
-  const same=list.map((v,i)=>({v,i})).filter(o=>o.v.category===x.category),pos=same.findIndex(o=>o.i===index),next=pos+dir;
+  const same=list.map((v,i)=>({v,i})).filter(o=>kind==='portfolio'?logicalPortfolioCategory(o.v.category)===logicalPortfolioCategory(x.category):o.v.category===x.category),pos=same.findIndex(o=>o.i===index),next=pos+dir;
   if(next<0||next>=same.length)return;
   const target=same[next].i;
   [list[index],list[target]]=[list[target],list[index]];
   if(kind==='preset')renderPresetItems();else renderItems();
   try{await saveMediaOrder(kind)}catch(e){alert('순서 저장에 실패했습니다.\n'+e.message)}
+}
+async function savePortfolioTag(i,type,checked){
+  const x=items[i];if(!x)return;
+  const value=checked?type:'';
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
+    const prev=latest.portfolioMeta[x.file]||{};
+    latest.portfolioMeta[x.file]={...prev,profileType:value}
+  });
+  S.portfolioMeta=saved.portfolioMeta||S.portfolioMeta||{};
+  renderItems();
+  showToast(value?`움짤프사 ${value} 태그를 켰습니다.`:'태그를 껐습니다.')
 }
 async function loadItems(){try{const d=await api('/api/admin/portfolio');items=applyAdminOrder(d.items||[],S?.portfolioOrder);renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));const presetBase=[...(q.items||[])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));presetItems=applyAdminOrder(presetBase,S?.presetOrder);renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
 function presetLocationText(x){
@@ -329,6 +347,65 @@ async function savePresetToggle(i,key,value){
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
   showToast(key==='enabled'?(value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.'):(value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.'))
 }
+function chooseReplacementFile(){
+  return new Promise(resolve=>{
+    const input=document.createElement('input');
+    input.type='file';
+    input.accept='.gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp';
+    input.onchange=()=>resolve(input.files?.[0]||null);
+    input.click()
+  })
+}
+function replaceOrderPath(order,oldPath,newPath){
+  const arr=Array.isArray(order)?[...order]:[];
+  const i=arr.indexOf(oldPath);
+  if(i>=0)arr[i]=newPath;else arr.push(newPath);
+  return arr
+}
+async function replaceMediaFile(kind,index){
+  const list=kind==='preset'?presetItems:items,x=list[index];if(!x)return;
+  const file=await chooseReplacementFile();if(!file)return;
+  const isPreset=kind==='preset',endpoint=isPreset?'/api/admin/preset-upload':'/api/admin/upload',deleteEndpoint=isPreset?'/api/admin/preset-delete':'/api/admin/delete';
+  const targetCategory=!isPreset&&isProfilePortfolioCategory(x.category)?'profile':x.category;
+  const fd=new FormData();fd.append('category',targetCategory);fd.append('file',file);
+  let newPath='';
+  try{
+    showToast('새 파일을 업로드하고 있습니다.');
+    const r=await fetch(API+endpoint,{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+    newPath=String(d.path||'');if(!newPath)throw new Error('새 파일 경로를 확인하지 못했습니다.');
+
+    const presetMeta=isPreset?{
+      ...presetMetaFor(x),
+      name:(document.querySelector(`[data-preset-name="${index}"]`)?.value||presetMetaFor(x).name).trim(),
+      description:(document.querySelector(`[data-preset-desc="${index}"]`)?.value||presetMetaFor(x).description).trim()
+    }:null;
+    const portfolioMeta=!isPreset?portfolioMetaFor(x):null;
+
+    const saved=await queueSettingsMutation(latest=>{
+      if(isPreset){
+        if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+        latest.presetMeta[newPath]={...(latest.presetMeta[x.file]||{}),...presetMeta};
+        delete latest.presetMeta[x.file];
+        latest.presetOrder=replaceOrderPath(latest.presetOrder,x.file,newPath)
+      }else{
+        if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
+        latest.portfolioMeta[newPath]={...(latest.portfolioMeta[x.file]||{}),...portfolioMeta};
+        delete latest.portfolioMeta[x.file];
+        latest.portfolioOrder=replaceOrderPath(latest.portfolioOrder,x.file,newPath)
+      }
+    });
+    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
+    else{S.portfolioMeta=saved.portfolioMeta||{};S.portfolioOrder=saved.portfolioOrder||[]}
+
+    await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:x.file})});
+    await loadItems();
+    showToast('파일이 변경되었습니다.')
+  }catch(e){
+    if(newPath)await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+    alert('파일 변경에 실패했습니다.\n'+e.message)
+  }
+}
 function renderPresetItems(){
   $('presetItems').innerHTML=presetItems.map((x,i)=>{
     const meta=presetMetaFor(x),allowDesc=['profile','profile-b'].includes(x.category),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
@@ -346,12 +423,14 @@ function renderPresetItems(){
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button>
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
         </div>
+        <button class="ghost admin-compact" data-replace-preset="${i}">파일 수정</button>
         <button class="ghost admin-compact" data-save-preset="${i}">정보 저장</button>
         <button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button>
       </div>
     </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
+  document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
@@ -360,11 +439,22 @@ function renderPresetItems(){
 
 function renderItems(){
   $('items').innerHTML=items.map((x,i)=>{
-    const same=items.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
-    return `<div class="item"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy"><div><strong>${adminEsc(x.originalName)}</strong><div class="muted">${adminEsc(x.category)}</div></div><div class="item-actions"><div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div><button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button></div></div>`
+    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file),meta=portfolioMetaFor(x),isProfile=logical==='profile';
+    return `<div class="item portfolio-admin-item">
+      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy">
+      <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${isProfile?'움짤프사':adminEsc(x.category)}</div>${isProfile?`<div class="portfolio-tag-controls"><label><input type="checkbox" data-portfolio-tag-a="${i}" ${meta.profileType==='A'?'checked':''}> 움짤프사 A 태그</label><label><input type="checkbox" data-portfolio-tag-b="${i}" ${meta.profileType==='B'?'checked':''}> 움짤프사 B 태그</label></div>`:''}</div>
+      <div class="item-actions">
+        <div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div>
+        <button class="ghost admin-compact" data-replace-portfolio="${i}">파일 수정</button>
+        <button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button>
+      </div>
+    </div>`
   }).join('');
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
-  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file)}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
+  document.querySelectorAll('[data-portfolio-tag-a]').forEach(el=>el.onchange=()=>savePortfolioTag(+el.dataset.portfolioTagA,'A',el.checked).catch(e=>{el.checked=!el.checked;alert('태그 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-portfolio-tag-b]').forEach(el=>el.onchange=()=>savePortfolioTag(+el.dataset.portfolioTagB,'B',el.checked).catch(e=>{el.checked=!el.checked;alert('태그 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);if(S.portfolioMeta)delete S.portfolioMeta[file];await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
 }
 async function uploadFiles(kind){
   const fileInput=kind==='preset'?$('presetFiles'):$('files'),cat=kind==='preset'?$('presetUploadCat').value:$('uploadCat').value,status=$(kind==='preset'?'presetUploadStatus':'uploadStatus'),files=[...fileInput.files];
