@@ -85,8 +85,22 @@ async function publicPresets(u,env){
 async function media(path,env){const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`);if(!r.ok)return new Response('Not found',{status:404});const h=new Headers({'Cache-Control':'public,max-age=31536000,immutable'}),ct=r.headers.get('Content-Type');if(ct)h.set('Content-Type',ct);return new Response(r.body,{status:200,headers:h})}
 function b64(buf){const bytes=new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
 function decodeB64(s){return Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0))}
-async function putFile(env,token,path,bytes,message,sha){const body={message,content:b64(bytes),branch:env.GITHUB_BRANCH||'main'};if(sha)body.sha=sha;const r=await fetch(ghUrl(env,path),{method:'PUT',headers:{...ghHeaders(token),'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(`GitHub ${r.status}: ${d.message||path}`);return d}
-async function saveJson(env,token,path,obj,msg){let sha;try{sha=(await ghGet(env,token,path)).sha}catch{}return putFile(env,token,path,enc.encode(JSON.stringify(obj,null,2)+'\n'),msg,sha)}
+async function putFile(env,token,path,bytes,message,sha){const body={message,content:b64(bytes),branch:env.GITHUB_BRANCH||'main'};if(sha)body.sha=sha;const r=await fetch(ghUrl(env,path),{method:'PUT',headers:{...ghHeaders(token),'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(`GitHub ${r.status}: ${d.message||path}`);e.status=r.status;throw e}return d}
+async function saveJson(env,token,path,obj,msg){
+  const bytes=enc.encode(JSON.stringify(obj,null,2)+'\n');
+  let lastError;
+  for(let attempt=0;attempt<3;attempt++){
+    let sha;
+    try{sha=(await ghGet(env,token,path)).sha}catch{}
+    try{return await putFile(env,token,path,bytes,msg,sha)}
+    catch(e){
+      lastError=e;
+      if(Number(e.status)!==409||attempt===2)throw e;
+      await new Promise(r=>setTimeout(r,150*(attempt+1)))
+    }
+  }
+  throw lastError
+}
 async function saveSettings(req,env,s){const body=await req.json();if(!body.settings)throw new Error('settings가 없습니다.');const clean=body.settings;delete clean.__proto__;const token=env.GITHUB_TOKEN||s.token;if(!token)throw new Error('GitHub 저장 토큰이 없습니다.');await saveJson(env,token,SETTINGS,clean,'[CF-Pages-Skip] Update settings');return json({ok:true,settings:clean})}
 function safeName(n){return String(n||'file').replace(/[^a-zA-Z0-9._-]/g,'_')}
 function dimensions(b,e){try{if(e==='png')return {width:(b[16]<<24|b[17]<<16|b[18]<<8|b[19])>>>0,height:(b[20]<<24|b[21]<<16|b[22]<<8|b[23])>>>0};if(e==='gif')return {width:b[6]|b[7]<<8,height:b[8]|b[9]<<8};if(e==='webp'){if(String.fromCharCode(...b.slice(0,4))!=='RIFF')return null;const t=String.fromCharCode(...b.slice(12,16));if(t==='VP8X')return {width:1+(b[24]|b[25]<<8|b[26]<<16),height:1+(b[27]|b[28]<<8|b[29]<<16)};if(t==='VP8 ')return {width: b[26]|b[27]<<8,height:b[28]|b[29]<<8};return null}if(e==='jpeg'){let i=2;while(i<b.length){if(b[i]!==0xFF){i++;continue}const m=b[i+1];if([0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF].includes(m))return {height:b[i+5]<<8|b[i+6],width:b[i+7]<<8|b[i+8]};const n=(b[i+2]<<8)|b[i+3];i+=2+n}}}catch{}return null}
