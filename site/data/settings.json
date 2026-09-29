@@ -225,7 +225,7 @@
   "eventsText": "움짤프사 15000 -> 13000\n\n*오픈 이벤트는 예고 없이 조기 종료될 수 있습니다*",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
-  "presetEnabled": false,
+  "presetEnabled": true,
   "presetTitle": "고정틀 프리셋",
   "presetNotice": "아직 판매되지 않은 프리셋입니다.\n그대로 제작을 원하실 경우 문의해주세요.",
   "presetCategories": [
