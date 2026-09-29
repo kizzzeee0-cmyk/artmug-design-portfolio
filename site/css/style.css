@@ -1071,3 +1071,31 @@ body::after{
     margin-top:28px!important;
   }
 }
+
+/* desktop unified portfolio preset rhythm */
+@media(min-width:681px){
+  /* Match NOTICE / PROFILE OPTIONS: title -> next section starts at 18px. */
+  .portfolio-card .portfolio-header,
+  .preset-section .portfolio-header{
+    gap:0!important;
+    margin-bottom:0!important;
+  }
+  .portfolio-card .portfolio-header h2,
+  .preset-section .portfolio-header h2{
+    margin-bottom:0!important;
+  }
+  .portfolio-card #portfolioTabs,
+  .preset-section #presetTabs{
+    margin-top:18px!important;
+  }
+
+  /* Category buttons -> first image: compact 15px. */
+  .portfolio-card #portfolioTabs,
+  .preset-section #presetTabs{
+    margin-bottom:0!important;
+  }
+  .portfolio-grid,
+  .preset-grid{
+    margin-top:15px!important;
+  }
+}
