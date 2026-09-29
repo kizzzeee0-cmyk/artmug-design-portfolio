@@ -242,7 +242,7 @@
   "presetCategories": [
     {
       "id": "profile",
-      "label": "움짤프사 A",
+      "label": "움짤프사 심플형",
       "enabled": true,
       "displayWidth": 200,
       "displayHeight": 200,
@@ -254,21 +254,6 @@
         "gif"
       ],
       "emptyText": "등록된 움짤프사 A 프리셋이 아직 없습니다."
-    },
-    {
-      "id": "profile-b",
-      "label": "움짤프사 B",
-      "enabled": true,
-      "displayWidth": 200,
-      "displayHeight": 200,
-      "strictSize": true,
-      "uploadWidth": 200,
-      "uploadHeight": 200,
-      "maxBytes": 2097152,
-      "formats": [
-        "gif"
-      ],
-      "emptyText": "등록된 움짤프사 B 프리셋이 아직 없습니다."
     },
     {
       "id": "signature",
