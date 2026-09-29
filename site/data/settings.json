@@ -54,15 +54,6 @@
       "showReviewEvent": true
     },
     {
-      "id": "type-1790697442247",
-      "label": "움짤프사 C",
-      "enabled": true,
-      "showFrameRetention": true,
-      "showSignatureFields": false,
-      "showBannerFields": false,
-      "showReviewEvent": true
-    },
-    {
       "id": "signature-style",
       "label": "시그니처풍",
       "showFrameRetention": false,
