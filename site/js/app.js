@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0;const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',group:'',mini:'',page:1},requestSeq=0;const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
@@ -271,15 +271,105 @@ function allRequiredInquiryFieldsFilled(){
 function clearRequiredMessageIfComplete(){
   if(allRequiredInquiryFieldsFilled())$('copyStatus').textContent='';
 }
-function renderPreset(s){const on=!!s.presetEnabled;$('presetSection').hidden=!on;set('presetTitle',s.presetTitle||'미판매 프리셋');set('presetNotice',s.presetNotice||'');if(on){const cats=visibleCats(s.presetCategories||[]);if(!presetState.category||!cats.some(c=>c.id===presetState.category))presetState.category=cats[0]?.id||'';renderPresetTabs(cats);loadPresets()}}
-function renderPresetTabs(cats){cats=visibleCats(cats);if(!presetState.category||!cats.some(c=>c.id===presetState.category))presetState.category=cats[0]?.id||'';$('presetTabs').innerHTML=cats.map(c=>`<button class="tab ${c.id===presetState.category?'is-active':''}" data-preset-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');$('presetTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{presetState.category=b.dataset.presetCat;presetState.page=1;renderPresetTabs(cats);loadPresets()})}
+function visiblePresetGroups(category){
+  return (S?.presetGroups||[]).filter(x=>x.category===category&&x.enabled!==false)
+}
+function visiblePresetMinis(group){
+  return (group?.miniCategories||[]).filter(x=>x.enabled!==false)
+}
+function currentPresetGroup(){
+  return (S?.presetGroups||[]).find(x=>x.id===presetState.group)||null
+}
+function renderPreset(s){
+  const on=!!s.presetEnabled,sec=$('presetSection');
+  sec.hidden=!on;
+  set('presetTitle',s.presetTitle||'고정틀 프리셋');
+  set('presetNotice',s.presetNotice||'');
+  if(!on)return;
+
+  const cats=visibleCats(s.presetCategories||[]);
+  if(!presetState.category||!cats.some(c=>c.id===presetState.category))presetState.category=cats[0]?.id||'';
+  renderPresetTabs(cats);
+  syncPresetSubcategoryState();
+  loadPresets();
+}
+function renderPresetTabs(cats){
+  cats=visibleCats(cats);
+  const tabs=$('presetTabs');
+  tabs.hidden=cats.length<=1;
+  tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===presetState.category?'is-active':''}" data-preset-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    presetState.category=b.dataset.presetCat;
+    presetState.group='';
+    presetState.mini='';
+    presetState.page=1;
+    renderPresetTabs(cats);
+    syncPresetSubcategoryState();
+    loadPresets();
+  });
+}
+function syncPresetSubcategoryState(){
+  const groupTabs=$('presetGroupTabs'),miniTabs=$('presetMiniTabs');
+  const groups=visiblePresetGroups(presetState.category);
+  if(!groups.length){
+    presetState.group='';
+    presetState.mini='';
+    groupTabs.hidden=true;groupTabs.innerHTML='';
+    miniTabs.hidden=true;miniTabs.innerHTML='';
+    return;
+  }
+  if(!presetState.group||!groups.some(g=>g.id===presetState.group))presetState.group=groups[0].id;
+  groupTabs.hidden=groups.length<=1;
+  groupTabs.innerHTML=groups.map(g=>`<button class="tab ${g.id===presetState.group?'is-active':''}" data-preset-group="${esc(g.id)}">${esc(g.label)}</button>`).join('');
+  groupTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    presetState.group=b.dataset.presetGroup;
+    presetState.mini='';
+    presetState.page=1;
+    syncPresetSubcategoryState();
+    loadPresets();
+  });
+
+  const group=groups.find(g=>g.id===presetState.group);
+  const minis=visiblePresetMinis(group);
+  if(!presetState.mini||!minis.some(m=>m.id===presetState.mini))presetState.mini=minis[0]?.id||'';
+  miniTabs.hidden=minis.length<=1;
+  miniTabs.innerHTML=minis.map(m=>`<button class="tab ${m.id===presetState.mini?'is-active':''}" data-preset-mini="${esc(m.id)}">${esc(m.label)}</button>`).join('');
+  miniTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    presetState.mini=b.dataset.presetMini;
+    presetState.page=1;
+    syncPresetSubcategoryState();
+    loadPresets();
+  });
+}
 function renderPortfolioTabs(cats){cats=visibleCats(cats);if(!portfolioState.category||!cats.some(c=>c.id===portfolioState.category))portfolioState.category=cats[0]?.id||'';const tabs=$('portfolioTabs');tabs.hidden=cats.length<=1;tabs.innerHTML=cats.map(c=>`<button class="tab ${c.id===portfolioState.category?'is-active':''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`).join('');tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{portfolioState.category=b.dataset.cat;portfolioState.page=1;renderPortfolioTabs(cats);loadPortfolio()})}
 function portfolioLayout(c={}){const w=Number(c.uploadWidth||0),h=Number(c.uploadHeight||0),label=String(c.label||'').replace(/\s/g,'');if(w===2320&&h===338||label.includes('상단배너'))return'top-banner';if(w===80&&h===209||label.includes('플로팅'))return'floating-banner';if(w===720&&h===150||label.includes('하단배너일반'))return'bottom-banner';if(w===720&&h===450||label.includes('하단배너분할'))return'bottom-split';if(w===293&&h===165||label.includes('시그'))return'signature';if(w===200&&h===200||label.includes('움짤프사'))return'profile';return'default'}
 function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);g.className='portfolio-grid layout-'+layout;g.style.setProperty('--display-width',`${c.displayWidth||200}px`);g.style.setProperty('--display-height',`${c.displayHeight||200}px`);g.innerHTML=items.length?items.map(x=>`<article class="work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(x.alt||x.originalName)}" loading="lazy"></div></button></article>`).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;bindLightboxes()}
-function presetGrid(items,cat){const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid'),layout=portfolioLayout(c);g.className='portfolio-grid layout-'+layout;g.style.setProperty('--display-width',`${c.displayWidth||240}px`);g.style.setProperty('--display-height',`${c.displayHeight||240}px`);g.innerHTML=items.length?items.map(x=>`<article class="work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(x.originalName||'프리셋')}" loading="lazy"></div></button></article>`).join(''):`<div class="empty-state">등록된 프리셋이 아직 없습니다.</div>`;bindLightboxes()}
+function presetGrid(items,cat){
+  const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid'),layout=portfolioLayout(c),group=currentPresetGroup();
+  g.className='portfolio-grid preset-grid layout-'+layout;
+  g.style.setProperty('--display-width',`${c.displayWidth||240}px`);
+  g.style.setProperty('--display-height',`${c.displayHeight||240}px`);
+  g.innerHTML=items.length?items.map(x=>{
+    const showDesc=!!group?.descriptionEnabled&&!!String(x.description||'').trim();
+    const name=String(x.name||x.originalName||'프리셋').replace(/\.[^.]+$/,'');
+    return `<article class="work-card preset-work-card"><button class="work-button" data-image="${esc(x.demoSrc||media(x.file))}"><div class="media-wrap"><img src="${esc(x.demoSrc||media(x.file))}" alt="${esc(name)}" loading="lazy"></div></button><div class="preset-card-copy"><strong>${esc(name)}</strong>${showDesc?`<p>${esc(x.description)}</p>`:''}</div></article>`
+  }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
+  bindLightboxes()
+}
 function pages(el,total,current,fn){el.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="page-button ${i+1===current?'is-active':''}" data-page="${i+1}">${i+1}</button>`).join(''):'';el.querySelectorAll('button').forEach(b=>b.onclick=()=>fn(Number(b.dataset.page)))}
 async function loadPortfolio(){try{$('portfolioStatus').textContent='불러오는 중…';const d=await api(`/api/public/portfolio?category=${encodeURIComponent(portfolioState.category)}&page=${portfolioState.page}&perPage=${PER}`);grid(d.items||[],portfolioState.category);$('portfolioStatus').textContent=d.total?`${d.total}개의 작업물`:'';pages($('pagination'),d.totalPages||1,d.page||1,p=>{portfolioState.page=p;loadPortfolio()})}catch(e){$('portfolioStatus').textContent='포트폴리오를 불러오지 못했습니다.'}}
-async function loadPresets(){try{$('presetStatus').textContent='불러오는 중…';const d=await api(`/api/public/presets?category=${encodeURIComponent(presetState.category)}&page=${presetState.page}&perPage=${PER}`);presetGrid(d.items||[],presetState.category);$('presetStatus').textContent=d.total?`${d.total}개의 프리셋`:'';pages($('presetPagination'),d.totalPages||1,d.page||1,p=>{presetState.page=p;loadPresets()})}catch(e){$('presetStatus').textContent='프리셋을 불러오지 못했습니다.'}}
+async function loadPresets(){
+  try{
+    $('presetStatus').textContent='불러오는 중…';
+    const params=new URLSearchParams({category:presetState.category,page:String(presetState.page),perPage:String(PER)});
+    if(presetState.group)params.set('group',presetState.group);
+    if(presetState.mini)params.set('mini',presetState.mini);
+    const d=await api('/api/public/presets?'+params.toString());
+    presetGrid(d.items||[],presetState.category);
+    $('presetStatus').textContent=d.total?`${d.total}개의 프리셋`:'';
+    pages($('presetPagination'),d.totalPages||1,d.page||1,p=>{presetState.page=p;loadPresets()})
+  }catch(e){$('presetStatus').textContent='프리셋을 불러오지 못했습니다.'}
+}
 function bindLightboxes(){document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>{const d=$('lightbox');$('lightboxImage').src=b.dataset.image;d.showModal()})}
 function showCopied(btn,text='✓ 복사 완료'){const original=btn.textContent;btn.classList.add('is-copied');btn.textContent=text;setTimeout(()=>{btn.classList.remove('is-copied');btn.textContent=original},1800)}
 async function copyText(text){
