@@ -190,3 +190,27 @@
 @media(max-width:720px){
   .preset-upload-row{grid-template-columns:1fr!important}
 }
+
+/* inquiry design type ordering */
+.type-edit{
+  grid-template-columns:minmax(260px,1.5fr) minmax(300px,1fr) auto auto;
+}
+.type-order-controls{
+  display:flex;
+  gap:5px;
+  align-items:center;
+  align-self:end;
+}
+@media(max-width:900px){
+  .type-edit{
+    grid-template-columns:1fr 1fr;
+  }
+  .type-order-controls{
+    justify-content:flex-start;
+  }
+}
+@media(max-width:720px){
+  .type-edit{
+    grid-template-columns:1fr;
+  }
+}
