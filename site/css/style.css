@@ -1026,3 +1026,13 @@ body::after{
     gap:5px!important;
   }
 }
+
+/* desktop option spacing + hide option subtitle */
+.background-guide-subtitle{
+  display:none!important;
+}
+@media(min-width:681px){
+  .background-type-card:nth-child(2) .background-type-jump{
+    margin-top:auto!important;
+  }
+}
