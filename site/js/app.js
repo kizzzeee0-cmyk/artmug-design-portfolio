@@ -40,8 +40,8 @@ function renderBackgroundGuide(s){
       <h3>${htmlAttr(x.title||'')}</h3>
       <div class="background-type-content ${reference?'has-reference':''}">
         ${reference}
-        <div class="background-type-copy">
-          ${x.description?`<p>${htmlAttr(x.description)}</p>`:''}
+        ${x.description?`<p class="background-type-description">${htmlAttr(x.description)}</p>`:''}
+        <div class="background-type-secondary">
           ${details.length?`<ul class="background-type-details">${details.map(v=>`<li>${htmlAttr(v)}</li>`).join('')}</ul>`:''}
           ${x.note?`<p class="background-type-note">${htmlAttr(x.note)}</p>`:''}
         </div>
