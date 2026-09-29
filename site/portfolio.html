@@ -10,6 +10,15 @@
   </div>
   <div id="backgroundTypeGrid" class="background-type-grid"></div>
 </section>
+
+<section class="events-section" id="eventsSection" hidden><span id="eventsKicker" class="section-kicker">EVENTS</span><h2 id="eventsTitle"></h2><p id="eventsText" class="preline"></p></section>
+<section class="card form-card"><div class="section-heading"><div><span class="section-kicker">INQUIRY</span><h2 id="formTitle">문의양식</h2></div><p id="formDescription" class="muted"></p></div><div class="contact-form">
+<label class="span-2 inquiry-nickname-field"><span class="field-label-row"><span id="nicknameLabel"></span><small class="required-badge">필수</small></span><input id="nicknameInput" type="text" aria-required="true"></label>
+<div id="requestsContainer" class="span-2 request-list"></div>
+<div id="requestAddRow" class="span-2 request-add-row" hidden><button id="addRequestButton" class="request-add-button" type="button"><span class="request-add-icon">+</span><span>신청 항목 추가</span></button></div>
+<div class="span-2 form-actions"><div class="form-action-buttons"><button id="copyButton" class="primary-button" type="button"></button></div><span id="copyStatus" class="status-text"></span></div>
+</div></section>
+<section class="card portfolio-card" id="portfolioSection"><div class="portfolio-header"><div><span class="section-kicker">PORTFOLIO</span><h2 id="portfolioTitle">포트폴리오</h2></div><div id="portfolioTabs" class="tabs"></div></div><div id="portfolioStatus" class="portfolio-status"></div><div id="portfolioGrid" class="portfolio-grid"></div><nav id="pagination" class="pagination"></nav></section>
 <section class="card preset-section" id="presetSection" hidden>
   <div class="portfolio-header"><div><span class="section-kicker">PRESET</span><h2 id="presetTitle">고정틀 프리셋</h2></div></div>
   <p id="presetNotice" class="preset-notice preline"></p>
@@ -20,12 +29,4 @@
   <div id="presetGrid" class="portfolio-grid preset-grid"></div>
   <nav id="presetPagination" class="pagination"></nav>
 </section>
-<section class="events-section" id="eventsSection" hidden><span id="eventsKicker" class="section-kicker">EVENTS</span><h2 id="eventsTitle"></h2><p id="eventsText" class="preline"></p></section>
-<section class="card form-card"><div class="section-heading"><div><span class="section-kicker">INQUIRY</span><h2 id="formTitle">문의양식</h2></div><p id="formDescription" class="muted"></p></div><div class="contact-form">
-<label class="span-2 inquiry-nickname-field"><span class="field-label-row"><span id="nicknameLabel"></span><small class="required-badge">필수</small></span><input id="nicknameInput" type="text" aria-required="true"></label>
-<div id="requestsContainer" class="span-2 request-list"></div>
-<div id="requestAddRow" class="span-2 request-add-row" hidden><button id="addRequestButton" class="request-add-button" type="button"><span class="request-add-icon">+</span><span>신청 항목 추가</span></button></div>
-<div class="span-2 form-actions"><div class="form-action-buttons"><button id="copyButton" class="primary-button" type="button"></button></div><span id="copyStatus" class="status-text"></span></div>
-</div></section>
-<section class="card portfolio-card" id="portfolioSection"><div class="portfolio-header"><div><span class="section-kicker">PORTFOLIO</span><h2 id="portfolioTitle">포트폴리오</h2></div><div id="portfolioTabs" class="tabs"></div></div><div id="portfolioStatus" class="portfolio-status"></div><div id="portfolioGrid" class="portfolio-grid"></div><nav id="pagination" class="pagination"></nav></section>
 <footer id="footerText" class="footer muted"></footer></main><dialog id="lightbox" class="lightbox"><button id="lightboxClose" class="lightbox-close">×</button><img id="lightboxImage" alt="확대 이미지"></dialog><script src="/js/config.js"></script><script src="/js/app.js?v=20260927-0308"></script></body></html>
