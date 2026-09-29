@@ -1254,3 +1254,65 @@ body::after{
     max-width:none;
   }
 }
+
+/* mobile option description centered beside reference; supporting copy below */
+.background-type-description{
+  margin:0;
+  min-width:0;
+}
+.background-type-secondary{
+  min-width:0;
+}
+@media(min-width:681px){
+  .background-type-content.has-reference{
+    grid-template-columns:112px minmax(0,1fr);
+    grid-template-rows:auto auto;
+    column-gap:14px;
+    row-gap:0;
+  }
+  .background-type-content.has-reference .background-type-reference{
+    grid-column:1;
+    grid-row:1 / span 2;
+  }
+  .background-type-content.has-reference .background-type-description{
+    grid-column:2;
+    grid-row:1;
+  }
+  .background-type-content.has-reference .background-type-secondary{
+    grid-column:2;
+    grid-row:2;
+  }
+}
+@media(max-width:680px){
+  .background-type-content.has-reference{
+    display:grid!important;
+    grid-template-columns:86px minmax(0,1fr)!important;
+    grid-template-rows:minmax(86px,auto) auto;
+    column-gap:11px!important;
+    row-gap:0!important;
+    align-items:start;
+  }
+  .background-type-content.has-reference .background-type-reference{
+    float:none!important;
+    grid-column:1;
+    grid-row:1;
+    width:86px;
+    margin:0!important;
+    align-self:start;
+  }
+  .background-type-content.has-reference .background-type-description{
+    grid-column:2;
+    grid-row:1;
+    align-self:center;
+    margin:0!important;
+  }
+  .background-type-content.has-reference .background-type-secondary{
+    grid-column:1 / -1;
+    grid-row:2;
+    width:100%;
+    margin-top:8px;
+  }
+  .background-type-content.has-reference .background-type-secondary .background-type-details{
+    margin-top:0;
+  }
+}
