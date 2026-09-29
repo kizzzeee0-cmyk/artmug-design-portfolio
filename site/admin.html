@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Artmug Portfolio Admin</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css"><link rel="stylesheet" href="./css/style.css?v=20260930-0105"><link rel="stylesheet" href="./css/admin.css?v=20260930-0220"></head><body><main class="admin-shell">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Artmug Portfolio Admin</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css"><link rel="stylesheet" href="./css/style.css?v=20260930-0318"><link rel="stylesheet" href="./css/admin.css?v=20260930-0318"></head><body><main class="admin-shell">
 <header class="card admin-top"><div><span class="section-kicker">ARTMUG PORTFOLIO STUDIO</span><h1>관리자 페이지</h1><p class="muted">공개 페이지에 보이는 순서대로 내용을 관리할 수 있어요.</p></div><div id="userBox" hidden><span id="userName"></span><button id="logout" class="ghost">로그아웃</button></div></header>
 <section id="login" class="card login-card"><h2>관리자 로그인</h2><p class="muted">관리자 비밀번호를 입력해 주세요.</p><form id="loginForm"><input id="adminPassword" type="password" autocomplete="current-password" placeholder="관리자 비밀번호"><button type="submit" class="primary-button">로그인</button><p id="loginError" class="status"></p></form></section>
 <div id="panel" hidden>
@@ -40,9 +40,9 @@
 
 <section class="card admin-section" data-section="portfolio" hidden>
 <div class="head"><div><span class="section-kicker">PORTFOLIO</span><h2>포트폴리오 · 프리셋 관리</h2><p class="muted">공개 페이지의 포트폴리오 → 미판매 프리셋 순서로 정리되어 있습니다.</p></div><button id="reload" class="ghost">목록 새로고침</button></div>
-<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오</h3><p class="muted">카테고리 크기 설정과 작업물 업로드를 관리합니다.</p></div></div><div class="head"><h4>카테고리</h4><button id="addCat" class="ghost">+ 카테고리 추가</button></div><div id="cats"></div><button id="saveCats" class="primary-button">카테고리 설정 저장</button><div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="uploadStatus" class="status"></p><div id="items"></div></div>
+<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오</h3><p class="muted">움짤프사는 하나의 카테고리에서 관리하며, 각 작업물별 A/B 태그와 파일 수정이 가능합니다.</p></div></div><div class="head"><h4>카테고리</h4><button id="addCat" class="ghost">+ 카테고리 추가</button></div><div id="cats"></div><button id="saveCats" class="primary-button">카테고리 설정 저장</button><div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="uploadStatus" class="status"></p><div id="items"></div></div>
 <div class="sub card-in admin-block">
-  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>고정틀 프리셋</h3><p class="muted">움짤프사 A / B / C 카테고리별로 프리셋을 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
+  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>고정틀 프리셋</h3><p class="muted">프리셋 카테고리와 각 프리셋의 파일·이름·표시 상태를 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
   <div class="fields"><label>영역 제목<input id="presetTitle"></label><label class="wide">상단 안내 문구<textarea id="presetNotice"></textarea></label></div>
 
   <div class="head"><h4>기본 프리셋 카테고리</h4><button id="addPresetCat" class="ghost">+ 프리셋 카테고리 추가</button></div>
@@ -85,4 +85,4 @@
 </section>
 
 <section class="card admin-section" data-section="status" hidden><span class="section-kicker">CONNECTION</span><h2>연결 상태</h2><dl><div><dt>API</dt><dd id="api"></dd></div><div><dt>GitHub 관리자</dt><dd id="githubUser"></dd></div><div><dt>Worker</dt><dd id="health">확인 중…</dd></div></dl></section>
-</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20260930-0248"></script></body></html>
+</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20260930-0318"></script></body></html>
