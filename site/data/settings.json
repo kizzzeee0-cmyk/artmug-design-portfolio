@@ -338,5 +338,70 @@
         "price": 1000
       }
     ]
-  }
+  },
+  "presetGroups": [
+    {
+      "id": "profile-a",
+      "category": "profile",
+      "label": "움짤 프사 A",
+      "enabled": true,
+      "descriptionEnabled": true,
+      "miniCategories": [
+        {
+          "id": "check",
+          "label": "체크 패턴",
+          "enabled": true
+        },
+        {
+          "id": "simple",
+          "label": "간단 패턴",
+          "enabled": true
+        },
+        {
+          "id": "dot",
+          "label": "도트 패턴",
+          "enabled": true
+        },
+        {
+          "id": "gradient",
+          "label": "그라데이션",
+          "enabled": true
+        },
+        {
+          "id": "etc",
+          "label": "기타",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "profile-b",
+      "category": "profile",
+      "label": "움짤 프사 B",
+      "enabled": true,
+      "descriptionEnabled": true,
+      "miniCategories": [
+        {
+          "id": "preset-1",
+          "label": "프리셋 종류 1",
+          "enabled": true
+        },
+        {
+          "id": "preset-2",
+          "label": "프리셋 종류 2",
+          "enabled": true
+        },
+        {
+          "id": "preset-3",
+          "label": "프리셋 종류 3",
+          "enabled": true
+        },
+        {
+          "id": "etc",
+          "label": "기타",
+          "enabled": true
+        }
+      ]
+    }
+  ]
 }
