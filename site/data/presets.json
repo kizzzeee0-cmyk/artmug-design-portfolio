@@ -124,5 +124,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260929173023"
+  },
+  {
+    "id": "preset-Hri6MUBtiLY",
+    "category": "profile",
+    "file": "preset/profile/20260929173028-Upakjl6J-2.png",
+    "originalName": "2.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260929173028"
   }
 ]
