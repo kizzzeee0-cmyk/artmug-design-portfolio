@@ -424,7 +424,8 @@
         "orange": true,
         "green": true,
         "yellow": true,
-        "red": true
+        "red": true,
+        "blue": true
       },
       "images": {}
     }
