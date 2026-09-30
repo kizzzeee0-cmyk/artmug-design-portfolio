@@ -423,7 +423,7 @@
   "presetColorMeta": {
     "preset/profile/20260930142010-fU7ZU68i-___________2_.png": {
       "enabled": {
-        "pink": false,
+        "pink": true,
         "blue": false,
         "purple": false
       },
