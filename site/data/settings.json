@@ -432,13 +432,15 @@
       "images": {
         "red": "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
         "orange": "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png",
-        "pink": "preset/profile/20260930045751-nmJNKezO-cute-pattern-512x512__1_.png"
+        "pink": "preset/profile/20260930045751-nmJNKezO-cute-pattern-512x512__1_.png",
+        "yellow": "preset/profile/20260930045819-VOFF3dTN-cute-pattern-2000x2000__6_.png"
       }
     }
   },
   "presetVariantFiles": [
     "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
     "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png",
-    "preset/profile/20260930045751-nmJNKezO-cute-pattern-512x512__1_.png"
+    "preset/profile/20260930045751-nmJNKezO-cute-pattern-512x512__1_.png",
+    "preset/profile/20260930045819-VOFF3dTN-cute-pattern-2000x2000__6_.png"
   ]
 }
