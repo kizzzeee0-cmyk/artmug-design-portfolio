@@ -430,11 +430,13 @@
         "purple": true
       },
       "images": {
-        "red": "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png"
+        "red": "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
+        "orange": "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png"
       }
     }
   },
   "presetVariantFiles": [
-    "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png"
+    "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
+    "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png"
   ]
 }
