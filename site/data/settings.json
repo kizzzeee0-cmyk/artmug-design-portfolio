@@ -428,14 +428,6 @@
         "purple": false
       },
       "images": {}
-    },
-    "preset/profile/20260930141525-v9NVWSgu-_____.png": {
-      "enabled": {
-        "pink": true
-      },
-      "images": {
-        "pink": "preset/profile/20260930142017-q_Sde0uP-___________2_.png"
-      }
     }
   },
   "presetVariantFiles": [
