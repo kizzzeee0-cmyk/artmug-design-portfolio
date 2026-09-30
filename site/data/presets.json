@@ -43,5 +43,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260930045841"
+  },
+  {
+    "id": "preset-2c9NLf7-FPk",
+    "category": "profile",
+    "file": "preset/profile/20260930045926--rrWwqIV-cute-pattern-2000x2000__3_.png",
+    "originalName": "cute-pattern-2000x2000 (3).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260930045926"
   }
 ]
