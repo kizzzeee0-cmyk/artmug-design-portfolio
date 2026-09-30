@@ -249,7 +249,7 @@
     {
       "id": "signature",
       "label": "시그니처풍",
-      "enabled": false,
+      "enabled": true,
       "displayWidth": 293,
       "displayHeight": 165,
       "strictSize": true,
