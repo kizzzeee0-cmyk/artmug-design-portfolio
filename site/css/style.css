@@ -2003,3 +2003,54 @@ body::after{
     font-size:17px!important;
   }
 }
+
+/* 2026-09-30 unify desktop schedule notice event headers */
+@media(min-width:681px){
+  /* Same left edge and inner padding for the three top information sections. */
+  .schedule-card,
+  .notice-card,
+  .events-section{
+    padding:30px!important;
+  }
+
+  /* Same small kicker treatment. */
+  .schedule-card>.section-kicker,
+  .notice-card .section-kicker,
+  .event-badge{
+    display:block!important;
+    width:auto!important;
+    min-height:0!important;
+    padding:0!important;
+    margin:0 0 7px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    color:var(--accent-strong)!important;
+    font-size:11px!important;
+    font-weight:800!important;
+    line-height:1.35!important;
+    letter-spacing:.14em!important;
+    text-align:left!important;
+  }
+  .event-badge-dot{
+    display:none!important;
+  }
+
+  /* Same large title typography and start point. */
+  .schedule-card h2,
+  .notice-card h2,
+  .events-section h2{
+    margin:0!important;
+    font-size:25px!important;
+    line-height:1.3!important;
+    font-weight:800!important;
+    letter-spacing:-.025em!important;
+    text-align:left!important;
+  }
+
+  .notice-card .notice-heading,
+  .notice-card .notice-heading>div{
+    width:100%!important;
+    text-align:left!important;
+  }
+}
