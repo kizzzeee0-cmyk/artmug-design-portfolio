@@ -50,7 +50,7 @@
       "showFrameRetention": false,
       "showSignatureFields": true,
       "showBannerFields": false,
-      "enabled": true,
+      "enabled": false,
       "showReviewEvent": true
     },
     {
