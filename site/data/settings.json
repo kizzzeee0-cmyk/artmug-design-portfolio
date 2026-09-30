@@ -404,13 +404,24 @@
       "miniCategories": []
     }
   ],
-  "presetMeta": {},
+  "presetMeta": {
+    "preset/profile/20260930045603-hOY5F3Wm-ChatGPT_____2026__9__28_____06_32_36.png": {
+      "name": "리본",
+      "enabled": true,
+      "isNew": false
+    }
+  },
   "presetOrder": [],
   "portfolioOrder": [
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
     "portfolio/profile/20260927221331-GvtfOmFf-______.gif"
   ],
-  "presetColorMeta": {},
+  "presetColorMeta": {
+    "preset/profile/20260930045603-hOY5F3Wm-ChatGPT_____2026__9__28_____06_32_36.png": {
+      "enabled": {},
+      "images": {}
+    }
+  },
   "presetVariantFiles": []
 }
