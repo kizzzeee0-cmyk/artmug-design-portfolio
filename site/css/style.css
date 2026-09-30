@@ -1891,3 +1891,57 @@ body::after{
     font-size:20px!important;
   }
 }
+
+/* 2026-09-30 mobile event hierarchy + schedule size */
+/* Schedule emphasis: desktop 17px, mobile 15px. */
+.schedule-card>p{
+  font-size:17px!important;
+  line-height:1.55!important;
+}
+@media(max-width:680px){
+  .schedule-card>p{
+    font-size:15px!important;
+  }
+
+  /* Match NOTICE / INQUIRY mobile hierarchy and left edge. */
+  .events-section{
+    grid-template-columns:1fr!important;
+    gap:13px!important;
+    padding:22px!important;
+  }
+  .event-content{
+    display:block!important;
+    min-width:0;
+  }
+  .event-badge{
+    display:block!important;
+    width:auto!important;
+    min-height:0!important;
+    padding:0!important;
+    margin:0 0 7px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    color:var(--accent-strong)!important;
+    font-size:11px!important;
+    font-weight:800!important;
+    line-height:1.35!important;
+    letter-spacing:.14em!important;
+  }
+  .event-badge-dot{
+    display:none!important;
+  }
+  .events-section h2{
+    margin:0!important;
+    font-size:20px!important;
+    line-height:1.3!important;
+    font-weight:800!important;
+    letter-spacing:-.025em!important;
+  }
+  .events-section #eventsText{
+    margin:9px 0 0!important;
+    font-size:13.5px!important;
+    line-height:1.65!important;
+    text-align:left!important;
+  }
+}
