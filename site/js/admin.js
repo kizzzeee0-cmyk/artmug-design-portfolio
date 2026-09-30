@@ -308,6 +308,7 @@ async function saveSettings(){
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
   collectCats(S.presetCategories||[],'preset');collectPresetGroups();
+  delete S.backgroundGuide;delete S.comparisonAImage;delete S.comparisonBImage;delete S.portfolioMeta;
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
@@ -419,8 +420,6 @@ async function replaceMediaFile(kind,index){
       name:(document.querySelector(`[data-preset-name="${index}"]`)?.value||presetMetaFor(x).name).trim(),
       description:(document.querySelector(`[data-preset-desc="${index}"]`)?.value||presetMetaFor(x).description).trim()
     }:null;
-    const portfolioMeta=!isPreset?portfolioMetaFor(x):null;
-
     const saved=await queueSettingsMutation(latest=>{
       if(isPreset){
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
@@ -431,15 +430,13 @@ async function replaceMediaFile(kind,index){
         delete latest.presetColorMeta[x.file];
         latest.presetOrder=replaceOrderPath(latest.presetOrder,x.file,newPath)
       }else{
-        if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
-        latest.portfolioMeta[newPath]={...(latest.portfolioMeta[x.file]||{}),...portfolioMeta};
-        delete latest.portfolioMeta[x.file];
+        if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object'){delete latest.portfolioMeta[x.file];delete latest.portfolioMeta[newPath]}
         latest.portfolioOrder=replaceOrderPath(latest.portfolioOrder,x.file,newPath)
       }
     });
     metadataMoved=true;
     if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};S.presetOrder=saved.presetOrder||[]}
-    else{S.portfolioMeta=saved.portfolioMeta||{};S.portfolioOrder=saved.portfolioOrder||[]}
+    else{delete S.portfolioMeta;S.portfolioOrder=saved.portfolioOrder||[]}
 
     try{
       await api(deleteEndpoint,{method:'POST',body:JSON.stringify({file:x.file})})
