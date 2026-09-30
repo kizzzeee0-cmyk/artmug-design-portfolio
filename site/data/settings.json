@@ -420,7 +420,8 @@
   "presetColorMeta": {
     "preset/profile/20260930045603-hOY5F3Wm-ChatGPT_____2026__9__28_____06_32_36.png": {
       "enabled": {
-        "pink": true
+        "pink": true,
+        "orange": true
       },
       "images": {}
     }
