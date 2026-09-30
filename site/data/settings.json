@@ -423,12 +423,11 @@
   "presetColorMeta": {
     "preset/profile/20260930142010-fU7ZU68i-___________2_.png": {
       "enabled": {
-        "pink": true,
+        "pink": false,
         "blue": true,
         "purple": true
       },
       "images": {
-        "pink": "preset/profile/20260930141552-FKsB4BtT-_____.png",
         "blue": "preset/profile/20260930141600-rpvCNaqz-_____.png",
         "purple": "preset/profile/20260930141629-AZksJy3a-_____.png"
       }
