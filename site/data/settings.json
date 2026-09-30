@@ -421,7 +421,8 @@
     "preset/profile/20260930141525-v9NVWSgu-_____.png": {
       "enabled": {
         "pink": true,
-        "blue": true
+        "blue": true,
+        "purple": true
       },
       "images": {
         "pink": "preset/profile/20260930141552-FKsB4BtT-_____.png"
