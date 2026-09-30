@@ -229,7 +229,7 @@
   "eventsFontSize": 15,
   "presetEnabled": true,
   "presetTitle": "고정틀 프리셋",
-  "presetNotice": "",
+  "presetNotice": "직접 제작한 고정틀 디자인입니다.\n동일한 디자인으로 제작을 원하시면 문의 시 말씀해 주세요.",
   "presetCategories": [
     {
       "id": "profile",
