@@ -17,7 +17,31 @@ function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일�
 function koreaDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return `${o.year}-${o.month}-${o.day}`}
 function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today,effective=chosen>today?chosen:today,[y,m,d]=effective.split('-');$('scheduleText').innerHTML=`현재 신청시 <strong class="schedule-date">${Number(m)}월 ${Number(d)}일</strong>부터 작업이 진행됩니다!`}
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
-function renderEvents(s){const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;set('eventsKicker',s.eventsKicker||'EVENTS');set('eventsTitle',s.eventsTitle||'이벤트 안내');set('eventsText',s.eventsText||'');$('eventsTitle').style.fontSize=(s.eventsTitleFontSize||20)+'px';$('eventsText').style.fontSize=(s.eventsFontSize||15)+'px'}
+function renderEvents(s){
+  const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
+  set('eventsKicker',s.eventsKicker||'REVIEW EVENT');
+  set('eventsTitle',s.eventsTitle||'이벤트 안내');
+  let text=String(s.eventsText||'').trim();
+  let oldPrice=Number(s.eventsOldPrice||0),newPrice=Number(s.eventsNewPrice||0);
+  if(!(oldPrice>0&&newPrice>0)){
+    const m=text.match(/(\d[\d,]*)\s*(?:원)?\s*(?:->|→)\s*(\d[\d,]*)\s*(?:원)?/);
+    if(m){oldPrice=Number(m[1].replaceAll(',',''));newPrice=Number(m[2].replaceAll(',',''));text=text.split(/\r?\n/).filter(line=>!line.includes(m[0])&&!/\d[\d,]*\s*원?\s*할인/.test(line)).join('\n').trim()}
+  }
+  set('eventsText',text);
+  $('eventsText').hidden=!text;
+  $('eventsTitle').style.fontSize=(s.eventsTitleFontSize||22)+'px';
+  $('eventsText').style.fontSize=(s.eventsFontSize||15)+'px';
+  const offer=$('eventOffer'),valid=oldPrice>0&&newPrice>0;
+  offer.hidden=!valid;
+  if(valid){
+    const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.max(0,Math.round(n)));
+    const discount=Math.max(0,oldPrice-newPrice);
+    set('eventOfferLabel',s.eventsBenefitLabel||'리뷰 작성 시');
+    set('eventDiscount',(discount?fmt(discount)+'원 할인':'할인 혜택'));
+    set('eventOldPrice',fmt(oldPrice)+'원');
+    set('eventNewPrice',fmt(newPrice)+'원')
+  }
+}
 function renderNotices(items){$('noticeItems').innerHTML=items.map(x=>`<article class="notice-item"><div class="notice-icon">${esc(x.icon||'')}</div><div><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
 
 function guideDefaults(){
