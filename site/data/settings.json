@@ -224,7 +224,7 @@
   "eventsEnabled": true,
   "eventsKicker": "REVIEW EVENT",
   "eventsTitle": "오픈 기념 리뷰 이벤트 안내",
-  "eventsText": "문의 시 리뷰이벤트 참여 의사를 함께 입력해 주세요.",
+  "eventsText": "문의 시 리뷰이벤트 참여 여부를 선택해 주세요",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
   "presetEnabled": true,
