@@ -460,31 +460,75 @@ function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){
   }).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;
   bindLightboxes()
 }
+function closePresetColorPopovers(exceptCard=null){
+  document.querySelectorAll('.preset-work-card.is-popover-open').forEach(card=>{
+    if(card===exceptCard)return;
+    card.classList.remove('is-popover-open');
+    const pop=card.querySelector('.preset-color-popover'),trigger=card.querySelector('.preset-color-trigger');
+    if(pop)pop.hidden=true;
+    if(trigger)trigger.setAttribute('aria-expanded','false')
+  })
+}
+function positionPresetColorPopover(pop){
+  if(!pop||pop.hidden)return;
+  pop.style.setProperty('--popover-shift','0px');
+  requestAnimationFrame(()=>{
+    const r=pop.getBoundingClientRect(),pad=8;
+    let shift=0;
+    if(r.left<pad)shift+=pad-r.left;
+    if(r.right>window.innerWidth-pad)shift-=r.right-(window.innerWidth-pad);
+    pop.style.setProperty('--popover-shift',shift+'px')
+  })
+}
 function presetGrid(items,cat){
   const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
   g.className='portfolio-grid preset-grid';
   g.innerHTML=items.length?items.map(x=>{
     const meta=presetMetaForItem(x),state=presetColorStateFor(x),rep=x.demoSrc||media(x.file);
     const colors=PRESET_COLORS.filter(col=>state.enabled[col.id]===true&&state.images[col.id]);
-    const chips=colors.length?`<div class="preset-color-chips" aria-label="지원 색상">${colors.map(col=>{
-      const src=media(state.images[col.id]);
-      return `<button type="button" class="preset-color-chip" data-preset-color="${col.id}" data-color-src="${esc(src)}" style="--chip:${col.hex}" title="${col.label}" aria-label="${col.label}"><span></span></button>`
-    }).join('')}</div>`:'';
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
+    const colorUi=colors.length?`<div class="preset-color-menu">
+      <button type="button" class="preset-color-trigger" aria-expanded="false">색상 ${colors.length} <span aria-hidden="true">▾</span></button>
+      <div class="preset-color-popover" hidden role="group" aria-label="지원 색상">
+        ${colors.map(col=>{
+          const src=media(state.images[col.id]);
+          return `<button type="button" class="preset-color-chip" data-preset-color="${col.id}" data-color-src="${esc(src)}" style="--chip:${col.hex}" title="${col.label}" aria-label="${col.label}"><span></span></button>`
+        }).join('')}
+      </div>
+    </div>`:'';
     const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
-    return `<article class="work-card preset-work-card" data-representative-src="${esc(rep)}">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" draggable="false"></div></button><div class="preset-card-copy">${name}${chips}</div></article>`
+    return `<article class="work-card preset-work-card" data-representative-src="${esc(rep)}">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" draggable="false"></div></button><div class="preset-card-copy"><div class="preset-card-meta">${name}${colorUi}</div></div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
 
-  g.querySelectorAll('[data-preset-color]').forEach(btn=>btn.onclick=()=>{
-    const card=btn.closest('.preset-work-card'),img=card?.querySelector('.media-wrap img'),viewer=card?.querySelector('.work-button');
+  g.querySelectorAll('.preset-color-trigger').forEach(trigger=>trigger.onclick=e=>{
+    e.stopPropagation();
+    const card=trigger.closest('.preset-work-card'),pop=card?.querySelector('.preset-color-popover');
+    if(!card||!pop)return;
+    const willOpen=pop.hidden;
+    closePresetColorPopovers(card);
+    card.classList.toggle('is-popover-open',willOpen);
+    pop.hidden=!willOpen;
+    trigger.setAttribute('aria-expanded',willOpen?'true':'false');
+    if(willOpen)positionPresetColorPopover(pop)
+  });
+  g.querySelectorAll('.preset-color-popover').forEach(pop=>pop.onclick=e=>e.stopPropagation());
+  g.querySelectorAll('[data-preset-color]').forEach(btn=>btn.onclick=e=>{
+    e.stopPropagation();
+    const card=btn.closest('.preset-work-card'),img=card?.querySelector('.media-wrap img'),viewer=card?.querySelector('.work-button'),pop=card?.querySelector('.preset-color-popover'),trigger=card?.querySelector('.preset-color-trigger');
     if(!card||!img||!viewer)return;
-    const wasSelected=btn.classList.contains('is-selected');
     card.querySelectorAll('[data-preset-color]').forEach(x=>x.classList.remove('is-selected'));
-    const src=wasSelected?card.dataset.representativeSrc:btn.dataset.colorSrc;
-    if(!wasSelected)btn.classList.add('is-selected');
-    img.src=src;viewer.dataset.image=src
+    btn.classList.add('is-selected');
+    img.src=btn.dataset.colorSrc;viewer.dataset.image=btn.dataset.colorSrc;
+    card.classList.remove('is-popover-open');
+    if(pop)pop.hidden=true;
+    if(trigger)trigger.setAttribute('aria-expanded','false')
   });
   bindLightboxes()
+}
+if(!window.__presetColorPopoverBound){
+  window.__presetColorPopoverBound=true;
+  document.addEventListener('click',()=>closePresetColorPopovers());
+  window.addEventListener('resize',()=>closePresetColorPopovers())
 }
 function pages(el,total,current,fn){el.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="page-button ${i+1===current?'is-active':''}" data-page="${i+1}">${i+1}</button>`).join(''):'';el.querySelectorAll('button').forEach(b=>b.onclick=()=>fn(Number(b.dataset.page)))}
 function portfolioCacheKey(category,page){return category+'::'+page}
