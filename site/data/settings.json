@@ -426,7 +426,8 @@
       },
       "images": {
         "pink": "preset/profile/20260930141552-FKsB4BtT-_____.png",
-        "blue": "preset/profile/20260930141600-rpvCNaqz-_____.png"
+        "blue": "preset/profile/20260930141600-rpvCNaqz-_____.png",
+        "purple": "preset/profile/20260930141629-AZksJy3a-_____.png"
       }
     }
   },
@@ -439,7 +440,8 @@
     "preset/profile/20260930045926--rrWwqIV-cute-pattern-2000x2000__3_.png",
     "preset/profile/20260930045933-B_pej2q0-cute-pattern-2000x2000__4_.png",
     "preset/profile/20260930141552-FKsB4BtT-_____.png",
-    "preset/profile/20260930141600-rpvCNaqz-_____.png"
+    "preset/profile/20260930141600-rpvCNaqz-_____.png",
+    "preset/profile/20260930141629-AZksJy3a-_____.png"
   ],
   "eventsBenefitLabel": "리뷰 작성 시",
   "eventsOldPrice": 18000,
