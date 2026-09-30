@@ -1853,3 +1853,30 @@ body::after{
 .event-price-row b{
   color:#51478f!important;
 }
+
+/* 2026-09-30 notice-title helper sizing + inquiry spacing */
+/* These three helper lines use the same size as notice card titles. */
+.schedule-card>p,
+.events-section #eventsText,
+.form-card #formDescription{
+  font-size:14px!important;
+}
+
+/* Match the event title -> description spacing exactly in the inquiry heading. */
+.form-card .section-heading{
+  gap:9px!important;
+}
+.form-card .section-heading>div h2{
+  margin-bottom:0!important;
+}
+.form-card #formDescription{
+  margin:0!important;
+}
+
+@media(max-width:680px){
+  .schedule-card>p,
+  .events-section #eventsText,
+  .form-card #formDescription{
+    font-size:13.5px!important;
+  }
+}
