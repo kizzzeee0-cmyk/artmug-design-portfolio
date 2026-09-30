@@ -52,5 +52,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260930142010"
+  },
+  {
+    "id": "preset-5XMeC0aPUI0",
+    "category": "profile",
+    "file": "preset/profile/20260930142017-q_Sde0uP-___________2_.png",
+    "originalName": "제목 없는 디자인 (2).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260930142017"
   }
 ]
