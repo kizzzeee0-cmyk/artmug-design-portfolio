@@ -404,42 +404,14 @@
       "miniCategories": []
     }
   ],
-  "presetMeta": {
-    "preset/profile/20260930045603-hOY5F3Wm-ChatGPT_____2026__9__28_____06_32_36.png": {
-      "name": "리본",
-      "enabled": true,
-      "isNew": false,
-      "description": ""
-    }
-  },
+  "presetMeta": {},
   "presetOrder": [],
   "portfolioOrder": [
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
     "portfolio/profile/20260927221331-GvtfOmFf-______.gif"
   ],
-  "presetColorMeta": {
-    "preset/profile/20260930045603-hOY5F3Wm-ChatGPT_____2026__9__28_____06_32_36.png": {
-      "enabled": {
-        "pink": true,
-        "orange": true,
-        "green": true,
-        "yellow": true,
-        "red": true,
-        "blue": true,
-        "purple": true
-      },
-      "images": {
-        "red": "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
-        "orange": "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png",
-        "pink": "preset/profile/20260930045751-nmJNKezO-cute-pattern-512x512__1_.png",
-        "yellow": "preset/profile/20260930045819-VOFF3dTN-cute-pattern-2000x2000__6_.png",
-        "green": "preset/profile/20260930045841-5bYClsae-cute-pattern-2000x2000__2_.png",
-        "blue": "preset/profile/20260930045926--rrWwqIV-cute-pattern-2000x2000__3_.png",
-        "purple": "preset/profile/20260930045933-B_pej2q0-cute-pattern-2000x2000__4_.png"
-      }
-    }
-  },
+  "presetColorMeta": {},
   "presetVariantFiles": [
     "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
     "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png",
