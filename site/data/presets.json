@@ -25,5 +25,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260930141552"
+  },
+  {
+    "id": "preset-x1hSO3wKYxM",
+    "category": "profile",
+    "file": "preset/profile/20260930141600-rpvCNaqz-_____.png",
+    "originalName": "리본 하늘.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260930141600"
   }
 ]
