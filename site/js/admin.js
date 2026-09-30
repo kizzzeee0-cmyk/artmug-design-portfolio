@@ -1,4 +1,15 @@
 const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],quoteState={};const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
+const PRESET_COLORS=[
+  {id:'pink',label:'핑크',hex:'#f39abb'},
+  {id:'red',label:'빨강',hex:'#e85c62'},
+  {id:'orange',label:'주황',hex:'#f29a52'},
+  {id:'yellow',label:'노랑',hex:'#f2cf58'},
+  {id:'green',label:'초록',hex:'#67b979'},
+  {id:'blue',label:'파랑',hex:'#69a9df'},
+  {id:'navy',label:'남색',hex:'#5066a8'},
+  {id:'purple',label:'보라',hex:'#9389de'},
+  {id:'black',label:'검정',hex:'#34343b'}
+];
 let toastTimer=null;
 function showToast(message,type='success'){
   let el=document.getElementById('adminToast');
@@ -58,6 +69,16 @@ function parsePresetOriginalName(name){
 }
 function ensurePresetMeta(){if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};return S.presetMeta}
 function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{};return {name:String(meta.name||''),description:String(meta.description??''),enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,isNew:meta.isNew===true}}
+function ensurePresetColorMeta(){if(!S.presetColorMeta||typeof S.presetColorMeta!=='object'||Array.isArray(S.presetColorMeta))S.presetColorMeta={};return S.presetColorMeta}
+function presetColorStateFor(x){
+  const raw=ensurePresetColorMeta()[x.file]||{};
+  return {enabled:raw.enabled&&typeof raw.enabled==='object'?raw.enabled:{},images:raw.images&&typeof raw.images==='object'?raw.images:{}}
+}
+function presetVariantFileSet(){
+  const set=new Set(Array.isArray(S.presetVariantFiles)?S.presetVariantFiles:[]);
+  Object.values(ensurePresetColorMeta()).forEach(v=>Object.values(v?.images||{}).forEach(path=>{if(path)set.add(path)}));
+  return set
+}
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
 function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:''}}
 function isProfilePortfolioCategory(id){return /^profile(?:-|$)/.test(String(id||''))}
@@ -337,7 +358,7 @@ async function savePortfolioTag(i,type,checked){
   renderItems();
   showToast(value?`움짤프사 ${value} 태그를 켰습니다.`:'태그를 껐습니다.')
 }
-async function loadItems(){try{const d=await api('/api/admin/portfolio');items=applyAdminOrder(d.items||[],S?.portfolioOrder);renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));const presetBase=[...(q.items||[])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));presetItems=applyAdminOrder(presetBase,S?.presetOrder);renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
+async function loadItems(){try{const d=await api('/api/admin/portfolio');items=applyAdminOrder(d.items||[],S?.portfolioOrder);renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));const variants=presetVariantFileSet();const presetBase=[...(q.items||[])].filter(x=>!variants.has(x.file)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));presetItems=applyAdminOrder(presetBase,S?.presetOrder);renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
 function presetLocationText(x){
   return (S.presetCategories||[]).find(c=>c.id===x.category)?.label||x.category||''
 }
@@ -405,6 +426,9 @@ async function replaceMediaFile(kind,index){
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
         latest.presetMeta[newPath]={...(latest.presetMeta[x.file]||{}),...presetMeta};
         delete latest.presetMeta[x.file];
+        if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
+        latest.presetColorMeta[newPath]=latest.presetColorMeta[x.file]||{enabled:{},images:{}};
+        delete latest.presetColorMeta[x.file];
         latest.presetOrder=replaceOrderPath(latest.presetOrder,x.file,newPath)
       }else{
         if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
@@ -414,7 +438,7 @@ async function replaceMediaFile(kind,index){
       }
     });
     metadataMoved=true;
-    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
+    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};S.presetOrder=saved.presetOrder||[]}
     else{S.portfolioMeta=saved.portfolioMeta||{};S.portfolioOrder=saved.portfolioOrder||[]}
 
     try{
@@ -432,15 +456,82 @@ async function replaceMediaFile(kind,index){
     alert('파일 변경에 실패했습니다.\n'+e.message)
   }
 }
+async function savePresetColorToggle(i,color,value){
+  const x=presetItems[i];if(!x)return;
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
+    const prev=latest.presetColorMeta[x.file]||{},enabled={...(prev.enabled||{})};
+    enabled[color]=value;
+    latest.presetColorMeta[x.file]={...prev,enabled,images:{...(prev.images||{})}}
+  });
+  S.presetColorMeta=saved.presetColorMeta||{};
+  showToast(value?'색상 표시를 켰습니다.':'색상 표시를 껐습니다.')
+}
+async function uploadPresetColor(i,color){
+  const x=presetItems[i];if(!x)return;
+  const input=document.querySelector(`[data-preset-color-file="${i}"][data-color="${color}"]`),file=input?.files?.[0];
+  if(!file){alert('업로드할 색상 이미지를 선택해주세요.');return}
+  const state=presetColorStateFor(x),oldPath=state.images[color]||'';
+  const fd=new FormData();fd.append('category',x.category);fd.append('file',file);
+  let newPath='',mapped=false;
+  try{
+    const r=await fetch(API+'/api/admin/preset-upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+    newPath=String(d.path||'');if(!newPath)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
+    const saved=await queueSettingsMutation(latest=>{
+      if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
+      const prev=latest.presetColorMeta[x.file]||{},enabled={...(prev.enabled||{})},images={...(prev.images||{})};
+      enabled[color]=true;images[color]=newPath;
+      latest.presetColorMeta[x.file]={...prev,enabled,images};
+      const variants=new Set(Array.isArray(latest.presetVariantFiles)?latest.presetVariantFiles:[]);
+      variants.add(newPath);if(oldPath)variants.add(oldPath);
+      latest.presetVariantFiles=[...variants]
+    });
+    mapped=true;
+    S.presetColorMeta=saved.presetColorMeta||{};S.presetVariantFiles=saved.presetVariantFiles||[];
+    if(oldPath&&oldPath!==newPath)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{});
+    await loadItems();showToast('색상 이미지가 저장되었습니다.')
+  }catch(e){
+    if(newPath&&!mapped)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+    alert('색상 이미지 저장에 실패했습니다.\n'+e.message)
+  }
+}
+async function deletePresetColor(i,color){
+  const x=presetItems[i];if(!x)return;
+  const state=presetColorStateFor(x),oldPath=state.images[color]||'';
+  if(!oldPath)return;
+  if(!confirm('이 색상 이미지를 삭제할까요?'))return;
+  try{
+    const saved=await queueSettingsMutation(latest=>{
+      if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
+      const prev=latest.presetColorMeta[x.file]||{},enabled={...(prev.enabled||{})},images={...(prev.images||{})};
+      enabled[color]=false;delete images[color];
+      latest.presetColorMeta[x.file]={...prev,enabled,images};
+      const variants=new Set(Array.isArray(latest.presetVariantFiles)?latest.presetVariantFiles:[]);variants.add(oldPath);latest.presetVariantFiles=[...variants]
+    });
+    S.presetColorMeta=saved.presetColorMeta||{};S.presetVariantFiles=saved.presetVariantFiles||[];
+    await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{});
+    await loadItems();showToast('색상 이미지를 삭제했습니다.')
+  }catch(e){alert('색상 이미지 삭제에 실패했습니다.\n'+e.message)}
+}
 function renderPresetItems(){
   $('presetItems').innerHTML=presetItems.map((x,i)=>{
-    const meta=presetMetaFor(x),allowDesc=['profile','profile-b'].includes(x.category),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
-    return `<div class="preset-admin-item">
-      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy">
+    const meta=presetMetaFor(x),state=presetColorStateFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
+    const colors=PRESET_COLORS.map(col=>{
+      const path=state.images[col.id]||'',src=path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):'';
+      return `<div class="preset-color-admin-row">
+        <label class="preset-color-toggle"><input type="checkbox" data-preset-color-enabled="${i}" data-color="${col.id}" ${state.enabled[col.id]===true?'checked':''}><span class="preset-color-swatch" style="--chip:${col.hex}"></span><strong>${col.label}</strong></label>
+        <div class="preset-color-preview ${path?'has-image':''}">${path?`<img src="${src}" alt="${col.label} 버전" draggable="false">`:'<span>미등록</span>'}</div>
+        <input type="file" class="preset-color-file" data-preset-color-file="${i}" data-color="${col.id}" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp">
+        <button type="button" class="ghost admin-compact" data-upload-preset-color="${i}" data-color="${col.id}">${path?'교체':'업로드'}</button>
+        <button type="button" class="danger admin-compact" data-delete-preset-color="${i}" data-color="${col.id}" ${path?'':'disabled'}>삭제</button>
+      </div>`
+    }).join('');
+    return `<div class="preset-admin-item preset-admin-item-v2">
+      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
-        <label>작은 표시 이름 · 선택<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
-        ${allowDesc?`<label>짧은 설명 · 선택<input data-preset-desc="${i}" value="${adminEsc(meta.description)}" placeholder="예: 핑크 / 화이트 색상 변경 가능"></label>`:''}
+        <label>프리셋 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
         <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
       </div>
@@ -449,26 +540,43 @@ function renderPresetItems(){
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button>
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
         </div>
-        <button class="ghost admin-compact" data-replace-preset="${i}">파일 수정</button>
-        <button class="ghost admin-compact" data-save-preset="${i}">정보 저장</button>
-        <button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button>
+        <button class="ghost admin-compact" data-replace-preset="${i}">대표 이미지 수정</button>
+        <button class="ghost admin-compact" data-save-preset="${i}">이름 저장</button>
+        <button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">프리셋 삭제</button>
       </div>
+      <div class="preset-color-manager"><div class="preset-color-manager-head"><strong>색상별 이미지</strong><span class="muted">ON + 이미지 등록된 색상만 공개 페이지에 표시됩니다.</span></div><div class="preset-color-admin-grid">${colors}</div></div>
     </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
+
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{if(!confirm('이 프리셋을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.deletePreset);delete ensurePresetMeta()[file];S.presetOrder=(S.presetOrder||[]).filter(x=>x!==file);await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{if(latest.presetMeta&&typeof latest.presetMeta==='object')delete latest.presetMeta[file];latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file)}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-preset-color-enabled]').forEach(el=>el.onchange=()=>savePresetColorToggle(+el.dataset.presetColorEnabled,el.dataset.color,el.checked).catch(e=>{el.checked=!el.checked;alert('색상 표시 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-upload-preset-color]').forEach(b=>b.onclick=()=>uploadPresetColor(+b.dataset.uploadPresetColor,b.dataset.color));
+  document.querySelectorAll('[data-delete-preset-color]').forEach(b=>b.onclick=()=>deletePresetColor(+b.dataset.deletePresetColor,b.dataset.color));
+  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('이 프리셋과 등록된 색상별 이미지를 모두 삭제할까요?'))return;
+    const file=decodeURIComponent(b.dataset.deletePreset),x=presetItems.find(v=>v.file===file),state=x?presetColorStateFor(x):{images:{}};
+    for(const path of Object.values(state.images||{})){if(path)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{})}
+    await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});
+    const saved=await queueSettingsMutation(latest=>{
+      if(latest.presetMeta&&typeof latest.presetMeta==='object')delete latest.presetMeta[file];
+      if(latest.presetColorMeta&&typeof latest.presetColorMeta==='object')delete latest.presetColorMeta[file];
+      latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file)
+    }).catch(()=>null);
+    if(saved){S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};S.presetOrder=saved.presetOrder||[]}
+    loadItems()
+  })
 }
 
 function renderItems(){
   $('items').innerHTML=items.map((x,i)=>{
-    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file),meta=portfolioMetaFor(x),isProfile=logical==='profile';
+    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file),isProfile=logical==='profile';
     return `<div class="item portfolio-admin-item">
-      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy">
-      <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${isProfile?'움짤프사':adminEsc(x.category)}</div>${isProfile?`<div class="portfolio-tag-controls"><label><input type="checkbox" data-portfolio-tag-a="${i}" ${meta.profileType==='A'?'checked':''}> 움짤프사 A 태그</label><label><input type="checkbox" data-portfolio-tag-b="${i}" ${meta.profileType==='B'?'checked':''}> 움짤프사 B 태그</label></div>`:''}</div>
+      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
+      <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${isProfile?'움짤프사':adminEsc(x.category)}</div></div>
       <div class="item-actions">
         <div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div>
         <button class="ghost admin-compact" data-replace-portfolio="${i}">파일 수정</button>
@@ -478,18 +586,33 @@ function renderItems(){
   }).join('');
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
-  document.querySelectorAll('[data-portfolio-tag-a]').forEach(el=>el.onchange=()=>savePortfolioTag(+el.dataset.portfolioTagA,'A',el.checked).catch(e=>{el.checked=!el.checked;alert('태그 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-portfolio-tag-b]').forEach(el=>el.onchange=()=>savePortfolioTag(+el.dataset.portfolioTagB,'B',el.checked).catch(e=>{el.checked=!el.checked;alert('태그 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);if(S.portfolioMeta)delete S.portfolioMeta[file];await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
 }
 async function uploadFiles(kind){
-  const fileInput=kind==='preset'?$('presetFiles'):$('files'),cat=kind==='preset'?$('presetUploadCat').value:$('uploadCat').value,status=$(kind==='preset'?'presetUploadStatus':'uploadStatus'),files=[...fileInput.files];
+  const isPreset=kind==='preset',fileInput=isPreset?$('presetFiles'):$('files'),cat=isPreset?$('presetUploadCat').value:$('uploadCat').value,status=$(isPreset?'presetUploadStatus':'uploadStatus'),files=[...fileInput.files];
   if(!files.length)return;
   try{
+    if(isPreset){
+      const name=String($('presetUploadName')?.value||'').trim();
+      if(!name)throw new Error('프리셋 이름을 입력해주세요.');
+      const file=files[0],fd=new FormData();fd.append('category',cat);fd.append('file',file);
+      status.textContent='대표 이미지 업로드 중…';
+      const r=await fetch(API+'/api/admin/preset-upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+      const path=String(d.path||'');if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
+      const saved=await queueSettingsMutation(latest=>{
+        if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false};
+        if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
+        latest.presetColorMeta[path]={enabled:{},images:{}}
+      });
+      S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};
+      $('presetUploadName').value='';fileInput.value='';status.textContent='프리셋이 등록되었습니다.';await loadItems();showToast('프리셋이 등록되었습니다.');return
+    }
     for(let i=0;i<files.length;i++){
       status.textContent=`${i+1}/${files.length} 업로드 중…`;
       const fd=new FormData();fd.append('category',cat);fd.append('file',files[i]);
-      const r=await fetch(API+(kind==='preset'?'/api/admin/preset-upload':'/api/admin/upload'),{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+      const r=await fetch(API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`)
     }
     status.textContent='업로드가 완료되었습니다.';fileInput.value='';await loadItems();showToast('업로드되었습니다.')
