@@ -222,9 +222,9 @@
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "예: 하나뿐인 칠공 / 사랑해 칠공",
   "eventsEnabled": true,
-  "eventsKicker": "EVENTS",
+  "eventsKicker": "REVIEW EVENT",
   "eventsTitle": "오픈 기념 리뷰 이벤트 안내",
-  "eventsText": "문의 시 리뷰이벤트 참여 의사 입력해주시면 \n움짤프사 15000 -> 13000\n2000원 할인해드립니다!",
+  "eventsText": "문의 시 리뷰이벤트 참여 의사를 함께 입력해 주세요.",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
   "presetEnabled": true,
@@ -448,5 +448,8 @@
     "preset/profile/20260930045841-5bYClsae-cute-pattern-2000x2000__2_.png",
     "preset/profile/20260930045926--rrWwqIV-cute-pattern-2000x2000__3_.png",
     "preset/profile/20260930045933-B_pej2q0-cute-pattern-2000x2000__4_.png"
-  ]
+  ],
+  "eventsBenefitLabel": "리뷰 작성 시",
+  "eventsOldPrice": 15000,
+  "eventsNewPrice": 13000
 }
