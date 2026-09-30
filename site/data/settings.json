@@ -407,7 +407,7 @@
   "presetMeta": {
     "preset/profile/20260930142010-fU7ZU68i-___________2_.png": {
       "name": "프리셋 리본 01",
-      "enabled": true,
+      "enabled": false,
       "isNew": true,
       "description": ""
     }
