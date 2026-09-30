@@ -34,5 +34,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260930141600"
+  },
+  {
+    "id": "preset-RfkxRzu75tw",
+    "category": "profile",
+    "file": "preset/profile/20260930141629-AZksJy3a-_____.png",
+    "originalName": "리본 보라.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260930141629"
   }
 ]
