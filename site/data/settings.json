@@ -423,7 +423,8 @@
         "pink": true,
         "orange": true,
         "green": true,
-        "yellow": true
+        "yellow": true,
+        "red": true
       },
       "images": {}
     }
