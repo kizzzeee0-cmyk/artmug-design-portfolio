@@ -427,7 +427,9 @@
         "blue": true,
         "purple": true
       },
-      "images": {}
+      "images": {
+        "pink": "preset/profile/20260930142137-fTVOsO7r-___________2_.png"
+      }
     }
   },
   "presetVariantFiles": [
@@ -441,7 +443,8 @@
     "preset/profile/20260930141552-FKsB4BtT-_____.png",
     "preset/profile/20260930141600-rpvCNaqz-_____.png",
     "preset/profile/20260930141629-AZksJy3a-_____.png",
-    "preset/profile/20260930142017-q_Sde0uP-___________2_.png"
+    "preset/profile/20260930142017-q_Sde0uP-___________2_.png",
+    "preset/profile/20260930142137-fTVOsO7r-___________2_.png"
   ],
   "eventsBenefitLabel": "리뷰 작성 시",
   "eventsOldPrice": 18000,
