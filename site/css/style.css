@@ -1993,3 +1993,13 @@ body::after{
     text-align:left!important;
   }
 }
+
+/* 2026-09-30 Artmug narrow mobile text fit */
+@media(max-width:680px){
+  .schedule-card>p{
+    font-size:14px!important;
+  }
+  .event-discount{
+    font-size:17px!important;
+  }
+}
