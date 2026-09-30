@@ -425,11 +425,10 @@
       "enabled": {
         "pink": true,
         "blue": false,
-        "purple": true
+        "purple": false
       },
       "images": {
-        "pink": "preset/profile/20260930142137-fTVOsO7r-___________2_.png",
-        "purple": "preset/profile/20260930142155-Ah-rz9p1-___________4_.png"
+        "pink": "preset/profile/20260930142137-fTVOsO7r-___________2_.png"
       }
     }
   },
