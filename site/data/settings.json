@@ -429,8 +429,12 @@
         "blue": true,
         "purple": true
       },
-      "images": {}
+      "images": {
+        "red": "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png"
+      }
     }
   },
-  "presetVariantFiles": []
+  "presetVariantFiles": [
+    "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png"
+  ]
 }
