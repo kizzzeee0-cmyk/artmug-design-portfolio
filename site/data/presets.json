@@ -7,5 +7,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20260930045819"
+  },
+  {
+    "id": "preset-7xiXnoizKEM",
+    "category": "profile",
+    "file": "preset/profile/20260930141525-v9NVWSgu-_____.png",
+    "originalName": "리본 핑크.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20260930141525"
   }
 ]
