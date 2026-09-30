@@ -1685,3 +1685,171 @@ body::after{
     font-size:14px;
   }
 }
+
+/* 2026-09-30 compact preset popover + unified helper text */
+/* Preset name = notice item title typography. */
+.preset-card-copy{
+  position:relative;
+  display:block!important;
+  padding:7px 2px 0!important;
+}
+.preset-card-meta{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  min-width:0;
+}
+.preset-card-name{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.45!important;
+}
+.preset-color-menu{
+  position:relative;
+  flex:0 0 auto;
+}
+.preset-color-trigger{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-height:22px;
+  padding:3px 7px;
+  border:1px solid rgba(147,137,222,.26);
+  border-radius:8px;
+  background:#fff;
+  color:#6b6490;
+  font-size:9.5px;
+  font-weight:600;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.preset-color-trigger:hover,
+.preset-color-trigger[aria-expanded="true"]{
+  border-color:var(--accent);
+  background:var(--accent-pale);
+  color:var(--accent-deep);
+}
+.preset-work-card.is-popover-open{
+  z-index:40;
+}
+.preset-color-popover{
+  --popover-shift:0px;
+  position:absolute;
+  z-index:50;
+  top:calc(100% + 6px);
+  left:50%;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:3px;
+  width:max-content;
+  max-width:min(220px,calc(100vw - 16px));
+  padding:7px 8px;
+  border:1px solid rgba(147,137,222,.26);
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(76,64,122,.18);
+  transform:translateX(-50%) translateX(var(--popover-shift));
+}
+.preset-color-popover[hidden]{
+  display:none!important;
+}
+.preset-color-popover .preset-color-chip{
+  width:21px!important;
+  height:21px!important;
+  padding:2px!important;
+}
+.preset-color-popover .preset-color-chip span{
+  width:13px!important;
+  height:13px!important;
+}
+@media(max-width:680px){
+  .preset-card-meta{
+    gap:3px;
+  }
+  .preset-card-name{
+    font-size:13.5px!important;
+    font-weight:600!important;
+  }
+  .preset-color-trigger{
+    min-height:20px;
+    padding:2px 5px;
+    border-radius:7px;
+    font-size:8.5px;
+  }
+  .preset-color-popover{
+    top:calc(100% + 5px);
+    gap:2px;
+    max-width:min(178px,calc(100vw - 12px));
+    padding:6px;
+    border-radius:10px;
+  }
+  .preset-color-popover .preset-color-chip{
+    width:20px!important;
+    height:20px!important;
+  }
+  .preset-color-popover .preset-color-chip span{
+    width:12px!important;
+    height:12px!important;
+  }
+}
+
+/* Shared explanatory copy hierarchy. */
+.schedule-card>p,
+.events-section #eventsText,
+.form-card .section-heading>p,
+.preset-section .preset-notice{
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.65!important;
+}
+.preset-section .preset-notice{
+  width:100%;
+  max-width:none!important;
+  white-space:normal!important;
+}
+@media(min-width:681px){
+  .preset-section .preset-notice{
+    white-space:nowrap!important;
+    text-align:left;
+  }
+}
+@media(max-width:680px){
+  .preset-section .preset-notice{
+    max-width:340px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center;
+    white-space:normal!important;
+  }
+}
+
+/* Lavender-only review benefit box. */
+.event-offer{
+  border-color:rgba(147,137,222,.42)!important;
+  background:linear-gradient(145deg,#f8f6ff,#efecff)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.64)!important;
+}
+.event-offer-label{
+  color:#77709b!important;
+}
+.event-discount{
+  color:#5f55a8!important;
+}
+.event-price-row del{
+  color:#948eaa!important;
+}
+.event-price-arrow{
+  color:#9188c6!important;
+}
+.event-price-row b{
+  color:#51478f!important;
+}
