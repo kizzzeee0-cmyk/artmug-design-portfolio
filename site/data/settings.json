@@ -418,7 +418,10 @@
       "colorChangeAvailable": true
     }
   },
-  "presetOrder": [],
+  "presetOrder": [
+    "preset/profile/20261001055931-ZJJNNnTN-______.png",
+    "preset/profile/20261001100319-JoDyrCM5-______.png"
+  ],
   "portfolioOrder": [
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
