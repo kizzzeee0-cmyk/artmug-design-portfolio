@@ -408,7 +408,8 @@
     "preset/profile/20261001055931-ZJJNNnTN-______.png": {
       "name": "프리셋 01",
       "enabled": true,
-      "isNew": true
+      "isNew": true,
+      "colorChangeAvailable": true
     }
   },
   "presetOrder": [],
@@ -416,31 +417,6 @@
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
     "portfolio/profile/20260927221331-GvtfOmFf-______.gif"
-  ],
-  "presetColorMeta": {
-    "preset/profile/20261001055931-ZJJNNnTN-______.png": {
-      "enabled": {
-        "pink": true,
-        "red": true,
-        "blue": true,
-        "navy": true,
-        "purple": true
-      },
-      "images": {
-        "pink": "preset/profile/20261001060038-u75rhKfD-______.png",
-        "red": "preset/profile/20261001060049-Nqs_8rwe-________4_.png",
-        "navy": "preset/profile/20261001060111-mKakkubM-________3_.png",
-        "purple": "preset/profile/20261001060122-kEikt7XT-________1_.png",
-        "blue": "preset/profile/20261001060129-icwW52lZ-________2_.png"
-      }
-    }
-  },
-  "presetVariantFiles": [
-    "preset/profile/20261001060038-u75rhKfD-______.png",
-    "preset/profile/20261001060049-Nqs_8rwe-________4_.png",
-    "preset/profile/20261001060111-mKakkubM-________3_.png",
-    "preset/profile/20261001060122-kEikt7XT-________1_.png",
-    "preset/profile/20261001060129-icwW52lZ-________2_.png"
   ],
   "eventsBenefitLabel": "리뷰 작성 시",
   "eventsOldPrice": 18000,
