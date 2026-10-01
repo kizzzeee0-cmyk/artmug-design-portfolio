@@ -405,8 +405,7 @@ function renderPreset(s){
   const cats=visibleCats(s.presetCategories||[]);
   if(!presetState.category||!cats.some(c=>c.id===presetState.category))presetState.category=cats[0]?.id||'';
   renderPresetTabs(cats);
-  loadPresets();
-  prefetchPresetCategories(cats)
+  loadPresets()
 }
 function updateTabWrapState(tabs){
   if(!tabs||tabs.hidden)return;
@@ -497,7 +496,7 @@ function presetGrid(items,cat){
       </div>
     </div>`:'';
     const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
-    return `<article class="work-card preset-work-card" data-representative-src="${esc(rep)}">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" draggable="false"></div></button><div class="preset-card-copy"><div class="preset-card-meta">${name}${colorUi}</div></div></article>`
+    return `<article class="work-card preset-work-card" data-representative-src="${esc(rep)}">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></button><div class="preset-card-copy"><div class="preset-card-meta">${name}${colorUi}</div></div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
 
   g.querySelectorAll('.preset-color-trigger').forEach(trigger=>trigger.onclick=e=>{
@@ -589,11 +588,11 @@ async function loadPortfolio(){
 function fetchAllPresets(category){
   if(presetCache.has(category))return presetCache.get(category);
   const promise=(async()=>{
-    const first=await api('/api/public/presets?category='+encodeURIComponent(category)+'&page=1&perPage=30');
+    const first=await api('/api/public/presets?category='+encodeURIComponent(category)+'&page=1&perPage=60');
     let all=[...(first.items||[])];
     const count=Number(first.totalPages||1);
     if(count>1){
-      const more=await Promise.all(Array.from({length:count-1},(_,i)=>api('/api/public/presets?category='+encodeURIComponent(category)+'&page='+(i+2)+'&perPage=30').catch(()=>({items:[]}))));
+      const more=await Promise.all(Array.from({length:count-1},(_,i)=>api('/api/public/presets?category='+encodeURIComponent(category)+'&page='+(i+2)+'&perPage=60').catch(()=>({items:[]}))));
       more.forEach(d=>all.push(...(d.items||[])))
     }
     return all
