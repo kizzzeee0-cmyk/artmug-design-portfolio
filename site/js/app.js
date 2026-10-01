@@ -543,12 +543,6 @@ function protectMedia(root=document){
     img.ondragstart=e=>{e.preventDefault();return false}
   })
 }
-function protectMedia(){
-  document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>{
-    const d=$('lightbox'),im=$('lightboxImage');im.src=b.dataset.image;im.draggable=false;d.showModal();protectMedia(d)
-  });
-  protectMedia()
-}
 document.addEventListener('contextmenu',e=>{
   if(e.target.closest?.('#portfolioGrid,#presetGrid,#lightbox'))e.preventDefault()
 });
