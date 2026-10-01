@@ -10,6 +10,44 @@ const PRESET_COLORS=[
   {id:'purple',label:'보라',hex:'#9389de'},
   {id:'black',label:'검정',hex:'#34343b'}
 ];
+const PRESET_UPLOAD_MAX_BYTES=6*1024*1024;
+const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
+let presetColorUploadActive=false;
+function validatePresetUploadFile(file){
+  if(!file)throw new Error('업로드할 파일을 선택해주세요.');
+  const ext=String(file.name||'').split('.').pop().toLowerCase();
+  if(!PRESET_UPLOAD_EXTS.has(ext))throw new Error('GIF, PNG, JPG, JPEG, WEBP 파일만 업로드할 수 있습니다.');
+  if(file.size>PRESET_UPLOAD_MAX_BYTES)throw new Error('파일은 6MB 이하만 업로드할 수 있습니다.');
+  if(file.size<=0)throw new Error('빈 파일은 업로드할 수 없습니다.');
+}
+function setPresetColorUploadBusy(i,color,busy){
+  presetColorUploadActive=busy;
+  document.querySelectorAll('[data-upload-preset-color]').forEach(btn=>{
+    btn.disabled=busy;
+    if(!busy&&btn.dataset.busyLabel){btn.textContent=btn.dataset.busyLabel;delete btn.dataset.busyLabel}
+  });
+  const btn=document.querySelector(`[data-upload-preset-color="${i}"][data-color="${color}"]`);
+  if(btn&&busy){
+    btn.dataset.busyLabel=btn.textContent;
+    btn.textContent='업로드 중…';
+  }
+  const input=document.querySelector(`[data-preset-color-file="${i}"][data-color="${color}"]`);
+  if(input)input.disabled=busy;
+}
+function updatePresetColorRow(i,color,path,forceEnabled=false){
+  const row=document.querySelector(`[data-preset-color-row="${i}"][data-color="${color}"]`);
+  if(!row)return;
+  const preview=row.querySelector('.preset-color-preview'),upload=row.querySelector('[data-upload-preset-color]'),del=row.querySelector('[data-delete-preset-color]'),toggle=row.querySelector('[data-preset-color-enabled]');
+  const src=path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):'';
+  if(preview){
+    preview.classList.toggle('has-image',!!path);
+    preview.innerHTML=path?`<img src="${src}" alt="색상 버전" loading="lazy" decoding="async" fetchpriority="low" draggable="false">`:'<span>미등록</span>'
+  }
+  if(upload&&!presetColorUploadActive)upload.textContent=path?'교체':'업로드';
+  if(del)del.disabled=!path;
+  if(toggle&&forceEnabled)toggle.checked=true;
+}
+
 let toastTimer=null;
 function showToast(message,type='success'){
   let el=document.getElementById('adminToast');
@@ -362,7 +400,23 @@ async function savePortfolioTag(i,type,checked){
   renderItems();
   showToast(value?`움짤프사 ${value} 태그를 켰습니다.`:'태그를 껐습니다.')
 }
-async function loadItems(){try{const d=await api('/api/admin/portfolio');items=applyAdminOrder(d.items||[],S?.portfolioOrder);renderItems();const q=await api('/api/admin/presets').catch(()=>({items:[]}));const variants=presetVariantFileSet();const presetBase=[...(q.items||[])].filter(x=>!variants.has(x.file)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));presetItems=applyAdminOrder(presetBase,S?.presetOrder);renderPresetItems()}catch(e){$('uploadStatus').textContent=e.message}}
+async function loadPresetItemsOnly(){
+  const q=await api('/api/admin/presets').catch(()=>({items:[]}));
+  const variants=presetVariantFileSet();
+  const presetBase=[...(q.items||[])].filter(x=>!variants.has(x.file)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  presetItems=applyAdminOrder(presetBase,S?.presetOrder);
+  renderPresetItems()
+}
+async function loadItems(){
+  try{
+    const [d]=await Promise.all([
+      api('/api/admin/portfolio'),
+      loadPresetItemsOnly()
+    ]);
+    items=applyAdminOrder(d.items||[],S?.portfolioOrder);
+    renderItems()
+  }catch(e){$('uploadStatus').textContent=e.message}
+}
 function presetLocationText(x){
   return (S.presetCategories||[]).find(c=>c.id===x.category)?.label||x.category||''
 }
@@ -468,13 +522,16 @@ async function savePresetColorToggle(i,color,value){
   showToast(value?'색상 표시를 켰습니다.':'색상 표시를 껐습니다.')
 }
 async function uploadPresetColor(i,color){
+  if(presetColorUploadActive){showToast('다른 색상 이미지 업로드가 끝난 뒤 다시 시도해주세요.');return}
   const x=presetItems[i];if(!x)return;
   const input=document.querySelector(`[data-preset-color-file="${i}"][data-color="${color}"]`),file=input?.files?.[0];
-  if(!file){alert('업로드할 색상 이미지를 선택해주세요.');return}
+  try{validatePresetUploadFile(file)}catch(e){alert(e.message);return}
   const state=presetColorStateFor(x),oldPath=state.images[color]||'';
   const fd=new FormData();fd.append('category',x.category);fd.append('file',file);
   let newPath='',mapped=false;
+  setPresetColorUploadBusy(i,color,true);
   try{
+    showToast('색상 이미지를 업로드하고 있습니다.');
     const r=await fetch(API+'/api/admin/preset-upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
     newPath=String(d.path||'');if(!newPath)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
@@ -489,11 +546,16 @@ async function uploadPresetColor(i,color){
     });
     mapped=true;
     S.presetColorMeta=saved.presetColorMeta||{};S.presetVariantFiles=saved.presetVariantFiles||[];
-    if(oldPath&&oldPath!==newPath)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{});
-    await loadItems();showToast('색상 이미지가 저장되었습니다.')
+    if(input)input.value='';
+    updatePresetColorRow(i,color,newPath,true);
+    showToast('색상 이미지가 저장되었습니다.');
+    if(oldPath&&oldPath!==newPath)api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{})
   }catch(e){
-    if(newPath&&!mapped)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+    if(newPath&&!mapped)api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
     alert('색상 이미지 저장에 실패했습니다.\n'+e.message)
+  }finally{
+    setPresetColorUploadBusy(i,color,false);
+    if(mapped)updatePresetColorRow(i,color,newPath,true)
   }
 }
 async function deletePresetColor(i,color){
@@ -510,8 +572,10 @@ async function deletePresetColor(i,color){
       const variants=new Set(Array.isArray(latest.presetVariantFiles)?latest.presetVariantFiles:[]);variants.add(oldPath);latest.presetVariantFiles=[...variants]
     });
     S.presetColorMeta=saved.presetColorMeta||{};S.presetVariantFiles=saved.presetVariantFiles||[];
-    await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{});
-    await loadItems();showToast('색상 이미지를 삭제했습니다.')
+    updatePresetColorRow(i,color,'');
+    const toggle=document.querySelector(`[data-preset-color-enabled="${i}"][data-color="${color}"]`);if(toggle)toggle.checked=false;
+    showToast('색상 이미지를 삭제했습니다.');
+    api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{})
   }catch(e){alert('색상 이미지 삭제에 실패했습니다.\n'+e.message)}
 }
 function renderPresetItems(){
@@ -519,9 +583,9 @@ function renderPresetItems(){
     const meta=presetMetaFor(x),state=presetColorStateFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
     const colors=PRESET_COLORS.map(col=>{
       const path=state.images[col.id]||'',src=path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):'';
-      return `<div class="preset-color-admin-row">
+      return `<div class="preset-color-admin-row" data-preset-color-row="${i}" data-color="${col.id}">
         <label class="preset-color-toggle"><input type="checkbox" data-preset-color-enabled="${i}" data-color="${col.id}" ${state.enabled[col.id]===true?'checked':''}><span class="preset-color-swatch" style="--chip:${col.hex}"></span><strong>${col.label}</strong></label>
-        <div class="preset-color-preview ${path?'has-image':''}">${path?`<img src="${src}" alt="${col.label} 버전" draggable="false">`:'<span>미등록</span>'}</div>
+        <div class="preset-color-preview ${path?'has-image':''}">${path?`<img src="${src}" alt="${col.label} 버전" loading="lazy" decoding="async" fetchpriority="low" draggable="false">`:'<span>미등록</span>'}</div>
         <input type="file" class="preset-color-file" data-preset-color-file="${i}" data-color="${col.id}" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp">
         <button type="button" class="ghost admin-compact" data-upload-preset-color="${i}" data-color="${col.id}">${path?'교체':'업로드'}</button>
         <button type="button" class="danger admin-compact" data-delete-preset-color="${i}" data-color="${col.id}" ${path?'':'disabled'}>삭제</button>
@@ -595,7 +659,7 @@ async function uploadFiles(kind){
     if(isPreset){
       const name=String($('presetUploadName')?.value||'').trim();
       if(!name)throw new Error('프리셋 이름을 입력해주세요.');
-      const file=files[0],fd=new FormData();fd.append('category',cat);fd.append('file',file);
+      const file=files[0];validatePresetUploadFile(file);const fd=new FormData();fd.append('category',cat);fd.append('file',file);
       status.textContent='대표 이미지 업로드 중…';
       const r=await fetch(API+'/api/admin/preset-upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
@@ -607,7 +671,7 @@ async function uploadFiles(kind){
         latest.presetColorMeta[path]={enabled:{},images:{}}
       });
       S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};
-      $('presetUploadName').value='';fileInput.value='';status.textContent='프리셋이 등록되었습니다.';await loadItems();showToast('프리셋이 등록되었습니다.');return
+      $('presetUploadName').value='';fileInput.value='';status.textContent='프리셋이 등록되었습니다.';await loadPresetItemsOnly();showToast('프리셋이 등록되었습니다.');return
     }
     for(let i=0;i<files.length;i++){
       status.textContent=`${i+1}/${files.length} 업로드 중…`;
