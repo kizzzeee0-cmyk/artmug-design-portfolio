@@ -404,14 +404,25 @@
       "miniCategories": []
     }
   ],
-  "presetMeta": {},
+  "presetMeta": {
+    "preset/profile/20261001055931-ZJJNNnTN-______.png": {
+      "name": "프리셋 01",
+      "enabled": true,
+      "isNew": false
+    }
+  },
   "presetOrder": [],
   "portfolioOrder": [
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
     "portfolio/profile/20260927221331-GvtfOmFf-______.gif"
   ],
-  "presetColorMeta": {},
+  "presetColorMeta": {
+    "preset/profile/20261001055931-ZJJNNnTN-______.png": {
+      "enabled": {},
+      "images": {}
+    }
+  },
   "presetVariantFiles": [
     "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
     "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png",
