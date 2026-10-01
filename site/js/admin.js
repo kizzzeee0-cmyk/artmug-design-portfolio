@@ -1,18 +1,6 @@
 const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],quoteState={};const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
-const PRESET_COLORS=[
-  {id:'pink',label:'핑크',hex:'#f39abb'},
-  {id:'red',label:'빨강',hex:'#e85c62'},
-  {id:'orange',label:'주황',hex:'#f29a52'},
-  {id:'yellow',label:'노랑',hex:'#f2cf58'},
-  {id:'green',label:'초록',hex:'#67b979'},
-  {id:'blue',label:'파랑',hex:'#69a9df'},
-  {id:'navy',label:'남색',hex:'#5066a8'},
-  {id:'purple',label:'보라',hex:'#9389de'},
-  {id:'black',label:'검정',hex:'#34343b'}
-];
 const PRESET_UPLOAD_MAX_BYTES=6*1024*1024;
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
-let presetColorUploadActive=false;
 function validatePresetUploadFile(file){
   if(!file)throw new Error('업로드할 파일을 선택해주세요.');
   const ext=String(file.name||'').split('.').pop().toLowerCase();
@@ -20,34 +8,6 @@ function validatePresetUploadFile(file){
   if(file.size>PRESET_UPLOAD_MAX_BYTES)throw new Error('파일은 6MB 이하만 업로드할 수 있습니다.');
   if(file.size<=0)throw new Error('빈 파일은 업로드할 수 없습니다.');
 }
-function setPresetColorUploadBusy(i,color,busy){
-  presetColorUploadActive=busy;
-  document.querySelectorAll('[data-upload-preset-color]').forEach(btn=>{
-    btn.disabled=busy;
-    if(!busy&&btn.dataset.busyLabel){btn.textContent=btn.dataset.busyLabel;delete btn.dataset.busyLabel}
-  });
-  const btn=document.querySelector(`[data-upload-preset-color="${i}"][data-color="${color}"]`);
-  if(btn&&busy){
-    btn.dataset.busyLabel=btn.textContent;
-    btn.textContent='업로드 중…';
-  }
-  const input=document.querySelector(`[data-preset-color-file="${i}"][data-color="${color}"]`);
-  if(input)input.disabled=busy;
-}
-function updatePresetColorRow(i,color,path,forceEnabled=false){
-  const row=document.querySelector(`[data-preset-color-row="${i}"][data-color="${color}"]`);
-  if(!row)return;
-  const preview=row.querySelector('.preset-color-preview'),upload=row.querySelector('[data-upload-preset-color]'),del=row.querySelector('[data-delete-preset-color]'),toggle=row.querySelector('[data-preset-color-enabled]');
-  const src=path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):'';
-  if(preview){
-    preview.classList.toggle('has-image',!!path);
-    preview.innerHTML=path?`<img src="${src}" alt="색상 버전" loading="lazy" decoding="async" fetchpriority="low" draggable="false">`:'<span>미등록</span>'
-  }
-  if(upload&&!presetColorUploadActive)upload.textContent=path?'교체':'업로드';
-  if(del)del.disabled=!path;
-  if(toggle&&forceEnabled)toggle.checked=true;
-}
-
 let toastTimer=null;
 function showToast(message,type='success'){
   let el=document.getElementById('adminToast');
@@ -106,16 +66,15 @@ function parsePresetOriginalName(name){
   return m?{groupId:m[1],miniCategory:m[2],cleanName:m[3]}:{groupId:'',miniCategory:'',cleanName:raw}
 }
 function ensurePresetMeta(){if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};return S.presetMeta}
-function presetMetaFor(x){const meta=ensurePresetMeta()[x.file]||{};return {name:String(meta.name||''),description:String(meta.description??''),enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,isNew:meta.isNew===true}}
-function ensurePresetColorMeta(){if(!S.presetColorMeta||typeof S.presetColorMeta!=='object'||Array.isArray(S.presetColorMeta))S.presetColorMeta={};return S.presetColorMeta}
-function presetColorStateFor(x){
-  const raw=ensurePresetColorMeta()[x.file]||{};
-  return {enabled:raw.enabled&&typeof raw.enabled==='object'?raw.enabled:{},images:raw.images&&typeof raw.images==='object'?raw.images:{}}
-}
-function presetVariantFileSet(){
-  const set=new Set(Array.isArray(S.presetVariantFiles)?S.presetVariantFiles:[]);
-  Object.values(ensurePresetColorMeta()).forEach(v=>Object.values(v?.images||{}).forEach(path=>{if(path)set.add(path)}));
-  return set
+function presetMetaFor(x){
+  const meta=ensurePresetMeta()[x.file]||{};
+  return {
+    name:String(meta.name||''),
+    description:String(meta.description??''),
+    enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,
+    isNew:meta.isNew===true,
+    colorChangeAvailable:meta.colorChangeAvailable===true
+  }
 }
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
 function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:''}}
@@ -349,7 +308,7 @@ async function saveSettings(){
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
   collectCats(S.presetCategories||[],'preset');collectPresetGroups();
-  delete S.backgroundGuide;delete S.comparisonAImage;delete S.comparisonBImage;delete S.portfolioMeta;
+  delete S.backgroundGuide;delete S.comparisonAImage;delete S.comparisonBImage;delete S.portfolioMeta;delete S.presetColorMeta;delete S.presetVariantFiles;
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
@@ -402,8 +361,7 @@ async function savePortfolioTag(i,type,checked){
 }
 async function loadPresetItemsOnly(){
   const q=await api('/api/admin/presets').catch(()=>({items:[]}));
-  const variants=presetVariantFileSet();
-  const presetBase=[...(q.items||[])].filter(x=>!variants.has(x.file)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  const presetBase=[...(q.items||[])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
   presetItems=applyAdminOrder(presetBase,S?.presetOrder);
   renderPresetItems()
 }
@@ -442,7 +400,12 @@ async function savePresetToggle(i,key,value){
     latest.presetMeta[x.file]={...prev,[key]:value}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
-  showToast(key==='enabled'?(value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.'):(value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.'))
+  const message=key==='enabled'
+    ? (value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.')
+    : key==='isNew'
+      ? (value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.')
+      : (value?'색상변경가능 표시를 켰습니다.':'색상변경가능 표시를 껐습니다.');
+  showToast(message)
 }
 function chooseReplacementFile(){
   return new Promise(resolve=>{
@@ -482,9 +445,6 @@ async function replaceMediaFile(kind,index){
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
         latest.presetMeta[newPath]={...(latest.presetMeta[x.file]||{}),...presetMeta};
         delete latest.presetMeta[x.file];
-        if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
-        latest.presetColorMeta[newPath]=latest.presetColorMeta[x.file]||{enabled:{},images:{}};
-        delete latest.presetColorMeta[x.file];
         latest.presetOrder=replaceOrderPath(latest.presetOrder,x.file,newPath)
       }else{
         if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object'){delete latest.portfolioMeta[x.file];delete latest.portfolioMeta[newPath]}
@@ -492,7 +452,7 @@ async function replaceMediaFile(kind,index){
       }
     });
     metadataMoved=true;
-    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};S.presetOrder=saved.presetOrder||[]}
+    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
     else{delete S.portfolioMeta;S.portfolioOrder=saved.portfolioOrder||[]}
 
     try{
@@ -510,94 +470,17 @@ async function replaceMediaFile(kind,index){
     alert('파일 변경에 실패했습니다.\n'+e.message)
   }
 }
-async function savePresetColorToggle(i,color,value){
-  const x=presetItems[i];if(!x)return;
-  const saved=await queueSettingsMutation(latest=>{
-    if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
-    const prev=latest.presetColorMeta[x.file]||{},enabled={...(prev.enabled||{})};
-    enabled[color]=value;
-    latest.presetColorMeta[x.file]={...prev,enabled,images:{...(prev.images||{})}}
-  });
-  S.presetColorMeta=saved.presetColorMeta||{};
-  showToast(value?'색상 표시를 켰습니다.':'색상 표시를 껐습니다.')
-}
-async function uploadPresetColor(i,color){
-  if(presetColorUploadActive){showToast('다른 색상 이미지 업로드가 끝난 뒤 다시 시도해주세요.');return}
-  const x=presetItems[i];if(!x)return;
-  const input=document.querySelector(`[data-preset-color-file="${i}"][data-color="${color}"]`),file=input?.files?.[0];
-  try{validatePresetUploadFile(file)}catch(e){alert(e.message);return}
-  const state=presetColorStateFor(x),oldPath=state.images[color]||'';
-  const fd=new FormData();fd.append('category',x.category);fd.append('file',file);
-  let newPath='',mapped=false;
-  setPresetColorUploadBusy(i,color,true);
-  try{
-    showToast('색상 이미지를 업로드하고 있습니다.');
-    const r=await fetch(API+'/api/admin/preset-upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
-    newPath=String(d.path||'');if(!newPath)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
-    const saved=await queueSettingsMutation(latest=>{
-      if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
-      const prev=latest.presetColorMeta[x.file]||{},enabled={...(prev.enabled||{})},images={...(prev.images||{})};
-      enabled[color]=true;images[color]=newPath;
-      latest.presetColorMeta[x.file]={...prev,enabled,images};
-      const variants=new Set(Array.isArray(latest.presetVariantFiles)?latest.presetVariantFiles:[]);
-      variants.add(newPath);if(oldPath)variants.add(oldPath);
-      latest.presetVariantFiles=[...variants]
-    });
-    mapped=true;
-    S.presetColorMeta=saved.presetColorMeta||{};S.presetVariantFiles=saved.presetVariantFiles||[];
-    if(input)input.value='';
-    updatePresetColorRow(i,color,newPath,true);
-    showToast('색상 이미지가 저장되었습니다.');
-    if(oldPath&&oldPath!==newPath)api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{})
-  }catch(e){
-    if(newPath&&!mapped)api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
-    alert('색상 이미지 저장에 실패했습니다.\n'+e.message)
-  }finally{
-    setPresetColorUploadBusy(i,color,false);
-    if(mapped)updatePresetColorRow(i,color,newPath,true)
-  }
-}
-async function deletePresetColor(i,color){
-  const x=presetItems[i];if(!x)return;
-  const state=presetColorStateFor(x),oldPath=state.images[color]||'';
-  if(!oldPath)return;
-  if(!confirm('이 색상 이미지를 삭제할까요?'))return;
-  try{
-    const saved=await queueSettingsMutation(latest=>{
-      if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
-      const prev=latest.presetColorMeta[x.file]||{},enabled={...(prev.enabled||{})},images={...(prev.images||{})};
-      enabled[color]=false;delete images[color];
-      latest.presetColorMeta[x.file]={...prev,enabled,images};
-      const variants=new Set(Array.isArray(latest.presetVariantFiles)?latest.presetVariantFiles:[]);variants.add(oldPath);latest.presetVariantFiles=[...variants]
-    });
-    S.presetColorMeta=saved.presetColorMeta||{};S.presetVariantFiles=saved.presetVariantFiles||[];
-    updatePresetColorRow(i,color,'');
-    const toggle=document.querySelector(`[data-preset-color-enabled="${i}"][data-color="${color}"]`);if(toggle)toggle.checked=false;
-    showToast('색상 이미지를 삭제했습니다.');
-    api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>{})
-  }catch(e){alert('색상 이미지 삭제에 실패했습니다.\n'+e.message)}
-}
 function renderPresetItems(){
   $('presetItems').innerHTML=presetItems.map((x,i)=>{
-    const meta=presetMetaFor(x),state=presetColorStateFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
-    const colors=PRESET_COLORS.map(col=>{
-      const path=state.images[col.id]||'',src=path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):'';
-      return `<div class="preset-color-admin-row" data-preset-color-row="${i}" data-color="${col.id}">
-        <label class="preset-color-toggle"><input type="checkbox" data-preset-color-enabled="${i}" data-color="${col.id}" ${state.enabled[col.id]===true?'checked':''}><span class="preset-color-swatch" style="--chip:${col.hex}"></span><strong>${col.label}</strong></label>
-        <div class="preset-color-preview ${path?'has-image':''}">${path?`<img src="${src}" alt="${col.label} 버전" loading="lazy" decoding="async" fetchpriority="low" draggable="false">`:'<span>미등록</span>'}</div>
-        <input type="file" class="preset-color-file" data-preset-color-file="${i}" data-color="${col.id}" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp">
-        <button type="button" class="ghost admin-compact" data-upload-preset-color="${i}" data-color="${col.id}">${path?'교체':'업로드'}</button>
-        <button type="button" class="danger admin-compact" data-delete-preset-color="${i}" data-color="${col.id}" ${path?'':'disabled'}>삭제</button>
-      </div>`
-    }).join('');
+    const meta=presetMetaFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
     return `<div class="preset-admin-item preset-admin-item-v2">
-      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
+      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" decoding="async" draggable="false">
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
         <label>프리셋 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
         <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 색상변경가능 표시</label>
       </div>
       <div class="preset-admin-actions">
         <div class="media-order-controls">
@@ -608,7 +491,6 @@ function renderPresetItems(){
         <button class="ghost admin-compact" data-save-preset="${i}">이름 저장</button>
         <button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">프리셋 삭제</button>
       </div>
-      <div class="preset-color-manager"><div class="preset-color-manager-head"><strong>색상별 이미지</strong><span class="muted">ON + 이미지 등록된 색상만 공개 페이지에 표시됩니다.</span></div><div class="preset-color-admin-grid">${colors}</div></div>
     </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
 
@@ -617,20 +499,17 @@ function renderPresetItems(){
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-color-enabled]').forEach(el=>el.onchange=()=>savePresetColorToggle(+el.dataset.presetColorEnabled,el.dataset.color,el.checked).catch(e=>{el.checked=!el.checked;alert('색상 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-upload-preset-color]').forEach(b=>b.onclick=()=>uploadPresetColor(+b.dataset.uploadPresetColor,b.dataset.color));
-  document.querySelectorAll('[data-delete-preset-color]').forEach(b=>b.onclick=()=>deletePresetColor(+b.dataset.deletePresetColor,b.dataset.color));
+  document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked).catch(e=>{el.checked=!el.checked;alert('색상변경가능 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('이 프리셋과 등록된 색상별 이미지를 모두 삭제할까요?'))return;
-    const file=decodeURIComponent(b.dataset.deletePreset),x=presetItems.find(v=>v.file===file),state=x?presetColorStateFor(x):{images:{}};
-    for(const path of Object.values(state.images||{})){if(path)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{})}
+    if(!confirm('이 프리셋을 삭제할까요?'))return;
+    const file=decodeURIComponent(b.dataset.deletePreset);
     await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});
     const saved=await queueSettingsMutation(latest=>{
       if(latest.presetMeta&&typeof latest.presetMeta==='object')delete latest.presetMeta[file];
-      if(latest.presetColorMeta&&typeof latest.presetColorMeta==='object')delete latest.presetColorMeta[file];
-      latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file)
+      latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file);
+      delete latest.presetColorMeta;delete latest.presetVariantFiles
     }).catch(()=>null);
-    if(saved){S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};S.presetOrder=saved.presetOrder||[]}
+    if(saved){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
     loadItems()
   })
 }
@@ -666,11 +545,10 @@ async function uploadFiles(kind){
       const path=String(d.path||'');if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
       const saved=await queueSettingsMutation(latest=>{
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false};
-        if(!latest.presetColorMeta||typeof latest.presetColorMeta!=='object'||Array.isArray(latest.presetColorMeta))latest.presetColorMeta={};
-        latest.presetColorMeta[path]={enabled:{},images:{}}
+        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,colorChangeAvailable:false};
+        delete latest.presetColorMeta;delete latest.presetVariantFiles
       });
-      S.presetMeta=saved.presetMeta||{};S.presetColorMeta=saved.presetColorMeta||{};
+      S.presetMeta=saved.presetMeta||{};
       $('presetUploadName').value='';fileInput.value='';status.textContent='프리셋이 등록되었습니다.';await loadPresetItemsOnly();showToast('프리셋이 등록되었습니다.');return
     }
     for(let i=0;i<files.length;i++){
