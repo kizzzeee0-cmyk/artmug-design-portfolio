@@ -421,7 +421,8 @@
     "preset/profile/20261001055931-ZJJNNnTN-______.png": {
       "enabled": {
         "pink": true,
-        "red": true
+        "red": true,
+        "blue": true
       },
       "images": {}
     }
