@@ -420,7 +420,8 @@
   "presetColorMeta": {
     "preset/profile/20261001055931-ZJJNNnTN-______.png": {
       "enabled": {
-        "pink": true
+        "pink": true,
+        "red": true
       },
       "images": {}
     }
