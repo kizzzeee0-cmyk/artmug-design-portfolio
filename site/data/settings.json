@@ -422,7 +422,8 @@
       "enabled": {
         "pink": true,
         "red": true,
-        "blue": true
+        "blue": true,
+        "navy": true
       },
       "images": {}
     }
