@@ -404,36 +404,14 @@
       "miniCategories": []
     }
   ],
-  "presetMeta": {
-    "preset/profile/20260930142010-fU7ZU68i-___________2_.png": {
-      "name": "프리셋 리본 01",
-      "enabled": false,
-      "isNew": true,
-      "description": ""
-    }
-  },
-  "presetOrder": [
-    "preset/profile/20260930142010-fU7ZU68i-___________2_.png"
-  ],
+  "presetMeta": {},
+  "presetOrder": [],
   "portfolioOrder": [
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
     "portfolio/profile/20260927221331-GvtfOmFf-______.gif"
   ],
-  "presetColorMeta": {
-    "preset/profile/20260930142010-fU7ZU68i-___________2_.png": {
-      "enabled": {
-        "pink": false,
-        "blue": true,
-        "purple": true,
-        "red": true,
-        "navy": true
-      },
-      "images": {
-        "pink": "preset/profile/20260930142137-fTVOsO7r-___________2_.png"
-      }
-    }
-  },
+  "presetColorMeta": {},
   "presetVariantFiles": [
     "preset/profile/20260930045743-4SW0v4Jx-cute-pattern-2000x2000.png",
     "preset/profile/20260930045744-bIS5oD3A-cute-pattern-2000x2000__1_.png",
