@@ -1,15 +1,4 @@
 const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
-const PRESET_COLORS=[
-  {id:'pink',label:'핑크',hex:'#f39abb'},
-  {id:'red',label:'빨강',hex:'#e85c62'},
-  {id:'orange',label:'주황',hex:'#f29a52'},
-  {id:'yellow',label:'노랑',hex:'#f2cf58'},
-  {id:'green',label:'초록',hex:'#67b979'},
-  {id:'blue',label:'파랑',hex:'#69a9df'},
-  {id:'navy',label:'남색',hex:'#5066a8'},
-  {id:'purple',label:'보라',hex:'#9389de'},
-  {id:'black',label:'검정',hex:'#34343b'}
-];
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
@@ -378,21 +367,9 @@ function presetMetaForItem(x){
   return {
     name:String(saved.name||''),
     enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false,
-    isNew:saved.isNew===true
+    isNew:saved.isNew===true,
+    colorChangeAvailable:saved.colorChangeAvailable===true
   }
-}
-function presetColorStateFor(x){
-  const raw=(S?.presetColorMeta&&S.presetColorMeta[x.file])||{};
-  return {
-    enabled:raw.enabled&&typeof raw.enabled==='object'?raw.enabled:{},
-    images:raw.images&&typeof raw.images==='object'?raw.images:{}
-  }
-}
-function presetVariantFileSet(){
-  const set=new Set(Array.isArray(S?.presetVariantFiles)?S.presetVariantFiles:[]);
-  const all=S?.presetColorMeta&&typeof S.presetColorMeta==='object'?S.presetColorMeta:{};
-  Object.values(all).forEach(v=>Object.values(v?.images||{}).forEach(path=>{if(path)set.add(path)}));
-  return set
 }
 function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
@@ -459,75 +436,17 @@ function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){
   }).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;
   bindLightboxes()
 }
-function closePresetColorPopovers(exceptCard=null){
-  document.querySelectorAll('.preset-work-card.is-popover-open').forEach(card=>{
-    if(card===exceptCard)return;
-    card.classList.remove('is-popover-open');
-    const pop=card.querySelector('.preset-color-popover'),trigger=card.querySelector('.preset-color-trigger');
-    if(pop)pop.hidden=true;
-    if(trigger)trigger.setAttribute('aria-expanded','false')
-  })
-}
-function positionPresetColorPopover(pop){
-  if(!pop||pop.hidden)return;
-  pop.style.setProperty('--popover-shift','0px');
-  requestAnimationFrame(()=>{
-    const r=pop.getBoundingClientRect(),pad=8;
-    let shift=0;
-    if(r.left<pad)shift+=pad-r.left;
-    if(r.right>window.innerWidth-pad)shift-=r.right-(window.innerWidth-pad);
-    pop.style.setProperty('--popover-shift',shift+'px')
-  })
-}
 function presetGrid(items,cat){
   const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
   g.className='portfolio-grid preset-grid';
   g.innerHTML=items.length?items.map(x=>{
-    const meta=presetMetaForItem(x),state=presetColorStateFor(x),rep=x.demoSrc||media(x.file);
-    const colors=PRESET_COLORS.filter(col=>state.enabled[col.id]===true&&state.images[col.id]);
+    const meta=presetMetaForItem(x),rep=x.demoSrc||media(x.file);
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
-    const colorUi=colors.length?`<div class="preset-color-menu">
-      <button type="button" class="preset-color-trigger" aria-expanded="false">색상 ${colors.length} <span aria-hidden="true">▾</span></button>
-      <div class="preset-color-popover" hidden role="group" aria-label="지원 색상">
-        ${colors.map(col=>{
-          const src=media(state.images[col.id]);
-          return `<button type="button" class="preset-color-chip" data-preset-color="${col.id}" data-color-src="${esc(src)}" style="--chip:${col.hex}" title="${col.label}" aria-label="${col.label}"><span></span></button>`
-        }).join('')}
-      </div>
-    </div>`:'';
+    const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">색상변경가능</span>':'';
     const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
-    return `<article class="work-card preset-work-card" data-representative-src="${esc(rep)}">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></button><div class="preset-card-copy"><div class="preset-card-meta">${name}${colorUi}</div></div></article>`
+    return `<article class="work-card preset-work-card">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></button><div class="preset-card-copy">${name}${colorNote}</div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
-
-  g.querySelectorAll('.preset-color-trigger').forEach(trigger=>trigger.onclick=e=>{
-    e.stopPropagation();
-    const card=trigger.closest('.preset-work-card'),pop=card?.querySelector('.preset-color-popover');
-    if(!card||!pop)return;
-    const willOpen=pop.hidden;
-    closePresetColorPopovers(card);
-    card.classList.toggle('is-popover-open',willOpen);
-    pop.hidden=!willOpen;
-    trigger.setAttribute('aria-expanded',willOpen?'true':'false');
-    if(willOpen)positionPresetColorPopover(pop)
-  });
-  g.querySelectorAll('.preset-color-popover').forEach(pop=>pop.onclick=e=>e.stopPropagation());
-  g.querySelectorAll('[data-preset-color]').forEach(btn=>btn.onclick=e=>{
-    e.stopPropagation();
-    const card=btn.closest('.preset-work-card'),img=card?.querySelector('.media-wrap img'),viewer=card?.querySelector('.work-button'),pop=card?.querySelector('.preset-color-popover'),trigger=card?.querySelector('.preset-color-trigger');
-    if(!card||!img||!viewer)return;
-    card.querySelectorAll('[data-preset-color]').forEach(x=>x.classList.remove('is-selected'));
-    btn.classList.add('is-selected');
-    img.src=btn.dataset.colorSrc;viewer.dataset.image=btn.dataset.colorSrc;
-    card.classList.remove('is-popover-open');
-    if(pop)pop.hidden=true;
-    if(trigger)trigger.setAttribute('aria-expanded','false')
-  });
   bindLightboxes()
-}
-if(!window.__presetColorPopoverBound){
-  window.__presetColorPopoverBound=true;
-  document.addEventListener('click',()=>closePresetColorPopovers());
-  window.addEventListener('resize',()=>closePresetColorPopovers())
 }
 function pages(el,total,current,fn){el.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="page-button ${i+1===current?'is-active':''}" data-page="${i+1}">${i+1}</button>`).join(''):'';el.querySelectorAll('button').forEach(b=>b.onclick=()=>fn(Number(b.dataset.page)))}
 function portfolioCacheKey(category,page){return category+'::'+page}
@@ -607,8 +526,6 @@ async function loadPresets(){
   try{
     if(!presetCache.has(presetState.category))$('presetStatus').textContent='불러오는 중…';
     let all=await fetchAllPresets(presetState.category);
-    const variants=presetVariantFileSet();
-    all=all.filter(x=>!variants.has(x.file));
     all=applyManualOrder(all,S?.presetOrder);
     all=all.filter(x=>presetMetaForItem(x).enabled);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
