@@ -1,14 +1,5 @@
 [
   {
-    "id": "preset-0qR3f3sCLfU",
-    "category": "profile",
-    "file": "preset/profile/20260930045819-VOFF3dTN-cute-pattern-2000x2000__6_.png",
-    "originalName": "cute-pattern-2000x2000 (6).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20260930045819"
-  },
-  {
     "id": "preset-DB8JXrwI7MU",
     "category": "profile",
     "file": "preset/profile/20261001055931-ZJJNNnTN-______.png",
@@ -16,50 +7,5 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261001055931"
-  },
-  {
-    "id": "preset-tbYVC0YG5U0",
-    "category": "profile",
-    "file": "preset/profile/20261001060038-u75rhKfD-______.png",
-    "originalName": "움짤 동영상.png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20261001060038"
-  },
-  {
-    "id": "preset-aIivCaE1PTk",
-    "category": "profile",
-    "file": "preset/profile/20261001060049-Nqs_8rwe-________4_.png",
-    "originalName": "움짤 동영상 (4).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20261001060049"
-  },
-  {
-    "id": "preset-06wZf3kgq74",
-    "category": "profile",
-    "file": "preset/profile/20261001060111-mKakkubM-________3_.png",
-    "originalName": "움짤 동영상 (3).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20261001060111"
-  },
-  {
-    "id": "preset-Ply_oNDG31E",
-    "category": "profile",
-    "file": "preset/profile/20261001060122-kEikt7XT-________1_.png",
-    "originalName": "움짤 동영상 (1).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20261001060122"
-  },
-  {
-    "id": "preset-7AqdKaVw8rI",
-    "category": "profile",
-    "file": "preset/profile/20261001060129-icwW52lZ-________2_.png",
-    "originalName": "움짤 동영상 (2).png",
-    "description": "",
-    "enabled": true,
-    "createdAt": "20261001060129"
   }
 ]
