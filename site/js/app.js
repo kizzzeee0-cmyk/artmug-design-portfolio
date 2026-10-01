@@ -432,9 +432,9 @@ function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){
   g.style.setProperty('--display-height',`${c.displayHeight||200}px`);
   g.innerHTML=items.length?items.map(x=>{
     const src=x.demoSrc||media(x.file);
-    return `<article class="work-card portfolio-work-card"><button class="work-button protected-media-button" data-image="${esc(src)}"><div class="media-wrap"><img src="${esc(src)}" alt="${esc(x.alt||x.originalName)}" loading="lazy" draggable="false"></div></button></article>`
+    return `<article class="work-card portfolio-work-card"><div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(src)}" alt="${esc(x.alt||x.originalName)}" loading="lazy" draggable="false"></div></div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;
-  bindLightboxes()
+  protectMedia()
 }
 function presetGrid(items,cat){
   const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
@@ -444,9 +444,9 @@ function presetGrid(items,cat){
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
     const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">색상변경가능</span>':'';
     const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
-    return `<article class="work-card preset-work-card">${badge}<button class="work-button protected-media-button" data-image="${esc(rep)}"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></button><div class="preset-card-copy">${name}${colorNote}</div></article>`
+    return `<article class="work-card preset-work-card">${badge}<div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></div><div class="preset-card-copy">${name}${colorNote}</div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
-  bindLightboxes()
+  protectMedia()
 }
 function pages(el,total,current,fn){el.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="page-button ${i+1===current?'is-active':''}" data-page="${i+1}">${i+1}</button>`).join(''):'';el.querySelectorAll('button').forEach(b=>b.onclick=()=>fn(Number(b.dataset.page)))}
 function portfolioCacheKey(category,page){return category+'::'+page}
@@ -543,7 +543,7 @@ function protectMedia(root=document){
     img.ondragstart=e=>{e.preventDefault();return false}
   })
 }
-function bindLightboxes(){
+function protectMedia(){
   document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>{
     const d=$('lightbox'),im=$('lightboxImage');im.src=b.dataset.image;im.draggable=false;d.showModal();protectMedia(d)
   });
