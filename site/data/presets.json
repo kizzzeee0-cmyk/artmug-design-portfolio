@@ -52,5 +52,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261001060122"
+  },
+  {
+    "id": "preset-7AqdKaVw8rI",
+    "category": "profile",
+    "file": "preset/profile/20261001060129-icwW52lZ-________2_.png",
+    "originalName": "움짤 동영상 (2).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261001060129"
   }
 ]
