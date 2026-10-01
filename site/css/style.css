@@ -2147,3 +2147,13 @@ body::after{
     font-size:8.5px;
   }
 }
+
+/* 2026-10-01 disable public media enlargement */
+#portfolioGrid .work-button,
+#presetGrid .work-button,
+#portfolioGrid .media-wrap,
+#presetGrid .media-wrap,
+#portfolioGrid img,
+#presetGrid img{
+  cursor:default!important;
+}
