@@ -361,7 +361,7 @@ async function savePortfolioTag(i,type,checked){
 }
 async function loadPresetItemsOnly(){
   const q=await api('/api/admin/presets').catch(()=>({items:[]}));
-  const presetBase=[...(q.items||[])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  const presetBase=[...(q.items||[])].sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
   presetItems=applyAdminOrder(presetBase,S?.presetOrder);
   renderPresetItems()
 }
@@ -546,16 +546,31 @@ async function uploadFiles(kind){
       const saved=await queueSettingsMutation(latest=>{
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
         latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,colorChangeAvailable:false};
+        const order=Array.isArray(latest.presetOrder)?latest.presetOrder.filter(v=>v!==path):[];
+        order.push(path);
+        latest.presetOrder=order;
         delete latest.presetColorMeta;delete latest.presetVariantFiles
       });
       S.presetMeta=saved.presetMeta||{};
+      S.presetOrder=saved.presetOrder||S.presetOrder||[];
       $('presetUploadName').value='';fileInput.value='';status.textContent='프리셋이 등록되었습니다.';await loadPresetItemsOnly();showToast('프리셋이 등록되었습니다.');return
     }
+    const uploadedPaths=[];
     for(let i=0;i<files.length;i++){
       status.textContent=`${i+1}/${files.length} 업로드 중…`;
       const fd=new FormData();fd.append('category',cat);fd.append('file',files[i]);
       const r=await fetch(API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
-      if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`)
+      if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+      if(d.path)uploadedPaths.push(String(d.path))
+    }
+    if(uploadedPaths.length){
+      const saved=await queueSettingsMutation(latest=>{
+        const current=Array.isArray(latest.portfolioOrder)?latest.portfolioOrder:[];
+        const fresh=[...uploadedPaths].reverse();
+        const newSet=new Set(fresh);
+        latest.portfolioOrder=[...fresh,...current.filter(v=>!newSet.has(v))]
+      });
+      S.portfolioOrder=saved.portfolioOrder||S.portfolioOrder||[]
     }
     status.textContent='업로드가 완료되었습니다.';fileInput.value='';await loadItems();showToast('업로드되었습니다.')
   }catch(e){status.textContent=e.message;alert('업로드에 실패했습니다.\n'+e.message)}
