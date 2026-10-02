@@ -410,18 +410,10 @@
       "enabled": true,
       "isNew": true,
       "colorChangeAvailable": true
-    },
-    "preset/profile/20261001142959-vrOmBcNS-________5_.png": {
-      "name": "프리셋 02",
-      "enabled": true,
-      "isNew": true,
-      "colorChangeAvailable": true,
-      "description": ""
     }
   },
   "presetOrder": [
-    "preset/profile/20261001055931-ZJJNNnTN-______.png",
-    "preset/profile/20261001142959-vrOmBcNS-________5_.png"
+    "preset/profile/20261001055931-ZJJNNnTN-______.png"
   ],
   "portfolioOrder": [
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
