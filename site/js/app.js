@@ -496,6 +496,7 @@ async function loadPortfolio(){
     const allKey='all::'+portfolioState.category;
     if(!portfolioCache.has(allKey))$('portfolioStatus').textContent='불러오는 중…';
     let all=await fetchAllPortfolio(portfolioState.category);
+    all=[...all].sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
     all=applyManualOrder(all,S?.portfolioOrder);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,portfolioState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     portfolioState.page=page;
@@ -526,6 +527,7 @@ async function loadPresets(){
   try{
     if(!presetCache.has(presetState.category))$('presetStatus').textContent='불러오는 중…';
     let all=await fetchAllPresets(presetState.category);
+    all=[...all].sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
     all=applyManualOrder(all,S?.presetOrder);
     all=all.filter(x=>presetMetaForItem(x).enabled);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
