@@ -350,7 +350,7 @@
     },
     "bannerPrices": {
       "top": 35000,
-      "floating": 0,
+      "floating": 5000,
       "bottom1": 0,
       "bottom3": 0,
       "bottom6": 0
