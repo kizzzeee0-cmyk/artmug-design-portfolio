@@ -426,7 +426,11 @@
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
     "portfolio/profile/20260927221331-GvtfOmFf-______.gif"
   ],
-  "eventsBenefitLabel": "[움짤프사 한정] 리뷰 작성 시",
-  "eventsOldPrice": 20000,
-  "eventsNewPrice": 18000
+  "eventsItems": [
+    {
+      "label": "[움짤프사 한정] 리뷰 작성 시",
+      "oldPrice": 20000,
+      "newPrice": 18000
+    }
+  ]
 }
