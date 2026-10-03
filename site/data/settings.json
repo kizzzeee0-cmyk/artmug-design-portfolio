@@ -55,10 +55,10 @@
     },
     {
       "id": "banner",
-      "label": "배너",
+      "label": "상단배너",
       "showFrameRetention": false,
       "showSignatureFields": false,
-      "showBannerFields": true,
+      "showBannerFields": false,
       "enabled": true,
       "showReviewEvent": false
     }
