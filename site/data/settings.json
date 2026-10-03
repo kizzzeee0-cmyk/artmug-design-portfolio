@@ -143,8 +143,8 @@
     {
       "id": "top-banner",
       "label": "상단 배너",
-      "displayWidth": 500,
-      "displayHeight": 73,
+      "displayWidth": 2320,
+      "displayHeight": 338,
       "strictSize": true,
       "uploadWidth": 2320,
       "uploadHeight": 338,
@@ -156,7 +156,7 @@
         "webp"
       ],
       "emptyText": "등록된 상단 배너 작업물이 아직 없습니다.",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "floating-banner",
