@@ -2456,6 +2456,7 @@ body::after{
 }
 .event-offer-summary{
   display:flex!important;
+  justify-content:flex-end!important;
   align-items:baseline!important;
   gap:7px!important;
   margin:0 0 11px!important;
@@ -2496,6 +2497,8 @@ body::after{
   text-overflow:clip!important;
 }
 .event-price-item .event-price-row{
+  /* Reset the legacy mobile named grid area so prices stay beside the label. */
+  grid-area:auto;
   display:flex!important;
   align-items:center!important;
   justify-content:flex-end!important;
