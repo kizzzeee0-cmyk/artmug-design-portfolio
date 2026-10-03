@@ -60,7 +60,7 @@
       "showSignatureFields": false,
       "showBannerFields": true,
       "enabled": true,
-      "showReviewEvent": true
+      "showReviewEvent": false
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
