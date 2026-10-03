@@ -341,7 +341,7 @@
   "scheduleDate": "2026-10-05",
   "quoteConfig": {
     "designPrices": {
-      "profile-a": 18000,
+      "profile-a": 20000,
       "profile-b": 0,
       "signature-style": 0,
       "banner": 0,
@@ -349,7 +349,7 @@
       "type-1790697442247": 20000
     },
     "bannerPrices": {
-      "top": 0,
+      "top": 35000,
       "floating": 0,
       "bottom1": 0,
       "bottom3": 0,
