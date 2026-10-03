@@ -2610,6 +2610,6 @@ body::after{
 }
 @media(max-width:680px){
   .portfolio-grid.layout-top-banner{
-    gap:7px!important;
+    gap:3px!important;
   }
 }
