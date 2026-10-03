@@ -51,7 +51,7 @@
       "showSignatureFields": true,
       "showBannerFields": false,
       "enabled": false,
-      "showReviewEvent": true
+      "showReviewEvent": false
     },
     {
       "id": "banner",
