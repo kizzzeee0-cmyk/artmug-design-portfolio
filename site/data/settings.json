@@ -428,12 +428,12 @@
   ],
   "eventsItems": [
     {
-      "label": "리뷰 작성 시 - [움짤프사]",
+      "label": "움짤프사",
       "oldPrice": 20000,
       "newPrice": 18000
     },
     {
-      "label": "리뷰 작성 시 - [상단배너]",
+      "label": "상단배너",
       "oldPrice": 35000,
       "newPrice": 33000
     }
