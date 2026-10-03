@@ -2585,3 +2585,22 @@ body::after{
     line-height:1.45!important;
   }
 }
+
+/* Full-width top banners in both galleries, at every viewport size. */
+.portfolio-grid.layout-top-banner{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:14px!important;
+}
+.preset-grid.layout-top-banner .work-button{
+  aspect-ratio:auto;
+  border-radius:6px;
+}
+.preset-grid.layout-top-banner .media-wrap{
+  height:auto;
+  aspect-ratio:2320/338!important;
+  border-radius:0;
+}
+.preset-grid.layout-top-banner .media-wrap img{
+  object-fit:contain;
+  border-radius:0;
+}
