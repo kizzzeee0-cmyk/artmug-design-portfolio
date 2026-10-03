@@ -2589,7 +2589,7 @@ body::after{
 /* Full-width top banners in both galleries, at every viewport size. */
 .portfolio-grid.layout-top-banner{
   grid-template-columns:minmax(0,1fr)!important;
-  gap:10px!important;
+  gap:6px!important;
 }
 .preset-grid.layout-top-banner .work-button{
   aspect-ratio:auto;
