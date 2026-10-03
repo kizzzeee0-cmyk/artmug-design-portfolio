@@ -10,44 +10,19 @@ function renderEvents(s){
   const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
   set('eventsKicker',s.eventsKicker||'REVIEW EVENT');
   set('eventsTitle',s.eventsTitle||'이벤트 안내');
-  let text=String(s.eventsText||'').trim();
-  let items=Array.isArray(s.eventsItems)?s.eventsItems.map(x=>({
-    label:String(x?.label||'').trim(),
-    oldPrice:Number(x?.oldPrice||0),
-    newPrice:Number(x?.newPrice||0)
-  })).filter(x=>x.label||x.oldPrice>0||x.newPrice>0):[];
-
-  /* Legacy single-price event fallback. */
-  if(!items.length){
-    let oldPrice=Number(s.eventsOldPrice||0),newPrice=Number(s.eventsNewPrice||0);
-    if(!(oldPrice>0&&newPrice>0)){
-      const m=text.match(/(\d[\d,]*)\s*(?:원)?\s*(?:->|→)\s*(\d[\d,]*)\s*(?:원)?/);
-      if(m){oldPrice=Number(m[1].replaceAll(',',''));newPrice=Number(m[2].replaceAll(',',''));text=text.split(/\r?\n/).filter(line=>!line.includes(m[0])&&!/\d[\d,]*\s*원?\s*할인/.test(line)).join('\n').trim()}
-    }
-    if(oldPrice>0||newPrice>0)items=[{label:'할인 항목',oldPrice,newPrice}]
-  }
-
+  const text=String(s.eventsText||'').trim();
   set('eventsText',text);
   $('eventsText').hidden=!text;
   $('eventsTitle').style.fontSize=(s.eventsTitleFontSize||22)+'px';
   $('eventsText').style.fontSize=(s.eventsFontSize||15)+'px';
 
   const offer=$('eventOffer');
-  const validItems=items.filter(x=>x.oldPrice>0&&x.newPrice>0);
-  offer.hidden=!validItems.length;
-  if(validItems.length){
-    const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.max(0,Math.round(n)));
-    const discounts=validItems.map(x=>Math.max(0,x.oldPrice-x.newPrice));
-    const commonDiscount=discounts.length&&discounts.every(v=>v===discounts[0])?discounts[0]:0;
-    const summary=commonDiscount?`<div class="event-offer-summary"><span>리뷰 작성 시</span><strong>${fmt(commonDiscount)}원 할인</strong></div>`:'<div class="event-offer-summary"><strong>리뷰 작성 시 할인 혜택</strong></div>';
-    const rows=validItems.map((x,i)=>{
-      const label=x.label||`할인 항목 ${i+1}`;
-      return `<div class="event-price-item"><span class="event-price-label">${htmlAttr(label)}</span><div class="event-price-row"><del>${fmt(x.oldPrice)}원</del><span class="event-price-arrow">→</span><b>${fmt(x.newPrice)}원</b></div></div>`
-    }).join('');
-    offer.innerHTML=summary+`<div class="event-price-list">${rows}</div>`
-  }else{
-    offer.innerHTML=''
-  }
+  const items=Array.isArray(s.eventsItems)?s.eventsItems:[];
+  const discounts=items.map(x=>Math.max(0,Number(x?.oldPrice||0)-Number(x?.newPrice||0))).filter(v=>v>0);
+  const discount=discounts[0]||2000;
+  const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.max(0,Math.round(n)));
+  offer.hidden=false;
+  offer.innerHTML=`<div class="event-offer-summary"><span>리뷰 작성 시</span><strong>${fmt(discount)}원 할인</strong></div>`
 }
 
 function renderNotices(items){$('noticeItems').innerHTML=items.map(x=>`<article class="notice-item"><div class="notice-icon">${esc(x.icon||'')}</div><div><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
