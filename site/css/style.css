@@ -2157,3 +2157,57 @@ body::after{
 #presetGrid img{
   cursor:default!important;
 }
+
+/* 2026-10-04 multi-item event offers */
+.event-offer{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-areas:none!important;
+  align-content:center!important;
+  gap:9px!important;
+}
+.event-offer-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:
+    "label price"
+    "discount price";
+  gap:3px 12px;
+  align-items:center;
+  min-width:0;
+  padding:0 0 9px;
+  border-bottom:1px solid rgba(147,137,222,.18);
+}
+.event-offer-item:last-child{
+  padding-bottom:0;
+  border-bottom:0;
+}
+.event-offer-item .event-offer-label{
+  grid-area:label;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.event-offer-item .event-discount{
+  grid-area:discount;
+}
+.event-offer-item .event-price-row{
+  grid-area:price;
+  margin:0!important;
+}
+@media(max-width:680px){
+  .event-offer{
+    grid-template-columns:1fr!important;
+    grid-template-areas:none!important;
+    gap:8px!important;
+  }
+  .event-offer-item{
+    gap:2px 8px;
+    padding-bottom:8px;
+  }
+  .event-offer-item .event-discount{
+    font-size:17px!important;
+  }
+  .event-offer-item .event-price-row{
+    gap:5px!important;
+  }
+}
