@@ -17,12 +17,23 @@ function renderEvents(s){
   $('eventsText').style.fontSize=(s.eventsFontSize||15)+'px';
 
   const offer=$('eventOffer');
-  const items=Array.isArray(s.eventsItems)?s.eventsItems:[];
-  const discounts=items.map(x=>Math.max(0,Number(x?.oldPrice||0)-Number(x?.newPrice||0))).filter(v=>v>0);
-  const discount=discounts[0]||2000;
+  const items=(Array.isArray(s.eventsItems)?s.eventsItems:[]).map(x=>({
+    label:String(x?.label||'').trim(),
+    oldPrice:Number(x?.oldPrice||0),
+    newPrice:Number(x?.newPrice||0)
+  })).filter(x=>x.label&&x.oldPrice>0&&x.newPrice>0);
   const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.max(0,Math.round(n)));
-  offer.hidden=false;
-  offer.innerHTML=`<div class="event-offer-summary"><span>리뷰 작성 시</span><strong>${fmt(discount)}원 할인</strong></div>`
+  const discounts=items.map(x=>Math.max(0,x.oldPrice-x.newPrice)).filter(v=>v>0);
+  const discount=discounts[0]||2000;
+  const note=String(s.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.').trim();
+
+  offer.hidden=!items.length;
+  if(items.length){
+    const rows=items.map(x=>`<div class="event-price-item"><span class="event-price-label">${htmlAttr(x.label)}</span><div class="event-price-row"><del>${fmt(x.oldPrice)}원</del><span class="event-price-arrow">→</span><b>${fmt(x.newPrice)}원</b></div></div>`).join('');
+    offer.innerHTML=`<div class="event-offer-summary"><span>리뷰 작성 시</span><strong>${fmt(discount)}원 할인</strong></div><div class="event-price-list">${rows}</div>${note?`<p class="event-offer-note">${htmlAttr(note)}</p>`:''}`
+  }else{
+    offer.innerHTML=''
+  }
 }
 
 function renderNotices(items){$('noticeItems').innerHTML=items.map(x=>`<article class="notice-item"><div class="notice-icon">${esc(x.icon||'')}</div><div><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
