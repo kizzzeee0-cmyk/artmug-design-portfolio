@@ -24,7 +24,7 @@ function renderEvents(s){
       const m=text.match(/(\d[\d,]*)\s*(?:원)?\s*(?:->|→)\s*(\d[\d,]*)\s*(?:원)?/);
       if(m){oldPrice=Number(m[1].replaceAll(',',''));newPrice=Number(m[2].replaceAll(',',''));text=text.split(/\r?\n/).filter(line=>!line.includes(m[0])&&!/\d[\d,]*\s*원?\s*할인/.test(line)).join('\n').trim()}
     }
-    if(oldPrice>0||newPrice>0)items=[{label:String(s.eventsBenefitLabel||'리뷰 작성 시').trim(),oldPrice,newPrice}]
+    if(oldPrice>0||newPrice>0)items=[{label:'할인 항목',oldPrice,newPrice}]
   }
 
   set('eventsText',text);
@@ -37,15 +37,14 @@ function renderEvents(s){
   offer.hidden=!validItems.length;
   if(validItems.length){
     const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.max(0,Math.round(n)));
-    offer.innerHTML=validItems.map((x,i)=>{
-      const discount=Math.max(0,x.oldPrice-x.newPrice);
+    const discounts=validItems.map(x=>Math.max(0,x.oldPrice-x.newPrice));
+    const commonDiscount=discounts.length&&discounts.every(v=>v===discounts[0])?discounts[0]:0;
+    const summary=commonDiscount?`<div class="event-offer-summary"><span>리뷰 작성 시</span><strong>${fmt(commonDiscount)}원 할인</strong></div>`:'<div class="event-offer-summary"><strong>리뷰 작성 시 할인 혜택</strong></div>';
+    const rows=validItems.map((x,i)=>{
       const label=x.label||`할인 항목 ${i+1}`;
-      return `<div class="event-offer-item">
-        <span class="event-offer-label">${htmlAttr(label)}</span>
-        <strong class="event-discount">${discount?fmt(discount)+'원 할인':'할인 혜택'}</strong>
-        <div class="event-price-row"><del>${fmt(x.oldPrice)}원</del><span class="event-price-arrow">→</span><b>${fmt(x.newPrice)}원</b></div>
-      </div>`
-    }).join('')
+      return `<div class="event-price-item"><span class="event-price-label">${htmlAttr(label)}</span><div class="event-price-row"><del>${fmt(x.oldPrice)}원</del><span class="event-price-arrow">→</span><b>${fmt(x.newPrice)}원</b></div></div>`
+    }).join('');
+    offer.innerHTML=summary+`<div class="event-price-list">${rows}</div>`
   }else{
     offer.innerHTML=''
   }
