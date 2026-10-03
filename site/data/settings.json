@@ -60,7 +60,7 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": false
+      "showReviewEvent": true
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
@@ -428,12 +428,12 @@
   ],
   "eventsItems": [
     {
-      "label": "[움짤프사] 리뷰 작성 시",
+      "label": "리뷰 작성 시 - [움짤프사]",
       "oldPrice": 20000,
       "newPrice": 18000
     },
     {
-      "label": "[상단배너] 리뷰 작성 시",
+      "label": "리뷰 작성 시 - [상단배너]",
       "oldPrice": 35000,
       "newPrice": 33000
     }
