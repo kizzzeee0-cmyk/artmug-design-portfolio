@@ -240,10 +240,22 @@ function moveCategory(arr,prefix,index,dir){
 function bindCategoryOrder(arr,prefix){
   document.querySelectorAll(`[data-move-${prefix}]`).forEach(b=>b.onclick=()=>moveCategory(arr,prefix,Number(b.getAttribute(`data-move-${prefix}`)),Number(b.dataset.dir)))
 }
+function updatePortfolioUploadHint(){
+  const c=(S?.portfolioCategories||[]).find(x=>x.id===$('uploadCat').value),input=$('files'),hint=$('portfolioUploadHint');
+  if(!c){input.removeAttribute('accept');if(hint)hint.textContent='';return}
+  const formats=(c.formats||[]).map(x=>String(x).toLowerCase());
+  input.accept=formats.flatMap(x=>x==='jpeg'||x==='jpg'?['.jpg','.jpeg']:['.'+x]).join(',');
+  const parts=[formats.join(', ').toUpperCase()];
+  if(c.strictSize)parts.push(`${c.uploadWidth} × ${c.uploadHeight}px`);
+  parts.push(`${Math.min(Number(c.maxBytes)||6291456,6291456)/1048576}MB 이하`);
+  if(hint)hint.textContent='업로드 조건: '+parts.filter(Boolean).join(' · ')
+}
 function renderCats(){
   const cats=(S.portfolioCategories||[]).map((c,i)=>({c,i})).filter(x=>!x.c.hiddenLegacy);
   $('cats').innerHTML=cats.map(({c,i})=>catRow(c,i,'cat')).join('');
   $('uploadCat').innerHTML=cats.map(({c})=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
+  $('uploadCat').onchange=updatePortfolioUploadHint;
+  updatePortfolioUploadHint();
   document.querySelectorAll('[data-del-cat]').forEach(b=>b.onclick=()=>{collectCats(S.portfolioCategories||[],'cat');S.portfolioCategories.splice(+b.dataset.delCat,1);renderCats()});
   bindCategoryOrder(S.portfolioCategories||[],'cat')
 }
