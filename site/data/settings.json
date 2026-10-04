@@ -83,7 +83,7 @@
       "strictSize": true,
       "uploadWidth": 200,
       "uploadHeight": 200,
-      "maxBytes": 2097152,
+      "maxBytes": 6291456,
       "formats": [
         "gif"
       ],
@@ -98,7 +98,7 @@
       "strictSize": true,
       "uploadWidth": 200,
       "uploadHeight": 200,
-      "maxBytes": 2097152,
+      "maxBytes": 6291456,
       "formats": [
         "gif"
       ],
@@ -114,7 +114,7 @@
       "strictSize": true,
       "uploadWidth": 200,
       "uploadHeight": 200,
-      "maxBytes": 2097152,
+      "maxBytes": 6291456,
       "formats": [
         "gif"
       ],
