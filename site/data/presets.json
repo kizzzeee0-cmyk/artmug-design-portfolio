@@ -16,5 +16,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261005143607"
+  },
+  {
+    "id": "preset-UWoyWBz6GQI",
+    "category": "profile",
+    "file": "preset/profile/20261005144252-GZZmk1IS-background__6_.png",
+    "originalName": "background (6).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261005144252"
   }
 ]
