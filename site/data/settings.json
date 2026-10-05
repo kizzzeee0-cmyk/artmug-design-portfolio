@@ -405,8 +405,8 @@
     }
   ],
   "presetMeta": {
-    "preset/profile/20261005003812-MjdJFHpQ-background__4_.png": {
-      "name": "프리셋 02",
+    "preset/profile/20261005083843-fCIoUIaH-background__2_.png": {
+      "name": "프리셋 01",
       "enabled": true,
       "isNew": true,
       "colorChangeAvailable": false,
@@ -414,7 +414,7 @@
     }
   },
   "presetOrder": [
-    "preset/profile/20261005003812-MjdJFHpQ-background__4_.png"
+    "preset/profile/20261005083843-fCIoUIaH-background__2_.png"
   ],
   "portfolioOrder": [
     "portfolio/profile/20261004225257-YLVnGdEZ-________7_.gif",
