@@ -229,7 +229,7 @@
   "eventsFontSize": 15,
   "presetEnabled": true,
   "presetTitle": "미판매 프리셋",
-  "presetNotice": "직접 제작한 디자인으로, 아직 판매되지 않은 작업물입니다.\n해당 디자인으로 제작을 원하시면 문의 시 말씀해 주세요.",
+  "presetNotice": "아직 판매되지 않은 작업물입니다.\n해당 디자인으로 그대로 제작을 원하시면 문의 시 말씀해 주세요.",
   "presetCategories": [
     {
       "id": "profile",
