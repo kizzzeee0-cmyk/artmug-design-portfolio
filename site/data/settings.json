@@ -411,10 +411,17 @@
       "isNew": true,
       "colorChangeAvailable": false,
       "description": ""
+    },
+    "preset/profile/20261005142922-ZDa0ECK4-background__3_.png": {
+      "name": "프리셋 02",
+      "enabled": true,
+      "isNew": false,
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
-    "preset/profile/20261005083843-fCIoUIaH-background__2_.png"
+    "preset/profile/20261005083843-fCIoUIaH-background__2_.png",
+    "preset/profile/20261005142922-ZDa0ECK4-background__3_.png"
   ],
   "portfolioOrder": [
     "portfolio/profile/20261004225257-YLVnGdEZ-________7_.gif",
