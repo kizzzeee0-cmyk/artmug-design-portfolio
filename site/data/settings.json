@@ -414,7 +414,7 @@
     "preset/profile/20261005003526-JxBgF26B-background__3_.png": {
       "name": "프리셋 02",
       "enabled": true,
-      "isNew": false,
+      "isNew": true,
       "colorChangeAvailable": false
     }
   },
