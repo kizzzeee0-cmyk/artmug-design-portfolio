@@ -16,5 +16,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261005003526"
+  },
+  {
+    "id": "preset-X46yF791-4c",
+    "category": "profile",
+    "file": "preset/profile/20261005003812-MjdJFHpQ-background__4_.png",
+    "originalName": "background (4).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261005003812"
   }
 ]
