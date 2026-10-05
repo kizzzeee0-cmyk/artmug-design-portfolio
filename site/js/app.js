@@ -444,6 +444,7 @@ function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){
 function presetGrid(items,cat){
   const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
   g.className='portfolio-grid preset-grid'+(portfolioLayout(c)==='top-banner'?' layout-top-banner':'');
+  g.dataset.layout=portfolioLayout(c);
   g.innerHTML=items.length?items.map(x=>{
     const meta=presetMetaForItem(x),rep=x.demoSrc||media(x.file);
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';

@@ -2613,3 +2613,11 @@ body::after{
     gap:3px!important;
   }
 }
+
+/* Desktop profile galleries: five items per row; mobile rules stay unchanged. */
+@media(min-width:761px){
+  .portfolio-grid.layout-profile,
+  .preset-grid[data-layout="profile"]{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  }
+}
