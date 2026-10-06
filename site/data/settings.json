@@ -244,6 +244,30 @@
       ],
       "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
       "enabled": true
+    },
+    {
+      "id": "four-cut",
+      "label": "인생네컷",
+      "displayWidth": 1200,
+      "displayHeight": 1800,
+      "strictSize": true,
+      "uploadWidth": 1200,
+      "uploadHeight": 1800,
+      "allowedSizes": [
+        [
+          1200,
+          1800
+        ]
+      ],
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 인생네컷 작업물이 아직 없습니다.",
+      "enabled": true
     }
   ],
   "aboutImage": "",
@@ -379,6 +403,30 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "four-cut",
+      "label": "인생네컷",
+      "displayWidth": 1200,
+      "displayHeight": 1800,
+      "strictSize": true,
+      "uploadWidth": 1200,
+      "uploadHeight": 1800,
+      "allowedSizes": [
+        [
+          1200,
+          1800
+        ]
+      ],
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 인생네컷 프리셋이 아직 없습니다.",
+      "enabled": true
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
