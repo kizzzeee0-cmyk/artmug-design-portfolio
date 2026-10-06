@@ -217,9 +217,13 @@
       "label": "하단 배너 분할",
       "displayWidth": 1440,
       "displayHeight": 450,
-      "strictSize": true,
+      "strictSize": false,
       "uploadWidth": 720,
       "uploadHeight": 450,
+      "allowedSizes": [
+        [720, 450],
+        [1440, 450]
+      ],
       "maxBytes": 6291456,
       "formats": [
         "png",
@@ -343,9 +347,13 @@
       "enabled": false,
       "displayWidth": 1440,
       "displayHeight": 450,
-      "strictSize": true,
+      "strictSize": false,
       "uploadWidth": 720,
       "uploadHeight": 450,
+      "allowedSizes": [
+        [720, 450],
+        [1440, 450]
+      ],
       "maxBytes": 6291456,
       "formats": [
         "png",
