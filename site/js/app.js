@@ -8,6 +8,7 @@ function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){
   const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
+  const banner=$('bannerEventCard');if(banner)banner.hidden=s.bannerEventEnabled===false;
   set('eventsKicker',s.eventsKicker||'OPEN EVENT');
   set('eventsTitle',s.eventsTitle||'오픈 기념 이벤트 안내');
   const text=String(s.eventsText||'').trim();

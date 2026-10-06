@@ -222,6 +222,7 @@
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "예: 하나뿐인 칠공 / 사랑해 칠공",
   "eventsEnabled": true,
+  "bannerEventEnabled": true,
   "eventsKicker": "OPEN EVENT",
   "eventsTitle": "오픈 기념 이벤트 안내",
   "eventsText": "문의 시 리뷰이벤트 참여 여부를 선택해 주세요",
