@@ -442,6 +442,39 @@ function applyManualOrder(items,order){
     return ai-bi
   })
 }
+function setupBottomSplitGrid(g){
+  if(!g)return;
+  const cards=Array.from(g.querySelectorAll('.work-card'));
+  const arrange=()=>{
+    let leftRow=0,rightRow=0;
+    cards.forEach(card=>{
+      const slot=card.dataset.bottomSplitSlot||'';
+      if(slot==='left'){
+        card.style.gridColumn='1';
+        card.style.gridRow=String(++leftRow)
+      }else if(slot==='right'){
+        card.style.gridColumn='2';
+        card.style.gridRow=String(++rightRow)
+      }
+    })
+  };
+  cards.forEach(card=>{
+    const img=card.querySelector('img');
+    if(!img)return;
+    const classify=()=>{
+      const w=Number(img.naturalWidth||0),h=Number(img.naturalHeight||0);
+      let slot='';
+      if(w===720&&h===450)slot='left';
+      else if(w===1440&&h===450)slot='right';
+      else if(w&&h)slot=(w/h>2.4?'right':'left');
+      if(!slot)return;
+      card.dataset.bottomSplitSlot=slot;
+      arrange()
+    };
+    if(img.complete&&img.naturalWidth)classify();
+    else img.addEventListener('load',classify,{once:true})
+  })
+}
 function grid(items,cat){
   const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);
   g.className='portfolio-grid layout-'+layout;
@@ -451,12 +484,13 @@ function grid(items,cat){
     const src=x.demoSrc||media(x.file);
     return `<article class="work-card portfolio-work-card"><div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(src)}" alt="${esc(x.alt||x.originalName)}" loading="lazy" draggable="false"></div></div></article>`
   }).join(''):`<div class="empty-state">현재 포트폴리오 준비 중입니다!</div>`;
+  if(layout==='bottom-split')setupBottomSplitGrid(g);
   protectMedia()
 }
 function presetGrid(items,cat){
-  const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid');
-  g.className='portfolio-grid preset-grid'+(portfolioLayout(c)==='top-banner'?' layout-top-banner':'');
-  g.dataset.layout=portfolioLayout(c);
+  const c=(S?.presetCategories||[]).find(x=>x.id===cat)||{},g=$('presetGrid'),layout=portfolioLayout(c);
+  g.className='portfolio-grid preset-grid'+(['top-banner','bottom-split'].includes(layout)?' layout-'+layout:'');
+  g.dataset.layout=layout;
   g.innerHTML=items.length?items.map(x=>{
     const meta=presetMetaForItem(x),rep=x.demoSrc||media(x.file);
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
@@ -464,6 +498,7 @@ function presetGrid(items,cat){
     const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
     return `<article class="work-card preset-work-card">${badge}<div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></div><div class="preset-card-copy">${name}${colorNote}</div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
+  if(layout==='bottom-split')setupBottomSplitGrid(g);
   protectMedia()
 }
 function pages(el,total,current,fn){el.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="page-button ${i+1===current?'is-active':''}" data-page="${i+1}">${i+1}</button>`).join(''):'';el.querySelectorAll('button').forEach(b=>b.onclick=()=>fn(Number(b.dataset.page)))}
