@@ -73,7 +73,7 @@
     },
     {
       "id": "type-1791282449527",
-      "label": "하단배너틀",
+      "label": "하단배너",
       "enabled": true,
       "showFrameRetention": false,
       "showSignatureFields": false,
@@ -365,7 +365,9 @@
       "signature-style": 0,
       "banner": 0,
       "type-1790697439491": 15000,
-      "type-1790697442247": 20000
+      "type-1790697442247": 20000,
+      "type-1791282435211": 0,
+      "type-1791282449527": 0
     },
     "bannerPrices": {
       "top": 35000,
