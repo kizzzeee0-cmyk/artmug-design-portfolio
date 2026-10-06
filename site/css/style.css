@@ -2869,3 +2869,65 @@ body::after{
     border-radius:7px!important;
   }
 }
+
+
+/* 2026-10-06 four-cut gallery layout */
+.portfolio-grid.layout-four-cut,
+.preset-grid.layout-four-cut{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:12px!important;
+  align-items:start!important;
+}
+.portfolio-grid.layout-four-cut .work-card,
+.preset-grid.layout-four-cut .work-card{
+  min-width:0;
+  overflow:visible!important;
+  border-radius:12px!important;
+}
+.portfolio-grid.layout-four-cut .work-button,
+.preset-grid.layout-four-cut .work-button{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:1200/1800!important;
+  overflow:hidden!important;
+  border-radius:12px!important;
+  background:#fff!important;
+}
+.portfolio-grid.layout-four-cut .media-wrap,
+.preset-grid.layout-four-cut .media-wrap{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:1200/1800!important;
+  overflow:hidden!important;
+  border-radius:12px!important;
+  background:#fff!important;
+}
+.portfolio-grid.layout-four-cut .media-wrap img,
+.preset-grid.layout-four-cut .media-wrap img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  border-radius:0!important;
+}
+.preset-grid.layout-four-cut .preset-card-copy{
+  padding-top:7px!important;
+}
+@media(max-width:680px){
+  .portfolio-grid.layout-four-cut,
+  .preset-grid.layout-four-cut{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  .portfolio-grid.layout-four-cut .work-button,
+  .preset-grid.layout-four-cut .work-button,
+  .portfolio-grid.layout-four-cut .media-wrap,
+  .preset-grid.layout-four-cut .media-wrap{
+    border-radius:9px!important;
+  }
+}
+
+/* Keep paired bottom-split banners stable after generic gallery rules. */
+.portfolio-grid.layout-bottom-split,
+.preset-grid.layout-bottom-split{
+  grid-template-columns:minmax(0,1fr) minmax(0,2fr)!important;
+}
