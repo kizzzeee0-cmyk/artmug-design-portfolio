@@ -58,7 +58,7 @@
       "label": "상단배너",
       "showFrameRetention": false,
       "showSignatureFields": false,
-      "showBannerFields": false,
+      "showBannerFields": true,
       "enabled": true,
       "showReviewEvent": true
     }
