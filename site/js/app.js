@@ -137,13 +137,20 @@ function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return
 function inquiryQuantityOptions(t){
   const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
   if(id==='profile-a'||label.includes('움짤프사'))return [
-    {key:'nameChangeQty',label:'이름 변경'},
-    {key:'gifChangeQty',label:'움짤 변경'}
+    {key:'nameChangeQty',label:'움짤프사 이름 변경'},
+    {key:'gifChangeQty',label:'움짤프사 움짤 변경'}
   ];
-  if(label.includes('상단배너')||label.includes('플로팅배너')||label.includes('하단배너'))return [
-    {key:'textChangeQty',label:'텍스트 변경'}
+  if(t?.showBannerTextField===true||label.includes('상단배너')||label.includes('플로팅배너')||label.includes('하단배너'))return [
+    {key:'textChangeQty',label:'배너 텍스트 변경'}
   ];
   return []
+}
+function inquiryQuantityOptionsForTypes(types){
+  const seen=new Set(),out=[];
+  (types||[]).forEach(t=>inquiryQuantityOptions(t).forEach(o=>{
+    if(!seen.has(o.key)){seen.add(o.key);out.push(o)}
+  }));
+  return out
 }
 function htmlAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function requiredLabel(text){return '<span class="field-label-row"><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
@@ -162,8 +169,7 @@ function renderInquiryForm(){
 
   var types=inquiryTypes();
   var addRow=$('requestAddRow');
-  addRow.hidden=types.length<2;
-  $('addRequestButton').onclick=function(){addRequest('')};
+  if(addRow)addRow.hidden=true;
 
   var form=document.querySelector('.contact-form');
   var actions=form&&form.querySelector('.form-actions');
@@ -187,7 +193,9 @@ function renderInquiryForm(){
     return;
   }
 
-  addRequest(types.length===1?types[0].id:'');
+  var initial=types.length===1?[types[0].id]:[];
+  addRequest(initial);
+
   nickname.oninput=function(){
     if(String(nickname.value||'').trim()){
       nickname.classList.remove('is-required-missing');
@@ -197,73 +205,60 @@ function renderInquiryForm(){
   };
 }
 
-function requestTypeOptions(requestId,selectedId){
+function requestTypeOptions(selectedIds){
+  selectedIds=Array.isArray(selectedIds)?selectedIds:[];
   return inquiryTypes().map(function(t){
-    return '<label class="request-type-option"><input type="radio" name="requestType-'+requestId+'" value="'+htmlAttr(t.id)+'" '+(t.id===selectedId?'checked':'')+'><span>'+htmlAttr(t.label)+'</span></label>';
+    return '<label class="request-type-option"><input type="checkbox" data-field="requestType" value="'+htmlAttr(t.id)+'" '+(selectedIds.includes(t.id)?'checked':'')+'><span>'+htmlAttr(t.label)+'</span></label>';
   }).join('');
 }
 
-function addRequest(typeId){
+function selectedInquiryTypes(card){
+  return Array.from(card.querySelectorAll('input[data-field="requestType"]:checked'))
+    .map(input=>inquiryType(input.value))
+    .filter(t=>t&&t.id)
+}
+
+function addRequest(typeIds){
   var types=inquiryTypes();
   if(!types.length)return;
-  typeId=typeId||'';
-  if(types.length===1)typeId=types[0].id;
+  typeIds=Array.isArray(typeIds)?typeIds:[];
+  if(types.length===1)typeIds=[types[0].id];
 
   var id=++requestSeq;
   var card=document.createElement('article');
-  card.className='request-card';
+  card.className='request-card request-card-combined';
   card.dataset.requestId=String(id);
-  card.dataset.typeId=typeId;
+  card.dataset.typeIds=typeIds.join(',');
   card.innerHTML=
-    '<div class="request-card-head">'+
-      '<span class="request-seq"></span>'+
-      '<button class="request-remove" type="button" aria-label="신청 항목 삭제">×</button>'+
-    '</div>'+
     '<div class="request-type-selector '+(types.length===1?'is-single':'')+'">'+
       requiredLabel(S.designTypeLabel||'신청하시는 디자인 종류')+
-      '<div class="request-type-options">'+requestTypeOptions(id,typeId)+'</div>'+
+      '<div class="request-type-options">'+requestTypeOptions(typeIds)+'</div>'+
     '</div>'+
     '<div class="request-fields"></div>';
 
   $('requestsContainer').appendChild(card);
 
-  card.querySelectorAll('input[name^="requestType-"]').forEach(function(input){
+  card.querySelectorAll('input[data-field="requestType"]').forEach(function(input){
     input.onchange=function(){
       var prev=readRequestValues(card);
-      card.dataset.typeId=input.value;
+      var selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
+      card.dataset.typeIds=selected.join(',');
       card.querySelector('.request-type-selector').classList.remove('is-required-missing');
-      renderRequestFields(card,input.value,prev);
+      renderRequestFields(card,selected,prev);
       clearRequiredMessageIfComplete();
     };
   });
 
-  card.querySelector('.request-remove').onclick=function(){
-    card.remove();
-    updateRequestCardMeta();
-    clearRequiredMessageIfComplete();
-  };
-
-  renderRequestFields(card,typeId,{});
-  updateRequestCardMeta();
+  renderRequestFields(card,typeIds,{});
 }
 
-function updateRequestCardMeta(){
-  var cards=Array.from(document.querySelectorAll('.request-card'));
-  cards.forEach(function(card,i){
-    var head=card.querySelector('.request-card-head');
-    var seq=card.querySelector('.request-seq');
-    var multi=cards.length>1;
-    head.hidden=!multi;
-    seq.textContent=multi?'신청 항목 '+String(i+1).padStart(2,'0'):'';
-    card.querySelector('.request-remove').hidden=!multi;
-  });
-}
+function updateRequestCardMeta(){}
 
 function readRequestValues(card){
   function q(s){return card.querySelector(s)}
   function qa(s){return Array.from(card.querySelectorAll(s))}
   return{
-    typeId:card.dataset.typeId||'',
+    typeIds:qa('input[data-field="requestType"]:checked').map(function(x){return x.value}),
     signatureNumber:(q('[data-field="signatureNumber"]')||{}).value||'',
     signatureContent:(q('[data-field="signatureContent"]')||{}).value||'',
     frameKeep:(q('input[data-field="frameKeep"]:checked')||{}).value||'O',
@@ -278,46 +273,49 @@ function readRequestValues(card){
   };
 }
 
-function renderRequestFields(card,typeId,prev){
+function renderRequestFields(card,typeIds,prev){
   prev=prev||{};
+  typeIds=Array.isArray(typeIds)?typeIds:[];
   var fields=card.querySelector('.request-fields');
-  var t=inquiryType(typeId);
+  var types=typeIds.map(inquiryType).filter(t=>t&&t.id);
   var rid=card.dataset.requestId;
+  var has=function(key){return types.some(t=>t[key])};
 
-  if(!typeId||!t.id){
+  if(!types.length){
     fields.innerHTML='';
     return;
   }
 
   var html='';
-  if(t.showSignatureFields){
+  if(has('showSignatureFields')){
     html+='<div class="signature-fields signature-inline-fields">'+
       '<label class="signature-inline-row"><span>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
       '<label class="signature-inline-row"><span>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><input data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></label>'+
     '</div>';
   }
 
-  if(t.showFrameRetention){
+  if(has('showFrameRetention')){
     html+='<fieldset class="choice-field"><legend>'+htmlAttr(S.frameKeepLabel||'틀 보관 여부')+'</legend><p class="field-help preline">'+htmlAttr(S.frameKeepDescription||'')+'</p><div class="choice-row">'+
       '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="O"><span>'+htmlAttr(S.frameKeepYes||'O')+'</span></label>'+
       '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="X"><span>'+htmlAttr(S.frameKeepNo||'X')+'</span></label>'+
     '</div></fieldset>';
   }
 
-  if(t.showBannerFields){
+  if(has('showBannerFields')){
     var bannerValues=['하단 1칸','하단 3칸','하단 6칸'];
     html+='<div class="banner-fields"><fieldset class="choice-field"><legend>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
       bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" type="checkbox" value="'+v+'"><span>'+v+'</span></label>'}).join('')+
       '</div></fieldset></div>';
   }
-  if(t.showBannerTextField){
+
+  if(has('showBannerTextField')){
     html+='<label class="request-full-field"><span>배너 입력 문구</span><textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
   }
 
   html+='<label class="request-full-field">'+requiredLabel(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+'<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'')+'"></textarea></label>';
   html+='<label class="request-full-field"><span>'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
 
-  var qtyOptions=inquiryQuantityOptions(t);
+  var qtyOptions=inquiryQuantityOptionsForTypes(types);
   var qtyHtml=qtyOptions.length?'<div class="inquiry-qty-options">'+qtyOptions.map(function(o){
     return '<div class="inquiry-qty-row"><span class="inquiry-qty-label">'+htmlAttr(o.label)+'</span><div class="inquiry-qty-control">'+
       '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="-1" aria-label="'+htmlAttr(o.label)+' 수량 감소">−</button>'+
@@ -345,6 +343,7 @@ function renderRequestFields(card,typeId,prev){
     var el=q('[data-field="'+key+'"]');
     if(el)el.value=String(Math.max(0,Math.floor(Number(prev[key]||0))))
   });
+
   qa('[data-qty-field]').forEach(function(btn){
     btn.onclick=function(){
       var input=q('[data-field="'+btn.dataset.qtyField+'"]');
@@ -354,12 +353,8 @@ function renderRequestFields(card,typeId,prev){
     }
   });
   qa('.inquiry-qty-input').forEach(function(input){
-    input.oninput=function(){
-      if(Number(input.value)<0)input.value='0'
-    };
-    input.onblur=function(){
-      input.value=String(Math.max(0,Math.floor(Number(input.value||0))))
-    }
+    input.oninput=function(){if(Number(input.value)<0)input.value='0'};
+    input.onblur=function(){input.value=String(Math.max(0,Math.floor(Number(input.value||0))))}
   });
 
   var frame=q('input[data-field="frameKeep"][value="'+(prev.frameKeep||'O')+'"]')||q('input[data-field="frameKeep"][value="O"]');
@@ -378,18 +373,19 @@ function renderRequestFields(card,typeId,prev){
 }
 
 function requestText(card){
-  var t=inquiryType(card.dataset.typeId);
   var v=readRequestValues(card);
-  var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+(t.label||'')];
+  var types=v.typeIds.map(inquiryType).filter(t=>t&&t.id);
+  var has=function(key){return types.some(t=>t[key])};
+  var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+types.map(t=>t.label||'').filter(Boolean).join(', ')];
 
-  if(t.showSignatureFields){
+  if(has('showSignatureFields')){
     info.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
   }
-  if(t.showFrameRetention)info.push(S.frameKeepLabel+': '+v.frameKeep);
-  if(t.showBannerFields){
+  if(has('showFrameRetention'))info.push(S.frameKeepLabel+': '+v.frameKeep);
+  if(has('showBannerFields')){
     info.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'));
   }
-  if(t.showBannerTextField){
+  if(has('showBannerTextField')){
     info.push('배너 입력 문구: '+v.bannerText);
   }
 
@@ -400,9 +396,9 @@ function requestText(card){
 
   var options=[];
   var extraOptions=[];
-  if(v.nameChangeQty>0)extraOptions.push('이름 변경 '+v.nameChangeQty+'개');
-  if(v.gifChangeQty>0)extraOptions.push('움짤 변경 '+v.gifChangeQty+'개');
-  if(v.textChangeQty>0)extraOptions.push('텍스트 변경 '+v.textChangeQty+'개');
+  if(v.nameChangeQty>0)extraOptions.push('움짤프사 이름 변경 '+v.nameChangeQty+'개');
+  if(v.gifChangeQty>0)extraOptions.push('움짤프사 움짤 변경 '+v.gifChangeQty+'개');
+  if(v.textChangeQty>0)extraOptions.push('배너 텍스트 변경 '+v.textChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)options.push('추가 옵션: '+extraOptions.join(', '));
 
@@ -411,8 +407,9 @@ function requestText(card){
 
 function buildInquiryText(){
   var nickname=String($('nicknameInput').value||'').trim();
-  var blocks=Array.from(document.querySelectorAll('.request-card')).map(requestText);
-  var sections=[(S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname,blocks.join('\n\n------------------------------\n\n')];
+  var card=document.querySelector('.request-card');
+  var request=card?requestText(card):'';
+  var sections=[(S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname,request];
   if(S.inquiryReviewEnabled!==false){
     var review=(document.querySelector('input[name="globalReviewEvent"]:checked')||{}).value||'미참여';
     sections.push('리뷰이벤트 참여 여부: '+review)
@@ -432,7 +429,7 @@ function validateRequiredInquiryFields(){
 
   document.querySelectorAll('.request-card').forEach(function(card){
     var selector=card.querySelector('.request-type-selector');
-    var typeMissing=!card.dataset.typeId;
+    var typeMissing=!selectedInquiryTypes(card).length;
     selector.classList.toggle('is-required-missing',typeMissing);
     if(typeMissing&&!firstMissing)firstMissing=selector.querySelector('input')||selector;
 
@@ -460,7 +457,7 @@ function allRequiredInquiryFieldsFilled(){
   var cards=Array.from(document.querySelectorAll('.request-card'));
   return !!cards.length&&cards.every(function(card){
     var concept=card.querySelector('[data-field="concept"]');
-    return !!card.dataset.typeId&&!!String((concept&&concept.value)||'').trim();
+    return !!selectedInquiryTypes(card).length&&!!String((concept&&concept.value)||'').trim();
   });
 }
 
