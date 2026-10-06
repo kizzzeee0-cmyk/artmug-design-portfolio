@@ -1,4 +1,21 @@
 const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+function initArtmugEmbedMode(){
+  if(!document.body?.classList.contains('artmug-part'))return;
+  document.documentElement.classList.add('artmug-embed-root');
+  let raf=0;
+  const report=()=>{
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>{
+      if(window.parent===window)return;
+      const height=Math.ceil(Math.max(document.body.scrollHeight,document.documentElement.scrollHeight));
+      window.parent.postMessage({type:'artmug-portfolio-height',height},'*')
+    })
+  };
+  window.addEventListener('load',report,{once:true});
+  if('ResizeObserver'in window)new ResizeObserver(report).observe(document.body);
+  report()
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugEmbedMode,{once:true});else initArtmugEmbedMode();
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
@@ -244,9 +261,6 @@ function renderRequestFields(card,typeId,prev){
     '</div></fieldset>';
   }
 
-  html+='<label class="request-full-field">'+requiredLabel(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+'<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'')+'"></textarea></label>';
-  html+='<label class="request-full-field"><span>'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
-
   if(t.showBannerFields){
     var bannerValues=['하단 1칸','하단 3칸','하단 6칸'];
     html+='<div class="banner-fields"><fieldset class="choice-field"><legend>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
@@ -256,6 +270,9 @@ function renderRequestFields(card,typeId,prev){
   if(t.showBannerTextField){
     html+='<label class="request-full-field"><span>배너 입력 문구</span><textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
   }
+
+  html+='<label class="request-full-field">'+requiredLabel(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+'<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'')+'"></textarea></label>';
+  html+='<label class="request-full-field"><span>'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
 
   if(t.showReviewEvent){
     html+='<fieldset class="choice-field review-event-field"><legend>리뷰이벤트 참여 여부</legend><div class="choice-row">'+
@@ -320,9 +337,9 @@ function requestText(card){
 
   var options=[];
   if(t.showReviewEvent)options.push('리뷰이벤트 참여 여부: '+v.review);
-  options.push('추가 옵션: '+(v.options.length?v.options.join(', '):'선택 없음'));
+  if(v.options.length)options.push('추가 옵션: '+v.options.join(', '));
 
-  return [info.join('\n'),concept.join('\n'),options.join('\n')].join('\n\n');
+  return [info.join('\n'),concept.join('\n'),options.join('\n')].filter(Boolean).join('\n\n');
 }
 
 function buildInquiryText(){
