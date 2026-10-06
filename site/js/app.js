@@ -25,7 +25,20 @@ function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){
   const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
-  const banner=$('bannerEventCard');if(banner)banner.hidden=s.bannerEventEnabled===false;
+  const banner=$('bannerEventCard');
+  if(banner){
+    banner.hidden=s.bannerEventEnabled===false;
+    const badge=banner.querySelector('.bundle-event-badge');
+    const condition=banner.querySelector('.bundle-event-condition');
+    const title=banner.querySelector('.bundle-event-title>span:first-child');
+    const benefit=banner.querySelector('.bundle-event-benefit');
+    const description=banner.querySelector('.bundle-event-description');
+    if(badge)badge.textContent=s.bannerEventBadge||'BANNER EVENT';
+    if(condition)condition.textContent=s.bannerEventCondition||'2종 이상 구매 시';
+    if(title)title.textContent=s.bannerEventTitle||'플로팅배너';
+    if(benefit)benefit.textContent=s.bannerEventBenefit||'1개 추가 무료 제작!';
+    if(description)description.textContent=s.bannerEventDescription||'상단배너 / 플로팅배너 / 하단배너 중\n2종 이상을 함께 구매하시면 적용됩니다.'
+  }
   set('eventsKicker',s.eventsKicker||'OPEN EVENT');
   set('eventsTitle',s.eventsTitle||'오픈 기념 이벤트 안내');
   const text=String(s.eventsText||'').trim();
