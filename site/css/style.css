@@ -2675,7 +2675,7 @@ body::after{
 }
 .bundle-event-card{
   display:grid;
-  grid-template-columns:minmax(0,1fr);
+  grid-template-columns:repeat(2,minmax(0,1fr));
   align-items:center;
   gap:24px;
   min-width:0;
@@ -2722,7 +2722,7 @@ body::after{
   flex-wrap:wrap;
   align-items:baseline;
   gap:0 7px;
-  margin:0 0 11px;
+  margin:0;
   color:#51478f;
   font-size:20px;
   font-weight:800;
@@ -2737,6 +2737,7 @@ body::after{
   color:#6c51b8;
 }
 .open-events-section .bundle-event-description{
+  min-width:0;
   max-width:none;
   margin:0;
   color:#716781;
@@ -2772,7 +2773,8 @@ body::after{
     padding:11px 10px!important;
   }
   .bundle-event-card{
-    gap:13px;
+    grid-template-columns:minmax(0,1fr);
+    gap:11px;
     padding:17px 14px;
     border-radius:14px;
   }
