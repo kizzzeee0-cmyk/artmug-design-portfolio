@@ -55,12 +55,30 @@
     },
     {
       "id": "banner",
-      "label": "배너",
+      "label": "상단배너",
+      "showFrameRetention": false,
+      "showSignatureFields": false,
+      "showBannerFields": false,
+      "enabled": true,
+      "showReviewEvent": true
+    },
+    {
+      "id": "type-1791282435211",
+      "label": "플로팅배너",
+      "enabled": true,
+      "showFrameRetention": false,
+      "showSignatureFields": false,
+      "showBannerFields": false,
+      "showReviewEvent": false
+    },
+    {
+      "id": "type-1791282449527",
+      "label": "하단배너",
+      "enabled": true,
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
-      "enabled": true,
-      "showReviewEvent": true
+      "showReviewEvent": false
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
@@ -223,8 +241,8 @@
   "signatureContentPlaceholder": "예: 하나뿐인 칠공 / 사랑해 칠공",
   "eventsEnabled": true,
   "bannerEventEnabled": true,
-  "eventsKicker": "OPEN EVENT",
-  "eventsTitle": "오픈 기념 이벤트 안내",
+  "eventsKicker": "REVIEW EVENT",
+  "eventsTitle": "오픈 기념 리뷰 이벤트 안내",
   "eventsText": "문의 시 리뷰이벤트 참여 여부를 선택해 주세요",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
@@ -437,7 +455,7 @@
       "newPrice": 18000
     },
     {
-      "label": "상단 배너",
+      "label": "상단배너",
       "oldPrice": 35000,
       "newPrice": 33000
     }
