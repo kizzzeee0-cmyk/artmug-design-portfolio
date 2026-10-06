@@ -27,6 +27,10 @@ function initArtmugEmbedMode(){
   window.addEventListener('load',report,{once:true});
   if('ResizeObserver'in window)new ResizeObserver(report).observe(document.body);
   window.addEventListener('artmug-sections-changed',report);
+  window.addEventListener('message',e=>{
+    const d=e&&e.data;
+    if(d&&d.type==='artmug-request-section-map')report()
+  });
   report()
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugEmbedMode,{once:true});else initArtmugEmbedMode();
