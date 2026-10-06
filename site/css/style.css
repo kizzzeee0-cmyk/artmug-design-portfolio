@@ -3060,3 +3060,38 @@ html.artmug-embed-root body.artmug-part{
 .contact-form textarea::placeholder{
   white-space:pre-line;
 }
+
+
+/* 2026-10-06 mobile inquiry type pills match desktop */
+@media(max-width:680px){
+  .request-card{
+    padding:0!important;
+  }
+  .request-type-options{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    grid-template-columns:none!important;
+    gap:8px!important;
+  }
+  .request-type-option,
+  .request-type-option span{
+    width:auto!important;
+  }
+  .request-type-option span{
+    min-height:38px!important;
+    padding:8px 14px!important;
+    border-radius:12px!important;
+    white-space:nowrap;
+  }
+}
+@media(max-width:420px){
+  .request-type-options{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    grid-template-columns:none!important;
+  }
+  .request-type-option,
+  .request-type-option span{
+    width:auto!important;
+  }
+}
