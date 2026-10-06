@@ -425,7 +425,80 @@
         "name": "배너 텍스트변경",
         "price": 0
       }
-    ]
+    ],
+    "priceItems": {
+      "design": [
+        {
+          "id": "profile-a",
+          "name": "움짤프사",
+          "price": 20000
+        },
+        {
+          "id": "signature-style",
+          "name": "시그니처풍",
+          "price": 10000
+        },
+        {
+          "id": "banner",
+          "name": "상단배너",
+          "price": 0
+        },
+        {
+          "id": "type-1791282435211",
+          "name": "플로팅배너",
+          "price": 0
+        },
+        {
+          "id": "type-1791282449527",
+          "name": "하단배너",
+          "price": 0
+        }
+      ],
+      "banner": [
+        {
+          "id": "top",
+          "name": "상단배너",
+          "price": 35000
+        },
+        {
+          "id": "floating",
+          "name": "플로팅배너",
+          "price": 6000
+        },
+        {
+          "id": "bottom1",
+          "name": "하단배너 1칸",
+          "price": 10000
+        },
+        {
+          "id": "bottom3",
+          "name": "하단배너 3칸",
+          "price": 15000
+        },
+        {
+          "id": "bottom6",
+          "name": "하단배너 6칸",
+          "price": 28000
+        }
+      ],
+      "option": [
+        {
+          "id": "sameDay",
+          "name": "당일마감",
+          "price": 10000
+        },
+        {
+          "id": "fast",
+          "name": "빠른마감",
+          "price": 5000
+        },
+        {
+          "id": "private",
+          "name": "포트폴리오 비공개",
+          "price": 20000
+        }
+      ]
+    }
   },
   "presetGroups": [
     {
