@@ -42,8 +42,7 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true,
-      "showBannerTextField": false
+      "showReviewEvent": true
     },
     {
       "id": "signature-style",
@@ -52,8 +51,7 @@
       "showSignatureFields": true,
       "showBannerFields": false,
       "enabled": false,
-      "showReviewEvent": false,
-      "showBannerTextField": false
+      "showReviewEvent": false
     },
     {
       "id": "banner",
@@ -62,8 +60,7 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true,
-      "showBannerTextField": true
+      "showReviewEvent": true
     },
     {
       "id": "type-1791282435211",
@@ -72,8 +69,7 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": false,
-      "showReviewEvent": false,
-      "showBannerTextField": true
+      "showReviewEvent": false
     },
     {
       "id": "type-1791282449527",
@@ -82,8 +78,7 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
-      "showReviewEvent": false,
-      "showBannerTextField": true
+      "showReviewEvent": false
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
@@ -93,7 +88,7 @@
   "conceptLabel": "원하는 디자인 컨셉 및 색상",
   "conceptPlaceholder": "예: 하트, 귀여운 느낌 / 핑크 + 화이트",
   "extraLabel": "추가 요청사항",
-  "extraPlaceholder": "희망 마감일, 참고 레퍼런스 등이 있다면 적어주세요",
+  "extraPlaceholder": "희망 마감일, 참고할 레퍼런스 등이 있다면 적어주시고, 참고 이미지는 별도 첨부 부탁드립니다",
   "copyButton": "문의 내용 복사하기",
   "copySuccess": "복사 완료",
   "portfolioTitle": "포트폴리오",
@@ -222,19 +217,9 @@
       "label": "하단 배너 분할",
       "displayWidth": 1440,
       "displayHeight": 450,
-      "strictSize": false,
+      "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 450,
-      "allowedSizes": [
-        [
-          720,
-          450
-        ],
-        [
-          1440,
-          450
-        ]
-      ],
       "maxBytes": 6291456,
       "formats": [
         "png",
@@ -243,30 +228,6 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
-      "enabled": true
-    },
-    {
-      "id": "four-cut",
-      "label": "인생네컷",
-      "displayWidth": 1200,
-      "displayHeight": 1800,
-      "strictSize": true,
-      "uploadWidth": 1200,
-      "uploadHeight": 1800,
-      "allowedSizes": [
-        [
-          1200,
-          1800
-        ]
-      ],
-      "maxBytes": 6291456,
-      "formats": [
-        "png",
-        "jpeg",
-        "gif",
-        "webp"
-      ],
-      "emptyText": "등록된 인생네컷 작업물이 아직 없습니다.",
       "enabled": true
     }
   ],
@@ -382,19 +343,9 @@
       "enabled": false,
       "displayWidth": 1440,
       "displayHeight": 450,
-      "strictSize": false,
+      "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 450,
-      "allowedSizes": [
-        [
-          720,
-          450
-        ],
-        [
-          1440,
-          450
-        ]
-      ],
       "maxBytes": 6291456,
       "formats": [
         "png",
@@ -403,30 +354,6 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 프리셋이 아직 없습니다."
-    },
-    {
-      "id": "four-cut",
-      "label": "인생네컷",
-      "displayWidth": 1200,
-      "displayHeight": 1800,
-      "strictSize": true,
-      "uploadWidth": 1200,
-      "uploadHeight": 1800,
-      "allowedSizes": [
-        [
-          1200,
-          1800
-        ]
-      ],
-      "maxBytes": 6291456,
-      "formats": [
-        "png",
-        "jpeg",
-        "gif",
-        "webp"
-      ],
-      "emptyText": "등록된 인생네컷 프리셋이 아직 없습니다.",
-      "enabled": true
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
