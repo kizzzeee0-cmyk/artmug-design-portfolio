@@ -301,36 +301,140 @@ function ensureQuoteConfig(){
   if(!q.bannerPrices||typeof q.bannerPrices!=='object')q.bannerPrices={};
   if(!q.optionPrices||typeof q.optionPrices!=='object')q.optionPrices={};
   if(!Array.isArray(q.customItems))q.customItems=[];
+
   (S.designTypes||[]).forEach(x=>{if(q.designPrices[x.id]==null)q.designPrices[x.id]=0});
   QUOTE_BANNERS.forEach(([id])=>{if(q.bannerPrices[id]==null)q.bannerPrices[id]=0});
   QUOTE_OPTIONS.forEach(([id])=>{if(q.optionPrices[id]==null)q.optionPrices[id]=0});
+
+  if(!q.priceItems||typeof q.priceItems!=='object'||Array.isArray(q.priceItems))q.priceItems={};
+
+  if(!Array.isArray(q.priceItems.design)){
+    q.priceItems.design=(S.designTypes||[]).map(x=>({
+      id:String(x.id),
+      name:String(x.label||''),
+      price:Number(q.designPrices[x.id]||0)
+    }))
+  }
+
+  if(!Array.isArray(q.priceItems.banner)){
+    q.priceItems.banner=QUOTE_BANNERS.map(([id,label])=>({
+      id:String(id),
+      name:String(label),
+      price:Number(q.bannerPrices[id]||0)
+    }))
+  }
+
+  if(!Array.isArray(q.priceItems.option)){
+    q.priceItems.option=QUOTE_OPTIONS.map(([id,label])=>({
+      id:String(id),
+      name:String(label),
+      price:Number(q.optionPrices[id]||0)
+    }))
+  }
+
+  ['design','banner','option'].forEach(group=>{
+    q.priceItems[group]=q.priceItems[group].map((x,i)=>({
+      id:String(x?.id||('qg-'+group+'-'+Date.now()+'-'+i)),
+      name:String(x?.name||''),
+      price:Number(x?.price||0)
+    }))
+  });
+
   return q
 }
-function wonInput(label,value,attrs=''){return `<label class="quote-price-row"><span>${label}</span><div class="quote-price-input"><input type="number" min="0" step="100" value="${Number(value||0)}" ${attrs}><em>원</em></div></label>`}
+function quoteGroupTitle(group){
+  return {design:'신청 디자인 종류',banner:'배너 종류',option:'추가 옵션'}[group]||group
+}
+function quotePriceGroupRow(group,x,i){
+  return '<div class="quote-price-edit-row">'+
+    '<input class="quote-price-name" data-q-group-name="'+group+'" data-q-group-index="'+i+'" value="'+adminEsc(x.name||'')+'" placeholder="항목명">'+
+    '<div class="quote-price-input"><input type="number" step="100" data-q-group-price="'+group+'" data-q-group-index="'+i+'" value="'+Number(x.price||0)+'"><em>원</em></div>'+
+    '<button type="button" class="danger admin-compact quote-price-delete" data-del-q-group="'+group+'" data-q-group-index="'+i+'">삭제</button>'+
+  '</div>'
+}
+function quotePriceGroup(group,items){
+  return '<div class="quote-price-group">'+
+    '<div class="quote-price-group-head"><h4>'+quoteGroupTitle(group)+'</h4><button type="button" class="ghost admin-compact" data-add-q-group="'+group+'">+ 항목 추가</button></div>'+
+    '<div class="quote-price-group-list">'+
+      (items.length?items.map((x,i)=>quotePriceGroupRow(group,x,i)).join(''):'<p class="muted quote-empty">등록된 항목이 없습니다.</p>')+
+    '</div>'+
+  '</div>'
+}
 function renderQuoteAdmin(){
   if(!$('quotePricing'))return;
   const q=ensureQuoteConfig();
-  const design=(S.designTypes||[]).map(x=>wonInput(x.label,q.designPrices[x.id],`data-q-design="${x.id}"`)).join('');
-  const banners=QUOTE_BANNERS.map(([id,label])=>wonInput(label,q.bannerPrices[id],`data-q-banner="${id}"`)).join('');
-  const options=QUOTE_OPTIONS.map(([id,label])=>wonInput(label,q.optionPrices[id],`data-q-option="${id}"`)).join('');
-  $('quotePricing').innerHTML=`<div class="quote-price-group"><h4>신청 디자인 종류</h4>${design}</div><div class="quote-price-group"><h4>배너 종류</h4>${banners}</div><div class="quote-price-group"><h4>추가 옵션</h4>${options}</div>`;
-  $('quoteCustomItems').innerHTML=q.customItems.map((x,i)=>`<div class="quote-custom-row"><input data-q-custom-name="${i}" value="${String(x.name||'').replaceAll('"','&quot;')}" placeholder="항목명"><div class="quote-price-input"><input type="number" min="0" step="100" data-q-custom-price="${i}" value="${Number(x.price||0)}"><em>원</em></div><button class="danger admin-compact" data-del-q-custom="${i}">삭제</button></div>`).join('')||'<p class="muted quote-empty">등록된 별도 추가 항목이 없습니다.</p>';
-  bindQuoteConfigInputs();renderQuoteBuilder()
+
+  $('quotePricing').innerHTML=
+    quotePriceGroup('design',q.priceItems.design)+
+    quotePriceGroup('banner',q.priceItems.banner)+
+    quotePriceGroup('option',q.priceItems.option);
+
+  $('quoteCustomItems').innerHTML=q.customItems.map((x,i)=>'<div class="quote-custom-row"><input data-q-custom-name="'+i+'" value="'+adminEsc(x.name||'')+'" placeholder="항목명"><div class="quote-price-input"><input type="number" step="100" data-q-custom-price="'+i+'" value="'+Number(x.price||0)+'"><em>원</em></div><button class="danger admin-compact" data-del-q-custom="'+i+'">삭제</button></div>').join('')||'<p class="muted quote-empty">등록된 별도 추가 항목이 없습니다.</p>';
+
+  bindQuoteConfigInputs();
+  renderQuoteBuilder()
 }
 function bindQuoteConfigInputs(){
-  document.querySelectorAll('[data-q-design]').forEach(e=>e.oninput=()=>{ensureQuoteConfig().designPrices[e.dataset.qDesign]=Number(e.value||0);renderQuoteBuilder()});
-  document.querySelectorAll('[data-q-banner]').forEach(e=>e.oninput=()=>{ensureQuoteConfig().bannerPrices[e.dataset.qBanner]=Number(e.value||0);renderQuoteBuilder()});
-  document.querySelectorAll('[data-q-option]').forEach(e=>e.oninput=()=>{ensureQuoteConfig().optionPrices[e.dataset.qOption]=Number(e.value||0);renderQuoteBuilder()});
-  document.querySelectorAll('[data-q-custom-name]').forEach(e=>e.oninput=()=>{const x=ensureQuoteConfig().customItems[+e.dataset.qCustomName];if(x){x.name=e.value;renderQuoteBuilder()}});
-  document.querySelectorAll('[data-q-custom-price]').forEach(e=>e.oninput=()=>{const x=ensureQuoteConfig().customItems[+e.dataset.qCustomPrice];if(x){x.price=Number(e.value||0);renderQuoteBuilder()}});
-  document.querySelectorAll('[data-del-q-custom]').forEach(b=>b.onclick=()=>{const q=ensureQuoteConfig(),x=q.customItems[+b.dataset.delQCustom];if(x)delete quoteState['custom:'+x.id];q.customItems.splice(+b.dataset.delQCustom,1);renderQuoteAdmin()})
+  document.querySelectorAll('[data-q-group-name]').forEach(e=>e.oninput=()=>{
+    const q=ensureQuoteConfig(),group=e.dataset.qGroupName,i=Number(e.dataset.qGroupIndex),x=q.priceItems[group]?.[i];
+    if(x){x.name=e.value;renderQuoteBuilder()}
+  });
+
+  document.querySelectorAll('[data-q-group-price]').forEach(e=>e.oninput=()=>{
+    const q=ensureQuoteConfig(),group=e.dataset.qGroupPrice,i=Number(e.dataset.qGroupIndex),x=q.priceItems[group]?.[i];
+    if(x){x.price=Number(e.value||0);renderQuoteBuilder()}
+  });
+
+  document.querySelectorAll('[data-add-q-group]').forEach(b=>b.onclick=()=>{
+    const q=ensureQuoteConfig(),group=b.dataset.addQGroup;
+    if(!Array.isArray(q.priceItems[group]))q.priceItems[group]=[];
+    q.priceItems[group].push({
+      id:'qg-'+group+'-'+Date.now(),
+      name:'새 항목',
+      price:0
+    });
+    renderQuoteAdmin()
+  });
+
+  document.querySelectorAll('[data-del-q-group]').forEach(b=>b.onclick=()=>{
+    const q=ensureQuoteConfig(),group=b.dataset.delQGroup,i=Number(b.dataset.qGroupIndex),x=q.priceItems[group]?.[i];
+    if(!x)return;
+    delete quoteState[group+':'+x.id];
+    q.priceItems[group].splice(i,1);
+    renderQuoteAdmin()
+  });
+
+  document.querySelectorAll('[data-q-custom-name]').forEach(e=>e.oninput=()=>{
+    const x=ensureQuoteConfig().customItems[+e.dataset.qCustomName];
+    if(x){x.name=e.value;renderQuoteBuilder()}
+  });
+
+  document.querySelectorAll('[data-q-custom-price]').forEach(e=>e.oninput=()=>{
+    const x=ensureQuoteConfig().customItems[+e.dataset.qCustomPrice];
+    if(x){x.price=Number(e.value||0);renderQuoteBuilder()}
+  });
+
+  document.querySelectorAll('[data-del-q-custom]').forEach(b=>b.onclick=()=>{
+    const q=ensureQuoteConfig(),x=q.customItems[+b.dataset.delQCustom];
+    if(x)delete quoteState['custom:'+x.id];
+    q.customItems.splice(+b.dataset.delQCustom,1);
+    renderQuoteAdmin()
+  })
 }
 function quoteItems(){
   const q=ensureQuoteConfig(),out=[];
-  (S.designTypes||[]).forEach(x=>out.push({key:'design:'+x.id,label:x.label,price:Number(q.designPrices[x.id]||0)}));
-  QUOTE_BANNERS.forEach(([id,label])=>out.push({key:'banner:'+id,label,price:Number(q.bannerPrices[id]||0)}));
-  QUOTE_OPTIONS.forEach(([id,label])=>out.push({key:'option:'+id,label,price:Number(q.optionPrices[id]||0)}));
-  q.customItems.forEach(x=>out.push({key:'custom:'+x.id,label:x.name||'이름 없는 항목',price:Number(x.price||0)}));
+  ['design','banner','option'].forEach(group=>{
+    (q.priceItems[group]||[]).forEach(x=>out.push({
+      key:group+':'+x.id,
+      label:x.name||'이름 없는 항목',
+      price:Number(x.price||0)
+    }))
+  });
+  q.customItems.forEach(x=>out.push({
+    key:'custom:'+x.id,
+    label:x.name||'이름 없는 항목',
+    price:Number(x.price||0)
+  }));
   return out
 }
 function renderQuoteBuilder(){
