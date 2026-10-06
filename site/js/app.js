@@ -137,8 +137,8 @@ function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return
 function inquiryQuantityOptions(t){
   const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
   if(id==='profile-a'||label.includes('움짤프사'))return [
-    {key:'nameChangeQty',label:'움짤프사 이름 변경'},
-    {key:'gifChangeQty',label:'움짤프사 움짤 변경'}
+    {key:'nameChangeQty',label:'프사 이름 변경'},
+    {key:'gifChangeQty',label:'프사 움짤 변경'}
   ];
   if(t?.showBannerTextField===true||label.includes('상단배너')||label.includes('플로팅배너')||label.includes('하단배너'))return [
     {key:'textChangeQty',label:'배너 텍스트 변경'}
@@ -396,8 +396,8 @@ function requestText(card){
 
   var options=[];
   var extraOptions=[];
-  if(v.nameChangeQty>0)extraOptions.push('움짤프사 이름 변경 '+v.nameChangeQty+'개');
-  if(v.gifChangeQty>0)extraOptions.push('움짤프사 움짤 변경 '+v.gifChangeQty+'개');
+  if(v.nameChangeQty>0)extraOptions.push('프사 이름 변경 '+v.nameChangeQty+'개');
+  if(v.gifChangeQty>0)extraOptions.push('프사 움짤 변경 '+v.gifChangeQty+'개');
   if(v.textChangeQty>0)extraOptions.push('배너 텍스트 변경 '+v.textChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)options.push('추가 옵션: '+extraOptions.join(', '));
