@@ -423,7 +423,7 @@
       {
         "id": "q-1791294239142",
         "name": "배너 텍스트변경",
-        "price": 0
+        "price": 2000
       }
     ],
     "priceItems": {
@@ -437,21 +437,6 @@
           "id": "signature-style",
           "name": "시그니처풍",
           "price": 10000
-        },
-        {
-          "id": "banner",
-          "name": "상단배너",
-          "price": 0
-        },
-        {
-          "id": "type-1791282435211",
-          "name": "플로팅배너",
-          "price": 0
-        },
-        {
-          "id": "type-1791282449527",
-          "name": "하단배너",
-          "price": 0
         }
       ],
       "banner": [
@@ -479,6 +464,11 @@
           "id": "bottom6",
           "name": "하단배너 6칸",
           "price": 28000
+        },
+        {
+          "id": "qg-banner-1791294560673",
+          "name": "인생네컷",
+          "price": 40000
         }
       ],
       "option": [
