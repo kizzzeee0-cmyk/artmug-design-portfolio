@@ -55,7 +55,7 @@
     },
     {
       "id": "banner",
-      "label": "상단배너",
+      "label": "배너",
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
@@ -437,7 +437,7 @@
       "newPrice": 18000
     },
     {
-      "label": "SOOP 배너",
+      "label": "상단 배너",
       "oldPrice": 35000,
       "newPrice": 33000
     }
