@@ -2800,3 +2800,72 @@ body::after{
     line-height:1.7;
   }
 }
+
+
+/* 2026-10-06 bottom split banner paired layout
+   720x450 stays on the left; 1440x450 stays on the right. */
+.portfolio-grid.layout-bottom-split,
+.preset-grid.layout-bottom-split{
+  grid-template-columns:minmax(0,1fr) minmax(0,2fr)!important;
+  grid-auto-flow:row!important;
+  gap:10px!important;
+  align-items:start!important;
+}
+.portfolio-grid.layout-bottom-split .work-card,
+.preset-grid.layout-bottom-split .work-card{
+  min-width:0;
+  align-self:start;
+}
+.portfolio-grid.layout-bottom-split .work-card[data-bottom-split-slot="left"],
+.preset-grid.layout-bottom-split .work-card[data-bottom-split-slot="left"]{
+  grid-column:1!important;
+}
+.portfolio-grid.layout-bottom-split .work-card[data-bottom-split-slot="right"],
+.preset-grid.layout-bottom-split .work-card[data-bottom-split-slot="right"]{
+  grid-column:2!important;
+}
+.portfolio-grid.layout-bottom-split .work-button,
+.preset-grid.layout-bottom-split .work-button{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  overflow:hidden!important;
+  border-radius:10px!important;
+  background:#fff!important;
+}
+.portfolio-grid.layout-bottom-split .media-wrap,
+.preset-grid.layout-bottom-split .media-wrap{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:720/450!important;
+  overflow:hidden!important;
+  border-radius:10px!important;
+  background:#fff!important;
+}
+.portfolio-grid.layout-bottom-split .work-card[data-bottom-split-slot="right"] .media-wrap,
+.preset-grid.layout-bottom-split .work-card[data-bottom-split-slot="right"] .media-wrap{
+  aspect-ratio:1440/450!important;
+}
+.portfolio-grid.layout-bottom-split .media-wrap img,
+.preset-grid.layout-bottom-split .media-wrap img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  border-radius:0!important;
+}
+.preset-grid.layout-bottom-split .preset-card-copy{
+  padding-top:7px!important;
+}
+@media(max-width:680px){
+  .portfolio-grid.layout-bottom-split,
+  .preset-grid.layout-bottom-split{
+    grid-template-columns:minmax(0,1fr) minmax(0,2fr)!important;
+    gap:6px!important;
+  }
+  .portfolio-grid.layout-bottom-split .work-button,
+  .preset-grid.layout-bottom-split .work-button,
+  .portfolio-grid.layout-bottom-split .media-wrap,
+  .preset-grid.layout-bottom-split .media-wrap{
+    border-radius:7px!important;
+  }
+}
