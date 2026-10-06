@@ -210,7 +210,7 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
-      "enabled": false
+      "enabled": true
     }
   ],
   "aboutImage": "",
