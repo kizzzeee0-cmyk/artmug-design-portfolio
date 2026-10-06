@@ -2686,9 +2686,9 @@ body::after{
   gap:24px;
   min-width:0;
   padding:22px;
-  border:1px solid #d9d1f5;
+  border:1px solid #e8e3f6;
   border-radius:18px;
-  background:#f6f3ff;
+  background:#fcfbff;
   color:#51496e;
 }
 .bundle-event-card[hidden]{
@@ -2719,11 +2719,11 @@ body::after{
   flex-wrap:wrap;
   align-items:baseline;
   gap:0 7px;
-  margin:6px 0 0;
+  margin:3px 0 0;
   color:#51478f;
   font-size:18px;
   font-weight:800;
-  line-height:1.4;
+  line-height:1.32;
   letter-spacing:-.035em;
   overflow-wrap:anywhere;
 }
@@ -2791,9 +2791,9 @@ body::after{
     line-height:1.4;
   }
   .open-events-section .bundle-event-title{
-    margin-top:6px;
+    margin-top:3px;
     font-size:17px;
-    line-height:1.4;
+    line-height:1.32;
   }
   .open-events-section .bundle-event-description{
     font-size:14px;
