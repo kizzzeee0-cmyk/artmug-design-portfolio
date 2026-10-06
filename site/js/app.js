@@ -322,7 +322,7 @@ function requestText(card){
 function buildInquiryText(){
   var nickname=String($('nicknameInput').value||'').trim();
   var blocks=Array.from(document.querySelectorAll('.request-card')).map(requestText);
-  var attachmentNotice='※ 들어가는 모든 이미지 및 동영상은 아트머그 <파일첨부>로\n개별 첨부 또는 압축해서 첨부 부탁드립니다.';
+  var attachmentNotice='※ 작업에 사용되는 모든 이미지 및 동영상은 아트머그 <파일첨부>를 통해\n개별 첨부 또는 압축 파일로 전달 부탁드립니다.';
   return (S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname+'\n\n'+blocks.join('\n\n------------------------------\n\n')+'\n\n'+attachmentNotice;
 }
 
