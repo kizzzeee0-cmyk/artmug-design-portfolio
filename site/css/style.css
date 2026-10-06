@@ -2675,7 +2675,7 @@ body::after{
 }
 .bundle-event-card{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,310px);
+  grid-template-columns:minmax(0,1fr);
   align-items:center;
   gap:24px;
   min-width:0;
@@ -2685,8 +2685,7 @@ body::after{
   background:#f6f3ff;
   color:#51496e;
 }
-.bundle-event-main,
-.bundle-event-details{
+.bundle-event-main{
   min-width:0;
 }
 .bundle-event-badge{
@@ -2708,7 +2707,7 @@ body::after{
   margin:0 0 7px;
   color:#665985;
   font-size:17px;
-  font-weight:700;
+  font-weight:800;
   line-height:1.5;
 }
 .bundle-event-condition strong{
@@ -2725,7 +2724,7 @@ body::after{
   gap:0 7px;
   margin:0 0 11px;
   color:#51478f;
-  font-size:clamp(21px,2.2vw,26px);
+  font-size:20px;
   font-weight:800;
   line-height:1.45;
   letter-spacing:-.035em;
@@ -2750,59 +2749,10 @@ body::after{
   color:#62527f;
   font-weight:700;
 }
-.bundle-event-details{
-  padding-left:22px;
-  border-left:1px solid #e2daf4;
-}
-.open-events-section .bundle-event-examples-label{
-  margin:0 0 9px;
-  color:#665680;
-  font-size:13px;
-  font-weight:700;
-}
-.bundle-event-examples{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin:0;
-  padding:0;
-  list-style:none;
-}
-.bundle-event-examples li{
-  max-width:100%;
-  padding:5px 9px;
-  border:1px solid #e5def5;
-  border-radius:8px;
-  background:#fff;
-  color:#6d617d;
-  font-size:12.5px;
-  font-weight:500;
-  line-height:1.5;
-  word-break:keep-all;
-  overflow-wrap:anywhere;
-}
-.open-events-section .bundle-event-note{
-  max-width:none;
-  margin:11px 0 0;
-  color:#786d87;
-  font-size:12.5px;
-  line-height:1.65;
-  word-break:keep-all;
-  overflow-wrap:anywhere;
-}
 @media(max-width:900px){
   .event-review-card{
     grid-template-columns:minmax(0,1fr) minmax(0,300px);
     gap:14px;
-  }
-  .bundle-event-card{
-    grid-template-columns:minmax(0,1fr);
-    gap:15px;
-  }
-  .bundle-event-details{
-    padding:13px 0 0;
-    border-left:0;
-    border-top:1px solid #e2daf4;
   }
 }
 @media(max-width:680px){
@@ -2833,7 +2783,7 @@ body::after{
     font-size:16px;
   }
   .open-events-section .bundle-event-title{
-    font-size:22px;
+    font-size:17px;
     line-height:1.45;
   }
   .open-events-section .bundle-event-description{
