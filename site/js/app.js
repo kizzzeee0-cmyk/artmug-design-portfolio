@@ -16,6 +16,82 @@ function initArtmugEmbedMode(){
   report()
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugEmbedMode,{once:true});else initArtmugEmbedMode();
+
+const ARTMUG_NAV_CHANNEL='artmug-portfolio-section-nav';
+function artmugNavTarget(name){
+  const map={
+    top:document.querySelector('.site-shell'),
+    notice:document.querySelector('.notice-stack'),
+    inquiry:document.querySelector('.form-card'),
+    portfolio:document.getElementById('portfolioSection'),
+    preset:document.getElementById('presetSection')
+  };
+  return map[name]||null
+}
+function navigateArtmugSection(name){
+  const el=artmugNavTarget(name);
+  if(!el||el.hidden)return false;
+
+  // Give split Artmug embeds a programmatic scroll window without restoring wheel scrolling.
+  const root=document.documentElement;
+  if(root.classList.contains('artmug-embed-root'))root.classList.add('artmug-nav-programmatic');
+
+  const hadTabindex=el.hasAttribute('tabindex');
+  const oldTabindex=el.getAttribute('tabindex');
+  if(!hadTabindex)el.setAttribute('tabindex','-1');
+
+  try{el.focus({preventScroll:false})}catch{}
+  try{el.scrollIntoView({behavior:'smooth',block:'start'})}catch{el.scrollIntoView()}
+
+  window.setTimeout(()=>{
+    root.classList.remove('artmug-nav-programmatic');
+    if(!hadTabindex)el.removeAttribute('tabindex');
+    else if(oldTabindex!=null)el.setAttribute('tabindex',oldTabindex)
+  },700);
+  return true
+}
+function initArtmugSectionNavigation(){
+  const sectionMap=[
+    ['.site-shell','page-top'],
+    ['.notice-stack','notice-section'],
+    ['.form-card','inquiry-section'],
+    ['#portfolioSection','portfolio-section'],
+    ['#presetSection','preset-section']
+  ];
+  sectionMap.forEach(([selector,id])=>{
+    const el=document.querySelector(selector);
+    if(el&&!el.id)el.id=id
+  });
+
+  if('BroadcastChannel' in window){
+    const ch=new BroadcastChannel(ARTMUG_NAV_CHANNEL);
+    ch.onmessage=e=>{
+      const d=e&&e.data;
+      if(d&&d.type==='navigate'&&d.target)navigateArtmugSection(String(d.target))
+    };
+    window.__artmugSectionNavChannel=ch
+  }
+
+  window.addEventListener('message',e=>{
+    const d=e&&e.data;
+    if(d&&d.type==='artmug-section-nav'&&d.target)navigateArtmugSection(String(d.target))
+  });
+
+  const hashTarget=String(location.hash||'').replace(/^#/,'');
+  const hashMap={
+    'page-top':'top',
+    'notice-section':'notice',
+    'inquiry-section':'inquiry',
+    'portfolio-section':'portfolio',
+    'preset-section':'preset'
+  };
+  if(hashMap[hashTarget])requestAnimationFrame(()=>navigateArtmugSection(hashMap[hashTarget]));
+  window.addEventListener('hashchange',()=>{
+    const key=String(location.hash||'').replace(/^#/,'');
+    if(hashMap[key])navigateArtmugSection(hashMap[key])
+  })
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugSectionNavigation,{once:true});else initArtmugSectionNavigation();
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
