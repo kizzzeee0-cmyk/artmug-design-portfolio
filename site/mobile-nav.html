@@ -123,7 +123,13 @@
     if(locked)return;
     locked=true;
 
-    if(channel){
+    if(target==='top'){
+      try{
+        window.parent.postMessage({
+          type:'artmug-mobile-top'
+        },'*');
+      }catch(e){}
+    }else if(channel){
       channel.postMessage({
         type:'navigate',
         target:target
