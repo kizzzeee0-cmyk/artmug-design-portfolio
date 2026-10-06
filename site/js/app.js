@@ -102,12 +102,8 @@ function visibleCats(xs){return (xs||[]).filter(function(x){return x.enabled!==f
 function visiblePortfolioCats(xs){
   return visibleCats(xs).filter(x=>x.id!=='profile-b'&&x.id!=='profile-c'&&!x.hiddenLegacy)
 }
-function normalizeInquiryType(t){
-  if(!t)return{};
-  return t.showBannerFields?{...t,label:'하단배너틀'}:t;
-}
-function inquiryTypes(){return visibleCats((S&&S.designTypes)||[]).map(normalizeInquiryType)}
-function inquiryType(id){return normalizeInquiryType(((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{})}
+function inquiryTypes(){return visibleCats((S&&S.designTypes)||[])}
+function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{}}
 function htmlAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function requiredLabel(text){return '<span class="field-label-row"><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
 
@@ -255,7 +251,10 @@ function renderRequestFields(card,typeId,prev){
     var bannerValues=['하단 1칸','하단 3칸','하단 6칸'];
     html+='<div class="banner-fields"><fieldset class="choice-field"><legend>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
       bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" type="checkbox" value="'+v+'"><span>'+v+'</span></label>'}).join('')+
-      '</div></fieldset><label class="request-full-field"><span>배너 입력 문구</span><textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label></div>';
+      '</div></fieldset></div>';
+  }
+  if(t.showBannerTextField){
+    html+='<label class="request-full-field"><span>배너 입력 문구</span><textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
   }
 
   if(t.showReviewEvent){
@@ -308,7 +307,10 @@ function requestText(card){
   }
   if(t.showFrameRetention)info.push(S.frameKeepLabel+': '+v.frameKeep);
   if(t.showBannerFields){
-    info.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'),'배너 입력 문구: '+v.bannerText);
+    info.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'));
+  }
+  if(t.showBannerTextField){
+    info.push('배너 입력 문구: '+v.bannerText);
   }
 
   var concept=[
