@@ -2974,8 +2974,9 @@ html.artmug-embed-root body.artmug-part{
   gap:7px;
 }
 .inquiry-qty-label{
-  flex:0 0 auto;
-  min-width:52px;
+  flex:0 0 92px;
+  width:92px;
+  min-width:92px;
   color:inherit;
   font-size:12px;
   font-weight:400;
