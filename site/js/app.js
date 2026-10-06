@@ -134,6 +134,17 @@ function visiblePortfolioCats(xs){
 }
 function inquiryTypes(){return visibleCats((S&&S.designTypes)||[])}
 function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{}}
+function inquiryQuantityOptions(t){
+  const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
+  if(id==='profile-a'||label.includes('움짤프사'))return [
+    {key:'nameChangeQty',label:'이름 변경'},
+    {key:'gifChangeQty',label:'움짤 변경'}
+  ];
+  if(label.includes('상단배너')||label.includes('플로팅배너')||label.includes('하단배너'))return [
+    {key:'textChangeQty',label:'텍스트 변경'}
+  ];
+  return []
+}
 function htmlAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function requiredLabel(text){return '<span class="field-label-row"><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
 
@@ -244,6 +255,9 @@ function readRequestValues(card){
     bannerText:(q('[data-field="bannerText"]')||{}).value||'',
     banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
     review:(q('input[data-field="reviewEvent"]:checked')||{}).value||'미참여',
+    nameChangeQty:Math.max(0,Number((q('[data-field="nameChangeQty"]')||{}).value||0)),
+    gifChangeQty:Math.max(0,Number((q('[data-field="gifChangeQty"]')||{}).value||0)),
+    textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
     options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value})
   };
 }
@@ -294,7 +308,16 @@ function renderRequestFields(card,typeId,prev){
     '</div></fieldset>';
   }
 
-  html+='<fieldset class="choice-field option-field"><legend>추가 옵션</legend><p class="field-help">해당되는 항목이 있을 경우 체크해 주세요.</p><div class="check-grid">'+
+  var qtyOptions=inquiryQuantityOptions(t);
+  var qtyHtml=qtyOptions.length?'<div class="inquiry-qty-options">'+qtyOptions.map(function(o){
+    return '<div class="inquiry-qty-row"><span class="inquiry-qty-label">'+htmlAttr(o.label)+'</span><div class="inquiry-qty-control">'+
+      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="-1" aria-label="'+htmlAttr(o.label)+' 수량 감소">−</button>'+
+      '<input class="inquiry-qty-input" data-field="'+htmlAttr(o.key)+'" type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="'+htmlAttr(o.label)+' 수량">'+
+      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="1" aria-label="'+htmlAttr(o.label)+' 수량 증가">+</button>'+
+    '</div></div>'
+  }).join('')+'</div>':'';
+
+  html+='<fieldset class="choice-field option-field"><legend>추가 옵션</legend><p class="field-help">해당되는 항목이 있을 경우 선택하거나 수량을 입력해 주세요.</p>'+qtyHtml+'<div class="check-grid">'+
     '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="당일마감"><span>당일마감</span></label>'+
     '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="빠른 마감"><span>빠른 마감</span></label>'+
     '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="포트폴리오 비공개"><span>포트폴리오 비공개</span></label>'+
@@ -309,6 +332,26 @@ function renderRequestFields(card,typeId,prev){
   if(q('[data-field="concept"]'))q('[data-field="concept"]').value=prev.concept||'';
   if(q('[data-field="extra"]'))q('[data-field="extra"]').value=prev.extra||'';
   if(q('[data-field="bannerText"]'))q('[data-field="bannerText"]').value=prev.bannerText||'';
+  ['nameChangeQty','gifChangeQty','textChangeQty'].forEach(function(key){
+    var el=q('[data-field="'+key+'"]');
+    if(el)el.value=String(Math.max(0,Math.floor(Number(prev[key]||0))))
+  });
+  qa('[data-qty-field]').forEach(function(btn){
+    btn.onclick=function(){
+      var input=q('[data-field="'+btn.dataset.qtyField+'"]');
+      if(!input)return;
+      var next=Math.max(0,Math.floor(Number(input.value||0))+Number(btn.dataset.qtyDelta||0));
+      input.value=String(next)
+    }
+  });
+  qa('.inquiry-qty-input').forEach(function(input){
+    input.oninput=function(){
+      if(Number(input.value)<0)input.value='0'
+    };
+    input.onblur=function(){
+      input.value=String(Math.max(0,Math.floor(Number(input.value||0))))
+    }
+  });
 
   var frame=q('input[data-field="frameKeep"][value="'+(prev.frameKeep||'O')+'"]')||q('input[data-field="frameKeep"][value="O"]');
   if(frame)frame.checked=true;
@@ -350,7 +393,12 @@ function requestText(card){
 
   var options=[];
   if(t.showReviewEvent)options.push('리뷰이벤트 참여 여부: '+v.review);
-  if(v.options.length)options.push('추가 옵션: '+v.options.join(', '));
+  var extraOptions=[];
+  if(v.nameChangeQty>0)extraOptions.push('이름 변경 '+v.nameChangeQty+'개');
+  if(v.gifChangeQty>0)extraOptions.push('움짤 변경 '+v.gifChangeQty+'개');
+  if(v.textChangeQty>0)extraOptions.push('텍스트 변경 '+v.textChangeQty+'개');
+  extraOptions.push.apply(extraOptions,v.options);
+  if(extraOptions.length)options.push('추가 옵션: '+extraOptions.join(', '));
 
   return [info.join('\n'),concept.join('\n'),options.join('\n')].filter(Boolean).join('\n\n');
 }
