@@ -2952,3 +2952,87 @@ html.artmug-embed-root body.artmug-part{
 .open-events-section .bundle-event-description{
   white-space:pre-line;
 }
+
+
+/* 2026-10-06 inquiry category quantity options */
+.inquiry-qty-options{
+  display:grid;
+  gap:8px;
+  margin:0 0 12px;
+}
+.inquiry-qty-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:42px;
+  padding:8px 10px 8px 12px;
+  border:1px solid rgba(147,137,222,.2);
+  border-radius:12px;
+  background:#fff;
+}
+.inquiry-qty-label{
+  min-width:0;
+  color:#5f5875;
+  font-size:12px;
+  font-weight:600;
+  line-height:1.4;
+}
+.inquiry-qty-control{
+  display:grid;
+  grid-template-columns:30px 46px 30px;
+  align-items:center;
+  gap:4px;
+  flex:0 0 auto;
+}
+.inquiry-qty-button{
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  padding:0;
+  border:1px solid rgba(147,137,222,.28);
+  border-radius:9px;
+  background:#fff;
+  color:var(--accent-deep);
+  font-size:17px;
+  font-weight:600;
+  line-height:1;
+}
+.inquiry-qty-button:hover{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+}
+.inquiry-qty-input{
+  width:46px!important;
+  height:30px;
+  min-height:30px;
+  padding:3px 4px!important;
+  border-radius:9px!important;
+  text-align:center;
+  font-size:12px!important;
+  font-weight:600!important;
+  -moz-appearance:textfield;
+}
+.inquiry-qty-input::-webkit-outer-spin-button,
+.inquiry-qty-input::-webkit-inner-spin-button{
+  margin:0;
+  -webkit-appearance:none;
+}
+@media(max-width:680px){
+  .inquiry-qty-row{
+    min-height:40px;
+    padding:7px 8px 7px 10px;
+  }
+  .inquiry-qty-control{
+    grid-template-columns:32px 48px 32px;
+  }
+  .inquiry-qty-button{
+    width:32px;
+    height:32px;
+  }
+  .inquiry-qty-input{
+    width:48px!important;
+    height:32px;
+  }
+}
