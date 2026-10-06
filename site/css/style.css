@@ -3104,3 +3104,25 @@ html.artmug-embed-root body.artmug-part{
     white-space:pre-line!important;
   }
 }
+
+
+/* 2026-10-06 Artmug sidebar programmatic section jumps */
+html.artmug-embed-root.artmug-nav-programmatic,
+html.artmug-embed-root.artmug-nav-programmatic body.artmug-part{
+  overflow-y:auto!important;
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+html.artmug-embed-root.artmug-nav-programmatic::-webkit-scrollbar,
+html.artmug-embed-root.artmug-nav-programmatic body.artmug-part::-webkit-scrollbar{
+  width:0!important;
+  height:0!important;
+  display:none!important;
+}
+#page-top:focus,
+#notice-section:focus,
+#inquiry-section:focus,
+#portfolio-section:focus,
+#preset-section:focus{
+  outline:none!important;
+}
