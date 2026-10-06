@@ -20,8 +20,11 @@ function initArtmugEmbedMode(){
         portfolio:topOf(document.getElementById('portfolioSection')),
         preset:topOf(document.getElementById('presetSection'))
       };
-      window.parent.postMessage({type:'artmug-portfolio-height',height},'*');
-      window.parent.postMessage({type:'artmug-section-map',height,sections},'*')
+      const role=document.body.classList.contains('artmug-part-inquiry')?'inquiry':document.body.classList.contains('artmug-part-portfolio')?'portfolio':'full';
+      const payload={type:'artmug-section-map',height,sections,role};
+      try{window.parent.postMessage({type:'artmug-portfolio-height',height},'*')}catch{}
+      try{window.parent.postMessage(payload,'*')}catch{}
+      try{if(window.top!==window.parent)window.top.postMessage(payload,'*')}catch{}
     })
   };
   window.addEventListener('load',report,{once:true});
