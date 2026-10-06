@@ -60,18 +60,11 @@ function navigateArtmugSection(name){
   const root=document.documentElement;
   if(root.classList.contains('artmug-embed-root'))root.classList.add('artmug-nav-programmatic');
 
-  const hadTabindex=el.hasAttribute('tabindex');
-  const oldTabindex=el.getAttribute('tabindex');
-  if(!hadTabindex)el.setAttribute('tabindex','-1');
-
-  try{el.focus({preventScroll:false})}catch{}
-  try{el.scrollIntoView({behavior:'smooth',block:'start'})}catch{el.scrollIntoView()}
+  try{el.scrollIntoView({behavior:'auto',block:'start'})}catch{el.scrollIntoView()}
 
   window.setTimeout(()=>{
     root.classList.remove('artmug-nav-programmatic');
-    if(!hadTabindex)el.removeAttribute('tabindex');
-    else if(oldTabindex!=null)el.setAttribute('tabindex',oldTabindex)
-  },700);
+  },120);
   return true
 }
 function initArtmugSectionNavigation(){
