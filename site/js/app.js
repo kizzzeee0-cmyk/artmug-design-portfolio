@@ -320,9 +320,9 @@ function renderRequestFields(card,typeId,prev){
   var qtyOptions=inquiryQuantityOptions(t);
   var qtyHtml=qtyOptions.length?'<div class="inquiry-qty-options">'+qtyOptions.map(function(o){
     return '<div class="inquiry-qty-row"><span class="inquiry-qty-label">'+htmlAttr(o.label)+'</span><div class="inquiry-qty-control">'+
-      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="-1" aria-label="'+htmlAttr(o.label)+' 수량 감소">‹</button>'+
+      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="-1" aria-label="'+htmlAttr(o.label)+' 수량 감소">−</button>'+
       '<input class="inquiry-qty-input" data-field="'+htmlAttr(o.key)+'" type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="'+htmlAttr(o.label)+' 수량">'+
-      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="1" aria-label="'+htmlAttr(o.label)+' 수량 증가">›</button>'+
+      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="1" aria-label="'+htmlAttr(o.label)+' 수량 증가">+</button>'+
     '</div></div>'
   }).join('')+'</div>':'';
 
