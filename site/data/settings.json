@@ -100,7 +100,7 @@
   "portfolioCategories": [
     {
       "id": "profile",
-      "label": "움짤프사",
+      "label": "움짤 프사",
       "displayWidth": 200,
       "displayHeight": 200,
       "strictSize": true,
@@ -147,7 +147,7 @@
     },
     {
       "id": "signature",
-      "label": "시그니처풍",
+      "label": "시그풍",
       "displayWidth": 293,
       "displayHeight": 165,
       "strictSize": true,
@@ -234,6 +234,24 @@
       ],
       "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
       "enabled": true
+    },
+    {
+      "id": "new-category",
+      "label": "인생 네컷",
+      "enabled": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "uploadWidth": 0,
+      "uploadHeight": 0,
+      "maxBytes": 6291456,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 작업물이 아직 없습니다."
     }
   ],
   "aboutImage": "",
