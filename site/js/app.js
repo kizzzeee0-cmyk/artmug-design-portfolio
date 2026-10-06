@@ -165,6 +165,23 @@ function renderInquiryForm(){
   addRow.hidden=types.length<2;
   $('addRequestButton').onclick=function(){addRequest('')};
 
+  var form=document.querySelector('.contact-form');
+  var actions=form&&form.querySelector('.form-actions');
+  var globalReview=$('globalReviewEventField');
+  if(!globalReview&&form&&actions){
+    globalReview=document.createElement('fieldset');
+    globalReview.id='globalReviewEventField';
+    globalReview.className='span-2 choice-field review-event-field global-review-event-field';
+    form.insertBefore(globalReview,actions)
+  }
+  if(globalReview){
+    globalReview.hidden=S.inquiryReviewEnabled===false;
+    globalReview.innerHTML='<legend>리뷰이벤트 참여 여부</legend><div class="choice-row">'+
+      '<label class="choice-pill"><input id="globalReviewParticipate" name="globalReviewEvent" type="radio" value="참여"><span>참여</span></label>'+
+      '<label class="choice-pill"><input id="globalReviewDecline" name="globalReviewEvent" type="radio" value="미참여" checked><span>미참여</span></label>'+
+    '</div>'
+  }
+
   if(!types.length){
     container.innerHTML='<div class="request-empty">현재 신청 가능한 디자인 종류가 없습니다.</div>';
     return;
@@ -254,7 +271,6 @@ function readRequestValues(card){
     extra:(q('[data-field="extra"]')||{}).value||'',
     bannerText:(q('[data-field="bannerText"]')||{}).value||'',
     banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
-    review:(q('input[data-field="reviewEvent"]:checked')||{}).value||'미참여',
     nameChangeQty:Math.max(0,Number((q('[data-field="nameChangeQty"]')||{}).value||0)),
     gifChangeQty:Math.max(0,Number((q('[data-field="gifChangeQty"]')||{}).value||0)),
     textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
@@ -300,13 +316,6 @@ function renderRequestFields(card,typeId,prev){
 
   html+='<label class="request-full-field">'+requiredLabel(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+'<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'')+'"></textarea></label>';
   html+='<label class="request-full-field"><span>'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
-
-  if(t.showReviewEvent){
-    html+='<fieldset class="choice-field review-event-field"><legend>리뷰이벤트 참여 여부</legend><div class="choice-row">'+
-      '<label class="choice-pill"><input data-field="reviewEvent" name="reviewEvent-'+rid+'" type="radio" value="참여"><span>참여</span></label>'+
-      '<label class="choice-pill"><input data-field="reviewEvent" name="reviewEvent-'+rid+'" type="radio" value="미참여"><span>미참여</span></label>'+
-    '</div></fieldset>';
-  }
 
   var qtyOptions=inquiryQuantityOptions(t);
   var qtyHtml=qtyOptions.length?'<div class="inquiry-qty-options">'+qtyOptions.map(function(o){
@@ -355,8 +364,6 @@ function renderRequestFields(card,typeId,prev){
 
   var frame=q('input[data-field="frameKeep"][value="'+(prev.frameKeep||'O')+'"]')||q('input[data-field="frameKeep"][value="O"]');
   if(frame)frame.checked=true;
-  var review=q('input[data-field="reviewEvent"][value="'+(prev.review||'미참여')+'"]')||q('input[data-field="reviewEvent"][value="미참여"]');
-  if(review)review.checked=true;
   qa('input[data-field="bannerType"]').forEach(function(x){x.checked=(prev.banners||[]).includes(x.value)});
   qa('input[data-field="extraOption"]').forEach(function(x){x.checked=(prev.options||[]).includes(x.value)});
 
@@ -392,7 +399,6 @@ function requestText(card){
   ];
 
   var options=[];
-  if(t.showReviewEvent)options.push('리뷰이벤트 참여 여부: '+v.review);
   var extraOptions=[];
   if(v.nameChangeQty>0)extraOptions.push('이름 변경 '+v.nameChangeQty+'개');
   if(v.gifChangeQty>0)extraOptions.push('움짤 변경 '+v.gifChangeQty+'개');
@@ -406,8 +412,14 @@ function requestText(card){
 function buildInquiryText(){
   var nickname=String($('nicknameInput').value||'').trim();
   var blocks=Array.from(document.querySelectorAll('.request-card')).map(requestText);
+  var sections=[(S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname,blocks.join('\n\n------------------------------\n\n')];
+  if(S.inquiryReviewEnabled!==false){
+    var review=(document.querySelector('input[name="globalReviewEvent"]:checked')||{}).value||'미참여';
+    sections.push('리뷰이벤트 참여 여부: '+review)
+  }
   var attachmentNotice='※ 작업에 사용되는 모든 이미지 및 동영상은 아트머그 <파일첨부>를 통해\n개별 첨부 또는 압축 파일로 전달 부탁드립니다.';
-  return (S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname+'\n\n'+blocks.join('\n\n------------------------------\n\n')+'\n\n'+attachmentNotice;
+  sections.push(attachmentNotice);
+  return sections.filter(Boolean).join('\n\n');
 }
 
 function validateRequiredInquiryFields(){
