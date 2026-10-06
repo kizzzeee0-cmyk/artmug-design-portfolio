@@ -57,7 +57,6 @@ function navigateArtmugSection(name){
   const el=artmugNavTarget(name);
   if(!el||el.hidden)return false;
 
-  // Give split Artmug embeds a programmatic scroll window without restoring wheel scrolling.
   const root=document.documentElement;
   if(root.classList.contains('artmug-embed-root'))root.classList.add('artmug-nav-programmatic');
 
@@ -65,17 +64,8 @@ function navigateArtmugSection(name){
   const oldTabindex=el.getAttribute('tabindex');
   if(!hadTabindex)el.setAttribute('tabindex','-1');
 
-  try{el.focus({preventScroll:true})}catch{}
-
-  // Keep some breathing room above the selected section instead of pinning it to the viewport top.
-  try{
-    const rect=el.getBoundingClientRect();
-    const offset=Math.max(80,Math.min(170,window.innerHeight*0.22));
-    const top=Math.max(0,window.scrollY+rect.top-offset);
-    window.scrollTo({top,behavior:'smooth'})
-  }catch{
-    try{el.scrollIntoView({behavior:'smooth',block:'center'})}catch{el.scrollIntoView()}
-  }
+  try{el.focus({preventScroll:false})}catch{}
+  try{el.scrollIntoView({behavior:'smooth',block:'start'})}catch{el.scrollIntoView()}
 
   window.setTimeout(()=>{
     root.classList.remove('artmug-nav-programmatic');
