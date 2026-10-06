@@ -3096,3 +3096,11 @@ html.artmug-embed-root body.artmug-part{
     width:auto!important;
   }
 }
+
+
+/* Mobile extra request placeholder line breaks */
+@media(max-width:680px){
+  .contact-form textarea[data-field="extra"]::placeholder{
+    white-space:pre-line!important;
+  }
+}
