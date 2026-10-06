@@ -19,6 +19,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 const ARTMUG_NAV_CHANNEL='artmug-portfolio-section-nav';
 function artmugNavTarget(name){
+  const body=document.body;
+  const inquiryOnly=body&&body.classList.contains('artmug-part-inquiry');
+  const portfolioOnly=body&&body.classList.contains('artmug-part-portfolio');
+
+  if(portfolioOnly&&['top','notice','inquiry'].includes(name))return null;
+  if(inquiryOnly&&['portfolio','preset'].includes(name))return null;
+
   const map={
     top:document.querySelector('.site-shell'),
     notice:document.querySelector('.notice-stack'),
