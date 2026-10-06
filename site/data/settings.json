@@ -236,11 +236,11 @@
       "enabled": true
     },
     {
-      "id": "new-category",
+      "id": "4cutframe",
       "label": "인생 네컷",
       "enabled": true,
-      "displayWidth": 200,
-      "displayHeight": 200,
+      "displayWidth": 1200,
+      "displayHeight": 1600,
       "strictSize": false,
       "uploadWidth": 0,
       "uploadHeight": 0,
