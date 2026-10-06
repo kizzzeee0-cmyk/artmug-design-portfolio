@@ -2946,3 +2946,9 @@ html.artmug-embed-root body.artmug-part{
 html.artmug-embed-root body.artmug-part{
   position:relative!important;
 }
+
+
+/* Editable banner event copy */
+.open-events-section .bundle-event-description{
+  white-space:pre-line;
+}
