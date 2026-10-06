@@ -29,9 +29,10 @@
     grid-template-columns:repeat(3,minmax(0,1fr));
     align-items:center;
     padding:7px 10px;
+    border:1px solid #eeeeee;
     border-radius:28px;
-    background:#151719;
-    box-shadow:0 5px 18px rgba(0,0,0,.18);
+    background:#ffffff;
+    box-shadow:none;
   }
   .mobile-nav button{
     display:flex;
@@ -45,13 +46,14 @@
     border:0;
     border-radius:20px;
     background:transparent;
-    color:#fff;
+    color:#5b5570;
     font:inherit;
     cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
   .mobile-nav button:active{
-    background:rgba(255,255,255,.08);
+    background:#f5f3ff;
+    color:#766acb;
   }
   .mobile-nav svg{
     width:21px;
@@ -68,6 +70,9 @@
     font-weight:600;
     line-height:1.2;
     white-space:nowrap;
+  }
+  .mobile-nav .top-button{
+    color:#766acb;
   }
 </style>
 </head>
@@ -90,7 +95,7 @@
     <span>포트폴리오</span>
   </button>
 
-  <button type="button" data-target="top" aria-label="맨 위로 이동">
+  <button type="button" class="top-button" data-target="top" aria-label="맨 위로 이동">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 10l6-6 6 6"></path>
       <path d="M12 4v16"></path>
