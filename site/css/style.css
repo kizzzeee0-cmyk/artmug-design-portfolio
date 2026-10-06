@@ -2956,63 +2956,75 @@ html.artmug-embed-root body.artmug-part{
 
 /* 2026-10-06 inquiry category quantity options */
 .inquiry-qty-options{
-  display:grid;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
   gap:8px;
-  margin:0 0 12px;
+  margin:0 0 10px;
 }
 .inquiry-qty-row{
-  display:flex;
+  display:inline-flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  min-height:42px;
-  padding:8px 10px 8px 12px;
-  border:1px solid rgba(147,137,222,.2);
-  border-radius:12px;
-  background:#fff;
+  width:auto;
+  min-height:35px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--surface);
+  gap:7px;
 }
 .inquiry-qty-label{
-  min-width:0;
-  color:#5f5875;
+  flex:0 0 auto;
+  color:inherit;
   font-size:12px;
-  font-weight:600;
-  line-height:1.4;
+  font-weight:400;
+  line-height:1.35;
+  white-space:nowrap;
 }
 .inquiry-qty-control{
-  display:grid;
-  grid-template-columns:30px 46px 30px;
+  display:inline-flex;
   align-items:center;
-  gap:4px;
+  gap:1px;
   flex:0 0 auto;
 }
 .inquiry-qty-button{
   display:grid;
   place-items:center;
-  width:30px;
-  height:30px;
+  width:17px;
+  height:20px;
   padding:0;
-  border:1px solid rgba(147,137,222,.28);
-  border-radius:9px;
-  background:#fff;
+  border:0;
+  border-radius:0;
+  background:transparent;
   color:var(--accent-deep);
-  font-size:17px;
+  font-size:15px;
   font-weight:600;
   line-height:1;
 }
 .inquiry-qty-button:hover{
-  border-color:var(--accent);
-  background:var(--accent-soft);
+  border:0;
+  background:transparent;
+  color:var(--accent);
 }
 .inquiry-qty-input{
-  width:46px!important;
-  height:30px;
-  min-height:30px;
-  padding:3px 4px!important;
-  border-radius:9px!important;
+  width:22px!important;
+  height:20px!important;
+  min-height:20px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
   text-align:center;
   font-size:12px!important;
-  font-weight:600!important;
+  font-weight:500!important;
+  line-height:20px!important;
   -moz-appearance:textfield;
+}
+.inquiry-qty-input:focus{
+  border:0!important;
+  box-shadow:none!important;
+  outline:0!important;
 }
 .inquiry-qty-input::-webkit-outer-spin-button,
 .inquiry-qty-input::-webkit-inner-spin-button{
@@ -3020,19 +3032,12 @@ html.artmug-embed-root body.artmug-part{
   -webkit-appearance:none;
 }
 @media(max-width:680px){
+  .inquiry-qty-options{
+    gap:7px;
+  }
   .inquiry-qty-row{
-    min-height:40px;
-    padding:7px 8px 7px 10px;
-  }
-  .inquiry-qty-control{
-    grid-template-columns:32px 48px 32px;
-  }
-  .inquiry-qty-button{
-    width:32px;
-    height:32px;
-  }
-  .inquiry-qty-input{
-    width:48px!important;
-    height:32px;
+    min-height:34px;
+    padding:7px 10px;
+    gap:6px;
   }
 }
