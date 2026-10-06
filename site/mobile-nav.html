@@ -28,13 +28,13 @@
   }
   .mobile-nav{
     width:100%;
-    height:60px;
+    height:52px;
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
     align-items:center;
-    padding:5px 8px;
+    padding:4px 7px;
     border:1px solid #eeeeee;
-    border-radius:22px;
+    border-radius:19px;
     background:#ffffff;
     box-shadow:none;
     -webkit-transform:translateZ(0);
@@ -50,10 +50,10 @@
     justify-content:center;
     gap:2px;
     min-width:0;
-    height:48px;
+    height:42px;
     padding:3px 5px;
     border:0;
-    border-radius:16px;
+    border-radius:13px;
     background:transparent;
     color:#5b5570;
     font:inherit;
@@ -65,8 +65,8 @@
     color:#766acb;
   }
   .mobile-nav svg{
-    width:18px;
-    height:18px;
+    width:16px;
+    height:16px;
     display:block;
     fill:none;
     stroke:currentColor;
@@ -75,7 +75,7 @@
     stroke-linejoin:round;
   }
   .mobile-nav span{
-    font-size:10.5px;
+    font-size:10px;
     font-weight:600;
     line-height:1.2;
     white-space:nowrap;
@@ -124,19 +124,15 @@
     locked=true;
 
     if(channel){
-      channel.postMessage({type:'navigate',target:target});
-    }else{
-      try{
-        const topWin=window.top;
-        for(let i=0;i<topWin.length;i++){
-          try{
-            topWin.frames[i].postMessage({type:'artmug-section-nav',target:target},'*');
-          }catch(e){}
-        }
-      }catch(e){}
+      channel.postMessage({
+        type:'navigate',
+        target:target
+      });
     }
 
-    setTimeout(()=>{locked=false},220);
+    setTimeout(function(){
+      locked=false;
+    },160);
   }
 
   document.querySelectorAll('[data-target]').forEach(function(btn){
@@ -144,7 +140,7 @@
       send(btn.dataset.target);
     });
   });
-})();
+})();;
 </script>
 </body>
 </html>
