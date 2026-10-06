@@ -8,11 +8,25 @@ function initArtmugEmbedMode(){
     raf=requestAnimationFrame(()=>{
       if(window.parent===window)return;
       const height=Math.ceil(Math.max(document.body.scrollHeight,document.documentElement.scrollHeight));
-      window.parent.postMessage({type:'artmug-portfolio-height',height},'*')
+      const topOf=el=>{
+        if(!el||el.hidden)return null;
+        const r=el.getBoundingClientRect();
+        return Math.max(0,Math.round(window.scrollY+r.top))
+      };
+      const sections={
+        top:0,
+        notice:topOf(document.querySelector('.notice-card')),
+        inquiry:topOf(document.querySelector('.form-card')),
+        portfolio:topOf(document.getElementById('portfolioSection')),
+        preset:topOf(document.getElementById('presetSection'))
+      };
+      window.parent.postMessage({type:'artmug-portfolio-height',height},'*');
+      window.parent.postMessage({type:'artmug-section-map',height,sections},'*')
     })
   };
   window.addEventListener('load',report,{once:true});
   if('ResizeObserver'in window)new ResizeObserver(report).observe(document.body);
+  window.addEventListener('artmug-sections-changed',report);
   report()
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugEmbedMode,{once:true});else initArtmugEmbedMode();
@@ -111,7 +125,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
-function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s)}
+function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
 function koreaDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return `${o.year}-${o.month}-${o.day}`}
 function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today,effective=chosen>today?chosen:today,[y,m,d]=effective.split('-');$('scheduleText').innerHTML=`현재 신청시 <strong class="schedule-date">${Number(m)}월 ${Number(d)}일</strong>부터 작업이 진행됩니다!`}
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
