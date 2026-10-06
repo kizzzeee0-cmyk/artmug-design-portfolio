@@ -430,7 +430,7 @@ function applyManualOrder(items,order){
     return ai-bi
   })
 }
-function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){
+function grid(items,cat){
   const c=(S?.portfolioCategories||[]).find(x=>x.id===cat)||{},g=$('portfolioGrid'),layout=portfolioLayout(c);
   g.className='portfolio-grid layout-'+layout;
   g.style.setProperty('--display-width',`${c.displayWidth||200}px`);
@@ -438,7 +438,7 @@ function grid(items,cat,empty='등록된 작업물이 아직 없습니다.'){
   g.innerHTML=items.length?items.map(x=>{
     const src=x.demoSrc||media(x.file);
     return `<article class="work-card portfolio-work-card"><div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(src)}" alt="${esc(x.alt||x.originalName)}" loading="lazy" draggable="false"></div></div></article>`
-  }).join(''):`<div class="empty-state">${esc(c.emptyText||empty)}</div>`;
+  }).join(''):`<div class="empty-state">현재 포트폴리오 준비 중입니다!</div>`;
   protectMedia()
 }
 function presetGrid(items,cat){
