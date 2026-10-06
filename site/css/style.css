@@ -3054,3 +3054,9 @@ html.artmug-embed-root body.artmug-part{
     line-height:23px!important;
   }
 }
+
+
+/* Preserve multiline inquiry textarea placeholders */
+.contact-form textarea::placeholder{
+  white-space:pre-line;
+}
