@@ -161,8 +161,8 @@
     {
       "id": "floating-banner",
       "label": "플로팅 배너",
-      "displayWidth": 100,
-      "displayHeight": 261,
+      "displayWidth": 80,
+      "displayHeight": 209,
       "strictSize": true,
       "uploadWidth": 80,
       "uploadHeight": 209,
@@ -174,13 +174,13 @@
         "webp"
       ],
       "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다.",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "bottom-banner",
       "label": "하단 배너 일반",
-      "displayWidth": 320,
-      "displayHeight": 67,
+      "displayWidth": 720,
+      "displayHeight": 150,
       "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 150,
@@ -192,13 +192,13 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 작업물이 아직 없습니다.",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "bottom-split",
       "label": "하단 배너 분할",
-      "displayWidth": 240,
-      "displayHeight": 150,
+      "displayWidth": 1440,
+      "displayHeight": 450,
       "strictSize": true,
       "uploadWidth": 720,
       "uploadHeight": 450,
