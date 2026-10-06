@@ -297,26 +297,33 @@ function renderRequestFields(card,typeId,prev){
 function requestText(card){
   var t=inquiryType(card.dataset.typeId);
   var v=readRequestValues(card);
-  var lines=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+(t.label||'')];
+  var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+(t.label||'')];
 
   if(t.showSignatureFields){
-    lines.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
+    info.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
   }
-  if(t.showFrameRetention)lines.push(S.frameKeepLabel+': '+v.frameKeep);
+  if(t.showFrameRetention)info.push(S.frameKeepLabel+': '+v.frameKeep);
   if(t.showBannerFields){
-    lines.push('신청 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'),'배너 입력 문구: '+v.bannerText);
+    info.push('신청 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'),'배너 입력 문구: '+v.bannerText);
   }
 
-  lines.push(S.conceptLabel+': '+v.concept,S.extraLabel+': '+v.extra);
-  if(t.showReviewEvent)lines.push('리뷰이벤트 참여 여부: '+v.review);
-  lines.push('추가 옵션: '+(v.options.length?v.options.join(', '):'선택 없음'));
-  return lines.join('\n');
+  var concept=[
+    S.conceptLabel+': '+v.concept,
+    S.extraLabel+': '+v.extra
+  ];
+
+  var options=[];
+  if(t.showReviewEvent)options.push('리뷰이벤트 참여 여부: '+v.review);
+  options.push('추가 옵션: '+(v.options.length?v.options.join(', '):'선택 없음'));
+
+  return [info.join('\n'),concept.join('\n'),options.join('\n')].join('\n\n');
 }
 
 function buildInquiryText(){
   var nickname=String($('nicknameInput').value||'').trim();
   var blocks=Array.from(document.querySelectorAll('.request-card')).map(requestText);
-  return (S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname+'\n'+blocks.join('\n\n------------------------------\n\n');
+  var attachmentNotice='※ 들어가는 모든 이미지 및 동영상은 아트머그 <파일첨부>로\n개별 첨부 또는 압축해서 첨부 부탁드립니다.';
+  return (S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname+'\n\n'+blocks.join('\n\n------------------------------\n\n')+'\n\n'+attachmentNotice;
 }
 
 function validateRequiredInquiryFields(){
