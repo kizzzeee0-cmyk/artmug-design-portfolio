@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>빠른 이동</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+  body{display:flex;justify-content:flex-end;align-items:flex-start;min-height:100vh;padding:4px}
+  .quick-nav{
+    width:132px;
+    padding:8px;
+    border:1px solid rgba(147,137,222,.24);
+    border-radius:15px;
+    background:rgba(255,255,255,.96);
+    box-shadow:0 8px 24px rgba(84,70,137,.10);
+    backdrop-filter:blur(8px);
+  }
+  .quick-nav button{
+    display:block;
+    width:100%;
+    min-height:34px;
+    padding:7px 9px;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:#5b5570;
+    font:inherit;
+    font-size:12px;
+    font-weight:600;
+    line-height:1.35;
+    text-align:center;
+    cursor:pointer;
+  }
+  .quick-nav button:hover,
+  .quick-nav button:focus-visible{
+    background:#f1effb;
+    color:#6f63bf;
+    outline:none;
+  }
+  .quick-nav .divider{
+    height:1px;
+    margin:6px 4px;
+    background:#e9e5f7;
+  }
+  .quick-nav .top-button{
+    color:#766acb;
+  }
+</style>
+</head>
+<body>
+<nav class="quick-nav" aria-label="페이지 빠른 이동">
+  <button type="button" data-target="notice">공지사항</button>
+  <button type="button" data-target="inquiry">문의양식</button>
+  <button type="button" data-target="portfolio">포트폴리오</button>
+  <button type="button" data-target="preset">미판매 프리셋</button>
+  <div class="divider" aria-hidden="true"></div>
+  <button type="button" class="top-button" data-target="top">맨 위로</button>
+</nav>
+<script>
+(function(){
+  const channelName='artmug-portfolio-section-nav';
+  const channel=('BroadcastChannel' in window)?new BroadcastChannel(channelName):null;
+
+  function send(target){
+    if(channel)channel.postMessage({type:'navigate',target:target});
+
+    // Also broadcast to sibling frames through the top window when the browser permits it.
+    try{
+      const topWin=window.top;
+      for(let i=0;i<topWin.length;i++){
+        try{topWin.frames[i].postMessage({type:'artmug-section-nav',target:target},'*')}catch{}
+      }
+    }catch{}
+
+    try{window.parent.postMessage({type:'artmug-section-nav',target:target},'*')}catch{}
+  }
+
+  document.querySelectorAll('[data-target]').forEach(btn=>{
+    btn.addEventListener('click',()=>send(btn.dataset.target))
+  })
+})();
+</script>
+</body>
+</html>
