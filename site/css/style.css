@@ -2959,19 +2959,19 @@ html.artmug-embed-root body.artmug-part{
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-  gap:8px;
+  gap:8px 18px;
   margin:0 0 10px;
 }
 .inquiry-qty-row{
   display:inline-flex;
   align-items:center;
   width:auto;
-  min-height:35px;
-  padding:7px 11px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:var(--surface);
-  gap:7px;
+  min-height:34px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  gap:8px;
 }
 .inquiry-qty-label{
   flex:0 0 auto;
@@ -2984,41 +2984,42 @@ html.artmug-embed-root body.artmug-part{
 .inquiry-qty-control{
   display:inline-flex;
   align-items:center;
-  gap:1px;
+  gap:5px;
   flex:0 0 auto;
 }
 .inquiry-qty-button{
   display:grid;
   place-items:center;
-  width:17px;
-  height:20px;
+  width:32px;
+  height:32px;
   padding:0;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  color:var(--accent-deep);
-  font-size:15px;
-  font-weight:600;
+  border:1px solid rgba(147,137,222,.48);
+  border-radius:10px;
+  background:#fff;
+  color:var(--accent);
+  font-size:16px;
+  font-weight:700;
   line-height:1;
 }
 .inquiry-qty-button:hover{
-  border:0;
-  background:transparent;
-  color:var(--accent);
+  border-color:var(--accent);
+  background:var(--accent-soft);
+  color:var(--accent-deep);
 }
 .inquiry-qty-input{
-  width:22px!important;
-  height:20px!important;
-  min-height:20px!important;
+  width:25px!important;
+  height:30px!important;
+  min-height:30px!important;
   padding:0!important;
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
+  color:#2f2b3d!important;
   text-align:center;
-  font-size:12px!important;
-  font-weight:500!important;
-  line-height:20px!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  line-height:30px!important;
   -moz-appearance:textfield;
 }
 .inquiry-qty-input:focus{
@@ -3033,11 +3034,17 @@ html.artmug-embed-root body.artmug-part{
 }
 @media(max-width:680px){
   .inquiry-qty-options{
-    gap:7px;
+    gap:8px 14px;
   }
   .inquiry-qty-row{
-    min-height:34px;
-    padding:7px 10px;
-    gap:6px;
+    gap:7px;
+  }
+  .inquiry-qty-button{
+    width:31px;
+    height:31px;
+    border-radius:10px;
+  }
+  .inquiry-qty-input{
+    width:23px!important;
   }
 }
