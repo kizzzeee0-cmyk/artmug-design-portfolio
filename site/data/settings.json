@@ -42,7 +42,6 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true,
       "showBannerTextField": false
     },
     {
@@ -52,7 +51,6 @@
       "showSignatureFields": true,
       "showBannerFields": false,
       "enabled": false,
-      "showReviewEvent": false,
       "showBannerTextField": false
     },
     {
@@ -62,7 +60,6 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true,
       "showBannerTextField": true
     },
     {
@@ -72,7 +69,6 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": false,
-      "showReviewEvent": false,
       "showBannerTextField": true
     },
     {
@@ -82,7 +78,6 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
-      "showReviewEvent": false,
       "showBannerTextField": true
     }
   ],
@@ -472,5 +467,6 @@
   "bannerEventCondition": "2종 이상 구매 시",
   "bannerEventTitle": "플로팅배너",
   "bannerEventBenefit": "1개 추가 무료 제작!",
-  "bannerEventDescription": "상단배너 / 플로팅배너 / 하단배너 중\n2종 이상을 함께 구매하시면 적용됩니다."
+  "bannerEventDescription": "상단배너 / 플로팅배너 / 하단배너 중\n2종 이상을 함께 구매하시면 적용됩니다.",
+  "inquiryReviewEnabled": true
 }
