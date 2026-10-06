@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Navigation Bridge</title>
+<style>html,body{margin:0;width:1px;height:1px;overflow:hidden;background:transparent}</style>
+</head>
+<body>
+<script>
+(function(){
+  const channelName='artmug-portfolio-section-nav';
+  const channel=('BroadcastChannel' in window)?new BroadcastChannel(channelName):null;
+
+  window.addEventListener('message',function(event){
+    const data=event&&event.data;
+    if(!data||data.type!=='artmug-nav-bridge')return;
+
+    const target=String(data.target||'');
+    if(!['inquiry','portfolio','notice','preset'].includes(target))return;
+
+    if(channel){
+      channel.postMessage({
+        type:'navigate',
+        target:target
+      });
+    }
+  });
+
+  try{
+    window.parent.postMessage({type:'artmug-nav-bridge-ready'},'*');
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
