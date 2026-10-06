@@ -2931,3 +2931,18 @@ body::after{
 .preset-grid.layout-bottom-split{
   grid-template-columns:minmax(0,1fr) minmax(0,2fr)!important;
 }
+
+
+/* 2026-10-06 Artmug embed: disable inner page scrolling */
+html.artmug-embed-root,
+html.artmug-embed-root body.artmug-part{
+  height:auto!important;
+  min-height:0!important;
+  overflow-x:clip!important;
+  overflow-y:clip!important;
+  overscroll-behavior-y:auto!important;
+  scroll-behavior:auto!important;
+}
+html.artmug-embed-root body.artmug-part{
+  position:relative!important;
+}
