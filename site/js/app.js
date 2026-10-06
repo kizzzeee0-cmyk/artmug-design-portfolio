@@ -28,7 +28,7 @@ function artmugNavTarget(name){
 
   const map={
     top:document.querySelector('.site-shell'),
-    notice:document.querySelector('.notice-stack'),
+    notice:document.querySelector('.notice-card'),
     inquiry:document.querySelector('.form-card'),
     portfolio:document.getElementById('portfolioSection'),
     preset:document.getElementById('presetSection')
@@ -60,7 +60,7 @@ function navigateArtmugSection(name){
 function initArtmugSectionNavigation(){
   const sectionMap=[
     ['.site-shell','page-top'],
-    ['.notice-stack','notice-section'],
+    ['.notice-card','notice-section'],
     ['.form-card','inquiry-section'],
     ['#portfolioSection','portfolio-section'],
     ['#presetSection','preset-section']
