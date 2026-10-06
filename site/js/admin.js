@@ -8,27 +8,8 @@ function validatePresetUploadFile(file){
   if(file.size>PRESET_UPLOAD_MAX_BYTES)throw new Error('파일은 6MB 이하만 업로드할 수 있습니다.');
   if(file.size<=0)throw new Error('빈 파일은 업로드할 수 없습니다.');
 }
-function categoryAllowedSizes(c){
-  return (Array.isArray(c?.allowedSizes)?c.allowedSizes:[])
-    .map(v=>Array.isArray(v)?[Number(v[0]||0),Number(v[1]||0)]:null)
-    .filter(v=>v&&v[0]>0&&v[1]>0)
-}
-function readUploadImageSize(file){
-  return new Promise((resolve,reject)=>{
-    const url=URL.createObjectURL(file),img=new Image();
-    img.onload=()=>{const out={width:img.naturalWidth,height:img.naturalHeight};URL.revokeObjectURL(url);resolve(out)};
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('이미지 크기를 확인하지 못했습니다.'))};
-    img.src=url
-  })
-}
-async function validateCategoryImageSize(file,c){
-  const allowed=categoryAllowedSizes(c);
-  if(!allowed.length)return;
-  const d=await readUploadImageSize(file);
-  if(!allowed.some(([w,h])=>d.width===w&&d.height===h)){
-    throw new Error('이미지 크기는 '+allowed.map(([w,h])=>w+' × '+h+'px').join(' 또는 ')+'만 가능합니다. 선택한 파일: '+d.width+' × '+d.height+'px')
-  }
-}
+// Display width/height and allowedSizes are layout references only.
+async function validateCategoryImageSize(){return}
 let toastTimer=null;
 function showToast(message,type='success'){
   let el=document.getElementById('adminToast');
@@ -266,12 +247,8 @@ function updatePortfolioUploadHint(){
   if(!c){input.removeAttribute('accept');if(hint)hint.textContent='';return}
   const formats=(c.formats||[]).map(x=>String(x).toLowerCase());
   input.accept=formats.flatMap(x=>x==='jpeg'||x==='jpg'?['.jpg','.jpeg']:['.'+x]).join(',');
-  const parts=[formats.join(', ').toUpperCase()];
-  const allowed=categoryAllowedSizes(c);
-  if(allowed.length)parts.push(allowed.map(([w,h])=>w+' × '+h+'px').join(' 또는 '));
-  else if(c.strictSize)parts.push(`${c.uploadWidth} × ${c.uploadHeight}px`);
-  parts.push(`${Math.min(Number(c.maxBytes)||6291456,6291456)/1048576}MB 이하`);
-  if(hint)hint.textContent='업로드 조건: '+parts.filter(Boolean).join(' · ')
+  const parts=[formats.join(', ').toUpperCase(),`${Math.min(Number(c.maxBytes)||6291456,6291456)/1048576}MB 이하`];
+  if(hint)hint.textContent='업로드 조건: '+parts.filter(Boolean).join(' · ')+' · 이미지 픽셀 크기 제한 없음'
 }
 function renderCats(){
   const cats=(S.portfolioCategories||[]).map((c,i)=>({c,i})).filter(x=>!x.c.hiddenLegacy);
