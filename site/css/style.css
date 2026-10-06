@@ -2621,3 +2621,223 @@ body::after{
     grid-template-columns:repeat(5,minmax(0,1fr))!important;
   }
 }
+
+/* Open celebration: retain the review offer, then show the separate banner benefit. */
+.events-section.open-events-section{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:12px!important;
+  align-items:stretch!important;
+  min-width:0;
+  background:#fff!important;
+  box-shadow:0 4px 18px rgba(84,70,137,.045)!important;
+}
+.open-events-section .event-content{
+  padding-bottom:2px;
+}
+.event-review-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,360px);
+  align-items:center;
+  gap:20px;
+  min-width:0;
+  padding:18px;
+  border:1px solid #e8e3f6;
+  border-radius:18px;
+  background:#fcfbff;
+}
+.event-review-copy{
+  min-width:0;
+}
+.event-card-kicker{
+  display:block;
+  margin-bottom:5px;
+  color:#766acb;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.1em;
+}
+.open-events-section .event-review-title{
+  margin:0;
+  color:#51496e;
+  font-size:17px;
+  font-weight:800;
+  line-height:1.4;
+}
+.open-events-section #eventsText{
+  margin-top:6px!important;
+}
+.open-events-section .event-offer{
+  width:100%!important;
+  max-width:none!important;
+  justify-self:stretch!important;
+  background:#f3f0ff!important;
+  box-shadow:none!important;
+}
+.bundle-event-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,310px);
+  align-items:center;
+  gap:24px;
+  min-width:0;
+  padding:22px;
+  border:1px solid #d9d1f5;
+  border-radius:18px;
+  background:#f6f3ff;
+  color:#51496e;
+}
+.bundle-event-main,
+.bundle-event-details{
+  min-width:0;
+}
+.bundle-event-badge{
+  display:inline-flex;
+  align-items:center;
+  margin-bottom:12px;
+  padding:4px 9px;
+  border:1px solid #ddd5f7;
+  border-radius:7px;
+  background:#fff;
+  color:#6b5ab6;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.4;
+  letter-spacing:.1em;
+}
+.open-events-section .bundle-event-condition{
+  max-width:none;
+  margin:0 0 7px;
+  color:#665985;
+  font-size:17px;
+  font-weight:700;
+  line-height:1.5;
+}
+.bundle-event-condition strong{
+  padding:3px 7px;
+  border-radius:6px;
+  background:#e8e1fb;
+  color:#574598;
+  font-weight:800;
+}
+.open-events-section .bundle-event-title{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:0 7px;
+  margin:0 0 11px;
+  color:#51478f;
+  font-size:clamp(21px,2.2vw,26px);
+  font-weight:800;
+  line-height:1.45;
+  letter-spacing:-.035em;
+  overflow-wrap:anywhere;
+}
+.bundle-event-title span{
+  max-width:100%;
+}
+.bundle-event-benefit{
+  color:#6c51b8;
+}
+.open-events-section .bundle-event-description{
+  max-width:none;
+  margin:0;
+  color:#716781;
+  font-size:14px;
+  line-height:1.75;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.bundle-event-description strong{
+  color:#62527f;
+  font-weight:700;
+}
+.bundle-event-details{
+  padding-left:22px;
+  border-left:1px solid #e2daf4;
+}
+.open-events-section .bundle-event-examples-label{
+  margin:0 0 9px;
+  color:#665680;
+  font-size:13px;
+  font-weight:700;
+}
+.bundle-event-examples{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.bundle-event-examples li{
+  max-width:100%;
+  padding:5px 9px;
+  border:1px solid #e5def5;
+  border-radius:8px;
+  background:#fff;
+  color:#6d617d;
+  font-size:12.5px;
+  font-weight:500;
+  line-height:1.5;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.open-events-section .bundle-event-note{
+  max-width:none;
+  margin:11px 0 0;
+  color:#786d87;
+  font-size:12.5px;
+  line-height:1.65;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+@media(max-width:900px){
+  .event-review-card{
+    grid-template-columns:minmax(0,1fr) minmax(0,300px);
+    gap:14px;
+  }
+  .bundle-event-card{
+    grid-template-columns:minmax(0,1fr);
+    gap:15px;
+  }
+  .bundle-event-details{
+    padding:13px 0 0;
+    border-left:0;
+    border-top:1px solid #e2daf4;
+  }
+}
+@media(max-width:680px){
+  .events-section.open-events-section{
+    gap:10px!important;
+  }
+  .event-review-card{
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+    padding:14px 12px;
+    border-radius:14px;
+  }
+  .open-events-section .event-review-title{
+    font-size:16px;
+  }
+  .open-events-section .event-offer{
+    padding:11px 10px!important;
+  }
+  .bundle-event-card{
+    gap:13px;
+    padding:17px 14px;
+    border-radius:14px;
+  }
+  .bundle-event-badge{
+    margin-bottom:10px;
+  }
+  .open-events-section .bundle-event-condition{
+    font-size:16px;
+  }
+  .open-events-section .bundle-event-title{
+    font-size:22px;
+    line-height:1.45;
+  }
+  .open-events-section .bundle-event-description{
+    font-size:14px;
+    line-height:1.7;
+  }
+}
