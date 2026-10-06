@@ -385,7 +385,7 @@
     "designPrices": {
       "profile-a": 20000,
       "profile-b": 0,
-      "signature-style": 0,
+      "signature-style": 10000,
       "banner": 0,
       "type-1790697439491": 15000,
       "type-1790697442247": 20000,
@@ -394,15 +394,15 @@
     },
     "bannerPrices": {
       "top": 35000,
-      "floating": 7000,
-      "bottom1": 0,
-      "bottom3": 0,
-      "bottom6": 0
+      "floating": 6000,
+      "bottom1": 10000,
+      "bottom3": 15000,
+      "bottom6": 28000
     },
     "optionPrices": {
       "sameDay": 10000,
       "fast": 5000,
-      "private": 10000
+      "private": 20000
     },
     "customItems": [
       {
