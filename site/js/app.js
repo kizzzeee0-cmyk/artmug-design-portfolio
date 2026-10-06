@@ -104,7 +104,7 @@ function visiblePortfolioCats(xs){
 }
 function normalizeInquiryType(t){
   if(!t)return{};
-  return t.id==='banner'?{...t,label:'하단배너틀'}:t;
+  return t.showBannerFields?{...t,label:'하단배너틀'}:t;
 }
 function inquiryTypes(){return visibleCats((S&&S.designTypes)||[]).map(normalizeInquiryType)}
 function inquiryType(id){return normalizeInquiryType(((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{})}
