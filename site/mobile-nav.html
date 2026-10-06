@@ -24,13 +24,13 @@
   }
   .mobile-nav{
     width:100%;
-    height:74px;
+    height:60px;
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
     align-items:center;
-    padding:7px 10px;
+    padding:5px 8px;
     border:1px solid #eeeeee;
-    border-radius:28px;
+    border-radius:22px;
     background:#ffffff;
     box-shadow:none;
   }
@@ -39,12 +39,12 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:3px;
+    gap:2px;
     min-width:0;
-    height:60px;
-    padding:4px 6px;
+    height:48px;
+    padding:3px 5px;
     border:0;
-    border-radius:20px;
+    border-radius:16px;
     background:transparent;
     color:#5b5570;
     font:inherit;
@@ -56,8 +56,8 @@
     color:#766acb;
   }
   .mobile-nav svg{
-    width:21px;
-    height:21px;
+    width:18px;
+    height:18px;
     display:block;
     fill:none;
     stroke:currentColor;
@@ -66,7 +66,7 @@
     stroke-linejoin:round;
   }
   .mobile-nav span{
-    font-size:11px;
+    font-size:10.5px;
     font-weight:600;
     line-height:1.2;
     white-space:nowrap;
@@ -108,22 +108,26 @@
 (function(){
   const channelName='artmug-portfolio-section-nav';
   const channel=('BroadcastChannel' in window)?new BroadcastChannel(channelName):null;
+  let locked=false;
 
   function send(target){
-    if(channel)channel.postMessage({type:'navigate',target:target});
+    if(locked)return;
+    locked=true;
 
-    try{
-      const topWin=window.top;
-      for(let i=0;i<topWin.length;i++){
-        try{
-          topWin.frames[i].postMessage({type:'artmug-section-nav',target:target},'*');
-        }catch(e){}
-      }
-    }catch(e){}
+    if(channel){
+      channel.postMessage({type:'navigate',target:target});
+    }else{
+      try{
+        const topWin=window.top;
+        for(let i=0;i<topWin.length;i++){
+          try{
+            topWin.frames[i].postMessage({type:'artmug-section-nav',target:target},'*');
+          }catch(e){}
+        }
+      }catch(e){}
+    }
 
-    try{
-      window.parent.postMessage({type:'artmug-section-nav',target:target},'*');
-    }catch(e){}
+    setTimeout(()=>{locked=false},220);
   }
 
   document.querySelectorAll('[data-target]').forEach(function(btn){
