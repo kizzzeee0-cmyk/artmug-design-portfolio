@@ -42,7 +42,8 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true
+      "showReviewEvent": true,
+      "showBannerTextField": false
     },
     {
       "id": "signature-style",
@@ -51,7 +52,8 @@
       "showSignatureFields": true,
       "showBannerFields": false,
       "enabled": false,
-      "showReviewEvent": false
+      "showReviewEvent": false,
+      "showBannerTextField": false
     },
     {
       "id": "banner",
@@ -60,7 +62,8 @@
       "showSignatureFields": false,
       "showBannerFields": false,
       "enabled": true,
-      "showReviewEvent": true
+      "showReviewEvent": true,
+      "showBannerTextField": true
     },
     {
       "id": "type-1791282435211",
@@ -69,7 +72,8 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": false,
-      "showReviewEvent": false
+      "showReviewEvent": false,
+      "showBannerTextField": true
     },
     {
       "id": "type-1791282449527",
@@ -78,7 +82,8 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": true,
-      "showReviewEvent": false
+      "showReviewEvent": false,
+      "showBannerTextField": true
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
