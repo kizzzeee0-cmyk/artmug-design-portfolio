@@ -2700,11 +2700,11 @@ body::after{
 
 .open-events-section .bundle-event-condition{
   max-width:none;
-  margin:0 0 7px;
-  color:#665985;
+  margin:0;
+  color:#51496e;
   font-size:17px;
   font-weight:800;
-  line-height:1.5;
+  line-height:1.4;
 }
 .bundle-event-condition strong{
   padding:0;
@@ -2719,11 +2719,11 @@ body::after{
   flex-wrap:wrap;
   align-items:baseline;
   gap:0 7px;
-  margin:0;
+  margin:6px 0 0;
   color:#51478f;
-  font-size:20px;
+  font-size:18px;
   font-weight:800;
-  line-height:1.45;
+  line-height:1.4;
   letter-spacing:-.035em;
   overflow-wrap:anywhere;
 }
@@ -2747,8 +2747,19 @@ body::after{
   color:#62527f;
   font-weight:700;
 }
-@media(max-width:900px){
-  .event-review-card{
+@media(min-width:681px){
+  .bundle-event-card{
+    grid-template-columns:minmax(0,1fr) minmax(0,360px);
+    gap:20px;
+  }
+  .open-events-section .bundle-event-description{
+    width:100%;
+    justify-self:stretch;
+  }
+}
+@media(max-width:900px) and (min-width:681px){
+  .event-review-card,
+  .bundle-event-card{
     grid-template-columns:minmax(0,1fr) minmax(0,300px);
     gap:14px;
   }
@@ -2777,10 +2788,12 @@ body::after{
   }
   .open-events-section .bundle-event-condition{
     font-size:16px;
+    line-height:1.4;
   }
   .open-events-section .bundle-event-title{
+    margin-top:6px;
     font-size:17px;
-    line-height:1.45;
+    line-height:1.4;
   }
   .open-events-section .bundle-event-description{
     font-size:14px;
