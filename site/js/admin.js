@@ -185,13 +185,29 @@ function collectEventItems(){
   });
   S.eventsItems=items
 }
+function renderWorkStatusAdmin(){
+  if(!$('workStatusEnabled'))return;
+  $('workStatusEnabled').checked=S.workStatusEnabled===true;
+  const mode=S.workStatusMode==='sleeping'?'sleeping':'working';
+  const radio=document.querySelector('input[name="workStatusMode"][value="'+mode+'"]');
+  if(radio)radio.checked=true;
+  $('workStatusWorkingText').value=String(S.workStatusWorkingText??'');
+  $('workStatusSleepingText').value=String(S.workStatusSleepingText??'현재 취침 중으로 문의 답변이 조금 늦을 수 있어요.');
+}
+function collectWorkStatusAdmin(){
+  if(!$('workStatusEnabled'))return;
+  S.workStatusEnabled=$('workStatusEnabled').checked;
+  S.workStatusMode=document.querySelector('input[name="workStatusMode"]:checked')?.value==='sleeping'?'sleeping':'working';
+  S.workStatusWorkingText=$('workStatusWorkingText').value;
+  S.workStatusSleepingText=$('workStatusSleepingText').value;
+}
 function render(){
 $('scheduleFields').innerHTML=`<label class="wide"><span>작업 시작 기준 날짜</span><input id="scheduleDate" type="date" value="${S.scheduleDate||''}"><small class="field-note">공개 페이지에는 “현재 신청시 <b>월 일</b>부터 작업이 진행됩니다!”로 고정 표시됩니다. 설정 날짜가 오늘보다 과거가 되면 오늘 날짜로 자동 변경됩니다.</small></label>`;
 $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+area('공지 안내 문구','noticeText',S.noticeText,true);
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 항목','conceptLabel',S.conceptLabel)+input('컨셉 placeholder','conceptPlaceholder',S.conceptPlaceholder)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderQuoteAdmin();renderEventItems();$('inquiryReviewEnabled').checked=S.inquiryReviewEnabled!==false;$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('bannerEventEnabled').checked=S.bannerEventEnabled!==false;$('bannerEventBadge').value=S.bannerEventBadge||'BANNER EVENT';$('bannerEventCondition').value=S.bannerEventCondition||'2종 이상 구매 시';$('bannerEventTitle').value=S.bannerEventTitle||'플로팅배너';$('bannerEventBenefit').value=S.bannerEventBenefit||'1개 추가 무료 제작!';$('bannerEventDescription').value=S.bannerEventDescription||'상단배너 / 플로팅배너 / 하단배너 중\n2종 이상을 함께 구매하시면 적용됩니다.';$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('inquiryReviewEnabled').checked=S.inquiryReviewEnabled!==false;$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('bannerEventEnabled').checked=S.bannerEventEnabled!==false;$('bannerEventBadge').value=S.bannerEventBadge||'BANNER EVENT';$('bannerEventCondition').value=S.bannerEventCondition||'2종 이상 구매 시';$('bannerEventTitle').value=S.bannerEventTitle||'플로팅배너';$('bannerEventBenefit').value=S.bannerEventBenefit||'1개 추가 무료 제작!';$('bannerEventDescription').value=S.bannerEventDescription||'상단배너 / 플로팅배너 / 하단배너 중\n2종 이상을 함께 구매하시면 적용됩니다.';$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
 function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
 function renderTypes(){
   $('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit">
@@ -440,7 +456,7 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked})}
 async function saveSettings(){
-  collect();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');
+  collect();collectWorkStatusAdmin();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');
   S.scheduleDate=$('scheduleDate').value;
   S.inquiryReviewEnabled=$('inquiryReviewEnabled').checked;
   S.presetEnabled=$('presetEnabled').checked;
