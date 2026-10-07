@@ -534,7 +534,7 @@
     "preset/profile/20261007002241-9KaezlJV-background__6_.png": {
       "name": "프리셋 03",
       "enabled": true,
-      "isNew": false,
+      "isNew": true,
       "colorChangeAvailable": false
     }
   },
