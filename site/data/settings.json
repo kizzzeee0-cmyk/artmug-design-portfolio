@@ -263,7 +263,7 @@
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "예: 하나뿐인 칠공 / 사랑해 칠공",
   "eventsEnabled": true,
-  "bannerEventEnabled": true,
+  "bannerEventEnabled": false,
   "eventsKicker": "REVIEW EVENT",
   "eventsTitle": "오픈 기념 이벤트 안내",
   "eventsText": "문의 시 참여 여부를 선택해 주세요",
@@ -448,7 +448,7 @@
         {
           "id": "floating",
           "name": "플로팅배너",
-          "price": 6000
+          "price": 5000
         },
         {
           "id": "bottom1",
