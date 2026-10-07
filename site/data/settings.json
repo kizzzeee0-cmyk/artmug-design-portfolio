@@ -527,7 +527,7 @@
     "preset/profile/20261007002125-OLvguFAv-_____-3fgh.png": {
       "name": "프리셋 02",
       "enabled": true,
-      "isNew": false,
+      "isNew": true,
       "colorChangeAvailable": false
     }
   },
