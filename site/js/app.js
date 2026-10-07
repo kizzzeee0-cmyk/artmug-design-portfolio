@@ -115,7 +115,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
-function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
+function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
+function renderWorkStatus(s){
+  const box=$('workStatus');
+  if(!box)return;
+  const enabled=s.workStatusEnabled===true;
+  const mode=s.workStatusMode==='sleeping'?'sleeping':'working';
+  box.hidden=!enabled;
+  box.dataset.status=mode;
+  if(!enabled)return;
+
+  const label=$('workStatusLabel');
+  const description=$('workStatusDescription');
+  if(label)label.textContent=mode==='sleeping'?'취침중':'작업중';
+
+  const text=String(
+    mode==='sleeping'
+      ? (s.workStatusSleepingText??'현재 취침 중으로 문의 답변이 조금 늦을 수 있어요.')
+      : (s.workStatusWorkingText??'')
+  ).trim();
+
+  if(description){
+    description.textContent=text;
+    description.hidden=!text;
+  }
+}
 function koreaDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return `${o.year}-${o.month}-${o.day}`}
 function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today,effective=chosen>today?chosen:today,[y,m,d]=effective.split('-');$('scheduleText').innerHTML=`현재 신청시 <strong class="schedule-date">${Number(m)}월 ${Number(d)}일</strong>부터 작업이 진행됩니다!`}
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
