@@ -532,10 +532,11 @@
       "description": ""
     },
     "preset/profile/20261007022632-TUKun6Pi-background__11_.png": {
-      "name": "프리셋 04",
+      "name": "프리셋 02",
       "enabled": true,
       "isNew": true,
-      "colorChangeAvailable": false
+      "colorChangeAvailable": false,
+      "description": ""
     }
   },
   "presetOrder": [
