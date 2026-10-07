@@ -541,7 +541,7 @@
     "preset/profile/20261007020301-mqpNT6if-background__10_.png": {
       "name": "프리셋 04",
       "enabled": true,
-      "isNew": false,
+      "isNew": true,
       "colorChangeAvailable": false
     }
   },
