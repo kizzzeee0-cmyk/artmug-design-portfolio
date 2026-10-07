@@ -3126,3 +3126,90 @@ html.artmug-embed-root.artmug-nav-programmatic body.artmug-part::-webkit-scrollb
 #preset-section:focus{
   outline:none!important;
 }
+
+
+/* current work status */
+.work-status{
+  justify-self:end;
+  display:grid;
+  justify-items:end;
+  gap:5px;
+  max-width:min(360px,100%);
+  margin:0 2px -4px;
+}
+.work-status[hidden]{display:none!important}
+.work-status-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:31px;
+  padding:6px 11px;
+  border:1px solid rgba(147,137,222,.24);
+  border-radius:999px;
+  background:#fff;
+  color:#5b5570;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  box-shadow:0 4px 14px rgba(72,62,111,.055);
+}
+.work-status-dot{
+  width:7px;
+  height:7px;
+  flex:0 0 7px;
+  border-radius:50%;
+  background:#9389de;
+}
+.work-status[data-status="working"] .work-status-badge{
+  background:rgba(147,137,222,.075);
+  border-color:rgba(147,137,222,.26);
+  color:#655b9e;
+}
+.work-status[data-status="working"] .work-status-dot{
+  background:#9389de;
+}
+.work-status[data-status="sleeping"] .work-status-badge{
+  background:#f7f6fa;
+  border-color:#e8e6ed;
+  color:#666273;
+}
+.work-status[data-status="sleeping"] .work-status-dot{
+  background:#8e899a;
+}
+.work-status-description{
+  max-width:340px;
+  margin:0 4px;
+  color:#9691a0;
+  font-size:10.5px;
+  font-weight:450;
+  line-height:1.45;
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+.work-status-description[hidden]{display:none!important}
+
+/* Avoid duplicating the status when inquiry + portfolio are embedded separately in Artmug. */
+body.artmug-part-portfolio .work-status{
+  display:none!important;
+}
+
+@media(max-width:680px){
+  .work-status{
+    justify-self:start;
+    justify-items:start;
+    max-width:100%;
+    margin:0 2px -3px;
+  }
+  .work-status-badge{
+    min-height:30px;
+    padding:6px 10px;
+    font-size:11.5px;
+  }
+  .work-status-description{
+    max-width:min(330px,calc(100vw - 40px));
+    margin-left:3px;
+    margin-right:3px;
+    font-size:10px;
+    text-align:left;
+  }
+}
