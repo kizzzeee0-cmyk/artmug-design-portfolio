@@ -184,8 +184,8 @@
     {
       "id": "floating-banner",
       "label": "플로팅 배너",
-      "displayWidth": 80,
-      "displayHeight": 209,
+      "displayWidth": 160,
+      "displayHeight": 418,
       "strictSize": true,
       "uploadWidth": 80,
       "uploadHeight": 209,
