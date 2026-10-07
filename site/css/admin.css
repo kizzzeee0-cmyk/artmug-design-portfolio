@@ -401,3 +401,56 @@
     grid-column:1 / -1;
   }
 }
+
+
+/* work status admin */
+.work-status-admin .fields{
+  align-items:start;
+}
+.admin-status-choice{
+  margin:0;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.admin-status-choice legend{
+  padding:0 5px;
+  font-size:12px;
+  font-weight:700;
+}
+.admin-status-pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.admin-status-pills label{
+  position:relative;
+  display:inline-flex!important;
+  width:auto!important;
+  cursor:pointer;
+}
+.admin-status-pills input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.admin-status-pills span{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:7px 13px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--surface);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:650;
+  transition:.15s ease;
+}
+.admin-status-pills input:checked+span{
+  border-color:rgba(147,137,222,.55);
+  background:var(--accent-soft);
+  color:var(--accent-deep);
+}
