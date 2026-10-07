@@ -582,5 +582,9 @@
   "bannerEventTitle": "플로팅배너",
   "bannerEventBenefit": "1개 추가 무료 제작!",
   "bannerEventDescription": "상단배너 / 플로팅배너 / 하단배너 중\n2개 이상을 구매하시면 적용됩니다.",
-  "inquiryReviewEnabled": true
+  "inquiryReviewEnabled": true,
+  "workStatusEnabled": false,
+  "workStatusMode": "working",
+  "workStatusWorkingText": "",
+  "workStatusSleepingText": "현재 취침 중으로 문의 답변이 조금 늦을 수 있어요."
 }
