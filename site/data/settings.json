@@ -537,19 +537,12 @@
       "isNew": true,
       "colorChangeAvailable": false,
       "description": ""
-    },
-    "preset/profile/20261007020301-mqpNT6if-background__10_.png": {
-      "name": "프리셋 04",
-      "enabled": true,
-      "isNew": true,
-      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
     "preset/profile/20261005083843-fCIoUIaH-background__2_.png",
     "preset/profile/20261007002212-3tFxPTTL-background__7_.png",
-    "preset/profile/20261007003453-CRNMeR0U-background__8_.png",
-    "preset/profile/20261007020301-mqpNT6if-background__10_.png"
+    "preset/profile/20261007003453-CRNMeR0U-background__8_.png"
   ],
   "portfolioOrder": [
     "portfolio/profile/20261004225257-YLVnGdEZ-________7_.gif",
