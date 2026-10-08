@@ -235,7 +235,7 @@ function renderScheduleAdmin(){
     <div class="wide schedule-admin-top">
       <label class="toggle schedule-enabled-toggle"><input id="scheduleEnabled" type="checkbox" ${S.scheduleEnabled!==false?'checked':''}> 작업 일정 안내 표시</label>
     </div>
-    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"></label>
+    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"><small class="field-note">공개 페이지는 한국 시간 기준 밤 10시 전에는 오늘, 밤 10시 이후에는 다음날보다 과거인 날짜를 자동으로 보정해 표시합니다.</small></label>
     <fieldset class="wide admin-status-choice schedule-mode-choice">
       <legend>안내 문구 선택</legend>
       <div class="admin-status-pills schedule-mode-pills">
