@@ -5380,3 +5380,127 @@ body.artmug-part-inquiry .form-actions{
 .notice-card .notice-item{
   grid-template-columns:48px minmax(0,1fr)!important;
 }
+
+
+/* =========================================================
+   2026-10-09 COMBINED CONCEPT + TYPOGRAPHY POLISH
+   ========================================================= */
+
+/* Category and design-type labels: slightly smaller text, same button geometry. */
+.portfolio-card .tab,
+.preset-section .tab{
+  font-size:13.5px!important;
+}
+.request-type-option span{
+  font-size:13.5px!important;
+}
+
+/* Frame-retention and review titles match every other inquiry question exactly. */
+.frame-retention-title-row>.inquiry-field-title,
+.review-event-field .choice-title-row>.inquiry-field-title{
+  margin:0!important;
+  padding:0!important;
+  color:#293544!important;
+  font-size:15px!important;
+  font-weight:600!important;
+  line-height:1.45!important;
+  letter-spacing:-.01em!important;
+}
+
+/* Combined concept + color field takes the full form width. */
+.concept-color-combined-field{
+  width:100%!important;
+}
+.concept-color-combined-field [data-field="concept"]{
+  width:100%!important;
+  min-height:104px!important;
+  height:auto!important;
+}
+
+/* Legacy color-picker UI is no longer used. */
+.color-request-field,
+.inquiry-color-rows,
+.inquiry-color-row,
+.color-add-button,
+.color-picker-toggle,
+.color-row-delete,
+.color-swatch-preview,
+.color-native-hidden{
+  display:none!important;
+}
+
+/* Slightly larger individual preset names only. */
+.preset-card-name{
+  font-size:15px!important;
+  font-weight:600!important;
+  line-height:1.45!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+
+/* Notice: number + title share one line; body begins at the card's left edge. */
+.notice-card .notice-item{
+  display:block!important;
+  padding:14px!important;
+}
+.notice-item-head{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:100%;
+  margin:0 0 7px;
+}
+.notice-item-head .notice-index{
+  flex:0 0 auto;
+  margin:0;
+  color:var(--accent-strong)!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  letter-spacing:.05em;
+}
+.notice-item-head .notice-item-title{
+  min-width:0;
+  margin:0!important;
+  color:#263D52!important;
+  line-height:1.45!important;
+}
+.notice-card .notice-item-description{
+  width:100%;
+  margin:0!important;
+  padding:0!important;
+  text-align:left!important;
+  text-indent:0!important;
+  margin-left:0!important;
+  padding-left:0!important;
+  color:#475569!important;
+}
+
+/* Banner placeholder remains the same shared placeholder size. */
+.banner-text-field textarea::placeholder{
+  font-size:var(--inquiry-placeholder-size)!important;
+  font-weight:400!important;
+}
+
+/* Mobile retains readable scale and unchanged layout. */
+@media(max-width:680px){
+  .portfolio-card .tab,
+  .preset-section .tab,
+  .request-type-option span{
+    font-size:12.5px!important;
+  }
+
+  .frame-retention-title-row>.inquiry-field-title,
+  .review-event-field .choice-title-row>.inquiry-field-title{
+    font-size:14px!important;
+  }
+
+  .preset-card-name{
+    font-size:14.5px!important;
+  }
+
+  .concept-color-combined-field [data-field="concept"]{
+    min-height:100px!important;
+  }
+}
