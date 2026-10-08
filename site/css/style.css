@@ -3386,3 +3386,178 @@ body.artmug-part-inquiry .form-actions{
     text-align:center!important;
   }
 }
+
+
+/* 2026-10-09 schedule + preset polish */
+.form-card .section-heading>p,
+#formDescription,
+.preset-section .preset-notice{
+  width:auto!important;
+  max-width:760px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#666273!important;
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  text-align:center!important;
+}
+.form-card .section-heading>p,
+#formDescription{
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+.preset-section .portfolio-header{
+  margin-bottom:18px!important;
+}
+.preset-section .preset-notice{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  white-space:normal!important;
+}
+.preset-section #presetTabs{
+  margin-top:22px!important;
+  padding-top:16px!important;
+  border-top:1px solid var(--line)!important;
+}
+@media(min-width:681px){
+  .preset-section .preset-notice{
+    max-width:none!important;
+    white-space:nowrap!important;
+  }
+}
+
+/* schedule title is always a separate centered header */
+.schedule-card{
+  display:block!important;
+}
+.schedule-heading{
+  width:100%;
+  text-align:center!important;
+  margin-bottom:18px;
+}
+.schedule-heading .section-kicker,
+.schedule-heading h2{
+  text-align:center!important;
+}
+.schedule-heading h2{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.schedule-content{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 148px;
+  gap:12px;
+  align-items:stretch;
+}
+.schedule-message-box{
+  min-width:0;
+  display:grid;
+  place-items:center;
+  min-height:82px;
+  padding:18px 20px;
+  border:1px solid rgba(147,137,222,.22);
+  border-radius:16px;
+  background:#fff;
+}
+.schedule-message-box #scheduleText{
+  width:100%;
+  margin:0!important;
+  color:#4f4965;
+  font-size:14px;
+  font-weight:500;
+  line-height:1.6;
+  text-align:center!important;
+}
+.schedule-main-line{
+  display:block;
+  text-align:center!important;
+}
+.schedule-extra-lines{
+  justify-items:center!important;
+  margin-top:8px;
+}
+.schedule-extra-line{
+  text-align:center!important;
+}
+
+/* compact completion estimate */
+.schedule-estimate{
+  width:148px!important;
+  min-width:148px;
+  min-height:82px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:14px 12px!important;
+  border:1px solid rgba(147,137,222,.24);
+  border-radius:16px;
+  background:var(--accent-soft);
+  text-align:center!important;
+  box-shadow:none!important;
+}
+.schedule-estimate[hidden]{
+  display:none!important;
+}
+.schedule-estimate-range{
+  display:block;
+  color:var(--accent-deep);
+  font-size:21px;
+  font-weight:800;
+  line-height:1.15;
+  letter-spacing:-.03em;
+}
+.schedule-estimate-caption{
+  display:block;
+  color:#777286;
+  font-size:10.5px;
+  font-weight:500;
+  line-height:1.35;
+}
+
+@media(max-width:680px){
+  .schedule-heading{
+    margin-bottom:14px;
+  }
+  .schedule-content{
+    grid-template-columns:minmax(0,1fr) 112px;
+    gap:9px;
+  }
+  .schedule-message-box{
+    min-height:76px;
+    padding:15px 13px;
+  }
+  .schedule-message-box #scheduleText{
+    font-size:12.5px;
+  }
+  .schedule-estimate{
+    width:112px!important;
+    min-width:112px;
+    min-height:76px;
+    padding:12px 8px!important;
+  }
+  .schedule-estimate-range{
+    font-size:18px;
+  }
+  .schedule-estimate-caption{
+    font-size:9.5px;
+  }
+  .preset-section .portfolio-header{
+    margin-bottom:16px!important;
+  }
+  .preset-section .preset-notice{
+    max-width:340px!important;
+    white-space:normal!important;
+  }
+  .preset-section #presetTabs{
+    margin-top:18px!important;
+    padding-top:14px!important;
+  }
+}
