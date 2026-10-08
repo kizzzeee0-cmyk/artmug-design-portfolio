@@ -5220,3 +5220,157 @@ body.artmug-part-inquiry .form-actions{
     color:#FFFFFF!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-09 SELECTION + INLINE RETENTION FINAL POLISH
+   ========================================================= */
+:root{
+  --primary-action:var(--accent);
+  --inquiry-placeholder-size:14px;
+}
+
+/* The copy button and every selected state share this exact same fill. */
+.primary-button{
+  background:var(--primary-action)!important;
+  border-color:var(--primary-action)!important;
+}
+.portfolio-card .tab.is-active,
+.preset-section .tab.is-active,
+.page-button.is-active,
+.request-type-option input:checked+span,
+.choice-pill:has(input:checked){
+  background:var(--primary-action)!important;
+  border-color:var(--primary-action)!important;
+  color:#FFFFFF!important;
+  box-shadow:none!important;
+}
+.choice-pill:has(input:checked) span,
+.request-type-option input:checked+span{
+  color:#FFFFFF!important;
+}
+
+/* Hover is intentionally lighter/different from the true selected state. */
+.request-type-option input:not(:checked)+span:hover,
+.choice-pill:not(:has(input:checked)):hover,
+.portfolio-card .tab:not(.is-active):hover,
+.preset-section .tab:not(.is-active):hover{
+  background:#F2F8FC!important;
+  border-color:var(--primary-action)!important;
+  color:#365F78!important;
+}
+
+/* Slightly smaller completion-range type only; box dimensions remain untouched. */
+.schedule-estimate-range{
+  font-size:21px!important;
+}
+
+/* Desktop concept/color ratio: 55 / 45. */
+@media(min-width:681px){
+  .inquiry-concept-color-row{
+    grid-template-columns:minmax(0,11fr) minmax(0,9fr)!important;
+  }
+}
+
+/* Frame-retention title + short guidance share one responsive title row. */
+.choice-title-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px 11px;
+  width:100%;
+  min-width:0;
+}
+.frame-retention-title-row{
+  align-items:baseline;
+}
+.frame-retention-inline-help{
+  min-width:0;
+  color:#7B8995;
+  font-size:var(--inquiry-placeholder-size)!important;
+  font-weight:400!important;
+  line-height:1.5!important;
+}
+
+/* Remove only the visual radio circles for these two pill groups.
+   The real radio inputs remain in the DOM and preserve selection/copy behavior. */
+.frame-retention-field .choice-pill,
+.review-event-field .choice-pill{
+  position:relative;
+}
+.frame-retention-field .choice-pill input[type="radio"],
+.review-event-field .choice-pill input[type="radio"]{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  margin:0!important;
+  padding:0!important;
+  opacity:0!important;
+  overflow:hidden!important;
+  clip:rect(0 0 0 0)!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+}
+.frame-retention-field .choice-pill,
+.review-event-field .choice-pill{
+  gap:0!important;
+}
+
+/* Review title-to-controls spacing now follows the same 8px form rhythm. */
+.global-review-event-field,
+.review-event-field{
+  gap:8px!important;
+}
+.global-review-event-field .choice-title-row,
+.review-event-field .choice-title-row{
+  margin:0!important;
+  padding:0!important;
+}
+.global-review-event-field .choice-row,
+.review-event-field .choice-row{
+  margin:0!important;
+}
+
+/* All inquiry placeholders and the inline retention hint use the same type token.
+   Actual entered text size is intentionally untouched. */
+.contact-form input::placeholder,
+.contact-form textarea::placeholder{
+  font-size:var(--inquiry-placeholder-size)!important;
+  font-weight:400!important;
+  color:#8794A0!important;
+  opacity:1!important;
+}
+
+/* Keep mobile stacked while preserving the same exact relationship. */
+@media(max-width:680px){
+  :root{
+    --inquiry-placeholder-size:13px;
+  }
+  .inquiry-concept-color-row{
+    grid-template-columns:1fr!important;
+  }
+  .frame-retention-title-row{
+    align-items:flex-start;
+    gap:5px 8px;
+  }
+  .frame-retention-inline-help{
+    flex-basis:100%;
+  }
+  .schedule-estimate-range{
+    font-size:19px!important;
+  }
+}
+
+/* Same selection fill and light palette in OS/browser dark mode. */
+@media(prefers-color-scheme:dark){
+  .primary-button,
+  .portfolio-card .tab.is-active,
+  .preset-section .tab.is-active,
+  .page-button.is-active,
+  .request-type-option input:checked+span,
+  .choice-pill:has(input:checked){
+    background:var(--primary-action)!important;
+    border-color:var(--primary-action)!important;
+    color:#FFFFFF!important;
+  }
+}
