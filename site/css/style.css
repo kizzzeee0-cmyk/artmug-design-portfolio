@@ -4029,3 +4029,10 @@ select option{
     color-scheme:light!important;
   }
 }
+
+
+/* Match additional options box to the frame-retention question box */
+.choice-field.option-field{
+  background:var(--surface-2)!important;
+  border-color:var(--line)!important;
+}
