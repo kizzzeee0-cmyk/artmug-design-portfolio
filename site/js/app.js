@@ -275,7 +275,7 @@ function renderEvents(s){
   }
 }
 
-function renderNotices(items){$('noticeItems').innerHTML=items.map(x=>`<article class="notice-item"><div class="notice-icon">${esc(x.icon||'')}</div><div><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
+function renderNotices(items){$('noticeItems').innerHTML=items.map((x,i)=>`<article class="notice-item"><div class="notice-leading"><span class="notice-index">${String(i+1).padStart(2,'0')}</span><div class="notice-icon">${esc(x.icon||'')}</div></div><div class="notice-item-copy"><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
 
 function guideDefaults(){
   return {
@@ -361,10 +361,26 @@ function inquiryQuantityOptionsForTypes(types){
   return out
 }
 function htmlAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function requiredLabel(text){return '<span class="field-label-row"><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
+function requiredLabel(text){return '<span class="field-label-row" data-question-title><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
+function updateInquiryQuestionNumbers(){
+  const form=document.querySelector('.contact-form');
+  if(!form)return;
+  let number=0;
+  form.querySelectorAll('[data-question-title]').forEach(function(el){
+    const hiddenParent=el.closest('[hidden]');
+    const visible=!hiddenParent&&el.getClientRects().length>0;
+    if(!visible){
+      delete el.dataset.questionNumber;
+      return;
+    }
+    el.dataset.questionNumber=String(++number);
+  })
+}
 
 function renderInquiryForm(){
   set('nicknameLabel',S.nicknameLabel||'방송 닉네임 및 주소');
+  const nicknameTitle=document.querySelector('.inquiry-nickname-field>.field-label-row');
+  if(nicknameTitle)nicknameTitle.setAttribute('data-question-title','');
   var nickname=$('nicknameInput');
   nickname.placeholder=S.nicknamePlaceholder||'';
   nickname.value='';
@@ -390,7 +406,7 @@ function renderInquiryForm(){
   }
   if(globalReview){
     globalReview.hidden=S.inquiryReviewEnabled===false;
-    globalReview.innerHTML='<legend>리뷰이벤트 참여 여부</legend><div class="choice-row">'+
+    globalReview.innerHTML='<legend data-question-title>리뷰이벤트 참여 여부</legend><div class="choice-row">'+
       '<label class="choice-pill"><input id="globalReviewParticipate" name="globalReviewEvent" type="radio" value="참여"><span>참여</span></label>'+
       '<label class="choice-pill"><input id="globalReviewDecline" name="globalReviewEvent" type="radio" value="미참여" checked><span>미참여</span></label>'+
     '</div>'
@@ -403,6 +419,7 @@ function renderInquiryForm(){
 
   var initial=types.length===1?[types[0].id]:[];
   addRequest(initial);
+  requestAnimationFrame(updateInquiryQuestionNumbers);
 
   nickname.oninput=function(){
     if(String(nickname.value||'').trim()){
