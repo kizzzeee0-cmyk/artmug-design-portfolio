@@ -5842,3 +5842,11 @@ html.artmug-embed-root body.artmug-part .site-shell{
     font-size:clamp(11.5px,3.35vw,14px)!important;
   }
 }
+
+
+/* 2026-10-09 portfolio profile outer card border removal */
+.portfolio-grid.layout-profile .portfolio-work-card{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
