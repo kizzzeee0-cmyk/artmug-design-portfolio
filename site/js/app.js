@@ -588,10 +588,10 @@ function renderRequestFields(card,typeIds,prev){
     return;
   }
 
-  var html='';
+  var html='<div class="inquiry-concept-color-row">';
 
   /* 3. 원하는 디자인 컨셉 */
-  html+='<label class="request-full-field inquiry-standard-field">'+
+  html+='<label class="request-full-field inquiry-standard-field concept-request-field">'+
     requiredLabel(S.conceptLabel||'원하는 디자인 컨셉')+
     '<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 깔끔한 분위기')+'"></textarea>'+
   '</label>';
@@ -615,6 +615,7 @@ function renderRequestFields(card,typeIds,prev){
       '</div>'+
     '</div>'+
   '</div>';
+  html+='</div>';
 
   /* 기존 조건부 상세 입력은 그대로 유지 */
   if(has('showSignatureFields')){
@@ -644,7 +645,10 @@ function renderRequestFields(card,typeIds,prev){
 
   /* 6. 배너 입력 문구 */
   if(has('showBannerTextField')){
-    html+='<label class="request-full-field inquiry-standard-field"><span class="inquiry-field-title">배너 입력 문구</span><textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
+    const bannerHelp=String(S.bannerTextHelp??'배너에 들어갈 문구를 작성해 주세요.').trim();
+    html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title">배너 입력 문구</span>'+
+      (bannerHelp?'<p class="field-help banner-text-help preline">'+htmlAttr(bannerHelp)+'</p>':'')+
+      '<textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
   }
 
   /* 두 번째 구분선: 디자인 상세 / 추가 신청 정보 */
