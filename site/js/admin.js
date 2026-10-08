@@ -201,8 +201,56 @@ function collectWorkStatusAdmin(){
   S.workStatusWorkingText=$('workStatusWorkingText').value;
   S.workStatusSleepingText=$('workStatusSleepingText').value;
 }
+function ensureScheduleExtras(){
+  if(!Array.isArray(S.scheduleExtras))S.scheduleExtras=[];
+  S.scheduleExtras=S.scheduleExtras.map(x=>String(x??''));
+  return S.scheduleExtras
+}
+function collectScheduleAdmin(){
+  if(!$('scheduleEnabled'))return;
+  S.scheduleEnabled=$('scheduleEnabled').checked;
+  const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value;
+  S.scheduleMode=['start','deadline','custom'].includes(mode)?mode:'start';
+  S.scheduleDate=$('scheduleDate').value;
+  S.scheduleCustomText=$('scheduleCustomText').value;
+  S.scheduleExtras=Array.from(document.querySelectorAll('[data-schedule-extra]')).map(x=>x.value);
+}
+function renderScheduleAdmin(){
+  if(!$('scheduleFields'))return;
+  const mode=['start','deadline','custom'].includes(S.scheduleMode)?S.scheduleMode:'start';
+  const extras=ensureScheduleExtras();
+  $('scheduleFields').innerHTML=`
+    <div class="wide schedule-admin-top">
+      <label class="toggle schedule-enabled-toggle"><input id="scheduleEnabled" type="checkbox" ${S.scheduleEnabled!==false?'checked':''}> 작업 일정 안내 표시</label>
+    </div>
+    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"></label>
+    <fieldset class="admin-status-choice schedule-mode-choice">
+      <legend>메인 문구</legend>
+      <div class="admin-status-pills">
+        <label><input type="radio" name="scheduleMode" value="start" ${mode==='start'?'checked':''}><span>작업 시작 안내</span></label>
+        <label><input type="radio" name="scheduleMode" value="deadline" ${mode==='deadline'?'checked':''}><span>마감 안내</span></label>
+        <label><input type="radio" name="scheduleMode" value="custom" ${mode==='custom'?'checked':''}><span>직접 입력</span></label>
+      </div>
+    </fieldset>
+    <label class="wide"><span>직접 입력 문구</span><input id="scheduleCustomText" value="${adminEsc(S.scheduleCustomText||'현재 신청시 {date}부터 작업이 진행됩니다!')}" placeholder="예: 현재 신청시 {date}부터 작업이 진행됩니다!"><small class="field-note">날짜가 들어갈 위치에 <b>{date}</b>를 입력해주세요. 직접 입력을 선택했을 때 사용됩니다.</small></label>
+    <div class="wide schedule-extra-admin">
+      <div class="schedule-extra-head"><div><strong>추가 안내 문구</strong><p class="muted">메인 문구 아래에 필요한 안내를 여러 개 추가할 수 있습니다.</p></div><button id="addScheduleExtra" type="button" class="ghost admin-compact">+ 문구 추가</button></div>
+      <div id="scheduleExtraList">${extras.map((text,i)=>`<div class="schedule-extra-row"><input data-schedule-extra="${i}" value="${adminEsc(text)}" placeholder="추가 안내 문구"><button type="button" class="danger admin-compact" data-del-schedule-extra="${i}">삭제</button></div>`).join('')||'<p class="muted schedule-extra-empty">추가 안내 문구가 없습니다.</p>'}</div>
+    </div>
+  `;
+  $('addScheduleExtra').onclick=()=>{
+    collectScheduleAdmin();
+    ensureScheduleExtras().push('');
+    renderScheduleAdmin()
+  };
+  document.querySelectorAll('[data-del-schedule-extra]').forEach(b=>b.onclick=()=>{
+    collectScheduleAdmin();
+    S.scheduleExtras.splice(Number(b.dataset.delScheduleExtra),1);
+    renderScheduleAdmin()
+  });
+}
 function render(){
-$('scheduleFields').innerHTML=`<label class="wide"><span>작업 시작 기준 날짜</span><input id="scheduleDate" type="date" value="${S.scheduleDate||''}"><small class="field-note">공개 페이지에는 “현재 신청시 <b>월 일</b>부터 작업이 진행됩니다!”로 고정 표시됩니다. 설정 날짜가 오늘보다 과거가 되면 오늘 날짜로 자동 변경됩니다.</small></label>`;
+renderScheduleAdmin();
 $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+area('공지 안내 문구','noticeText',S.noticeText,true);
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 항목','conceptLabel',S.conceptLabel)+input('컨셉 placeholder','conceptPlaceholder',S.conceptPlaceholder)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
@@ -456,8 +504,7 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked})}
 async function saveSettings(){
-  collect();collectWorkStatusAdmin();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');
-  S.scheduleDate=$('scheduleDate').value;
+  collect();collectWorkStatusAdmin();collectScheduleAdmin();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');
   S.inquiryReviewEnabled=$('inquiryReviewEnabled').checked;
   S.presetEnabled=$('presetEnabled').checked;
   S.presetTitle=$('presetTitle').value;
