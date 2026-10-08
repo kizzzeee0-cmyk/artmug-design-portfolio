@@ -3234,3 +3234,143 @@ body.artmug-part-portfolio .work-status{
   .schedule-extra-lines{margin-top:7px}
   .schedule-extra-line{font-size:11px}
 }
+
+
+/* 2026-10-09 centered public headings */
+.schedule-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:center;
+  gap:18px;
+}
+.schedule-card.has-estimate{
+  grid-template-columns:minmax(0,1fr) minmax(220px,270px);
+}
+.schedule-main{
+  min-width:0;
+  text-align:center;
+}
+.schedule-main .section-kicker,
+.schedule-main h2,
+.notice-card .section-kicker,
+.notice-card h2,
+.form-card .section-kicker,
+.form-card h2,
+.portfolio-card .section-kicker,
+.portfolio-card h2,
+.preset-section .section-kicker,
+.preset-section h2{
+  text-align:center!important;
+}
+.notice-heading,
+.section-heading,
+.portfolio-header{
+  align-items:center!important;
+  text-align:center!important;
+}
+.notice-heading>div,
+.section-heading>div,
+.portfolio-header>div{
+  width:100%!important;
+  text-align:center!important;
+}
+.form-card .section-heading>p,
+#formDescription{
+  max-width:760px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+}
+.schedule-main #scheduleText{
+  margin:0;
+  text-align:center!important;
+}
+.schedule-main-line{
+  text-align:center;
+}
+.schedule-extra-lines{
+  justify-items:center;
+}
+.schedule-extra-line{
+  text-align:center;
+}
+.form-actions,
+body.artmug-part-inquiry .form-actions{
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+}
+.form-action-buttons{
+  width:auto!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  justify-content:center!important;
+}
+.form-actions .status-text{
+  text-align:center!important;
+}
+.preset-section .preset-notice{
+  width:auto!important;
+  max-width:760px!important;
+  margin:0 auto 14px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#666273!important;
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  text-align:center!important;
+  white-space:pre-line!important;
+}
+
+/* schedule estimate box */
+.schedule-estimate{
+  align-self:center;
+  width:100%;
+  padding:14px 16px;
+  border:1px solid rgba(147,137,222,.24);
+  border-radius:16px;
+  background:rgba(255,255,255,.88);
+  text-align:center;
+  box-shadow:0 4px 14px rgba(84,70,137,.045);
+}
+.schedule-estimate[hidden]{display:none!important}
+.schedule-estimate-kicker{
+  display:block;
+  margin:0 0 6px;
+  color:var(--accent-strong);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+.schedule-estimate p{
+  margin:0;
+  color:#625e70;
+  font-size:12.5px;
+  font-weight:500;
+  line-height:1.55;
+}
+.schedule-estimate p strong{
+  color:var(--accent-deep);
+  font-size:14px;
+  font-weight:800;
+}
+@media(max-width:680px){
+  .schedule-card.has-estimate{
+    grid-template-columns:1fr;
+  }
+  .schedule-estimate{
+    max-width:290px;
+    margin:0 auto;
+    padding:12px 14px;
+  }
+  .preset-section .preset-notice{
+    max-width:340px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+}
