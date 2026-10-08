@@ -3561,3 +3561,7 @@ body.artmug-part-inquiry .form-actions{
     padding-top:14px!important;
   }
 }
+
+.schedule-card:not(.has-estimate) .schedule-content{
+  grid-template-columns:1fr!important;
+}
