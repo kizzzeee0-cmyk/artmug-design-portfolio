@@ -4036,3 +4036,615 @@ select option{
   background:var(--surface-2)!important;
   border-color:var(--line)!important;
 }
+
+
+/* =========================================================
+   2026-10-09 FINAL FLAT SKY-BLUE UI
+   White + clear sky-blue, no ambiguous gradients
+   ========================================================= */
+:root{
+  color-scheme:light!important;
+  --accent:#8fc8e8;
+  --accent-strong:#6cadd3;
+  --accent-deep:#477d9d;
+  --accent-soft:#eaf4ff;
+  --accent-pale:#f7fafd;
+  --accent-mid:#d2e8fa;
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#f7fafd;
+  --text:#293544;
+  --muted:#687685;
+  --line:#dce5ee;
+  --shadow:none;
+}
+html,
+body{
+  color-scheme:light!important;
+  background:#ffffff!important;
+  color:#293544!important;
+}
+html,body,button,input,select,textarea,dialog{
+  color-scheme:light!important;
+}
+
+/* Remove legacy visual gradients from every public UI surface that used them. */
+.schedule-card,
+.notice-card,
+.comparison-section,
+.comparison-media,
+.media-wrap,
+.preset-work-card .media-wrap,
+.events-section,
+.events-section::before,
+.event-symbol,
+.event-offer,
+.form-card,
+.portfolio-card,
+.preset-section{
+  background-image:none!important;
+}
+.card,
+.info-card,
+.form-card,
+.portfolio-card,
+.preset-section,
+.notice-card,
+.schedule-card,
+.comparison-section{
+  background:#ffffff!important;
+  box-shadow:none!important;
+}
+.notice-item,
+.option-field,
+.request-type-prompt,
+.comparison-footer{
+  background:#f7fafd!important;
+}
+.comparison-media,
+.media-wrap,
+.preset-work-card .media-wrap{
+  background:#ffffff!important;
+}
+.events-section{
+  background:#ffffff!important;
+  box-shadow:none!important;
+}
+.events-section::before{
+  background:#8fc8e8!important;
+}
+.event-symbol,
+.event-offer{
+  background:#eaf4ff!important;
+  box-shadow:none!important;
+}
+.event-review-card,
+.bundle-event-card{
+  background:#ffffff!important;
+  box-shadow:none!important;
+}
+.schedule-message-box{
+  background:#ffffff!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+.schedule-estimate{
+  background:#eaf4ff!important;
+  background-image:none!important;
+  border-color:#d2e8fa!important;
+  box-shadow:none!important;
+}
+
+/* Crisp flat borders */
+.card,
+.notice-item,
+.comparison-item,
+.event-review-card,
+.bundle-event-card,
+.schedule-message-box{
+  border-color:#dce5ee!important;
+}
+.form-card,
+.portfolio-card,
+.preset-section,
+.notice-card,
+.schedule-card{
+  border-color:#dce5ee!important;
+}
+.preset-divider,
+.inquiry-form-divider{
+  background:#dce5ee!important;
+}
+
+/* Flat buttons and selections */
+.primary-button{
+  background:#8fc8e8!important;
+  border-color:#8fc8e8!important;
+  color:#ffffff!important;
+  box-shadow:none!important;
+}
+.primary-button:hover{
+  background:#78b9df!important;
+}
+.portfolio-card .tab,
+.preset-section .tab,
+.page-button,
+.secondary-button{
+  background:#ffffff!important;
+  border-color:#d2e8fa!important;
+  color:#477d9d!important;
+  box-shadow:none!important;
+}
+.portfolio-card .tab:hover,
+.preset-section .tab:hover,
+.secondary-button:hover{
+  background:#f7fafd!important;
+  border-color:#8fc8e8!important;
+}
+.portfolio-card .tab.is-active,
+.preset-section .tab.is-active,
+.page-button.is-active{
+  background:#eaf4ff!important;
+  border-color:#8fc8e8!important;
+  color:#477d9d!important;
+  box-shadow:none!important;
+}
+.choice-pill:has(input:checked),
+.request-type-option input:checked+span{
+  background:#eaf4ff!important;
+  border-color:#8fc8e8!important;
+  color:#477d9d!important;
+}
+
+/* Inputs remain bright and identical in OS dark mode. */
+input,
+select,
+textarea{
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#293544!important;
+  border-color:#dce5ee!important;
+  box-shadow:none!important;
+}
+input::placeholder,
+textarea::placeholder{
+  color:#8794a0!important;
+}
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:#8fc8e8!important;
+  box-shadow:0 0 0 3px rgba(143,200,232,.16)!important;
+}
+input[type="checkbox"],
+input[type="radio"]{
+  accent-color:#8fc8e8;
+}
+
+/* =========================================================
+   Inquiry form: one consistent professional form system
+   ========================================================= */
+.form-card .contact-form{
+  margin-top:22px!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:18px!important;
+}
+.form-card .span-2{
+  grid-column:1!important;
+}
+.inquiry-nickname-field,
+.request-type-selector,
+.request-full-field,
+.inquiry-standard-field,
+.signature-inline-fields,
+.banner-fields,
+.inquiry-plain-choice,
+.global-review-event-field{
+  width:100%!important;
+  min-width:0;
+  margin:0!important;
+}
+.inquiry-nickname-field,
+.request-full-field,
+.inquiry-standard-field{
+  display:grid!important;
+  gap:8px!important;
+}
+.request-fields{
+  display:grid!important;
+  gap:18px!important;
+}
+.request-list{
+  display:grid!important;
+  gap:0!important;
+}
+.request-card{
+  display:grid!important;
+  gap:18px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.request-card + .request-card{
+  margin-top:24px!important;
+  padding-top:24px!important;
+  border-top:1px solid #dce5ee!important;
+}
+.request-type-selector{
+  display:grid;
+  gap:8px!important;
+}
+
+/* Every visible field title shares exactly the same typography and left edge. */
+.inquiry-nickname-field>.field-label-row,
+.request-type-selector>.field-label-row,
+.request-type-label,
+.request-full-field>.field-label-row,
+.request-full-field>.inquiry-field-title,
+.inquiry-standard-field>.inquiry-field-title,
+.choice-field>legend,
+.signature-inline-row>span{
+  margin:0!important;
+  padding:0!important;
+  color:#293544!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.45!important;
+  letter-spacing:-.01em;
+}
+.field-label-row{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  width:max-content!important;
+  max-width:100%!important;
+}
+.required-badge{
+  background:#eaf4ff!important;
+  color:#6cadd3!important;
+  font-size:9.5px!important;
+  font-weight:700!important;
+}
+
+/* Standard text fields */
+.contact-form input[type="text"],
+.contact-form textarea{
+  width:100%!important;
+  border:1px solid #dce5ee!important;
+  border-radius:14px!important;
+  background:#ffffff!important;
+  color:#293544!important;
+  font-size:13px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+}
+.contact-form input[type="text"]{
+  min-height:44px!important;
+  padding:10px 13px!important;
+}
+.contact-form textarea{
+  min-height:104px!important;
+  padding:12px 13px!important;
+}
+.request-full-field [data-field="concept"]{
+  min-height:112px!important;
+}
+.request-full-field [data-field="extra"]{
+  min-height:104px!important;
+}
+
+/* Two intentional section dividers only. */
+.inquiry-form-divider{
+  width:100%;
+  height:1px;
+  margin:6px 0 2px;
+  border:0;
+}
+.inquiry-form-divider-primary{
+  margin-top:4px;
+  margin-bottom:2px;
+}
+.inquiry-form-divider-secondary{
+  margin-top:5px;
+  margin-bottom:2px;
+}
+
+/* Choice fields: no nested colored cards, only title/help + controls. */
+.contact-form .choice-field,
+.contact-form .inquiry-plain-choice,
+.contact-form .option-field,
+.contact-form .review-event-field,
+.contact-form .frame-retention-field{
+  display:grid!important;
+  gap:8px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.contact-form .choice-field legend{
+  float:none;
+  width:auto;
+}
+.contact-form .field-help{
+  margin:0 0 2px!important;
+  color:#687685!important;
+  font-size:12px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+}
+.choice-row,
+.check-grid{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+}
+.choice-pill,
+.request-type-option span{
+  min-height:40px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  padding:8px 14px!important;
+  border:1px solid #dce5ee!important;
+  border-radius:12px!important;
+  background:#ffffff!important;
+  color:#687685!important;
+  font-size:12.5px!important;
+  font-weight:500!important;
+  line-height:1.35!important;
+  box-shadow:none!important;
+}
+.choice-pill:has(input:checked),
+.request-type-option input:checked+span{
+  background:#eaf4ff!important;
+  border-color:#8fc8e8!important;
+  color:#477d9d!important;
+}
+
+/* Quantity options align with the same form baseline. */
+.inquiry-qty-options{
+  display:grid!important;
+  gap:8px!important;
+  margin:1px 0 3px!important;
+}
+.inquiry-qty-row{
+  min-height:32px!important;
+}
+.inquiry-qty-label{
+  color:#687685!important;
+  font-size:12.5px!important;
+}
+.inquiry-qty-button{
+  background:#ffffff!important;
+  border-color:#d2e8fa!important;
+  color:#6cadd3!important;
+  box-shadow:none!important;
+}
+
+/* Separate color field + compact palette */
+.color-request-field{
+  position:relative;
+}
+.color-input-shell{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 34px auto;
+  gap:7px;
+  align-items:center;
+  width:100%;
+}
+.color-name-input{
+  min-width:0;
+}
+.color-swatch-preview{
+  width:34px;
+  height:34px;
+  display:block;
+  border:1px solid #dce5ee;
+  border-radius:9px;
+  background:
+    linear-gradient(45deg,#edf1f4 25%,transparent 25%) 0 0/10px 10px,
+    linear-gradient(45deg,transparent 75%,#edf1f4 75%) 0 0/10px 10px,
+    linear-gradient(45deg,transparent 75%,#edf1f4 75%) -5px 5px/10px 10px,
+    linear-gradient(45deg,#edf1f4 25%,#ffffff 25%) -5px 5px/10px 10px;
+}
+.color-swatch-preview.has-color{
+  background-image:none!important;
+}
+.color-picker-toggle{
+  min-height:38px;
+  padding:0 11px;
+  border:1px solid #d2e8fa;
+  border-radius:10px;
+  background:#ffffff;
+  color:#477d9d;
+  font-size:11.5px;
+  font-weight:600;
+  white-space:nowrap;
+}
+.color-picker-toggle:hover{
+  background:#f7fafd;
+  border-color:#8fc8e8;
+}
+.color-picker-popover{
+  position:absolute;
+  z-index:50;
+  top:calc(100% + 8px);
+  right:0;
+  width:260px;
+  padding:12px;
+  border:1px solid #dce5ee;
+  border-radius:14px;
+  background:#ffffff!important;
+  box-shadow:0 8px 24px rgba(63,103,128,.12);
+}
+.color-picker-popover[hidden]{
+  display:none!important;
+}
+.color-picker-top{
+  display:grid;
+  grid-template-columns:58px 1fr;
+  gap:9px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.color-native-input{
+  width:58px!important;
+  height:40px!important;
+  min-height:40px!important;
+  padding:3px!important;
+  border:1px solid #dce5ee!important;
+  border-radius:9px!important;
+  background:#ffffff!important;
+  cursor:pointer;
+}
+.color-picker-preview{
+  height:40px;
+  border:1px solid #dce5ee;
+  border-radius:9px;
+  background:#a8d8f0;
+}
+.color-hex-field{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr);
+  align-items:center;
+  gap:8px!important;
+  color:#687685!important;
+  font-size:11.5px!important;
+  font-weight:600!important;
+}
+.color-hex-field input{
+  min-height:38px!important;
+  height:38px!important;
+  padding:8px 10px!important;
+  border-radius:9px!important;
+  text-transform:uppercase;
+}
+.color-hex-field input.is-invalid{
+  border-color:#d58a94!important;
+  box-shadow:0 0 0 3px rgba(213,138,148,.12)!important;
+}
+.color-error{
+  margin:7px 0 0!important;
+  color:#b35f6b;
+  font-size:10.5px;
+  line-height:1.4;
+}
+.color-apply-button{
+  width:100%;
+  min-height:36px;
+  margin-top:10px;
+  border:1px solid #8fc8e8;
+  border-radius:9px;
+  background:#eaf4ff;
+  color:#477d9d;
+  font-size:11.5px;
+  font-weight:700;
+}
+
+/* Signature/banner conditionals retain behavior but follow the same flat visual system. */
+.signature-inline-fields{
+  display:grid!important;
+  gap:10px!important;
+}
+.signature-inline-row{
+  display:grid!important;
+  grid-template-columns:150px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+}
+.signature-inline-row input{
+  min-height:44px!important;
+}
+.banner-fields{
+  display:grid!important;
+  gap:8px!important;
+}
+
+/* Review is simply the final selection row, not a highlighted card. */
+.global-review-event-field{
+  margin-top:0!important;
+}
+.form-actions,
+body.artmug-part-inquiry .form-actions{
+  padding-top:2px!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+
+/* Schedule stays flat. */
+.schedule-card,
+.schedule-message-box{
+  background:#ffffff!important;
+}
+.schedule-estimate{
+  background:#eaf4ff!important;
+}
+
+/* Preserve forced-light appearance in system dark mode with identical values. */
+@media(prefers-color-scheme:dark){
+  :root{
+    color-scheme:light!important;
+    --accent:#8fc8e8;
+    --accent-strong:#6cadd3;
+    --accent-deep:#477d9d;
+    --accent-soft:#eaf4ff;
+    --accent-pale:#f7fafd;
+    --accent-mid:#d2e8fa;
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --surface-2:#f7fafd;
+    --text:#293544;
+    --muted:#687685;
+    --line:#dce5ee;
+    --shadow:none;
+  }
+  html,body{
+    background:#ffffff!important;
+    color:#293544!important;
+  }
+  input,select,textarea,button,dialog{
+    color-scheme:light!important;
+  }
+}
+
+@media(max-width:680px){
+  .form-card .contact-form{
+    gap:16px!important;
+  }
+  .request-card,
+  .request-fields{
+    gap:16px!important;
+  }
+  .color-input-shell{
+    grid-template-columns:minmax(0,1fr) 34px auto;
+    gap:6px;
+  }
+  .color-picker-toggle{
+    padding:0 9px;
+    font-size:11px;
+  }
+  .color-picker-popover{
+    left:0;
+    right:auto;
+    width:min(280px,calc(100vw - 40px));
+    max-width:100%;
+  }
+  .signature-inline-row{
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  .choice-pill,
+  .request-type-option span{
+    min-height:38px!important;
+    padding:8px 12px!important;
+  }
+}
