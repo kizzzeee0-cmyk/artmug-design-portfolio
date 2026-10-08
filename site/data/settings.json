@@ -262,7 +262,7 @@
   "signatureNumberPlaceholder": "예: 170 / 486",
   "signatureContentLabel": "시그풍 내용",
   "signatureContentPlaceholder": "예: 하나뿐인 칠공 / 사랑해 칠공",
-  "eventsEnabled": false,
+  "eventsEnabled": true,
   "bannerEventEnabled": false,
   "eventsKicker": "REVIEW EVENT",
   "eventsTitle": "오픈 기념 이벤트 안내",
