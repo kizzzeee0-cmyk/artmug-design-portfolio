@@ -165,7 +165,27 @@ function renderSchedule(s){
 
   $('scheduleText').innerHTML=
     `<span class="schedule-main-line">${main}</span>`+
-    (extras.length?`<span class="schedule-extra-lines">${extras.map(x=>`<span class="schedule-extra-line">${htmlAttr(x)}</span>`).join('')}</span>`:'')
+    (extras.length?`<span class="schedule-extra-lines">${extras.map(x=>`<span class="schedule-extra-line">${htmlAttr(x)}</span>`).join('')}</span>`:'');
+
+  const estimate=$('scheduleEstimate');
+  const estimateOn=s.scheduleEstimateEnabled!==false;
+  if(card)card.classList.toggle('has-estimate',estimateOn);
+  if(estimate){
+    estimate.hidden=!estimateOn;
+    if(estimateOn){
+      const min=Math.max(0,Number(s.scheduleEstimateMinDays??1));
+      const max=Math.max(min,Number(s.scheduleEstimateMaxDays??2));
+      const label=$('scheduleEstimateKicker');
+      if(label)label.textContent=String(s.scheduleEstimateLabel||'예상 마감');
+
+      const estimateTemplate=String(s.scheduleEstimateText||'현재 문의하면 {min}~{max}일 내에 마감됩니다.');
+      const rendered=htmlAttr(estimateTemplate)
+        .replaceAll('{min}',`<strong>${htmlAttr(min)}</strong>`)
+        .replaceAll('{max}',`<strong>${htmlAttr(max)}</strong>`);
+      const text=$('scheduleEstimateText');
+      if(text)text.innerHTML=rendered;
+    }
+  }
 }
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){
