@@ -480,38 +480,15 @@ function addRequest(typeIds){
 
 function updateRequestCardMeta(){}
 
-function normalizeHexColor(value){
-  const v=String(value||'').trim();
-  return /^#[0-9a-fA-F]{6}$/.test(v)?v.toUpperCase():''
-}
-
-function readInquiryColors(card){
-  const rows=Array.from(card.querySelectorAll('[data-color-row]'));
-  if(!rows.length){
-    const legacyName=(card.querySelector('[data-field="colorText"]')||{}).value||'';
-    const legacyHex=normalizeHexColor((card.querySelector('[data-field="colorHex"]')||{}).value||'');
-    return [{name:String(legacyName||''),hex:legacyHex}]
-  }
-  return rows.map(function(row){
-    const name=(row.querySelector('[data-color-name]')||{}).value||'';
-    const rawHex=(row.querySelector('[data-color-hex]')||{}).value||'';
-    return {name:String(name||''),hex:normalizeHexColor(rawHex)}
-  })
-}
-
 function readRequestValues(card){
   function q(s){return card.querySelector(s)}
   function qa(s){return Array.from(card.querySelectorAll(s))}
-  const colors=readInquiryColors(card);
   return{
     typeIds:qa('input[data-field="requestType"]:checked').map(function(x){return x.value}),
     signatureNumber:(q('[data-field="signatureNumber"]')||{}).value||'',
     signatureContent:(q('[data-field="signatureContent"]')||{}).value||'',
     frameKeep:(q('input[data-field="frameKeep"]:checked')||{}).value||'O',
     concept:(q('[data-field="concept"]')||{}).value||'',
-    colors:colors,
-    colorText:colors[0]?.name||'',
-    colorHex:colors[0]?.hex||'',
     extra:(q('[data-field="extra"]')||{}).value||'',
     bannerText:(q('[data-field="bannerText"]')||{}).value||'',
     banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
@@ -520,113 +497,6 @@ function readRequestValues(card){
     textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
     options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value})
   };
-}
-
-function normalizeColorList(prev){
-  const raw=Array.isArray(prev?.colors)&&prev.colors.length
-    ? prev.colors
-    : [{name:prev?.colorText||'',hex:prev?.colorHex||''}];
-  const colors=raw.map(function(x){
-    return {name:String(x?.name||''),hex:normalizeHexColor(x?.hex||'')}
-  });
-  return colors.length?colors:[{name:'',hex:''}]
-}
-
-function inquiryColorRowHtml(color,index,total){
-  const hex=normalizeHexColor(color?.hex||'');
-  const pickerValue=hex||'#A8D8F0';
-  const previewStyle=hex?' style="background:'+htmlAttr(hex)+'"':'';
-  const deleteDisabled=total<=1?' disabled':'';
-  return '<div class="inquiry-color-row" data-color-row data-color-index="'+index+'">'+
-    '<input class="color-name-input" data-color-name type="text" value="'+htmlAttr(color?.name||'')+'" placeholder="'+htmlAttr(S.colorPlaceholder||'예: 민트, 화이트, 라벤더')+'">'+
-    '<input class="color-hex-input" data-color-hex type="text" inputmode="text" maxlength="7" value="'+htmlAttr(hex)+'" placeholder="#A8D8F0" aria-label="HEX 색상 코드">'+
-    '<span class="color-swatch-preview '+(hex?'has-color':'')+'" data-color-preview'+previewStyle+' title="'+htmlAttr(hex||'선택된 색상 없음')+'" aria-hidden="true"></span>'+
-    '<button type="button" class="color-picker-toggle" data-color-palette>팔레트</button>'+
-    '<input class="color-native-input color-native-hidden" data-color-native type="color" value="'+htmlAttr(pickerValue)+'" tabindex="-1" aria-label="색상 선택">'+
-    '<button type="button" class="color-row-delete" data-color-delete aria-label="색상 항목 삭제"'+deleteDisabled+'>삭제</button>'+
-  '</div>'
-}
-
-function setupInquiryColorList(card,prev){
-  const root=card.querySelector('[data-color-rows]');
-  const add=card.querySelector('[data-color-add]');
-  if(!root||!add)return;
-  let colors=normalizeColorList(prev);
-
-  function currentColors(){
-    const rows=Array.from(root.querySelectorAll('[data-color-row]'));
-    return rows.map(function(row){
-      return {
-        name:String((row.querySelector('[data-color-name]')||{}).value||''),
-        hex:normalizeHexColor((row.querySelector('[data-color-hex]')||{}).value||'')
-      }
-    })
-  }
-
-  function renderRows(nextColors){
-    colors=(Array.isArray(nextColors)&&nextColors.length?nextColors:[{name:'',hex:''}]).map(function(x){
-      return {name:String(x?.name||''),hex:normalizeHexColor(x?.hex||'')}
-    });
-    root.innerHTML=colors.map(function(color,i){
-      return inquiryColorRowHtml(color,i,colors.length)
-    }).join('');
-
-    root.querySelectorAll('[data-color-row]').forEach(function(row){
-      const hexInput=row.querySelector('[data-color-hex]');
-      const preview=row.querySelector('[data-color-preview]');
-      const native=row.querySelector('[data-color-native]');
-      const palette=row.querySelector('[data-color-palette]');
-      const del=row.querySelector('[data-color-delete]');
-
-      function applyHex(raw,showInvalid){
-        const normalized=normalizeHexColor(raw);
-        const hasTyped=String(raw||'').trim().length>0;
-        const invalid=hasTyped&&!normalized;
-        hexInput.classList.toggle('is-invalid',!!(showInvalid&&invalid));
-        if(normalized){
-          hexInput.value=normalized;
-          native.value=normalized;
-          preview.style.background=normalized;
-          preview.classList.add('has-color');
-          preview.title=normalized
-        }else if(!hasTyped){
-          preview.style.background='';
-          preview.classList.remove('has-color');
-          preview.title='선택된 색상 없음'
-        }
-        return normalized
-      }
-
-      hexInput.oninput=function(){
-        applyHex(hexInput.value,false)
-      };
-      hexInput.onblur=function(){
-        applyHex(hexInput.value,true)
-      };
-      native.oninput=function(){
-        const value=String(native.value||'#A8D8F0').toUpperCase();
-        hexInput.value=value;
-        applyHex(value,false)
-      };
-      palette.onclick=function(){
-        try{native.click()}catch(e){}
-      };
-      del.onclick=function(){
-        if(colors.length<=1)return;
-        const snapshot=currentColors();
-        snapshot.splice(Number(row.dataset.colorIndex),1);
-        renderRows(snapshot)
-      };
-    })
-  }
-
-  add.onclick=function(){
-    const snapshot=currentColors();
-    snapshot.push({name:'',hex:''});
-    renderRows(snapshot)
-  };
-
-  renderRows(colors)
 }
 
 function renderRequestFields(card,typeIds,prev){
@@ -643,20 +513,12 @@ function renderRequestFields(card,typeIds,prev){
     return;
   }
 
-  var html='<div class="inquiry-concept-color-row">';
+  var html='';
 
-  html+='<label class="request-full-field inquiry-standard-field concept-request-field">'+
-    requiredLabel(S.conceptLabel||'원하는 디자인 컨셉')+
-    '<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 깔끔한 분위기')+'"></textarea>'+
+  html+='<label class="request-full-field inquiry-standard-field concept-request-field concept-color-combined-field">'+
+    requiredLabel(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+
+    '<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+'"></textarea>'+
   '</label>';
-
-  html+='<div class="request-full-field inquiry-standard-field color-request-field">'+
-    '<span class="inquiry-field-title" data-question-title>'+htmlAttr(S.colorLabel||'원하는 색상')+'</span>'+
-    '<div class="inquiry-color-rows" data-color-rows></div>'+
-    '<button type="button" class="color-add-button" data-color-add>+ 색상 추가</button>'+
-  '</div>';
-
-  html+='</div>';
 
   if(has('showSignatureFields')){
     html+='<div class="signature-fields signature-inline-fields">'+
@@ -685,7 +547,7 @@ function renderRequestFields(card,typeIds,prev){
 
   if(has('showBannerTextField')){
     html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title" data-question-title>배너 입력 문구</span>'+
-      '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'배너에 들어갈 문구를 적어주세요.')+'"></textarea></label>';
+      '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'예: 상단배너 - 칠공, 플로팅 배너 - 노래책, 유튜브, 팬카페')+'"></textarea></label>';
   }
 
   html+='<div class="inquiry-form-divider inquiry-form-divider-secondary" aria-hidden="true"></div>';
@@ -740,8 +602,6 @@ function renderRequestFields(card,typeIds,prev){
   qa('input[data-field="bannerType"]').forEach(function(x){x.checked=(prev.banners||[]).includes(x.value)});
   qa('input[data-field="extraOption"]').forEach(function(x){x.checked=(prev.options||[]).includes(x.value)});
 
-  setupInquiryColorList(card,prev);
-
   var concept=q('[data-field="concept"]');
   if(concept)concept.oninput=function(){
     if(String(concept.value||'').trim()){
@@ -761,18 +621,8 @@ function requestText(card){
   var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+types.map(t=>t.label||'').filter(Boolean).join(', ')];
 
   var details=[
-    (S.conceptLabel||'원하는 디자인 컨셉')+': '+v.concept
+    (S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept
   ];
-
-  var colorParts=(Array.isArray(v.colors)?v.colors:[]).map(function(color){
-    var pieces=[];
-    var name=String(color?.name||'').trim();
-    var hex=normalizeHexColor(color?.hex||'');
-    if(name)pieces.push(name);
-    if(hex)pieces.push(hex);
-    return pieces.join(' / ')
-  }).filter(Boolean);
-  details.push((S.colorLabel||'원하는 색상')+': '+colorParts.join(', '));
 
   if(has('showSignatureFields')){
     details.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
