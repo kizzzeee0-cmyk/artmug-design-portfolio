@@ -4648,3 +4648,174 @@ body.artmug-part-inquiry .form-actions{
     padding:8px 12px!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-09 READABILITY + DESKTOP FORM ALIGNMENT
+   ========================================================= */
+:root{
+  --public-help-size:15px;
+  --public-help-size-mobile:14px;
+}
+
+/* Exact shared typography token for all requested guidance/description copy. */
+.form-card #formDescription,
+.preset-section #presetNotice,
+.notice-item-description,
+.contact-form .field-help,
+.banner-text-help{
+  font-size:var(--public-help-size)!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  color:#687685!important;
+}
+
+/* Keep the two centered shared descriptions centered. */
+.form-card #formDescription,
+.preset-section #presetNotice{
+  text-align:center!important;
+}
+
+/* Desktop: concept + color share one aligned 60/40 row. */
+.inquiry-concept-color-row{
+  display:grid;
+  grid-template-columns:minmax(0,3fr) minmax(0,2fr);
+  gap:16px;
+  align-items:start;
+  width:100%;
+  min-width:0;
+}
+.inquiry-concept-color-row>.request-full-field{
+  min-width:0;
+  align-content:start;
+}
+.concept-request-field [data-field="concept"]{
+  min-height:82px!important;
+  height:82px;
+}
+.color-request-field{
+  align-content:start;
+}
+.color-request-field .color-input-shell{
+  min-width:0;
+}
+
+/* Banner help uses the same baseline as every other helper, with no extra card. */
+.banner-text-field .banner-text-help{
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+}
+
+/* Frame retention: exactly two authored lines on roomy PC widths. */
+@media(min-width:1000px){
+  .frame-retention-field .field-help{
+    white-space:pre!important;
+    overflow:visible!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+  }
+}
+
+/* General PC readability: keep the biggest section headings untouched. */
+@media(min-width:681px){
+  body{
+    font-size:15px;
+  }
+
+  .author-intro p,
+  .notice-item-title,
+  .portfolio-status,
+  .empty-state,
+  .comparison-copy p,
+  .comparison-footer,
+  .preset-work-meta,
+  .footer{
+    font-size:15px!important;
+  }
+
+  .inquiry-nickname-field>.field-label-row,
+  .request-type-selector>.field-label-row,
+  .request-type-label,
+  .request-full-field>.field-label-row,
+  .request-full-field>.inquiry-field-title,
+  .inquiry-standard-field>.inquiry-field-title,
+  .choice-field>legend,
+  .signature-inline-row>span{
+    font-size:15px!important;
+  }
+
+  .contact-form input[type="text"],
+  .contact-form textarea,
+  .contact-form select,
+  .contact-form input::placeholder,
+  .contact-form textarea::placeholder{
+    font-size:15px!important;
+  }
+
+  .choice-pill,
+  .choice-pill span,
+  .request-type-option span,
+  .inquiry-qty-label,
+  .primary-button,
+  .secondary-button,
+  .portfolio-card .tab,
+  .preset-section .tab,
+  .page-button,
+  .color-picker-toggle,
+  .color-apply-button{
+    font-size:15px!important;
+  }
+
+  .color-hex-field,
+  .color-hex-field input{
+    font-size:14px!important;
+  }
+
+  .schedule-extra-line{
+    font-size:var(--public-help-size)!important;
+  }
+}
+
+/* Mobile returns to a vertical concept -> color flow and one shared help size. */
+@media(max-width:680px){
+  :root{
+    --public-help-size:var(--public-help-size-mobile);
+  }
+
+  .inquiry-concept-color-row{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .concept-request-field [data-field="concept"]{
+    min-height:96px!important;
+    height:auto;
+  }
+
+  .frame-retention-field .field-help{
+    white-space:pre-line!important;
+    overflow-wrap:anywhere!important;
+    word-break:keep-all!important;
+  }
+
+  .form-card #formDescription,
+  .preset-section #presetNotice,
+  .notice-item-description,
+  .contact-form .field-help,
+  .banner-text-help{
+    font-size:var(--public-help-size-mobile)!important;
+  }
+}
+
+/* Forced-light mode remains identical even when the OS/browser is dark. */
+@media(prefers-color-scheme:dark){
+  .form-card #formDescription,
+  .preset-section #presetNotice,
+  .notice-item-description,
+  .contact-form .field-help,
+  .banner-text-help{
+    color:#687685!important;
+  }
+}
