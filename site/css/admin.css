@@ -556,3 +556,45 @@
     grid-template-columns:1fr;
   }
 }
+
+
+/* schedule estimate admin */
+.schedule-estimate-admin{
+  margin-top:2px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.schedule-estimate-admin-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.schedule-estimate-admin-head strong{
+  font-size:13px;
+}
+.schedule-estimate-admin-head p{
+  margin:3px 0 0;
+  font-size:10.5px;
+}
+.schedule-estimate-fields{
+  grid-template-columns:minmax(150px,1fr) 110px 110px;
+}
+.schedule-estimate-fields .wide{
+  grid-column:1/-1;
+}
+@media(max-width:720px){
+  .schedule-estimate-admin-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .schedule-estimate-fields{
+    grid-template-columns:1fr;
+  }
+  .schedule-estimate-fields .wide{
+    grid-column:auto;
+  }
+}
