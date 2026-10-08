@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 function initArtmugEmbedMode(){
   if(!document.body?.classList.contains('artmug-part'))return;
   document.documentElement.classList.add('artmug-embed-root');
@@ -115,7 +115,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/'):''}
-function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
+function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
 function renderWorkStatus(s){
   const box=$('workStatus');
   if(!box)return;
@@ -167,6 +167,25 @@ function addDaysYmd(ymd,days){
   ].join('-')
 }
 function koreaDate(){return koreaNowParts().date}
+function msUntilNextKorea22(){
+  const now=Date.now();
+  const kst=new Date(now+9*60*60*1000);
+  let target=Date.UTC(
+    kst.getUTCFullYear(),
+    kst.getUTCMonth(),
+    kst.getUTCDate(),
+    13,0,0,100
+  );
+  if(target<=now)target+=24*60*60*1000;
+  return Math.max(1000,target-now)
+}
+function armScheduleCutoffRefresh(){
+  if(scheduleCutoffTimer)clearTimeout(scheduleCutoffTimer);
+  scheduleCutoffTimer=setTimeout(function(){
+    if(S)renderSchedule(S);
+    armScheduleCutoffRefresh();
+  },msUntilNextKorea22())
+}
 function renderSchedule(s){
   const card=document.querySelector('.schedule-card');
   const enabled=s.scheduleEnabled!==false;
