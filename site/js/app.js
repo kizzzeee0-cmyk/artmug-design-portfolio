@@ -645,7 +645,7 @@ function renderRequestFields(card,typeIds,prev){
 
   /* 6. 배너 입력 문구 */
   if(has('showBannerTextField')){
-    const bannerHelp=String(S.bannerTextHelp??'배너에 들어갈 문구를 작성해 주세요.').trim();
+    const bannerHelp=String(S.bannerTextHelp??'배너에 들어갈 문구를 적어주세요.').trim();
     html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title">배너 입력 문구</span>'+
       (bannerHelp?'<p class="field-help banner-text-help preline">'+htmlAttr(bannerHelp)+'</p>':'')+
       '<textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
