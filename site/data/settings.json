@@ -590,6 +590,6 @@
   "scheduleEstimateEnabled": true,
   "scheduleEstimateLabel": "작업 완료까지",
   "scheduleEstimateMinDays": 1,
-  "scheduleEstimateMaxDays": 3,
+  "scheduleEstimateMaxDays": 2,
   "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다."
 }
