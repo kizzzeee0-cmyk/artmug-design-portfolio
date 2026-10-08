@@ -5374,3 +5374,9 @@ body.artmug-part-inquiry .form-actions{
     color:#FFFFFF!important;
   }
 }
+
+
+/* notice numbering without emoji icon */
+.notice-card .notice-item{
+  grid-template-columns:48px minmax(0,1fr)!important;
+}
