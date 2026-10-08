@@ -454,3 +454,57 @@
   background:var(--accent-soft);
   color:var(--accent-deep);
 }
+
+
+/* schedule message admin */
+.schedule-admin-top{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
+.schedule-enabled-toggle{
+  width:auto!important;
+}
+.schedule-mode-choice{
+  align-self:start;
+}
+.schedule-extra-admin{
+  margin-top:2px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.schedule-extra-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.schedule-extra-head strong{font-size:13px}
+.schedule-extra-head p{
+  margin:3px 0 0;
+  font-size:10.5px;
+}
+#scheduleExtraList{
+  display:grid;
+  gap:8px;
+}
+.schedule-extra-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+}
+.schedule-extra-empty{
+  margin:0;
+  padding:6px 2px;
+  font-size:11px;
+}
+@media(max-width:720px){
+  .schedule-extra-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
