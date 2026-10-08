@@ -140,15 +140,44 @@ function renderWorkStatus(s){
     description.hidden=!text;
   }
 }
-function koreaDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return `${o.year}-${o.month}-${o.day}`}
+function koreaNowParts(){
+  const parts=new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Asia/Seoul',
+    year:'numeric',
+    month:'2-digit',
+    day:'2-digit',
+    hour:'2-digit',
+    hourCycle:'h23'
+  }).formatToParts(new Date());
+  const o={};
+  parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});
+  return {
+    date:`${o.year}-${o.month}-${o.day}`,
+    hour:Number(o.hour||0)
+  }
+}
+function addDaysYmd(ymd,days){
+  const m=String(ymd||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m)return ymd;
+  const d=new Date(Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3])+Number(days||0)));
+  return [
+    d.getUTCFullYear(),
+    String(d.getUTCMonth()+1).padStart(2,'0'),
+    String(d.getUTCDate()).padStart(2,'0')
+  ].join('-')
+}
+function koreaDate(){return koreaNowParts().date}
 function renderSchedule(s){
   const card=document.querySelector('.schedule-card');
   const enabled=s.scheduleEnabled!==false;
   if(card)card.hidden=!enabled;
   if(!enabled)return;
 
-  const today=koreaDate();
-  const chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today;
+  const now=koreaNowParts();
+  const today=now.date;
+  const minimumDate=now.hour>=22?addDaysYmd(today,1):today;
+  const savedDate=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:minimumDate;
+  const chosen=savedDate<minimumDate?minimumDate:savedDate;
   const [,m,d]=chosen.split('-');
   const dateLabel=`${Number(m)}월 ${Number(d)}일`;
   const mode=['start','deadline','custom'].includes(s.scheduleMode)?s.scheduleMode:'start';
