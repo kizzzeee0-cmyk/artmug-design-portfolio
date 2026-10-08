@@ -5728,3 +5728,121 @@ body.artmug-part-inquiry .form-actions{
     font-size:17px!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-09 FORM CONTRAST + SEAMLESS ARTMUG SCROLL
+   ========================================================= */
+
+/* 1) Copy button: white surface + current sky-blue point color for clearer separation. */
+#copyButton{
+  background:#FFFFFF!important;
+  color:var(--primary-action)!important;
+  border:1.5px solid var(--primary-action)!important;
+  box-shadow:0 3px 10px rgba(79,143,179,.10)!important;
+}
+#copyButton:hover{
+  background:#F7FAFD!important;
+  color:var(--accent-deep)!important;
+  border-color:var(--accent-strong)!important;
+}
+#copyButton:active{
+  background:#EAF4FF!important;
+  color:var(--accent-deep)!important;
+  border-color:var(--accent-strong)!important;
+}
+#copyButton:focus,
+#copyButton:focus-visible{
+  background:#FFFFFF!important;
+  color:var(--primary-action)!important;
+  border-color:var(--primary-action)!important;
+  outline:3px solid rgba(143,200,232,.22)!important;
+  outline-offset:2px;
+}
+#copyButton.is-copied{
+  background:#FFFFFF!important;
+  color:var(--primary-action)!important;
+  border-color:var(--primary-action)!important;
+}
+
+/* 2) Inquiry inputs: only a very slight cool-gray/blue tint. */
+.contact-form input:not([type="radio"]):not([type="checkbox"]):not(.inquiry-qty-input),
+.contact-form textarea,
+.contact-form select{
+  background:#F7FAFD!important;
+  background-image:none!important;
+}
+.contact-form input:not([type="radio"]):not([type="checkbox"]):not(.inquiry-qty-input):focus,
+.contact-form textarea:focus,
+.contact-form select:focus{
+  background:#FAFCFE!important;
+}
+
+/* 3) Embedded Artmug pages never become their own wheel-scroll container.
+      Content-height reporting remains handled by app.js / ResizeObserver. */
+html.artmug-embed-root,
+html.artmug-embed-root body,
+html.artmug-embed-root body.artmug-part,
+html.artmug-embed-root.artmug-nav-programmatic,
+html.artmug-embed-root.artmug-nav-programmatic body,
+html.artmug-embed-root.artmug-nav-programmatic body.artmug-part{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-y:auto!important;
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+html.artmug-embed-root::-webkit-scrollbar,
+html.artmug-embed-root body::-webkit-scrollbar,
+html.artmug-embed-root body.artmug-part::-webkit-scrollbar{
+  width:0!important;
+  height:0!important;
+  display:none!important;
+}
+html.artmug-embed-root .site-shell,
+html.artmug-embed-root body.artmug-part .site-shell{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+/* 4) Inquiry section dividers get a little more breathing room. */
+.inquiry-form-divider,
+.inquiry-form-divider-primary,
+.inquiry-form-divider-secondary{
+  margin-top:11px!important;
+  margin-bottom:11px!important;
+}
+
+/* Mobile: keep the same visual changes without changing layout or button size. */
+@media(max-width:680px){
+  #copyButton{
+    box-shadow:0 3px 12px rgba(79,143,179,.12)!important;
+  }
+
+  .inquiry-form-divider,
+  .inquiry-form-divider-primary,
+  .inquiry-form-divider-secondary{
+    margin-top:10px!important;
+    margin-bottom:10px!important;
+  }
+}
+
+/* Forced-light mode keeps the same form contrast. */
+@media(prefers-color-scheme:dark){
+  #copyButton{
+    background:#FFFFFF!important;
+    color:var(--primary-action)!important;
+    border-color:var(--primary-action)!important;
+  }
+  .contact-form input:not([type="radio"]):not([type="checkbox"]):not(.inquiry-qty-input),
+  .contact-form textarea,
+  .contact-form select{
+    background:#F7FAFD!important;
+    color:#293544!important;
+  }
+}
