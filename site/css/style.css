@@ -5846,3 +5846,11 @@ html.artmug-embed-root body.artmug-part .site-shell{
     color:#293544!important;
   }
 }
+
+
+/* 2026-10-09 mobile author intro slight type increase */
+@media(max-width:680px){
+  .author-intro p{
+    font-size:clamp(11.5px,3.35vw,14px)!important;
+  }
+}
