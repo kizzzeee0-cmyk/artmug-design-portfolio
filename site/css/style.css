@@ -3309,6 +3309,18 @@ body.artmug-part-inquiry .form-actions{
 .form-actions .status-text{
   text-align:center!important;
 }
+.form-action-buttons button{
+  flex:0 0 auto!important;
+}
+.events-section>.event-content{
+  width:100%;
+  text-align:center!important;
+}
+.events-section>.event-content .event-badge{
+  width:max-content;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
 .preset-section .preset-notice{
   width:auto!important;
   max-width:760px!important;
