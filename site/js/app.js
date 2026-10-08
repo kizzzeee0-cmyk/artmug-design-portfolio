@@ -141,7 +141,32 @@ function renderWorkStatus(s){
   }
 }
 function koreaDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return `${o.year}-${o.month}-${o.day}`}
-function renderSchedule(s){const today=koreaDate(),chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today,effective=chosen>today?chosen:today,[y,m,d]=effective.split('-');$('scheduleText').innerHTML=`현재 신청시 <strong class="schedule-date">${Number(m)}월 ${Number(d)}일</strong>부터 작업이 진행됩니다!`}
+function renderSchedule(s){
+  const card=document.querySelector('.schedule-card');
+  const enabled=s.scheduleEnabled!==false;
+  if(card)card.hidden=!enabled;
+  if(!enabled)return;
+
+  const today=koreaDate();
+  const chosen=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:today;
+  const [,m,d]=chosen.split('-');
+  const dateLabel=`${Number(m)}월 ${Number(d)}일`;
+  const mode=['start','deadline','custom'].includes(s.scheduleMode)?s.scheduleMode:'start';
+  const template=mode==='deadline'
+    ? '현재 신청시 {date}까지 마감됩니다!'
+    : mode==='custom'
+      ? String(s.scheduleCustomText||'현재 신청시 {date}부터 작업이 진행됩니다!')
+      : '현재 신청시 {date}부터 작업이 진행됩니다!';
+
+  const main=htmlAttr(template).replaceAll('{date}',`<strong class="schedule-date">${htmlAttr(dateLabel)}</strong>`);
+  const extras=(Array.isArray(s.scheduleExtras)?s.scheduleExtras:[])
+    .map(x=>String(x||'').trim())
+    .filter(Boolean);
+
+  $('scheduleText').innerHTML=
+    `<span class="schedule-main-line">${main}</span>`+
+    (extras.length?`<span class="schedule-extra-lines">${extras.map(x=>`<span class="schedule-extra-line">${htmlAttr(x)}</span>`).join('')}</span>`:'')
+}
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){
   const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
