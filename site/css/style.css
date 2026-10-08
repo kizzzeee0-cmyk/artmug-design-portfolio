@@ -4819,3 +4819,404 @@ body.artmug-part-inquiry .form-actions{
     color:#687685!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-09 NOTICE + MULTI COLOR + QUESTION NUMBER POLISH
+   ========================================================= */
+
+/* Notice is the one clearly separated sky-blue section. */
+.notice-card{
+  background:#EAF4FF!important;
+  border-color:#D6E5F1!important;
+  box-shadow:none!important;
+}
+.notice-card .notice-heading h2{
+  color:#263D52!important;
+}
+.notice-card #noticeText{
+  color:#475569!important;
+  font-size:14px!important;
+  line-height:1.55!important;
+}
+.notice-card .notice-list{
+  gap:10px!important;
+}
+.notice-card .notice-item{
+  background:#FFFFFF!important;
+  border-color:#D6E5F1!important;
+  box-shadow:none!important;
+}
+.notice-leading{
+  display:grid;
+  justify-items:center;
+  align-content:center;
+  gap:4px;
+  min-width:48px;
+}
+.notice-index{
+  color:#327CAA;
+  font-size:11px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:.06em;
+}
+.notice-card .notice-icon{
+  background:#F7FAFD!important;
+  color:#327CAA!important;
+}
+.notice-card .notice-item-title{
+  color:#263D52!important;
+}
+.notice-card .notice-item-description{
+  color:#475569!important;
+  font-size:14px!important;
+  line-height:1.55!important;
+}
+.notice-item-copy{
+  min-width:0;
+}
+
+/* Schedule cards: same layout, about 15-20% less vertical space. */
+.schedule-content{
+  align-items:stretch!important;
+}
+.schedule-message-box,
+.schedule-estimate{
+  min-height:76px!important;
+  height:auto!important;
+  padding-top:12px!important;
+  padding-bottom:12px!important;
+}
+.schedule-message-box{
+  padding-left:20px!important;
+  padding-right:20px!important;
+}
+.schedule-estimate{
+  align-self:stretch!important;
+  justify-self:stretch!important;
+}
+
+/* Concept and color blocks stretch to exactly the same outer height on desktop. */
+.inquiry-concept-color-row{
+  align-items:stretch!important;
+}
+.concept-request-field,
+.color-request-field{
+  height:100%;
+  min-height:0;
+}
+.concept-request-field{
+  display:flex!important;
+  flex-direction:column;
+}
+.concept-request-field [data-field="concept"]{
+  flex:1 1 auto;
+  height:auto!important;
+  min-height:92px!important;
+}
+.color-request-field{
+  display:flex!important;
+  flex-direction:column;
+}
+.inquiry-color-rows{
+  display:grid;
+  gap:7px;
+  flex:1 1 auto;
+  align-content:start;
+  min-width:0;
+}
+.inquiry-color-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 94px 32px 52px 42px;
+  gap:5px;
+  align-items:center;
+  min-width:0;
+}
+.inquiry-color-row input[type="text"]{
+  min-width:0!important;
+  height:40px!important;
+  min-height:40px!important;
+  padding:8px 9px!important;
+  border-radius:10px!important;
+  font-size:13px!important;
+}
+.color-hex-input{
+  text-transform:uppercase;
+  letter-spacing:.01em;
+}
+.color-hex-input.is-invalid{
+  border-color:#D58A94!important;
+  box-shadow:0 0 0 3px rgba(213,138,148,.12)!important;
+}
+.color-swatch-preview{
+  width:32px!important;
+  height:32px!important;
+  border-radius:8px!important;
+}
+.color-picker-toggle,
+.color-row-delete,
+.color-add-button{
+  min-height:36px;
+  border:1px solid #D2E8FA;
+  border-radius:9px;
+  background:#FFFFFF;
+  color:#477D9D;
+  font-weight:600;
+  line-height:1;
+  box-shadow:none;
+}
+.color-picker-toggle{
+  padding:0 7px!important;
+  font-size:11.5px!important;
+}
+.color-row-delete{
+  padding:0 5px;
+  font-size:11px;
+  color:#687685;
+}
+.color-row-delete:disabled{
+  opacity:.35;
+  cursor:default;
+}
+.color-add-button{
+  align-self:flex-start;
+  margin-top:8px;
+  padding:0 10px;
+  font-size:12px;
+}
+.color-picker-toggle:hover,
+.color-add-button:hover,
+.color-row-delete:not(:disabled):hover{
+  background:#F7FAFD;
+  border-color:#8FC8E8;
+}
+.color-native-hidden{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Retention guidance: one continuous line on sufficiently wide desktop screens. */
+.frame-retention-help{
+  width:100%!important;
+  margin:0 0 2px!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+@media(min-width:1180px){
+  .frame-retention-help{
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+  }
+}
+
+/* Quantity controls: all rows share one exact two-column grid. */
+.inquiry-qty-options{
+  width:100%!important;
+  max-width:560px;
+  display:grid!important;
+  gap:8px!important;
+  padding-right:10px;
+  box-sizing:border-box;
+}
+.inquiry-qty-row{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 118px;
+  align-items:center!important;
+  column-gap:18px;
+}
+.inquiry-qty-label{
+  min-width:0;
+  text-align:left;
+  font-size:14px!important;
+}
+.inquiry-qty-control{
+  width:118px!important;
+  display:grid!important;
+  grid-template-columns:32px 38px 32px;
+  justify-content:end;
+  align-items:center;
+  gap:8px!important;
+  margin:0!important;
+}
+.inquiry-qty-button{
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  min-height:32px!important;
+  padding:0!important;
+}
+.inquiry-qty-input{
+  width:38px!important;
+  height:32px!important;
+  min-height:32px!important;
+  padding:0 3px!important;
+  text-align:center!important;
+}
+
+/* Small type exceptions requested after the global readability increase. */
+.form-actions .primary-button{
+  font-size:14px!important;
+}
+.option-field .choice-pill,
+.option-field .choice-pill span,
+.option-field .inquiry-qty-label,
+.review-event-field .choice-pill,
+.review-event-field .choice-pill span{
+  font-size:14px!important;
+}
+
+/* Strong, unmistakable selected state. */
+.portfolio-card .tab.is-active,
+.preset-section .tab.is-active,
+.page-button.is-active,
+.request-type-option input:checked+span,
+.choice-pill:has(input:checked){
+  background:#327CAA!important;
+  border-color:#327CAA!important;
+  color:#FFFFFF!important;
+  box-shadow:none!important;
+}
+.choice-pill:has(input:checked) span,
+.request-type-option input:checked+span{
+  color:#FFFFFF!important;
+}
+.choice-pill:has(input:checked) input{
+  accent-color:#245F84!important;
+}
+.request-type-option input:not(:checked)+span:hover,
+.choice-pill:not(:has(input:checked)):hover,
+.portfolio-card .tab:not(.is-active):hover,
+.preset-section .tab:not(.is-active):hover{
+  background:#F2F8FC!important;
+  border-color:#8FC8E8!important;
+  color:#365F78!important;
+}
+.request-type-option input:focus-visible+span,
+.choice-pill:has(input:focus-visible){
+  outline:3px solid rgba(50,124,170,.22)!important;
+  outline-offset:2px;
+}
+
+/* Dynamic question numbers. JS writes data-question-number in real DOM order. */
+[data-question-title]{
+  align-items:center;
+}
+[data-question-title]::before{
+  content:attr(data-question-number) ".";
+  flex:0 0 auto;
+  margin-right:7px;
+  color:#327CAA;
+  font-weight:800;
+  font-size:1em;
+  line-height:1;
+}
+.field-label-row[data-question-title],
+.inquiry-field-title[data-question-title],
+.signature-inline-row>span[data-question-title],
+.choice-field>legend[data-question-title]{
+  display:flex!important;
+  align-items:center!important;
+}
+
+/* The removed banner/option helper lines must leave no artificial gap. */
+.banner-text-field{
+  gap:8px!important;
+}
+.option-field{
+  gap:9px!important;
+}
+
+/* Mobile remains single-column and overflow-safe. */
+@media(max-width:680px){
+  .schedule-message-box,
+  .schedule-estimate{
+    min-height:70px!important;
+    padding-top:11px!important;
+    padding-bottom:11px!important;
+  }
+
+  .inquiry-concept-color-row{
+    grid-template-columns:1fr!important;
+    align-items:start!important;
+  }
+  .concept-request-field,
+  .color-request-field{
+    height:auto;
+  }
+  .concept-request-field [data-field="concept"]{
+    min-height:92px!important;
+  }
+
+  .inquiry-color-row{
+    grid-template-columns:minmax(0,1fr) 88px 30px 48px 40px;
+    gap:4px;
+  }
+  .inquiry-color-row input[type="text"]{
+    font-size:12px!important;
+    padding-left:7px!important;
+    padding-right:7px!important;
+  }
+  .color-picker-toggle{
+    padding:0 5px!important;
+    font-size:10.5px!important;
+  }
+  .color-row-delete{
+    font-size:10.5px;
+  }
+
+  .frame-retention-help{
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  .inquiry-qty-options{
+    max-width:100%;
+    padding-right:4px;
+  }
+  .inquiry-qty-row{
+    grid-template-columns:minmax(0,1fr) 112px;
+    column-gap:10px;
+  }
+  .inquiry-qty-control{
+    width:112px!important;
+    grid-template-columns:30px 36px 30px;
+    gap:8px!important;
+  }
+  .inquiry-qty-button{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+    min-height:30px!important;
+  }
+  .inquiry-qty-input{
+    width:36px!important;
+    height:30px!important;
+    min-height:30px!important;
+  }
+}
+
+/* Dark OS theme must render these exact same light colors. */
+@media(prefers-color-scheme:dark){
+  .notice-card{
+    background:#EAF4FF!important;
+    border-color:#D6E5F1!important;
+  }
+  .notice-card .notice-item{
+    background:#FFFFFF!important;
+  }
+  .portfolio-card .tab.is-active,
+  .preset-section .tab.is-active,
+  .page-button.is-active,
+  .request-type-option input:checked+span,
+  .choice-pill:has(input:checked){
+    background:#327CAA!important;
+    border-color:#327CAA!important;
+    color:#FFFFFF!important;
+  }
+}
