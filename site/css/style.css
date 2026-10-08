@@ -5850,3 +5850,24 @@ html.artmug-embed-root body.artmug-part .site-shell{
   background:transparent!important;
   box-shadow:none!important;
 }
+
+
+/* 2026-10-09 gallery media frame removal */
+/* Portfolio + preset galleries: show uploaded media without an outer sky-blue frame. */
+#portfolioGrid .work-card,
+#presetGrid .work-card,
+#portfolioGrid .work-button,
+#presetGrid .work-button,
+#portfolioGrid .media-wrap,
+#presetGrid .media-wrap{
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+
+/* Keep the existing uploaded-media dimensions, ratios and layout behavior. */
+#portfolioGrid .media-wrap img,
+#presetGrid .media-wrap img{
+  border:0!important;
+  box-shadow:none!important;
+}
