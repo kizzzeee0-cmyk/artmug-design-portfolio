@@ -90,8 +90,8 @@
   "frameKeepDescription": "추후 닉네임 · 움짤 변경을 원하시면 O를 선택해 주세요. (X 선택 시 작업 파일 미보관)",
   "frameKeepYes": "O",
   "frameKeepNo": "X",
-  "conceptLabel": "원하는 디자인 컨셉",
-  "conceptPlaceholder": "예: 하트, 귀여운 느낌, 깔끔한 분위기",
+  "conceptLabel": "원하는 디자인 컨셉 및 색상",
+  "conceptPlaceholder": "예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합",
   "extraLabel": "추가 요청사항",
   "extraPlaceholder": "희망 마감일, 참고 레퍼런스, 추가 요청사항이나 궁금한 점을 자유롭게 작성해 주세요",
   "copyButton": "문의 내용 복사하기",
@@ -592,8 +592,5 @@
   "scheduleEstimateMinDays": 1,
   "scheduleEstimateMaxDays": 2,
   "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다.",
-  "colorLabel": "원하는 색상",
-  "colorPlaceholder": "예: 민트, 화이트, 라벤더",
-  "bannerTextHelp": "배너에 들어갈 문구를 적어주세요.",
-  "bannerTextPlaceholder": "배너에 들어갈 문구를 적어주세요."
+  "bannerTextPlaceholder": "예: 상단배너 - 칠공, 플로팅 배너 - 노래책, 유튜브, 팬카페"
 }
