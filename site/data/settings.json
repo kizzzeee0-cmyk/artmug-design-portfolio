@@ -586,5 +586,10 @@
   "scheduleEnabled": true,
   "scheduleMode": "start",
   "scheduleCustomText": "현재 신청시 {date}부터 작업이 진행됩니다!",
-  "scheduleExtras": []
+  "scheduleExtras": [],
+  "scheduleEstimateEnabled": true,
+  "scheduleEstimateLabel": "예상 마감",
+  "scheduleEstimateMinDays": 1,
+  "scheduleEstimateMaxDays": 2,
+  "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다."
 }
