@@ -30,7 +30,7 @@
     }
   ],
   "formTitle": "문의양식",
-  "formDescription": "아래 내용을 작성한 뒤 복사하여 아트머그 작가 문의란에 붙여넣어 주세요.",
+  "formDescription": "아래 내용을 작성한 뒤 복사하여\n아트머그 작가 문의란에 붙여넣어 주세요.",
   "nicknameLabel": "방송 닉네임 및 주소",
   "nicknamePlaceholder": "방송 닉네임과 주소를 입력해주세요",
   "designTypeLabel": "신청하시는 디자인 종류",
@@ -271,7 +271,7 @@
   "eventsFontSize": 15,
   "presetEnabled": true,
   "presetTitle": "미판매 프리셋",
-  "presetNotice": "아직 판매되지 않은 작업물입니다.\n그대로 제작을 원하시면 문의 시 말씀해 주세요.",
+  "presetNotice": "아직 판매되지 않은 작업물입니다\n그대로 제작을 원하시면 문의 시 말씀해주세요",
   "presetCategories": [
     {
       "id": "profile",
@@ -592,5 +592,5 @@
   "scheduleEstimateMinDays": 1,
   "scheduleEstimateMaxDays": 2,
   "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다.",
-  "bannerTextPlaceholder": "예: 상단배너 - 칠공, 플로팅 배너 - 노래책, 유튜브, 팬카페"
+  "bannerTextPlaceholder": "예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페"
 }
