@@ -206,7 +206,12 @@ function renderSchedule(s){
       ? String(s.scheduleCustomText||'현재 신청시 {date}부터 작업이 진행됩니다!')
       : '현재 신청시 {date}부터 작업이 진행됩니다!';
 
-  const main=htmlAttr(template).replaceAll('{date}',`<strong class="schedule-date">${htmlAttr(dateLabel)}</strong>`);
+  const dateHtml=`<strong class="schedule-date">${htmlAttr(dateLabel)}</strong>`;
+  const main=mode==='start'
+    ? `<span class="schedule-mobile-line schedule-mobile-line-1">현재 신청시 ${dateHtml}부터</span><span class="schedule-mobile-line schedule-mobile-line-2">작업이 진행됩니다!</span>`
+    : mode==='deadline'
+      ? `<span class="schedule-mobile-line schedule-mobile-line-1">현재 신청시 ${dateHtml}까지</span><span class="schedule-mobile-line schedule-mobile-line-2">마감됩니다!</span>`
+      : htmlAttr(template).replaceAll('{date}',dateHtml);
   const extras=(Array.isArray(s.scheduleExtras)?s.scheduleExtras:[])
     .map(x=>String(x||'').trim())
     .filter(Boolean);
