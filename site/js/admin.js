@@ -212,7 +212,8 @@ function collectScheduleAdmin(){
   const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value;
   S.scheduleMode=['start','deadline','custom'].includes(mode)?mode:'start';
   S.scheduleDate=$('scheduleDate').value;
-  S.scheduleCustomText=$('scheduleCustomText').value;
+  const custom=$('scheduleCustomText');
+  if(custom)S.scheduleCustomText=custom.value;
   S.scheduleExtras=Array.from(document.querySelectorAll('[data-schedule-extra]')).map(x=>x.value);
 }
 function renderScheduleAdmin(){
@@ -224,20 +225,39 @@ function renderScheduleAdmin(){
       <label class="toggle schedule-enabled-toggle"><input id="scheduleEnabled" type="checkbox" ${S.scheduleEnabled!==false?'checked':''}> 작업 일정 안내 표시</label>
     </div>
     <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"></label>
-    <fieldset class="admin-status-choice schedule-mode-choice">
-      <legend>메인 문구</legend>
-      <div class="admin-status-pills">
-        <label><input type="radio" name="scheduleMode" value="start" ${mode==='start'?'checked':''}><span>작업 시작 안내</span></label>
-        <label><input type="radio" name="scheduleMode" value="deadline" ${mode==='deadline'?'checked':''}><span>마감 안내</span></label>
-        <label><input type="radio" name="scheduleMode" value="custom" ${mode==='custom'?'checked':''}><span>직접 입력</span></label>
+    <fieldset class="wide admin-status-choice schedule-mode-choice">
+      <legend>안내 문구 선택</legend>
+      <div class="admin-status-pills schedule-mode-pills">
+        <label>
+          <input type="radio" name="scheduleMode" value="start" ${mode==='start'?'checked':''}>
+          <span><strong>작업 시작 안내</strong><small>현재 신청시 {date}부터 작업이 진행됩니다!</small></span>
+        </label>
+        <label>
+          <input type="radio" name="scheduleMode" value="deadline" ${mode==='deadline'?'checked':''}>
+          <span><strong>작업 마감 안내</strong><small>현재 신청시 {date}까지 마감됩니다!</small></span>
+        </label>
+        <label>
+          <input type="radio" name="scheduleMode" value="custom" ${mode==='custom'?'checked':''}>
+          <span><strong>직접 입력</strong><small>원하는 문구를 직접 작성합니다.</small></span>
+        </label>
       </div>
     </fieldset>
-    <label class="wide"><span>직접 입력 문구</span><input id="scheduleCustomText" value="${adminEsc(S.scheduleCustomText||'현재 신청시 {date}부터 작업이 진행됩니다!')}" placeholder="예: 현재 신청시 {date}부터 작업이 진행됩니다!"><small class="field-note">날짜가 들어갈 위치에 <b>{date}</b>를 입력해주세요. 직접 입력을 선택했을 때 사용됩니다.</small></label>
+    <label id="scheduleCustomField" class="wide" ${mode==='custom'?'':'hidden'}>
+      <span>직접 입력 문구</span>
+      <input id="scheduleCustomText" value="${adminEsc(S.scheduleCustomText||'')}" placeholder="예: 현재 신청시 {date}까지 주문 가능합니다!">
+      <small class="field-note">날짜가 들어갈 위치에 <b>{date}</b>를 입력해주세요.</small>
+    </label>
     <div class="wide schedule-extra-admin">
-      <div class="schedule-extra-head"><div><strong>추가 안내 문구</strong><p class="muted">메인 문구 아래에 필요한 안내를 여러 개 추가할 수 있습니다.</p></div><button id="addScheduleExtra" type="button" class="ghost admin-compact">+ 문구 추가</button></div>
+      <div class="schedule-extra-head"><div><strong>추가 안내 문구</strong><p class="muted">선택한 안내 문구 아래에 필요한 내용을 추가할 수 있습니다.</p></div><button id="addScheduleExtra" type="button" class="ghost admin-compact">+ 문구 추가</button></div>
       <div id="scheduleExtraList">${extras.map((text,i)=>`<div class="schedule-extra-row"><input data-schedule-extra="${i}" value="${adminEsc(text)}" placeholder="추가 안내 문구"><button type="button" class="danger admin-compact" data-del-schedule-extra="${i}">삭제</button></div>`).join('')||'<p class="muted schedule-extra-empty">추가 안내 문구가 없습니다.</p>'}</div>
     </div>
   `;
+
+  document.querySelectorAll('input[name="scheduleMode"]').forEach(r=>r.onchange=()=>{
+    const field=$('scheduleCustomField');
+    if(field)field.hidden=r.value!=='custom';
+  });
+
   $('addScheduleExtra').onclick=()=>{
     collectScheduleAdmin();
     ensureScheduleExtras().push('');
