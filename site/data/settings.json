@@ -87,7 +87,7 @@
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
-  "frameKeepDescription": "추후 같은 디자인으로 이름 변경 / 움짤 변경을 하실 경우 O를 체크해 주세요. \nX를 선택하신 경우에는 작업 완료 후 파일을 별도로 보관하지 않습니다.",
+  "frameKeepDescription": "추후 이름 · 움짤 변경을 원하시면 O를 선택해 주세요 (X 선택 시 작업 파일 미보관)",
   "frameKeepYes": "O",
   "frameKeepNo": "X",
   "conceptLabel": "원하는 디자인 컨셉 및 색상",
