@@ -264,14 +264,13 @@ function renderScheduleAdmin(){
     </div>
     <div class="wide schedule-estimate-admin">
       <div class="schedule-estimate-admin-head">
-        <div><strong>예상 마감 박스</strong><p class="muted">작업 일정 카드 오른쪽에 현재 예상 마감 기간을 표시합니다.</p></div>
+        <div><strong>작업 완료 예상 박스</strong><p class="muted">일정 문구 오른쪽에 “1~3일 / 작업 완료까지” 형태로 표시합니다.</p></div>
         <label class="toggle"><input id="scheduleEstimateEnabled" type="checkbox" ${S.scheduleEstimateEnabled!==false?'checked':''}> 표시</label>
       </div>
       <div class="fields schedule-estimate-fields">
-        <label><span>작은 제목</span><input id="scheduleEstimateLabel" value="${adminEsc(S.scheduleEstimateLabel||'예상 마감')}"></label>
         <label><span>최소 일수</span><input id="scheduleEstimateMinDays" type="number" min="0" value="${Number(S.scheduleEstimateMinDays??1)}"></label>
-        <label><span>최대 일수</span><input id="scheduleEstimateMaxDays" type="number" min="0" value="${Number(S.scheduleEstimateMaxDays??2)}"></label>
-        <label class="wide"><span>표시 문구</span><input id="scheduleEstimateText" value="${adminEsc(S.scheduleEstimateText||'현재 문의하면 {min}~{max}일 내에 마감됩니다.')}" placeholder="예: 현재 문의하면 {min}~{max}일 내에 마감됩니다."><small class="field-note"><b>{min}</b>, <b>{max}</b> 자리에 위 숫자가 자동으로 들어갑니다.</small></label>
+        <label><span>최대 일수</span><input id="scheduleEstimateMaxDays" type="number" min="0" value="${Number(S.scheduleEstimateMaxDays??3)}"></label>
+        <label><span>아래 문구</span><input id="scheduleEstimateLabel" value="${adminEsc(S.scheduleEstimateLabel||'작업 완료까지')}" placeholder="예: 작업 완료까지"></label>
       </div>
     </div>
   `;
