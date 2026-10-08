@@ -2,39 +2,131 @@ const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITE
 function initArtmugEmbedMode(){
   if(!document.body?.classList.contains('artmug-part'))return;
   document.documentElement.classList.add('artmug-embed-root');
+
+  const shell=document.querySelector('.site-shell');
   let raf=0;
-  const report=()=>{
+  let settleTimer=0;
+  let lastHeight=0;
+
+  function actualContentHeight(){
+    const target=shell||document.body;
+    if(!target)return 0;
+
+    const rect=target.getBoundingClientRect();
+    const top=Math.max(0,Math.round(rect.top+window.scrollY));
+    const bottom=Math.ceil(rect.bottom+window.scrollY);
+
+    // Measure the real content box, not the iframe viewport. This allows shrinking
+    // after dynamically-added inquiry sections are removed again.
+    const boxHeight=Math.ceil(rect.height);
+    const offsetHeight=Math.ceil(target.offsetHeight||0);
+    return Math.max(1,bottom,top+boxHeight,top+offsetHeight);
+  }
+
+  function sectionTop(el){
+    if(!el||el.hidden)return null;
+    const r=el.getBoundingClientRect();
+    return Math.max(0,Math.round(r.top+window.scrollY))
+  }
+
+  function sendHeight(force){
+    if(window.parent===window)return;
+    const height=actualContentHeight();
+    if(!force&&height===lastHeight)return;
+    lastHeight=height;
+
+    const sections={
+      top:0,
+      notice:sectionTop(document.querySelector('.notice-card')),
+      inquiry:sectionTop(document.querySelector('.form-card')),
+      portfolio:sectionTop(document.getElementById('portfolioSection')),
+      preset:sectionTop(document.getElementById('presetSection'))
+    };
+    const role=document.body.classList.contains('artmug-part-inquiry')
+      ?'inquiry'
+      :document.body.classList.contains('artmug-part-portfolio')
+        ?'portfolio'
+        :'full';
+
+    const heightPayload={
+      type:'artmug-portfolio-height',
+      height:height,
+      role:role
+    };
+    const mapPayload={
+      type:'artmug-section-map',
+      height:height,
+      sections:sections,
+      role:role
+    };
+
+    try{window.parent.postMessage(heightPayload,'*')}catch{}
+    try{window.parent.postMessage(mapPayload,'*')}catch{}
+    try{
+      if(window.top!==window.parent){
+        window.top.postMessage(heightPayload,'*');
+        window.top.postMessage(mapPayload,'*')
+      }
+    }catch{}
+  }
+
+  function report(force){
     cancelAnimationFrame(raf);
-    raf=requestAnimationFrame(()=>{
-      if(window.parent===window)return;
-      const height=Math.ceil(Math.max(document.body.scrollHeight,document.documentElement.scrollHeight));
-      const topOf=el=>{
-        if(!el||el.hidden)return null;
-        const r=el.getBoundingClientRect();
-        return Math.max(0,Math.round(window.scrollY+r.top))
-      };
-      const sections={
-        top:0,
-        notice:topOf(document.querySelector('.notice-card')),
-        inquiry:topOf(document.querySelector('.form-card')),
-        portfolio:topOf(document.getElementById('portfolioSection')),
-        preset:topOf(document.getElementById('presetSection'))
-      };
-      const role=document.body.classList.contains('artmug-part-inquiry')?'inquiry':document.body.classList.contains('artmug-part-portfolio')?'portfolio':'full';
-      const payload={type:'artmug-section-map',height,sections,role};
-      try{window.parent.postMessage({type:'artmug-portfolio-height',height},'*')}catch{}
-      try{window.parent.postMessage(payload,'*')}catch{}
-      try{if(window.top!==window.parent)window.top.postMessage(payload,'*')}catch{}
-    })
-  };
-  window.addEventListener('load',report,{once:true});
-  if('ResizeObserver'in window)new ResizeObserver(report).observe(document.body);
-  window.addEventListener('artmug-sections-changed',report);
+    raf=requestAnimationFrame(()=>sendHeight(!!force));
+
+    clearTimeout(settleTimer);
+    settleTimer=window.setTimeout(()=>{
+      cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>sendHeight(true))
+    },80)
+  }
+
+  // Size changes from responsive layout, textarea resizing, images, etc.
+  if('ResizeObserver'in window){
+    const ro=new ResizeObserver(()=>report(false));
+    ro.observe(shell||document.body);
+    if(shell&&document.body!==shell)ro.observe(document.body);
+    window.__artmugHeightResizeObserver=ro
+  }
+
+  // DOM additions/removals and conditional fields can change height before a
+  // ResizeObserver notification settles, so observe mutations as well.
+  if('MutationObserver'in window){
+    const mo=new MutationObserver(()=>report(false));
+    mo.observe(shell||document.body,{
+      subtree:true,
+      childList:true,
+      characterData:true,
+      attributes:true,
+      attributeFilter:['hidden','class','style','open']
+    });
+    window.__artmugHeightMutationObserver=mo
+  }
+
+  // Capture lazy image/media completion without assigning per-element handlers.
+  document.addEventListener('load',e=>{
+    const t=e.target;
+    if(t&&(/^(IMG|VIDEO|IFRAME)$/.test(t.tagName||'')))report(false)
+  },true);
+
+  window.addEventListener('resize',()=>report(true),{passive:true});
+  window.addEventListener('orientationchange',()=>report(true),{passive:true});
+  window.addEventListener('artmug-sections-changed',()=>report(true));
   window.addEventListener('message',e=>{
     const d=e&&e.data;
-    if(d&&d.type==='artmug-request-section-map')report()
+    if(d&&d.type==='artmug-request-section-map')report(true)
   });
-  report()
+
+  if(document.fonts&&document.fonts.ready){
+    document.fonts.ready.then(()=>report(true)).catch(()=>{})
+  }
+
+  window.addEventListener('load',()=>{
+    report(true);
+    window.setTimeout(()=>report(true),250)
+  },{once:true});
+
+  report(true)
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugEmbedMode,{once:true});else initArtmugEmbedMode();
 
