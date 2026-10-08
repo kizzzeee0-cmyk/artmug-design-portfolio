@@ -9,3 +9,6 @@
 /mobile-nav/*
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
+/bridge.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
