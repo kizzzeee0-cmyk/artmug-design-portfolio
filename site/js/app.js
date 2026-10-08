@@ -169,6 +169,7 @@ function renderSchedule(s){
 
   const estimate=$('scheduleEstimate');
   const estimateOn=s.scheduleEstimateEnabled!==false;
+  if(card)card.classList.toggle('has-estimate',estimateOn);
   if(estimate){
     estimate.hidden=!estimateOn;
     if(estimateOn){
