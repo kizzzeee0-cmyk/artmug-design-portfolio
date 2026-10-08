@@ -480,17 +480,38 @@ function addRequest(typeIds){
 
 function updateRequestCardMeta(){}
 
+function normalizeHexColor(value){
+  const v=String(value||'').trim();
+  return /^#[0-9a-fA-F]{6}$/.test(v)?v.toUpperCase():''
+}
+
+function readInquiryColors(card){
+  const rows=Array.from(card.querySelectorAll('[data-color-row]'));
+  if(!rows.length){
+    const legacyName=(card.querySelector('[data-field="colorText"]')||{}).value||'';
+    const legacyHex=normalizeHexColor((card.querySelector('[data-field="colorHex"]')||{}).value||'');
+    return [{name:String(legacyName||''),hex:legacyHex}]
+  }
+  return rows.map(function(row){
+    const name=(row.querySelector('[data-color-name]')||{}).value||'';
+    const rawHex=(row.querySelector('[data-color-hex]')||{}).value||'';
+    return {name:String(name||''),hex:normalizeHexColor(rawHex)}
+  })
+}
+
 function readRequestValues(card){
   function q(s){return card.querySelector(s)}
   function qa(s){return Array.from(card.querySelectorAll(s))}
+  const colors=readInquiryColors(card);
   return{
     typeIds:qa('input[data-field="requestType"]:checked').map(function(x){return x.value}),
     signatureNumber:(q('[data-field="signatureNumber"]')||{}).value||'',
     signatureContent:(q('[data-field="signatureContent"]')||{}).value||'',
     frameKeep:(q('input[data-field="frameKeep"]:checked')||{}).value||'O',
     concept:(q('[data-field="concept"]')||{}).value||'',
-    colorText:(q('[data-field="colorText"]')||{}).value||'',
-    colorHex:(q('[data-field="colorHex"]')||{}).value||'',
+    colors:colors,
+    colorText:colors[0]?.name||'',
+    colorHex:colors[0]?.hex||'',
     extra:(q('[data-field="extra"]')||{}).value||'',
     bannerText:(q('[data-field="bannerText"]')||{}).value||'',
     banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
@@ -501,95 +522,111 @@ function readRequestValues(card){
   };
 }
 
-function normalizeHexColor(value){
-  const v=String(value||'').trim();
-  return /^#[0-9a-fA-F]{6}$/.test(v)?v.toUpperCase():''
+function normalizeColorList(prev){
+  const raw=Array.isArray(prev?.colors)&&prev.colors.length
+    ? prev.colors
+    : [{name:prev?.colorText||'',hex:prev?.colorHex||''}];
+  const colors=raw.map(function(x){
+    return {name:String(x?.name||''),hex:normalizeHexColor(x?.hex||'')}
+  });
+  return colors.length?colors:[{name:'',hex:''}]
 }
 
-function setupInquiryColorPicker(card,prev){
-  const q=s=>card.querySelector(s);
-  const toggle=q('[data-color-toggle]');
-  const popover=q('[data-color-popover]');
-  const native=q('[data-color-native]');
-  const hexInput=q('[data-color-hex-input]');
-  const hidden=q('[data-field="colorHex"]');
-  const preview=q('[data-color-preview]');
-  const pickerPreview=q('[data-color-picker-preview]');
-  const error=q('[data-color-error]');
-  const apply=q('[data-color-apply]');
-  if(!toggle||!popover||!native||!hexInput||!hidden||!preview||!pickerPreview||!error||!apply)return;
+function inquiryColorRowHtml(color,index,total){
+  const hex=normalizeHexColor(color?.hex||'');
+  const pickerValue=hex||'#A8D8F0';
+  const previewStyle=hex?' style="background:'+htmlAttr(hex)+'"':'';
+  const deleteDisabled=total<=1?' disabled':'';
+  return '<div class="inquiry-color-row" data-color-row data-color-index="'+index+'">'+
+    '<input class="color-name-input" data-color-name type="text" value="'+htmlAttr(color?.name||'')+'" placeholder="'+htmlAttr(S.colorPlaceholder||'예: 민트, 화이트, 라벤더')+'">'+
+    '<input class="color-hex-input" data-color-hex type="text" inputmode="text" maxlength="7" value="'+htmlAttr(hex)+'" placeholder="#A8D8F0" aria-label="HEX 색상 코드">'+
+    '<span class="color-swatch-preview '+(hex?'has-color':'')+'" data-color-preview'+previewStyle+' title="'+htmlAttr(hex||'선택된 색상 없음')+'" aria-hidden="true"></span>'+
+    '<button type="button" class="color-picker-toggle" data-color-palette>팔레트</button>'+
+    '<input class="color-native-input color-native-hidden" data-color-native type="color" value="'+htmlAttr(pickerValue)+'" tabindex="-1" aria-label="색상 선택">'+
+    '<button type="button" class="color-row-delete" data-color-delete aria-label="색상 항목 삭제"'+deleteDisabled+'>삭제</button>'+
+  '</div>'
+}
 
-  const saved=normalizeHexColor(prev?.colorHex||hidden.value);
-  let staged=saved||'#A8D8F0';
+function setupInquiryColorList(card,prev){
+  const root=card.querySelector('[data-color-rows]');
+  const add=card.querySelector('[data-color-add]');
+  if(!root||!add)return;
+  let colors=normalizeColorList(prev);
 
-  function paint(value){
-    native.value=value;
-    hexInput.value=value;
-    pickerPreview.style.background=value
-  }
-  function paintSaved(value){
-    if(value){
-      preview.style.background=value;
-      preview.classList.add('has-color');
-      preview.title=value
-    }else{
-      preview.style.background='';
-      preview.classList.remove('has-color');
-      preview.title='선택된 색상 없음'
-    }
-  }
-  function validateInput(){
-    const v=normalizeHexColor(hexInput.value);
-    const ok=!!v;
-    error.hidden=ok;
-    hexInput.classList.toggle('is-invalid',!ok);
-    if(ok){
-      staged=v;
-      native.value=v;
-      pickerPreview.style.background=v
-    }
-    return v
+  function currentColors(){
+    const rows=Array.from(root.querySelectorAll('[data-color-row]'));
+    return rows.map(function(row){
+      return {
+        name:String((row.querySelector('[data-color-name]')||{}).value||''),
+        hex:normalizeHexColor((row.querySelector('[data-color-hex]')||{}).value||'')
+      }
+    })
   }
 
-  hidden.value=saved;
-  paint(staged);
-  paintSaved(saved);
+  function renderRows(nextColors){
+    colors=(Array.isArray(nextColors)&&nextColors.length?nextColors:[{name:'',hex:''}]).map(function(x){
+      return {name:String(x?.name||''),hex:normalizeHexColor(x?.hex||'')}
+    });
+    root.innerHTML=colors.map(function(color,i){
+      return inquiryColorRowHtml(color,i,colors.length)
+    }).join('');
 
-  toggle.onclick=function(){
-    popover.hidden=!popover.hidden;
-    if(!popover.hidden){
-      const current=normalizeHexColor(hidden.value)||staged;
-      staged=current;
-      paint(current);
-      error.hidden=true;
-      hexInput.classList.remove('is-invalid');
-      window.requestAnimationFrame(()=>hexInput.focus())
-    }
+    root.querySelectorAll('[data-color-row]').forEach(function(row){
+      const hexInput=row.querySelector('[data-color-hex]');
+      const preview=row.querySelector('[data-color-preview]');
+      const native=row.querySelector('[data-color-native]');
+      const palette=row.querySelector('[data-color-palette]');
+      const del=row.querySelector('[data-color-delete]');
+
+      function applyHex(raw,showInvalid){
+        const normalized=normalizeHexColor(raw);
+        const hasTyped=String(raw||'').trim().length>0;
+        const invalid=hasTyped&&!normalized;
+        hexInput.classList.toggle('is-invalid',!!(showInvalid&&invalid));
+        if(normalized){
+          hexInput.value=normalized;
+          native.value=normalized;
+          preview.style.background=normalized;
+          preview.classList.add('has-color');
+          preview.title=normalized
+        }else if(!hasTyped){
+          preview.style.background='';
+          preview.classList.remove('has-color');
+          preview.title='선택된 색상 없음'
+        }
+        return normalized
+      }
+
+      hexInput.oninput=function(){
+        applyHex(hexInput.value,false)
+      };
+      hexInput.onblur=function(){
+        applyHex(hexInput.value,true)
+      };
+      native.oninput=function(){
+        const value=String(native.value||'#A8D8F0').toUpperCase();
+        hexInput.value=value;
+        applyHex(value,false)
+      };
+      palette.onclick=function(){
+        try{native.click()}catch(e){}
+      };
+      del.onclick=function(){
+        if(colors.length<=1)return;
+        const snapshot=currentColors();
+        snapshot.splice(Number(row.dataset.colorIndex),1);
+        renderRows(snapshot)
+      };
+    })
+  }
+
+  add.onclick=function(){
+    const snapshot=currentColors();
+    snapshot.push({name:'',hex:''});
+    renderRows(snapshot)
   };
 
-  native.oninput=function(){
-    staged=String(native.value||'#A8D8F0').toUpperCase();
-    hexInput.value=staged;
-    pickerPreview.style.background=staged;
-    error.hidden=true;
-    hexInput.classList.remove('is-invalid')
-  };
-
-  hexInput.oninput=function(){
-    validateInput()
-  };
-
-  apply.onclick=function(){
-    const v=validateInput();
-    if(!v)return;
-    hidden.value=v;
-    paintSaved(v);
-    popover.hidden=true
-  };
-
-  popover.addEventListener('keydown',function(e){
-    if(e.key==='Escape')popover.hidden=true
-  })
+  renderRows(colors)
 }
 
 function renderRequestFields(card,typeIds,prev){
@@ -602,50 +639,35 @@ function renderRequestFields(card,typeIds,prev){
 
   if(!types.length){
     fields.innerHTML='';
+    requestAnimationFrame(updateInquiryQuestionNumbers);
     return;
   }
 
   var html='<div class="inquiry-concept-color-row">';
 
-  /* 3. 원하는 디자인 컨셉 */
   html+='<label class="request-full-field inquiry-standard-field concept-request-field">'+
     requiredLabel(S.conceptLabel||'원하는 디자인 컨셉')+
     '<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 깔끔한 분위기')+'"></textarea>'+
   '</label>';
 
-  /* 4. 원하는 색상 */
   html+='<div class="request-full-field inquiry-standard-field color-request-field">'+
-    '<span class="inquiry-field-title">'+htmlAttr(S.colorLabel||'원하는 색상')+'</span>'+
-    '<div class="color-input-shell">'+
-      '<input class="color-name-input" data-field="colorText" type="text" placeholder="'+htmlAttr(S.colorPlaceholder||'예: 민트, 화이트, 라벤더')+'">'+
-      '<span class="color-swatch-preview" data-color-preview title="선택된 색상 없음" aria-hidden="true"></span>'+
-      '<button type="button" class="color-picker-toggle" data-color-toggle aria-label="색상 팔레트 열기">팔레트</button>'+
-      '<input data-field="colorHex" type="hidden" value="">'+
-      '<div class="color-picker-popover" data-color-popover hidden>'+
-        '<div class="color-picker-top">'+
-          '<input class="color-native-input" data-color-native type="color" value="#A8D8F0" aria-label="색상 선택">'+
-          '<span class="color-picker-preview" data-color-picker-preview aria-hidden="true"></span>'+
-        '</div>'+
-        '<label class="color-hex-field"><span>HEX</span><input data-color-hex-input type="text" inputmode="text" maxlength="7" value="#A8D8F0" placeholder="#A8D8F0"></label>'+
-        '<p class="color-error" data-color-error hidden>#RRGGBB 형식으로 입력해 주세요.</p>'+
-        '<button type="button" class="color-apply-button" data-color-apply>색상 적용</button>'+
-      '</div>'+
-    '</div>'+
+    '<span class="inquiry-field-title" data-question-title>'+htmlAttr(S.colorLabel||'원하는 색상')+'</span>'+
+    '<div class="inquiry-color-rows" data-color-rows></div>'+
+    '<button type="button" class="color-add-button" data-color-add>+ 색상 추가</button>'+
   '</div>';
+
   html+='</div>';
 
-  /* 기존 조건부 상세 입력은 그대로 유지 */
   if(has('showSignatureFields')){
     html+='<div class="signature-fields signature-inline-fields">'+
-      '<label class="signature-inline-row"><span>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
-      '<label class="signature-inline-row"><span>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><input data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></label>'+
+      '<label class="signature-inline-row"><span data-question-title>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
+      '<label class="signature-inline-row"><span data-question-title>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><input data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></label>'+
     '</div>';
   }
 
-  /* 5. 움짤프사 파일 보관 여부 */
   if(has('showFrameRetention')){
-    html+='<fieldset class="choice-field inquiry-plain-choice frame-retention-field"><legend>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</legend>'+
-      '<p class="field-help preline">'+htmlAttr(S.frameKeepDescription||'')+'</p>'+
+    html+='<fieldset class="choice-field inquiry-plain-choice frame-retention-field"><legend data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</legend>'+
+      '<p class="field-help frame-retention-help">'+htmlAttr(S.frameKeepDescription||'')+'</p>'+
       '<div class="choice-row">'+
         '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="O"><span>'+htmlAttr(S.frameKeepYes||'O')+'</span></label>'+
         '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="X"><span>'+htmlAttr(S.frameKeepNo||'X')+'</span></label>'+
@@ -655,26 +677,20 @@ function renderRequestFields(card,typeIds,prev){
 
   if(has('showBannerFields')){
     var bannerValues=['하단 1칸','하단 3칸','하단 6칸'];
-    html+='<div class="banner-fields"><fieldset class="choice-field inquiry-plain-choice"><legend>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
+    html+='<div class="banner-fields"><fieldset class="choice-field inquiry-plain-choice"><legend data-question-title>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
       bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" type="checkbox" value="'+v+'"><span>'+v+'</span></label>'}).join('')+
       '</div></fieldset></div>';
   }
 
-  /* 6. 배너 입력 문구 */
   if(has('showBannerTextField')){
-    const bannerHelp=String(S.bannerTextHelp??'배너에 들어갈 문구를 적어주세요.').trim();
-    html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title">배너 입력 문구</span>'+
-      (bannerHelp?'<p class="field-help banner-text-help preline">'+htmlAttr(bannerHelp)+'</p>':'')+
-      '<textarea data-field="bannerText" placeholder="배너에 들어갈 문구를 적어주세요."></textarea></label>';
+    html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title" data-question-title>배너 입력 문구</span>'+
+      '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'배너에 들어갈 문구를 적어주세요.')+'"></textarea></label>';
   }
 
-  /* 두 번째 구분선: 디자인 상세 / 추가 신청 정보 */
   html+='<div class="inquiry-form-divider inquiry-form-divider-secondary" aria-hidden="true"></div>';
 
-  /* 7. 추가 요청 사항 */
-  html+='<label class="request-full-field inquiry-standard-field"><span class="inquiry-field-title">'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
+  html+='<label class="request-full-field inquiry-standard-field"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
 
-  /* 8. 추가 옵션 */
   var qtyOptions=inquiryQuantityOptionsForTypes(types);
   var qtyHtml=qtyOptions.length?'<div class="inquiry-qty-options">'+qtyOptions.map(function(o){
     return '<div class="inquiry-qty-row"><span class="inquiry-qty-label">'+htmlAttr(o.label)+'</span><div class="inquiry-qty-control">'+
@@ -684,7 +700,7 @@ function renderRequestFields(card,typeIds,prev){
     '</div></div>'
   }).join('')+'</div>':'';
 
-  html+='<fieldset class="choice-field inquiry-plain-choice option-field"><legend>추가 옵션</legend><p class="field-help">해당되는 항목이 있을 경우 선택하거나 수량을 입력해 주세요.</p>'+qtyHtml+'<div class="check-grid">'+
+  html+='<fieldset class="choice-field inquiry-plain-choice option-field"><legend data-question-title>추가 옵션</legend>'+qtyHtml+'<div class="check-grid">'+
     '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="당일마감"><span>당일마감</span></label>'+
     '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="빠른 마감"><span>빠른 마감</span></label>'+
     '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="포트폴리오 비공개"><span>포트폴리오 비공개</span></label>'+
@@ -697,8 +713,6 @@ function renderRequestFields(card,typeIds,prev){
   if(q('[data-field="signatureNumber"]'))q('[data-field="signatureNumber"]').value=prev.signatureNumber||'';
   if(q('[data-field="signatureContent"]'))q('[data-field="signatureContent"]').value=prev.signatureContent||'';
   if(q('[data-field="concept"]'))q('[data-field="concept"]').value=prev.concept||'';
-  if(q('[data-field="colorText"]'))q('[data-field="colorText"]').value=prev.colorText||'';
-  if(q('[data-field="colorHex"]'))q('[data-field="colorHex"]').value=normalizeHexColor(prev.colorHex);
   if(q('[data-field="extra"]'))q('[data-field="extra"]').value=prev.extra||'';
   if(q('[data-field="bannerText"]'))q('[data-field="bannerText"]').value=prev.bannerText||'';
 
@@ -725,7 +739,7 @@ function renderRequestFields(card,typeIds,prev){
   qa('input[data-field="bannerType"]').forEach(function(x){x.checked=(prev.banners||[]).includes(x.value)});
   qa('input[data-field="extraOption"]').forEach(function(x){x.checked=(prev.options||[]).includes(x.value)});
 
-  setupInquiryColorPicker(card,prev);
+  setupInquiryColorList(card,prev);
 
   var concept=q('[data-field="concept"]');
   if(concept)concept.oninput=function(){
@@ -735,6 +749,8 @@ function renderRequestFields(card,typeIds,prev){
     }
     clearRequiredMessageIfComplete();
   };
+
+  requestAnimationFrame(updateInquiryQuestionNumbers);
 }
 
 function requestText(card){
@@ -747,11 +763,15 @@ function requestText(card){
     (S.conceptLabel||'원하는 디자인 컨셉')+': '+v.concept
   ];
 
-  var colorParts=[];
-  if(String(v.colorText||'').trim())colorParts.push(String(v.colorText).trim());
-  var normalizedHex=normalizeHexColor(v.colorHex);
-  if(normalizedHex)colorParts.push(normalizedHex);
-  details.push((S.colorLabel||'원하는 색상')+': '+(colorParts.length?colorParts.join(' / '):''));
+  var colorParts=(Array.isArray(v.colors)?v.colors:[]).map(function(color){
+    var pieces=[];
+    var name=String(color?.name||'').trim();
+    var hex=normalizeHexColor(color?.hex||'');
+    if(name)pieces.push(name);
+    if(hex)pieces.push(hex);
+    return pieces.join(' / ')
+  }).filter(Boolean);
+  details.push((S.colorLabel||'원하는 색상')+': '+colorParts.join(', '));
 
   if(has('showSignatureFields')){
     details.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
