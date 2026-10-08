@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>모바일 빠른 이동</title>
 <style>
   *{box-sizing:border-box}
@@ -80,19 +83,27 @@
     line-height:1.2;
     white-space:nowrap;
   }
-  .mobile-nav .top-button{
-    background:#8fc8e8;
-    color:#ffffff;
+  .mobile-nav .top-button,
+  .mobile-nav .top-button:link,
+  .mobile-nav .top-button:visited{
+    background:#8fc8e8!important;
+    color:#ffffff!important;
   }
   .mobile-nav .top-button:hover,
+  .mobile-nav .top-button:focus,
   .mobile-nav .top-button:focus-visible{
-    background:#8fc8e8;
-    color:#ffffff;
+    background:#8fc8e8!important;
+    color:#ffffff!important;
     outline:none;
   }
   .mobile-nav .top-button:active{
-    background:#78b9df;
-    color:#ffffff;
+    background:#78b9df!important;
+    color:#ffffff!important;
+  }
+  .mobile-nav .top-button svg,
+  .mobile-nav .top-button span{
+    color:#ffffff!important;
+    stroke:#ffffff!important;
   }
 </style>
 </head>
@@ -115,7 +126,7 @@
     <span>포트폴리오</span>
   </button>
 
-  <button type="button" class="top-button" data-target="top" aria-label="맨 위로 이동">
+  <button type="button" class="top-button" data-target="top" aria-label="맨 위로 이동" style="background:#8fc8e8!important;color:#ffffff!important">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 10l6-6 6 6"></path>
       <path d="M12 4v16"></path>
