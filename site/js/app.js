@@ -275,7 +275,17 @@ function renderEvents(s){
   }
 }
 
-function renderNotices(items){$('noticeItems').innerHTML=items.map((x,i)=>{const icon=String(x.icon||'').trim();return `<article class="notice-item"><div class="notice-leading"><span class="notice-index">${String(i+1).padStart(2,'0')}</span>${icon?`<div class="notice-icon">${esc(icon)}</div>`:''}</div><div class="notice-item-copy"><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`}).join('')}
+function renderNotices(items){
+  $('noticeItems').innerHTML=items.map((x,i)=>`
+    <article class="notice-item">
+      <div class="notice-item-head">
+        <span class="notice-index">${String(i+1).padStart(2,'0')}</span>
+        <strong class="notice-item-title">${esc(x.title)}</strong>
+      </div>
+      <p class="notice-item-description">${esc(x.description)}</p>
+    </article>
+  `).join('')
+}
 
 function guideDefaults(){
   return {
