@@ -562,7 +562,7 @@ function renderRequestFields(card,typeIds,prev){
 
   if(has('showBannerTextField')){
     html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title" data-question-title>배너 입력 문구</span>'+
-      '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'예: 상단배너 - 칠공, 플로팅 배너 - 노래책, 유튜브, 팬카페')+'"></textarea></label>';
+      '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페')+'"></textarea></label>';
   }
 
   html+='<div class="inquiry-form-divider inquiry-form-divider-secondary" aria-hidden="true"></div>';
