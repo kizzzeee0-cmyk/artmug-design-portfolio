@@ -3213,3 +3213,24 @@ body.artmug-part-portfolio .work-status{
     text-align:left;
   }
 }
+
+
+/* configurable schedule messages */
+.schedule-card[hidden]{display:none!important}
+.schedule-main-line{display:block}
+.schedule-extra-lines{
+  display:grid;
+  gap:4px;
+  margin-top:9px;
+}
+.schedule-extra-line{
+  display:block;
+  color:var(--muted);
+  font-size:11.5px;
+  font-weight:500;
+  line-height:1.55;
+}
+@media(max-width:680px){
+  .schedule-extra-lines{margin-top:7px}
+  .schedule-extra-line{font-size:11px}
+}
