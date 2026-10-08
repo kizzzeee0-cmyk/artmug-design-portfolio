@@ -581,10 +581,7 @@
   font-size:10.5px;
 }
 .schedule-estimate-fields{
-  grid-template-columns:minmax(150px,1fr) 110px 110px;
-}
-.schedule-estimate-fields .wide{
-  grid-column:1/-1;
+  grid-template-columns:110px 110px minmax(180px,1fr);
 }
 @media(max-width:720px){
   .schedule-estimate-admin-head{
@@ -594,7 +591,5 @@
   .schedule-estimate-fields{
     grid-template-columns:1fr;
   }
-  .schedule-estimate-fields .wide{
-    grid-column:auto;
-  }
+  
 }
