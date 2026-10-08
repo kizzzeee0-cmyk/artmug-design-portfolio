@@ -25,5 +25,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261007022632"
+  },
+  {
+    "id": "preset-KPW_cBkSUwE",
+    "category": "profile",
+    "file": "preset/profile/20261008082250-eWkdpHHZ-background.png",
+    "originalName": "background.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261008082250"
   }
 ]
