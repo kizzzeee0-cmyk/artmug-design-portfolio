@@ -25,5 +25,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261008082250"
+  },
+  {
+    "id": "preset-VmppNn3l3ag",
+    "category": "profile",
+    "file": "preset/profile/20261008083140-UFADCw7C-background__1_.png",
+    "originalName": "background (1).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261008083140"
   }
 ]
