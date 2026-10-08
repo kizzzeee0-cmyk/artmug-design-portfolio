@@ -593,5 +593,6 @@
   "scheduleEstimateMaxDays": 2,
   "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다.",
   "colorLabel": "원하는 색상",
-  "colorPlaceholder": "예: 민트, 화이트, 라벤더"
+  "colorPlaceholder": "예: 민트, 화이트, 라벤더",
+  "bannerTextHelp": "배너에 들어갈 문구를 작성해 주세요."
 }
