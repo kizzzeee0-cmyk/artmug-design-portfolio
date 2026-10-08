@@ -5687,3 +5687,44 @@ body.artmug-part-inquiry .form-actions{
     color:var(--primary-action);
   }
 }
+
+
+/* =========================================================
+   2026-10-09 MICRO UI ADJUSTMENTS
+   Notice body / preset label / mobile schedule only
+   ========================================================= */
+
+/* Notice body only: a very small left inset, title/number stay untouched. */
+.notice-card .notice-item-description{
+  box-sizing:border-box;
+  padding-left:8px!important;
+  padding-right:0!important;
+}
+
+/* Preset item name: slightly larger on desktop only. */
+@media(min-width:681px){
+  .preset-card-name{
+    font-size:16.5px!important;
+  }
+}
+
+/* Mobile-only typography refinements. */
+@media(max-width:680px){
+  /* Keep the existing mobile preset name size unchanged. */
+  .preset-card-name{
+    font-size:14.5px!important;
+  }
+
+  /* Notice body: 1px smaller than the current mobile placeholder-based size. */
+  .notice-card #noticeText,
+  .notice-card .notice-item-description{
+    font-size:12px!important;
+    line-height:1.55!important;
+    letter-spacing:-.01em;
+  }
+
+  /* Only the 1~2 day range becomes slightly smaller; box/caption unchanged. */
+  .schedule-estimate-range{
+    font-size:17px!important;
+  }
+}
