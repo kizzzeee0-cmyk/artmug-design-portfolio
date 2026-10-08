@@ -508,3 +508,51 @@
     flex-direction:column;
   }
 }
+
+
+/* schedule message choice cards */
+.schedule-mode-pills{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.schedule-mode-pills label{
+  width:100%!important;
+}
+.schedule-mode-pills span{
+  width:100%;
+  min-height:64px;
+  display:flex!important;
+  flex-direction:column;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:4px;
+  border-radius:12px!important;
+  padding:10px 12px!important;
+  text-align:left;
+  white-space:normal!important;
+}
+.schedule-mode-pills strong{
+  font-size:12px;
+  font-weight:700;
+  color:inherit;
+}
+.schedule-mode-pills small{
+  display:block;
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:500;
+  line-height:1.45;
+}
+.schedule-mode-pills input:checked+span small{
+  color:var(--accent-deep);
+  opacity:.78;
+}
+#scheduleCustomField[hidden]{
+  display:none!important;
+}
+@media(max-width:760px){
+  .schedule-mode-pills{
+    grid-template-columns:1fr;
+  }
+}
