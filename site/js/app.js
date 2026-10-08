@@ -275,7 +275,7 @@ function renderEvents(s){
   }
 }
 
-function renderNotices(items){$('noticeItems').innerHTML=items.map((x,i)=>`<article class="notice-item"><div class="notice-leading"><span class="notice-index">${String(i+1).padStart(2,'0')}</span><div class="notice-icon">${esc(x.icon||'')}</div></div><div class="notice-item-copy"><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`).join('')}
+function renderNotices(items){$('noticeItems').innerHTML=items.map((x,i)=>{const icon=String(x.icon||'').trim();return `<article class="notice-item"><div class="notice-leading"><span class="notice-index">${String(i+1).padStart(2,'0')}</span>${icon?`<div class="notice-icon">${esc(icon)}</div>`:''}</div><div class="notice-item-copy"><strong class="notice-item-title">${esc(x.title)}</strong><p class="notice-item-description">${esc(x.description)}</p></div></article>`}).join('')}
 
 function guideDefaults(){
   return {
@@ -406,7 +406,7 @@ function renderInquiryForm(){
   }
   if(globalReview){
     globalReview.hidden=S.inquiryReviewEnabled===false;
-    globalReview.innerHTML='<legend data-question-title>리뷰이벤트 참여 여부</legend><div class="choice-row">'+
+    globalReview.innerHTML='<div class="choice-title-row"><span class="inquiry-field-title" data-question-title>리뷰이벤트 참여 여부</span></div><div class="choice-row">'+
       '<label class="choice-pill"><input id="globalReviewParticipate" name="globalReviewEvent" type="radio" value="참여"><span>참여</span></label>'+
       '<label class="choice-pill"><input id="globalReviewDecline" name="globalReviewEvent" type="radio" value="미참여" checked><span>미참여</span></label>'+
     '</div>'
@@ -666,8 +666,9 @@ function renderRequestFields(card,typeIds,prev){
   }
 
   if(has('showFrameRetention')){
-    html+='<fieldset class="choice-field inquiry-plain-choice frame-retention-field"><legend data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</legend>'+
-      '<p class="field-help frame-retention-help">'+htmlAttr(S.frameKeepDescription||'')+'</p>'+
+    html+='<fieldset class="choice-field inquiry-plain-choice frame-retention-field">'+
+      '<div class="choice-title-row frame-retention-title-row"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</span>'+
+      '<span class="frame-retention-inline-help">'+htmlAttr(S.frameKeepDescription||'')+'</span></div>'+
       '<div class="choice-row">'+
         '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="O"><span>'+htmlAttr(S.frameKeepYes||'O')+'</span></label>'+
         '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="X"><span>'+htmlAttr(S.frameKeepNo||'X')+'</span></label>'+
