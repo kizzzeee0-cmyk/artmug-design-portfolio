@@ -506,7 +506,7 @@
       "name": "프리셋 01",
       "enabled": true,
       "isNew": true,
-      "colorChangeAvailable": false,
+      "colorChangeAvailable": true,
       "description": ""
     },
     "preset/profile/20261007003453-CRNMeR0U-background__8_.png": {
