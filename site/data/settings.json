@@ -512,9 +512,10 @@
     "preset/profile/20261007003453-CRNMeR0U-background__8_.png": {
       "name": "프리셋 03",
       "enabled": true,
-      "isNew": true,
+      "isNew": false,
       "colorChangeAvailable": false,
-      "description": ""
+      "description": "",
+      "isReserved": true
     },
     "preset/profile/20261008083140-UFADCw7C-background__1_.png": {
       "name": "프리셋 02",
