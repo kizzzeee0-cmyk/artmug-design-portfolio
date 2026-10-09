@@ -1127,7 +1127,13 @@ body::after{
   white-space:nowrap;
 }
 .preset-reserved-badge{
-  letter-spacing:-.01em;
+  letter-spacing:.02em;
+}
+@media(min-width:681px){
+  .preset-new-badge{
+    top:7px;
+    left:13px;
+  }
 }
 @media(max-width:680px){
   .preset-status-badge{
