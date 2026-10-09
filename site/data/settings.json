@@ -521,7 +521,7 @@
       "name": "프리셋 02",
       "enabled": true,
       "isNew": true,
-      "colorChangeAvailable": false,
+      "colorChangeAvailable": true,
       "description": ""
     }
   },
