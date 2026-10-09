@@ -1164,7 +1164,7 @@ body::after{
     border-radius:999px;
     background:var(--accent);
     color:#fff;
-    box-shadow:0 3px 10px rgba(90,145,177,.22);
+    box-shadow:none;
     font-size:10px;
     font-weight:800;
     line-height:1;
@@ -1176,6 +1176,9 @@ body::after{
   .preset-inline-new-badge{
     background:var(--accent);
     color:#fff;
+    box-shadow:none;
+    font-size:10px;
+    font-weight:800;
     letter-spacing:.05em;
   }
   .preset-inline-reserved-badge{
@@ -1183,7 +1186,7 @@ body::after{
     color:#556575;
     box-shadow:none;
     font-size:10px;
-    font-weight:750;
+    font-weight:800;
     letter-spacing:.025em;
     padding:0 9px;
   }
