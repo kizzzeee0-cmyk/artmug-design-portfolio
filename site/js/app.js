@@ -330,20 +330,6 @@ function renderSchedule(s){
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){
   const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
-  const banner=$('bannerEventCard');
-  if(banner){
-    banner.hidden=s.bannerEventEnabled===false;
-    const badge=banner.querySelector('.bundle-event-badge');
-    const condition=banner.querySelector('.bundle-event-condition');
-    const title=banner.querySelector('.bundle-event-title>span:first-child');
-    const benefit=banner.querySelector('.bundle-event-benefit');
-    const description=banner.querySelector('.bundle-event-description');
-    if(badge)badge.textContent=s.bannerEventBadge||'BANNER EVENT';
-    if(condition)condition.textContent=s.bannerEventCondition||'2종 이상 구매 시';
-    if(title)title.textContent=s.bannerEventTitle||'플로팅배너';
-    if(benefit)benefit.textContent=s.bannerEventBenefit||'1개 추가 무료 제작!';
-    if(description)description.textContent=s.bannerEventDescription||'상단배너 / 플로팅배너 / 하단배너 중\n2종 이상을 함께 구매하시면 적용됩니다.'
-  }
   set('eventsKicker',s.eventsKicker||'OPEN EVENT');
   set('eventsTitle',s.eventsTitle||'오픈 기념 이벤트 안내');
   const text=String(s.eventsText||'').trim();
@@ -501,23 +487,6 @@ function renderInquiryForm(){
   var types=inquiryTypes();
   var addRow=$('requestAddRow');
   if(addRow)addRow.hidden=true;
-
-  var form=document.querySelector('.contact-form');
-  var actions=form&&form.querySelector('.form-actions');
-  var globalReview=$('globalReviewEventField');
-  if(!globalReview&&form&&actions){
-    globalReview=document.createElement('fieldset');
-    globalReview.id='globalReviewEventField';
-    globalReview.className='span-2 choice-field inquiry-plain-choice review-event-field global-review-event-field';
-    form.insertBefore(globalReview,actions)
-  }
-  if(globalReview){
-    globalReview.hidden=S.inquiryReviewEnabled===false;
-    globalReview.innerHTML='<div class="choice-title-row"><span class="inquiry-field-title" data-question-title>리뷰이벤트 참여 여부</span></div><div class="choice-row">'+
-      '<label class="choice-pill"><input id="globalReviewParticipate" name="globalReviewEvent" type="radio" value="참여"><span>참여</span></label>'+
-      '<label class="choice-pill"><input id="globalReviewDecline" name="globalReviewEvent" type="radio" value="미참여" checked><span>미참여</span></label>'+
-    '</div>'
-  }
 
   if(!types.length){
     container.innerHTML='<div class="request-empty">현재 신청 가능한 디자인 종류가 없습니다.</div>';
@@ -761,10 +730,6 @@ function buildInquiryText(){
   var card=document.querySelector('.request-card');
   var request=card?requestText(card):'';
   var sections=[(S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname,request];
-  if(S.inquiryReviewEnabled!==false){
-    var review=(document.querySelector('input[name="globalReviewEvent"]:checked')||{}).value||'미참여';
-    sections.push('리뷰이벤트 참여 여부: '+review)
-  }
   var attachmentNotice='※ 작업에 사용되는 모든 이미지 및 동영상은 아트머그 <파일첨부>를 통해\n개별 첨부 또는 압축 파일로 전달 부탁드립니다.';
   sections.push(attachmentNotice);
   return sections.filter(Boolean).join('\n\n');
