@@ -937,7 +937,7 @@ function presetGrid(items,cat){
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
     const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">색상변경가능</span>':'';
     const badge=meta.isReserved
-      ?'<span class="preset-status-badge preset-reserved-badge">예약</span>'
+      ?'<span class="preset-status-badge preset-reserved-badge">예약중</span>'
       :meta.isNew
         ?'<span class="preset-status-badge preset-new-badge">NEW</span>'
         :'';
