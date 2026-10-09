@@ -825,6 +825,7 @@ function presetMetaForItem(x){
     name:String(saved.name||''),
     enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false,
     isNew:saved.isNew===true,
+    isReserved:saved.isReserved===true,
     colorChangeAvailable:saved.colorChangeAvailable===true
   }
 }
@@ -935,7 +936,11 @@ function presetGrid(items,cat){
     const meta=presetMetaForItem(x),rep=x.demoSrc||media(x.file);
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
     const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">색상변경가능</span>':'';
-    const badge=meta.isNew?'<span class="preset-new-badge">NEW</span>':'';
+    const badge=meta.isReserved
+      ?'<span class="preset-status-badge preset-reserved-badge">예약</span>'
+      :meta.isNew
+        ?'<span class="preset-status-badge preset-new-badge">NEW</span>'
+        :'';
     return `<article class="work-card preset-work-card">${badge}<div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></div><div class="preset-card-copy">${name}${colorNote}</div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
   if(layout==='bottom-split')setupBottomSplitGrid(g);
