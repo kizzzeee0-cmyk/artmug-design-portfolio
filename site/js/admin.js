@@ -678,7 +678,7 @@ async function savePresetToggle(i,key,value){
     ? (value?'공개로 변경되었습니다.':'비공개로 변경되었습니다.')
     : key==='isNew'
       ? (value?'NEW 표시를 켰습니다.':'NEW 표시를 껐습니다.')
-      : (value?'색상변경가능 표시를 켰습니다.':'색상변경가능 표시를 껐습니다.');
+      : (value?'수정가능 표시를 켰습니다.':'수정가능 표시를 껐습니다.');
   showToast(message)
 }
 function chooseReplacementFile(){
@@ -755,7 +755,7 @@ function renderPresetItems(){
         <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약 표시</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 색상변경가능 표시</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능 표시</label>
       </div>
       <div class="preset-admin-actions">
         <div class="media-order-controls">
@@ -775,7 +775,7 @@ function renderPresetItems(){
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked).catch(e=>{el.checked=!el.checked;alert('색상변경가능 표시 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked).catch(e=>{el.checked=!el.checked;alert('수정가능 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
     if(!confirm('이 프리셋을 삭제할까요?'))return;
     const file=decodeURIComponent(b.dataset.deletePreset);
