@@ -1159,8 +1159,7 @@ body::after{
     justify-content:center;
     min-width:34px;
     height:20px;
-    /* Extra bottom padding optically lifts Korean/Latin glyphs by about 1px. */
-    padding:0 8px 2px;
+    padding:0 8px;
     border:0;
     border-radius:999px;
     background:var(--accent);
@@ -1170,6 +1169,7 @@ body::after{
     font-weight:800;
     line-height:1;
     letter-spacing:.05em;
+    text-align:center;
     white-space:nowrap;
     pointer-events:none;
   }
@@ -1185,8 +1185,7 @@ body::after{
     font-size:10px;
     font-weight:750;
     letter-spacing:.025em;
-    padding-right:9px;
-    padding-left:9px;
+    padding:0 9px;
   }
 }
 
