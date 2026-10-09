@@ -1104,6 +1104,8 @@ body::after{
 .preset-work-card{
   position:relative;
 }
+
+/* Mobile keeps the existing image-overlay badge exactly as before. */
 .preset-status-badge{
   position:absolute;
   top:5px;
@@ -1129,12 +1131,50 @@ body::after{
 .preset-reserved-badge{
   letter-spacing:.02em;
 }
+
+/* Desktop: name + status are one centered flex group below the image. */
 @media(min-width:681px){
-  .preset-new-badge{
-    top:7px;
-    left:13px;
+  .preset-status-badge{
+    display:none;
+  }
+  .preset-name-row{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    max-width:100%;
+    min-width:0;
+  }
+  .preset-name-row .preset-card-name{
+    min-width:0;
+  }
+  .preset-inline-status-badge{
+    flex:0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:3px 7px;
+    border:0;
+    border-radius:6px;
+    box-shadow:none;
+    font-size:10.5px;
+    font-weight:650;
+    line-height:1;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .preset-inline-new-badge{
+    background:#E6F4FF;
+    color:#327DA8;
+    letter-spacing:.02em;
+  }
+  .preset-inline-reserved-badge{
+    background:#EFF2F5;
+    color:#64748B;
+    letter-spacing:.035em;
   }
 }
+
 @media(max-width:680px){
   .preset-status-badge{
     top:3px;
@@ -1143,6 +1183,12 @@ body::after{
     height:18px;
     padding:0 6px;
     font-size:8px;
+  }
+  .preset-inline-status-badge{
+    display:none;
+  }
+  .preset-name-row{
+    display:contents;
   }
 }
 
