@@ -73,6 +73,7 @@ function presetMetaFor(x){
     description:String(meta.description??''),
     enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,
     isNew:meta.isNew===true,
+    isReserved:meta.isReserved===true,
     colorChangeAvailable:meta.colorChangeAvailable===true
   }
 }
@@ -652,6 +653,19 @@ async function savePresetItem(i){
   showToast('프리셋 정보가 저장되었습니다.');
   renderPresetItems()
 }
+async function savePresetBadgeToggle(i,key,value){
+  const x=presetItems[i];if(!x)return;
+  const otherKey=key==='isNew'?'isReserved':'isNew';
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    const prev=latest.presetMeta[x.file]||{};
+    latest.presetMeta[x.file]={...prev,[key]:value,...(value?{[otherKey]:false}:{})}
+  });
+  S.presetMeta=saved.presetMeta||S.presetMeta||{};
+  renderPresetItems();
+  const label=key==='isNew'?'NEW':'예약';
+  showToast(value?label+' 표시를 켰습니다.':label+' 표시를 껐습니다.')
+}
 async function savePresetToggle(i,key,value){
   const x=presetItems[i];if(!x)return;
   const saved=await queueSettingsMutation(latest=>{
@@ -740,6 +754,7 @@ function renderPresetItems(){
         <label>프리셋 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
         <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약 표시</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 색상변경가능 표시</label>
       </div>
       <div class="preset-admin-actions">
@@ -758,7 +773,8 @@ function renderPresetItems(){
   document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked).catch(e=>{el.checked=!el.checked;alert('색상변경가능 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
     if(!confirm('이 프리셋을 삭제할까요?'))return;
@@ -808,7 +824,7 @@ async function uploadFiles(kind){
       const path=String(d.path||'');if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
       const saved=await queueSettingsMutation(latest=>{
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,colorChangeAvailable:false};
+        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,colorChangeAvailable:false};
         const order=Array.isArray(latest.presetOrder)?latest.presetOrder.filter(v=>v!==path):[];
         order.push(path);
         latest.presetOrder=order;
