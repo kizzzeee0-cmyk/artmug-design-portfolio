@@ -936,12 +936,11 @@ function presetGrid(items,cat){
     const meta=presetMetaForItem(x),rep=x.demoSrc||media(x.file);
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
     const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">색상변경가능</span>':'';
-    const badge=meta.isReserved
-      ?'<span class="preset-status-badge preset-reserved-badge">예약중</span>'
-      :meta.isNew
-        ?'<span class="preset-status-badge preset-new-badge">NEW</span>'
-        :'';
-    return `<article class="work-card preset-work-card">${badge}<div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></div><div class="preset-card-copy">${name}${colorNote}</div></article>`
+    const badgeType=meta.isReserved?'reserved':meta.isNew?'new':'';
+    const badgeText=badgeType==='reserved'?'예약중':badgeType==='new'?'NEW':'';
+    const mobileBadge=badgeType?`<span class="preset-status-badge preset-${badgeType}-badge">${badgeText}</span>`:'';
+    const desktopBadge=badgeType?`<span class="preset-inline-status-badge preset-inline-${badgeType}-badge">${badgeText}</span>`:'';
+    return `<article class="work-card preset-work-card">${mobileBadge}<div class="work-button protected-media-button"><div class="media-wrap"><img src="${esc(rep)}" alt="${esc(meta.name||'프리셋')}" loading="lazy" decoding="async" draggable="false"></div></div><div class="preset-card-copy"><div class="preset-name-row">${name}${desktopBadge}</div>${colorNote}</div></article>`
   }).join(''):`<div class="empty-state">${esc(c.emptyText||'등록된 프리셋이 아직 없습니다.')}</div>`;
   if(layout==='bottom-split')setupBottomSplitGrid(g);
   protectMedia()
