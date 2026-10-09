@@ -1129,7 +1129,11 @@ body::after{
   white-space:nowrap;
 }
 .preset-reserved-badge{
-  letter-spacing:.02em;
+  /* Calm flat reservation badge; mobile size/placement stays the same. */
+  background:#EFF2F5;
+  color:#556575;
+  box-shadow:none;
+  letter-spacing:.025em;
 }
 
 /* Desktop: name + status are one centered flex group below the image. */
@@ -1153,15 +1157,16 @@ body::after{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    min-width:29px;
-    height:18px;
-    padding:0 6px;
+    min-width:34px;
+    height:20px;
+    /* Extra bottom padding optically lifts Korean/Latin glyphs by about 1px. */
+    padding:0 8px 2px;
     border:0;
     border-radius:999px;
     background:var(--accent);
     color:#fff;
     box-shadow:0 3px 10px rgba(90,145,177,.22);
-    font-size:8px;
+    font-size:10px;
     font-weight:800;
     line-height:1;
     letter-spacing:.05em;
@@ -1174,9 +1179,14 @@ body::after{
     letter-spacing:.05em;
   }
   .preset-inline-reserved-badge{
-    background:var(--accent-strong);
-    color:#fff;
-    letter-spacing:.035em;
+    background:#EFF2F5;
+    color:#556575;
+    box-shadow:none;
+    font-size:10px;
+    font-weight:750;
+    letter-spacing:.025em;
+    padding-right:9px;
+    padding-left:9px;
   }
 }
 
