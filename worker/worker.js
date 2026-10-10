@@ -7,6 +7,7 @@ if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='
 if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings},200,{'Cache-Control':'no-store'}),req,env);}
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
+if(p==='/api/public/nav-summary')return cors(await publicNavSummary(env),req,env);
 if(p.startsWith('/media/'))return cors(await media(p.slice(7),env),req,env);
 if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors(json({error:'로그인이 필요합니다.'},401),req,env);
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
@@ -71,7 +72,46 @@ function ext(p){return (p.split('.').pop()||'').toLowerCase()}
 function item(file,cat,c={}){const name=file.split('/').pop();const m=name.match(/^(\d{14})-/);return{id:`file-${encodeURIComponent(file)}`,category:cat,file,originalName:name,alt:name.replace(/\.[^.]+$/,''),createdAt:m?m[1]:'',width:Number(c.displayWidth||0),height:Number(c.displayHeight||0)}}
 async function listItems(env,token,cat){const s=await publicJson(env,SETTINGS),cats=s.portfolioCategories||[];const use=cat?[...cats.filter(c=>c.id===cat)]:cats;const out=[];for(const c of use){const fs=await publicList(env,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path)))out.push(item(f.path,c.id,c))}}return out.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))}
 async function adminPortfolio(env,token){return listItems(env,token,'')}
-async function publicPortfolio(u,env){const cat=u.searchParams.get('category')||'profile',page=Math.max(1,Number(u.searchParams.get('page')||1)),per=Math.min(30,Math.max(1,Number(u.searchParams.get('perPage')||30)));const token=env.GITHUB_TOKEN||'';const s=token?await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);const c=(s.portfolioCategories||[]).find(x=>x.id===cat)||{};const idx=token?await ghJson(env,token,INDEX).catch(()=>[]):await publicJson(env,INDEX).catch(()=>[]);const meta=new Map((Array.isArray(idx)?idx:[]).filter(x=>x.category===cat).map(x=>[x.file,x]));const fs=token?await ghList(env,token,`portfolio/${cat}`).catch(()=>[]):await publicList(env,`portfolio/${cat}`).catch(()=>[]);let all=fs.filter(f=>f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path))).map(f=>{const base=item(f.path,cat,c),m=meta.get(f.path);return m?{...base,...m,category:cat,file:f.path}:base});all=all.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp},200,{'Cache-Control':'no-store'})}
+async function publicPortfolio(u,env){
+  const cat=u.searchParams.get('category')||'profile';
+  const page=Math.max(1,Number(u.searchParams.get('page')||1));
+  const per=Math.min(30,Math.max(1,Number(u.searchParams.get('perPage')||30)));
+  const filter=String(u.searchParams.get('filter')||'ALL').toUpperCase();
+  const token=env.GITHUB_TOKEN||'';
+  const [s,idx]=await Promise.all([
+    token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
+    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[])
+  ]);
+  const c=(s.portfolioCategories||[]).find(x=>x.id===cat)||{};
+  const pmeta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
+  let all=(Array.isArray(idx)?idx:[])
+    .filter(x=>x&&x.category===cat&&x.file&&['gif','png','jpg','jpeg','webp'].includes(ext(x.file)))
+    .map(x=>({...x,category:cat,file:x.file,width:Number(x.width||c.displayWidth||0),height:Number(x.height||c.displayHeight||0)}));
+
+  if(!all.length){
+    const fs=token?await ghList(env,token,`portfolio/${cat}`).catch(()=>[]):await publicList(env,`portfolio/${cat}`).catch(()=>[]);
+    all=fs.filter(f=>f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path))).map(f=>item(f.path,cat,c))
+  }
+
+  all=all.filter(x=>(pmeta[x.file]||{}).enabled!==false);
+  const isFloating=cat==='floating-banner'||String(c.label||'').replace(/\s/g,'').includes('플로팅');
+  const classOf=x=>{
+    const m=pmeta[x.file]||{};
+    if(isFloating&&m.isFixed===true)return'FIXED';
+    return ['A','B'].includes(m.bannerType)?m.bannerType:'B'
+  };
+  const availableFilters=['A','B'].filter(t=>all.some(x=>classOf(x)===t));
+  if(isFloating&&all.some(x=>classOf(x)==='FIXED'))availableFilters.push('FIXED');
+  if(['A','B','FIXED'].includes(filter))all=all.filter(x=>classOf(x)===filter);
+
+  const order=new Map((Array.isArray(s.portfolioOrder)?s.portfolioOrder:[]).map((x,i)=>[x,i]));
+  all.sort((a,b)=>{
+    const ai=order.has(a.file)?order.get(a.file):1e9,bi=order.has(b.file)?order.get(b.file):1e9;
+    return ai!==bi?ai-bi:String(b.createdAt||'').localeCompare(String(a.createdAt||''))
+  });
+  const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);
+  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=45'})
+}
 async function publicPresets(u,env){
   const token=env.GITHUB_TOKEN||'';
   const s=token?await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);
@@ -81,6 +121,46 @@ async function publicPresets(u,env){
   all=(Array.isArray(all)?all:[]).filter(x=>x.enabled!==false&&(!cat||x.category===cat)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
   const per=Math.min(60,Math.max(1,Number(u.searchParams.get('perPage')||30))),page=Math.max(1,Number(u.searchParams.get('page')||1)),tp=Math.max(1,Math.ceil(all.length/per)),pg=Math.min(page,tp);
   return json({items:all.slice((pg-1)*per,pg*per),total:all.length,page:pg,perPage:per,totalPages:tp},200,{'Cache-Control':'no-store'})
+}
+function publicCategoryLayout(c){
+  const id=String(c?.id||''),label=String(c?.label||'').replace(/\s/g,'');
+  if(id==='top-banner'||label.includes('상단배너'))return'top-banner';
+  if(id==='floating-banner'||label.includes('플로팅'))return'floating-banner';
+  if(id==='bottom-banner'||label.includes('하단배너일반'))return'bottom-banner';
+  if(id==='bottom-split'||label.includes('하단배너분할'))return'bottom-split';
+  if(/4cut|four-cut/.test(id)||label.includes('인생네컷'))return'four-cut';
+  return id
+}
+async function publicNavSummary(env){
+  const token=env.GITHUB_TOKEN||'';
+  const [s,idx,presets]=await Promise.all([
+    token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
+    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[]),
+    token?ghJson(env,token,PRESETS).catch(()=>[]):publicJson(env,PRESETS).catch(()=>[])
+  ]);
+  const meta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
+  const pm=s.presetMeta&&typeof s.presetMeta==='object'?s.presetMeta:{};
+  const cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy);
+  const catById=new Map(cats.map(c=>[c.id,c]));
+  const works=(Array.isArray(idx)?idx:[]).filter(x=>x&&catById.has(x.category)&&(meta[x.file]||{}).enabled!==false);
+  const bannerKinds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
+  const bannerWorks=works.filter(x=>bannerKinds.has(publicCategoryLayout(catById.get(x.category))));
+  const hasA=bannerWorks.some(x=>{const m=meta[x.file]||{};return m.isFixed!==true&&(m.bannerType||'B')==='A'});
+  const hasB=bannerWorks.some(x=>{const m=meta[x.file]||{};return m.isFixed!==true&&(m.bannerType||'B')==='B'});
+  const four=works.find(x=>publicCategoryLayout(catById.get(x.category))==='four-cut');
+  const presetItems=(Array.isArray(presets)?presets:[]).filter(x=>{
+    const m=pm[x.file]||{};
+    return x.enabled!==false&&m.enabled!==false
+  });
+  const hasPreset=s.presetEnabled!==false&&s.showcasePresetEnabled!==false&&presetItems.some(x=>{
+    const m=pm[x.file]||{};
+    return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))!=='fixed'
+  });
+  const hasFixed=s.presetEnabled!==false&&s.showcaseFixedEnabled!==false&&presetItems.some(x=>{
+    const m=pm[x.file]||{};
+    return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))==='fixed'
+  });
+  return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||''},200,{'Cache-Control':'public,max-age=30,stale-while-revalidate=120'})
 }
 async function media(path,env){const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`);if(!r.ok)return new Response('Not found',{status:404});const h=new Headers({'Cache-Control':'public,max-age=31536000,immutable'}),ct=r.headers.get('Content-Type');if(ct)h.set('Content-Type',ct);return new Response(r.body,{status:200,headers:h})}
 function b64(buf){const bytes=new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
@@ -150,7 +230,13 @@ function siteImageSlot(settings,kind){
     if(!settings.backgroundGuide.options[i])settings.backgroundGuide.options[i]={key:i===0?'a':'b'};
     return {get:()=>settings.backgroundGuide.options[i].referenceImage||'',set:v=>{settings.backgroundGuide.options[i].referenceImage=v}}
   }
+  if(kind==='type-guide-a'||kind==='type-guide-b'){
+    if(!settings.bannerTypeGuide||typeof settings.bannerTypeGuide!=='object')settings.bannerTypeGuide={};
+    const t=kind==='type-guide-a'?'A':'B';
+    if(!settings.bannerTypeGuide[t]||typeof settings.bannerTypeGuide[t]!=='object')settings.bannerTypeGuide[t]={};
+    return {get:()=>settings.bannerTypeGuide[t].referenceImage||'',set:v=>{settings.bannerTypeGuide[t].referenceImage=v}}
+  }
   return null
 }
-async function siteImage(req,env,s){const f=await req.formData(),file=f.get('file'),kind=String(f.get('kind')||'');if(!(file instanceof File)||!['about','comparison-a','comparison-b','guide-a','guide-b'].includes(kind))throw new Error('이미지 정보가 올바르지 않습니다.');const bytes=new Uint8Array(await file.arrayBuffer());if(bytes.length>6291456)throw new Error('이미지는 6MB 이하만 업로드할 수 있습니다.');const e=ext(file.name);if(!['png','jpg','jpeg','gif','webp'].includes(e))throw new Error('지원하지 않는 이미지입니다.');const name=`${Date.now()}-${random(5)}-${safeName(file.name)}`,path=`site-assets/${kind}/${name}`;await putFile(env,s.token,path,bytes,`[CF-Pages-Skip] Upload ${kind}`);const settings=await ghJson(env,s.token,SETTINGS),slot=siteImageSlot(settings,kind);if(!slot)throw new Error('이미지 저장 위치를 찾지 못했습니다.');const old=slot.get();slot.set(path);await saveJson(env,s.token,SETTINGS,settings,'[CF-Pages-Skip] Update site image');if(old&&old!==path){try{const d=await ghGet(env,s.token,old);await fetch(ghUrl(env,old),{method:'DELETE',headers:{...ghHeaders(s.token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Replace site image`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})})}catch{}}return json({ok:true,path,settings})}
-async function siteImageDelete(req,env,s){const b=await req.json(),kind=String(b.kind||'');if(!['about','comparison-a','comparison-b','guide-a','guide-b'].includes(kind))throw new Error('잘못된 이미지 종류입니다.');const settings=await ghJson(env,s.token,SETTINGS),slot=siteImageSlot(settings,kind);if(!slot)throw new Error('이미지 저장 위치를 찾지 못했습니다.');const old=slot.get();slot.set('');if(old){try{const d=await ghGet(env,s.token,old);await fetch(ghUrl(env,old),{method:'DELETE',headers:{...ghHeaders(s.token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Delete site image`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})})}catch{}}await saveJson(env,s.token,SETTINGS,settings,'[CF-Pages-Skip] Remove site image');return json({ok:true,settings})}
+async function siteImage(req,env,s){const f=await req.formData(),file=f.get('file'),kind=String(f.get('kind')||'');if(!(file instanceof File)||!['about','comparison-a','comparison-b','guide-a','guide-b','type-guide-a','type-guide-b'].includes(kind))throw new Error('이미지 정보가 올바르지 않습니다.');const bytes=new Uint8Array(await file.arrayBuffer());if(bytes.length>6291456)throw new Error('이미지는 6MB 이하만 업로드할 수 있습니다.');const e=ext(file.name);if(!['png','jpg','jpeg','gif','webp'].includes(e))throw new Error('지원하지 않는 이미지입니다.');const name=`${Date.now()}-${random(5)}-${safeName(file.name)}`,path=`site-assets/${kind}/${name}`;await putFile(env,s.token,path,bytes,`[CF-Pages-Skip] Upload ${kind}`);const settings=await ghJson(env,s.token,SETTINGS),slot=siteImageSlot(settings,kind);if(!slot)throw new Error('이미지 저장 위치를 찾지 못했습니다.');const old=slot.get();slot.set(path);await saveJson(env,s.token,SETTINGS,settings,'[CF-Pages-Skip] Update site image');if(old&&old!==path){try{const d=await ghGet(env,s.token,old);await fetch(ghUrl(env,old),{method:'DELETE',headers:{...ghHeaders(s.token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Replace site image`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})})}catch{}}return json({ok:true,path,settings})}
+async function siteImageDelete(req,env,s){const b=await req.json(),kind=String(b.kind||'');if(!['about','comparison-a','comparison-b','guide-a','guide-b','type-guide-a','type-guide-b'].includes(kind))throw new Error('잘못된 이미지 종류입니다.');const settings=await ghJson(env,s.token,SETTINGS),slot=siteImageSlot(settings,kind);if(!slot)throw new Error('이미지 저장 위치를 찾지 못했습니다.');const old=slot.get();slot.set('');if(old){try{const d=await ghGet(env,s.token,old);await fetch(ghUrl(env,old),{method:'DELETE',headers:{...ghHeaders(s.token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Delete site image`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})})}catch{}}await saveJson(env,s.token,SETTINGS,settings,'[CF-Pages-Skip] Remove site image');return json({ok:true,settings})}
