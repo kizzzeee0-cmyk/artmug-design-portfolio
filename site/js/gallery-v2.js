@@ -85,7 +85,9 @@ function smeta(x){
   colorChangeAvailable:m.colorChangeAvailable===true,
   showcaseKind:['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:inferred,
   featured:m.featured===true,
-  bannerType:['A','B'].includes(m.bannerType)?m.bannerType:''
+  bannerType:['A','B'].includes(m.bannerType)?m.bannerType:'',
+  secondaryFile:String(m.secondaryFile||''),
+  pairChild:m.pairChild===true
  }
 }
 function itemCard(x,c){
@@ -107,6 +109,16 @@ function presetCard(x){
    '<div class="v2-showcase-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" draggable="false"></div>'+
    '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong>'+(badge?'<span class="v2-inline-status '+statusClass+'"><span class="v2-badge-label">'+esc(badge)+'</span></span>':'')+'</div>'+
    (m.colorChangeAvailable?'<span class="v2-editable-note">수정가능</span>':'')+
+  '</article>'
+}
+function fixedCard(x){
+ const m=smeta(x),badge=m.isReserved?'예약중':m.isNew?'NEW':'',statusClass=m.isReserved?'is-reserved':'is-new';
+ const images=[x.file,m.secondaryFile].filter(Boolean);
+ return '<article class="v2-showcase-card v2-fixed-showcase-card" data-file="'+esc(x.file)+'">'+
+   '<div class="v2-fixed-pair-media '+(images.length<2?'is-single':'')+'">'+
+     images.map((file,i)=>'<div class="v2-fixed-pair-image"><img src="'+esc(media(file))+'" alt="'+esc((m.name||'고정틀')+' '+(i+1))+'" loading="lazy" decoding="async" draggable="false"></div>').join('')+
+   '</div>'+
+   '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'고정틀')+'</strong>'+(badge?'<span class="v2-inline-status '+statusClass+'"><span class="v2-badge-label">'+esc(badge)+'</span></span>':'')+'</div>'+
   '</article>'
 }
 function pagination(catId,total,page){
@@ -296,15 +308,24 @@ async function renderPortfolio(){
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false){root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return}
- const presetCats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false),allowed=new Set(presetCats.map(c=>c.id));
+ const allPresetCats=(state.settings.presetCategories||[]),enabledPresetCats=allPresetCats.filter(c=>c.enabled!==false),allowed=new Set(enabledPresetCats.map(c=>c.id));
  let source;
- if(Array.isArray(state.presetIndex))source=state.presetIndex.filter(x=>allowed.has(x.category));
- else{
-  const presetBatches=await Promise.all(presetCats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
+ if(Array.isArray(state.presetIndex)){
+  source=state.presetIndex.filter(x=>{
+   const m=smeta(x);
+   return allowed.has(x.category)||m.showcaseKind==='fixed'
+  })
+ }else{
+  const fallbackCats=[...enabledPresetCats];
+  const floating=allPresetCats.find(c=>c.id==='floating-banner');
+  if(floating&&!fallbackCats.some(c=>c.id===floating.id))fallbackCats.push(floating);
+  const presetBatches=await Promise.all(fallbackCats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
   source=presetBatches.flat()
  }
- let all=applyOrder(source,state.settings.presetOrder).filter(x=>smeta(x).enabled);
- const preset=all.filter(x=>smeta(x).showcaseKind!=='fixed'),fixed=all.filter(x=>smeta(x).showcaseKind==='fixed');
+ const metaMap=state.settings?.presetMeta||{};
+ const pairedChildren=new Set(Object.values(metaMap).map(m=>m&&m.secondaryFile).filter(Boolean));
+ let all=applyOrder(source,state.settings.presetOrder).filter(x=>smeta(x).enabled&&!smeta(x).pairChild&&!pairedChildren.has(x.file));
+ const preset=all.filter(x=>smeta(x).showcaseKind!=='fixed'),fixed=all.filter(x=>smeta(x).showcaseKind==='fixed').slice(0,2);
  state.showcase.preset=preset;state.showcase.fixed=fixed;
  const cols=[];
  for(const kind of ['preset','fixed']){
@@ -312,8 +333,8 @@ async function renderShowcase(){
   if(!areaEnabled)continue;
   const arr=state.showcase[kind];
   const featured=arr.filter(x=>smeta(x).featured),rest=arr.filter(x=>!smeta(x).featured),ordered=[...featured,...rest];
-  const limit=state.mobile?(kind==='preset'?4:Number(state.settings.showcaseInitialMobile||2)):Number(state.settings.showcaseInitialDesktop||4);
-  const shown=state.expanded[kind]?ordered:ordered.slice(0,limit);
+  const limit=kind==='fixed'?2:(state.mobile?4:Number(state.settings.showcaseInitialDesktop||4));
+  const shown=kind==='fixed'?ordered.slice(0,2):(state.expanded[kind]?ordered:ordered.slice(0,limit));
   const expandEnabled=kind==='preset'?state.settings.showcasePresetExpandEnabled!==false:state.settings.showcaseFixedExpandEnabled!==false;
   const description=kind==='preset'
     ? String(state.settings.showcasePresetDescription??state.settings.presetNotice??'아직 판매되지 않은 작업물입니다. 그대로 제작을 원하시면 문의 시 말씀해 주세요.')
@@ -321,7 +342,7 @@ async function renderShowcase(){
   cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'">'+
     '<div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div>'+
     '<p class="v2-showcase-description">'+esc(description)+'</p>'+
-    (shown.length?'<div class="v2-showcase-grid">'+shown.map(presetCard).join('')+'</div>':'<div class="v2-showcase-empty">준비중입니다</div>')+
+    (shown.length?'<div class="v2-showcase-grid">'+shown.map(kind==='fixed'?fixedCard:presetCard).join('')+'</div>':'<div class="v2-showcase-empty">준비중입니다</div>')+
     (expandEnabled&&ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
  }
  if(!cols.length){root.hidden=true;root.innerHTML='';return}
