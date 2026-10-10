@@ -170,6 +170,7 @@ async function renderPortfolio(){
 }
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
+ if(state.settings?.presetEnabled===false){root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return}
  let all=[];
  for(const cat of (state.settings.presetCategories||[]).filter(c=>c.enabled!==false)){
   const arr=await fetchAll('preset',cat.id).catch(()=>[]);all.push(...arr)
@@ -256,7 +257,14 @@ function injectInquiry(card){
  }
  if(banners.length){
   html+='<div class="v2-banner-type-fields">'+banners.map((x,i)=>{
-   const key='bannerType'+i,val=card.dataset[key]||'B';
+   const key='bannerType'+i;
+   let autoType='';
+   if(/플로팅/.test(x.label)&&floatingMode==='fixed'&&card.dataset.selectedFixedFile){
+     const fixed=state.showcase.fixed.find(v=>v.file===card.dataset.selectedFixedFile);
+     autoType=fixed?smeta(fixed).bannerType:''
+   }
+   const val=autoType||card.dataset[key]||'B';
+   if(autoType)card.dataset[key]=autoType;
    return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>'+esc(x.label)+' TYPE</legend><div class="choice-row">'+
     ['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v2-banner-index="'+i+'" data-v2-banner-label="'+esc(x.label)+'" name="v2-banner-'+card.dataset.requestId+'-'+i+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+
    '</div></fieldset>'
@@ -275,7 +283,9 @@ function injectInquiry(card){
  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
 }
 function selectionHtml(kind,selected){
- const arr=state.showcase[kind].filter(x=>smeta(x).enabled),label=kind==='preset'?'프리셋 선택':'고정틀 선택';
+ let arr=state.showcase[kind].filter(x=>smeta(x).enabled);
+ if(kind==='preset')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='profile'});
+ const label=kind==='preset'?'프리셋 선택':'고정틀 선택';
  return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend><div class="v2-product-grid">'+arr.map(x=>{const m=smeta(x),disabled=m.isReserved||m.isSold;return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'><img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+(disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>'}).join('')+'</div></fieldset>'
 }
 function initInquiryObserver(){
