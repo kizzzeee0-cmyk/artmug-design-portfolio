@@ -695,15 +695,20 @@ function requestText(card){
   var types=v.typeIds.map(inquiryType).filter(t=>t&&t.id);
   var has=function(key){return types.some(t=>t[key])};
   var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+types.map(t=>t.label||'').filter(Boolean).join(', ')];
+  if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.inquiryLines==='function'){
+    info.push.apply(info,window.__ARTMUG_V2__.inquiryLines(card))
+  }
 
-  var details=[
-    (S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept
-  ];
+  var details=[];
+  var conceptEl=card.querySelector('[data-field="concept"]');
+  var conceptHidden=!!conceptEl&&!!conceptEl.closest('.v2-hidden-field');
+  if(!conceptHidden)details.push((S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept);
 
   if(has('showSignatureFields')){
     details.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
   }
-  if(has('showFrameRetention'))details.push(S.frameKeepLabel+': '+v.frameKeep);
+  var frameEl=card.querySelector('.frame-retention-field');
+  if(has('showFrameRetention')&&!(frameEl&&frameEl.classList.contains('v2-hidden-field')))details.push(S.frameKeepLabel+': '+v.frameKeep);
   if(has('showBannerFields')){
     details.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'));
   }
@@ -737,6 +742,7 @@ function buildInquiryText(){
 
 function validateRequiredInquiryFields(){
   var firstMissing=null;
+  var customMessage='';
   var nickname=$('nicknameInput');
   var nicknameMissing=!String(nickname.value||'').trim();
   nickname.classList.toggle('is-required-missing',nicknameMissing);
@@ -750,16 +756,29 @@ function validateRequiredInquiryFields(){
     if(typeMissing&&!firstMissing)firstMissing=selector.querySelector('input')||selector;
 
     var concept=card.querySelector('[data-field="concept"]');
-    if(concept){
+    var conceptWrap=concept&&concept.closest('.concept-request-field');
+    var conceptVisible=!!concept&&!(conceptWrap&&conceptWrap.classList.contains('v2-hidden-field'));
+    if(conceptVisible){
       var missing=!String(concept.value||'').trim();
       concept.classList.toggle('is-required-missing',missing);
       concept.setAttribute('aria-invalid',missing?'true':'false');
       if(missing&&!firstMissing)firstMissing=concept;
+    }else if(concept){
+      concept.classList.remove('is-required-missing');
+      concept.setAttribute('aria-invalid','false');
+    }
+
+    if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.validateCard==='function'){
+      var r=window.__ARTMUG_V2__.validateCard(card);
+      if(r&&!r.ok&&!firstMissing){
+        customMessage=r.message||'필수 항목을 확인해주세요.';
+        firstMissing=card.querySelector('.v2-product-select')||card.querySelector('.v2-inquiry-enhancements')||card
+      }
     }
   });
 
   if(firstMissing){
-    $('copyStatus').textContent='필수 항목을 확인해주세요.';
+    $('copyStatus').textContent=customMessage||'필수 항목을 확인해주세요.';
     if(typeof firstMissing.focus==='function')firstMissing.focus();
     if(firstMissing.scrollIntoView)firstMissing.scrollIntoView({behavior:'smooth',block:'center'});
     return false;
@@ -772,8 +791,14 @@ function allRequiredInquiryFieldsFilled(){
   if(!String($('nicknameInput').value||'').trim())return false;
   var cards=Array.from(document.querySelectorAll('.request-card'));
   return !!cards.length&&cards.every(function(card){
+    if(!selectedInquiryTypes(card).length)return false;
     var concept=card.querySelector('[data-field="concept"]');
-    return !!selectedInquiryTypes(card).length&&!!String((concept&&concept.value)||'').trim();
+    var conceptWrap=concept&&concept.closest('.concept-request-field');
+    if(concept&&!(conceptWrap&&conceptWrap.classList.contains('v2-hidden-field'))&&!String(concept.value||'').trim())return false;
+    if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.validateCard==='function'){
+      var r=window.__ARTMUG_V2__.validateCard(card);if(r&&!r.ok)return false
+    }
+    return true;
   });
 }
 
