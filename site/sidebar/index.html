@@ -57,7 +57,7 @@ function send(target){
 }
 function listFrom(d){
  const list=[{label:'공지사항',target:'notice'}];
- if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase-preset'});
+ if(d.hasPreset)list.push({label:'프리셋',target:'showcase-preset'});
  if(d.hasFixed)list.push({label:'고정틀',target:'showcase-fixed'});
  if(d.hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
  if(d.hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
