@@ -514,3 +514,16 @@ body.artmug-part-portfolio #inquirySection{
   .v2-showcase-columns:not(.is-single){grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .v2-showcase-column+.v2-showcase-column{border-top:0;border-left:1px solid var(--line);padding:0 0 0 8px}
 }
+
+
+.v2-empty-products{
+  grid-column:1/-1;
+  margin:0;
+  padding:14px 10px;
+  text-align:center;
+  background:#f7fbfe;
+  border:1px dashed #dcecf4;
+  border-radius:10px;
+  color:#71818c;
+  font-size:12px;
+}
