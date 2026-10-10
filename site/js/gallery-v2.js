@@ -59,7 +59,7 @@ function applyOrder(items,order){
 }
 function pmeta(x){
  const m=state.settings?.portfolioMeta?.[x.file]||{};
- return {enabled:m.enabled!==false,bannerType:['A','B'].includes(m.bannerType)?m.bannerType:(bannerIds.has(layoutKey({id:x.category,label:x.category}))?'B':''),featured:m.featured===true}
+ return {enabled:m.enabled!==false,bannerType:['A','B'].includes(m.bannerType)?m.bannerType:(bannerIds.has(layoutKey({id:x.category,label:x.category}))?'B':''),featured:m.featured===true,isFixed:m.isFixed===true}
 }
 function smeta(x){
  const m=state.settings?.presetMeta?.[x.file]||{};
@@ -75,10 +75,10 @@ function smeta(x){
  }
 }
 function itemCard(x,c){
- const k=layoutKey(c),m=pmeta(x),type=bannerIds.has(k)?(m.bannerType||'B'):'';
+ const k=layoutKey(c),m=pmeta(x),type=bannerIds.has(k)?(m.bannerType||'B'):'',fixed=k==='floating-banner'&&m.isFixed;
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
    '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" draggable="false"></div>'+
-   (type?'<span class="v2-type-badge">TYPE '+type+'</span>':'')+
+   (type||fixed?'<div class="v2-work-tags">'+(type?'<span class="v2-type-badge">TYPE '+type+'</span>':'')+(fixed?'<span class="v2-type-badge v2-fixed-badge">고정틀</span>':'')+'</div>':'')+
   '</article>'
 }
 function presetCard(x){
@@ -92,11 +92,17 @@ function presetCard(x){
    (m.colorChangeAvailable?'<span class="v2-editable-note">수정가능</span>':'')+
   '</article>'
 }
-function pagination(catId,total,page,onPage){
+function pagination(catId,total,page){
  if(total<=1)return'';
- let s='<nav class="v2-pagination" aria-label="페이지 이동"><button type="button" data-v2-page="'+catId+':prev" '+(page<=1?'disabled':'')+'>〈</button>';
- for(let i=1;i<=total;i++)s+='<button type="button" data-v2-page="'+catId+':'+i+'" class="'+(i===page?'is-active':'')+'">'+i+'</button>';
- return s+'<button type="button" data-v2-page="'+catId+':next" '+(page>=total?'disabled':'')+'>〉</button></nav>'
+ const maxDots=state.mobile?9:26;
+ const start=Math.max(1,Math.min(total-maxDots+1,page-Math.floor(maxDots/2)));
+ const stop=Math.min(total,start+maxDots-1);
+ let html='<nav class="v2-pagination" aria-label="페이지 이동">'+
+   '<button class="v2-page-arrow" type="button" aria-label="이전 페이지" data-v2-page="'+catId+':prev" '+(page<=1?'disabled':'')+'>‹</button>'+
+   '<div class="v2-page-dots" aria-label="페이지 선택">';
+ for(let i=start;i<=stop;i++)html+='<button class="v2-page-dot '+(i===page?'is-active':'')+'" type="button" data-v2-page="'+catId+':'+i+'" aria-label="'+i+'페이지" aria-current="'+(i===page?'page':'false')+'" title="'+i+'페이지"></button>';
+ return html+'</div><span class="v2-page-counter">'+page+' / '+total+'</span>'+
+  '<button class="v2-page-arrow" type="button" aria-label="다음 페이지" data-v2-page="'+catId+':next" '+(page>=total?'disabled':'')+'>›</button></nav>'
 }
 function mixAB(items){
  const a=items.filter(x=>pmeta(x).bannerType==='A'),b=items.filter(x=>pmeta(x).bannerType!=='A');
@@ -220,15 +226,24 @@ async function renderShowcase(){
  const cols=[];
  for(const kind of ['preset','fixed']){
   const areaEnabled=kind==='preset'?state.settings.showcasePresetEnabled!==false:state.settings.showcaseFixedEnabled!==false;
-  const arr=state.showcase[kind];if(!areaEnabled||!arr.length)continue;
+  if(!areaEnabled)continue;
+  const arr=state.showcase[kind];
   const featured=arr.filter(x=>smeta(x).featured),rest=arr.filter(x=>!smeta(x).featured),ordered=[...featured,...rest];
   const limit=state.mobile?Number(state.settings.showcaseInitialMobile||2):Number(state.settings.showcaseInitialDesktop||4);
   const shown=state.expanded[kind]?ordered:ordered.slice(0,limit);
   const expandEnabled=kind==='preset'?state.settings.showcasePresetExpandEnabled!==false:state.settings.showcaseFixedExpandEnabled!==false;
-  cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'"><div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div><div class="v2-showcase-grid">'+shown.map(presetCard).join('')+'</div>'+(expandEnabled&&ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
+  const description=kind==='preset'
+    ? String(state.settings.showcasePresetDescription??state.settings.presetNotice??'아직 판매되지 않은 작업물입니다. 그대로 제작을 원하시면 문의 시 말씀해 주세요.')
+    : String(state.settings.showcaseFixedDescription??'색상이나 일부 디자인은 수정될 수 있지만 전체적인 디자인은 다 똑같이 제작됩니다.');
+  cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'">'+
+    '<div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div>'+
+    '<p class="v2-showcase-description">'+esc(description)+'</p>'+
+    (shown.length?'<div class="v2-showcase-grid">'+shown.map(presetCard).join('')+'</div>':'<div class="v2-showcase-empty">준비중입니다</div>')+
+    (expandEnabled&&ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
  }
  if(!cols.length){root.hidden=true;root.innerHTML='';return}
- root.hidden=false;root.innerHTML='<div class="v2-showcase-columns '+(cols.length===1?'is-single':'')+'">'+cols.join('')+'</div>';
+ root.hidden=false;
+ root.innerHTML='<h2>미판매 프리셋 · 고정틀</h2><div class="v2-showcase-columns">'+cols.join('')+'</div>';
  root.querySelectorAll('[data-show-all]').forEach(b=>b.onclick=()=>{state.expanded[b.dataset.showAll]=!state.expanded[b.dataset.showAll];renderShowcase();requestHeight()});
  requestHeight();announceNavData()
 }
@@ -253,6 +268,13 @@ function navigate(target){
  if(target==='preset'||target==='showcase-preset')return scrollToElement($('#showcase-preset'));
  if(target==='fixed'||target==='showcase-fixed')return scrollToElement($('#showcase-fixed'));
  if(target==='portfolio')return scrollToElement($('#portfolioAllSectionV2'));
+ if(target==='banner:A'||target==='banner:B'){
+  const type=target.slice(-1);
+  const entry=[...state.portfolio.entries()].find(([id,d])=>bannerIds.has(layoutKey(d.cat))&&d.items.some(x=>pmeta(x).bannerType===type));
+  if(!entry)return;
+  const [id,d]=entry;d.filter=type;d.page=1;renderPortfolioCategory(id,false);
+  return scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
+ }
  if(target.startsWith('portfolio:')){
   const [,id,type]=target.split(':');const d=state.portfolio.get(id);
   if(d&&type&&['A','B','ALL'].includes(type)){d.filter=type;d.page=1;renderPortfolioCategory(id,false)}
@@ -331,7 +353,8 @@ function injectInquiry(card){
    '</div></fieldset>'
   }).join('')+'</div>'
  }
- box.innerHTML=html;
+ // Preserve selected radio nodes across MutationObserver refreshes.
+ if(box.dataset.renderSignature!==html){box.innerHTML=html;box.dataset.renderSignature=html}
  const profileOnly=hasProfile&&types.length===1&&profileMode==='preset';
  fields.querySelectorAll('.concept-request-field,.frame-retention-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileOnly));
  box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{card.dataset[i.dataset.v2Mode+'Mode']=i.value;injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())});
@@ -353,7 +376,9 @@ function selectionHtml(kind,selected){
 function initInquiryObserver(){
  const root=$('#requestsContainer');if(!root)return;
  const sync=()=>root.querySelectorAll('.request-card').forEach(injectInquiry);
- const mo=new MutationObserver(()=>setTimeout(sync,0));mo.observe(root,{subtree:true,childList:true});
+ let pending=false;
+ const mo=new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;sync()})});
+ mo.observe(root,{subtree:true,childList:true});
  root.addEventListener('change',e=>{if(e.target.matches('input[data-field="requestType"]'))setTimeout(sync,0)});
  sync()
 }
