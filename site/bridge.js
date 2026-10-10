@@ -6,6 +6,74 @@
 
   const sectionMaps=new Map();
   let activeRaf=0;
+  const quickNavFrames=new WeakMap();
+
+  function isDesktopQuickNavFrame(frame){
+    try{
+      const src=String(frame.getAttribute('src')||frame.src||'');
+      return /artmug-portfolio\.pages\.dev\/sidebar(?:\/|\.html|$)/.test(src)
+    }catch(e){return false}
+  }
+
+  function restoreQuickNavFrame(frame){
+    const saved=quickNavFrames.get(frame);
+    if(!saved)return;
+    ['position','top','right','left','z-index','width','max-width','margin'].forEach(function(prop){
+      const value=saved[prop];
+      if(value)frame.style.setProperty(prop,value.value,value.priority||'');
+      else frame.style.removeProperty(prop)
+    });
+    if(saved.parentMinHeight!==undefined&&frame.parentElement){
+      if(saved.parentMinHeight)frame.parentElement.style.setProperty('min-height',saved.parentMinHeight);
+      else frame.parentElement.style.removeProperty('min-height')
+    }
+    quickNavFrames.delete(frame)
+  }
+
+  function applyQuickNavFollower(frame){
+    if(!frame||!isDesktopQuickNavFrame(frame))return;
+    if(window.innerWidth<=900){
+      restoreQuickNavFrame(frame);
+      return
+    }
+
+    let saved=quickNavFrames.get(frame);
+    if(!saved){
+      const rect=frame.getBoundingClientRect();
+      const style=frame.style;
+      saved={};
+      ['position','top','right','left','z-index','width','max-width','margin'].forEach(function(prop){
+        const value=style.getPropertyValue(prop),priority=style.getPropertyPriority(prop);
+        saved[prop]=value?{value,priority}:null
+      });
+      saved.rightGap=Math.max(8,Math.round(window.innerWidth-rect.right));
+      saved.width=Math.max(1,Math.round(rect.width||frame.offsetWidth||194));
+      saved.height=Math.max(1,Math.round(rect.height||frame.offsetHeight||1));
+      saved.parentMinHeight=frame.parentElement?frame.parentElement.style.getPropertyValue('min-height'):'';
+      quickNavFrames.set(frame,saved)
+    }
+
+    frame.style.setProperty('position','fixed','important');
+    frame.style.setProperty('top','16px','important');
+    frame.style.setProperty('right',saved.rightGap+'px','important');
+    frame.style.setProperty('left','auto','important');
+    frame.style.setProperty('z-index','50','important');
+    frame.style.setProperty('width',saved.width+'px','important');
+    frame.style.setProperty('max-width','calc(100vw - 16px)','important');
+    frame.style.setProperty('margin','0','important');
+
+    // Keep the original sidebar column from collapsing after the iframe
+    // leaves normal document flow.
+    if(frame.parentElement&&saved.height>0){
+      frame.parentElement.style.setProperty('min-height',saved.height+'px')
+    }
+  }
+
+  function syncQuickNavFollower(){
+    document.querySelectorAll('iframe').forEach(function(frame){
+      if(isDesktopQuickNavFrame(frame))applyQuickNavFollower(frame)
+    })
+  }
 
   function broadcastToArtmugFrames(message){
     document.querySelectorAll('iframe').forEach(function(frame){
@@ -37,7 +105,10 @@
     })
   }
   window.addEventListener('scroll',updateActiveSection,{passive:true});
-  window.addEventListener('resize',updateActiveSection,{passive:true});
+  window.addEventListener('resize',function(){
+    updateActiveSection();
+    syncQuickNavFollower()
+  },{passive:true});
 
   function iframeForSource(source,role){
     const frames=Array.from(document.querySelectorAll('iframe'));
@@ -148,6 +219,7 @@
 
   // Ask already-loaded child frames to report once when the bridge starts.
   window.setTimeout(function(){
+    syncQuickNavFollower();
     document.querySelectorAll('iframe').forEach(function(frame){
       try{
         const src=String(frame.getAttribute('src')||frame.src||'');
@@ -156,5 +228,11 @@
         }
       }catch(e){}
     })
-  },0)
+  },0);
+
+  if('MutationObserver' in window){
+    new MutationObserver(function(){
+      syncQuickNavFollower()
+    }).observe(document.documentElement,{childList:true,subtree:true})
+  }
 })();
