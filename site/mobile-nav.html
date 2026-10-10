@@ -18,20 +18,25 @@ body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:gri
 <script src="/js/config.js"></script>
 <script>
 (function(){
- const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',wrap=document.getElementById('wrap'),panel=document.getElementById('panel'),CACHE_KEY='artmug-nav-summary-v7',ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
+ const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',wrap=document.getElementById('wrap'),panel=document.getElementById('panel'),CACHE_KEY='artmug-nav-summary-v8',ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
  const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
  const raw=async p=>{const r=await fetch(RAW+p,{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
- function layout(c){const id=String(c?.id||''),l=String(c?.label||'').replace(/\s/g,'');if(id==='top-banner'||l.includes('상단배너'))return'top-banner';if(id==='floating-banner'||l.includes('플로팅'))return'floating-banner';if(id==='bottom-banner'||l.includes('하단배너일반'))return'bottom-banner';if(id==='bottom-split'||l.includes('하단배너분할'))return'bottom-split';if(/4cut|four-cut/.test(id)||l.includes('인생네컷'))return'four-cut';return id}
+ function layout(c){const id=String(c?.id||''),l=String(c?.label||'').replace(/\s/g,'');if(id==='top-banner'||l.includes('상단배너'))return'top-banner';if(id==='floating-banner'||l.includes('플로팅'))return'floating-banner';if(id==='bottom-banner'||l.includes('하단배너일반'))return'bottom-banner';if(id==='bottom-split'||l.includes('하단배너분할'))return'bottom-split';if(/^profile(?:-|$)/.test(id)||l.includes('움짤프사'))return'profile';if(/4cut|four-cut/.test(id)||l.includes('인생네컷'))return'four-cut';return id}
  function summarize(settings,index,presets){
   const meta=settings.portfolioMeta||{},pm=settings.presetMeta||{},cats=(settings.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy),catById=new Map(cats.map(c=>[c.id,c]));
   const works=(Array.isArray(index)?index:[]).filter(x=>x&&catById.has(x.category)&&(meta[x.file]||{}).enabled!==false),bannerKinds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']),bannerWorks=works.filter(x=>bannerKinds.has(layout(catById.get(x.category)))),presetItems=(Array.isArray(presets)?presets:[]).filter(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&((pm[x.file]||{}).showcaseKind||'preset')!=='fixed');
-  const categories=cats
-   .filter(c=>!bannerKinds.has(layout(c))&&works.some(x=>x.category===c.id))
-   .map(c=>({id:c.id,label:String(c.label||c.id).replace(/^움짤\s*프사$/,'움짤프사')}));
+  const visibleNonBanner=cats.filter(c=>!bannerKinds.has(layout(c))&&works.some(x=>x.category===c.id));
+  const profile=visibleNonBanner.find(c=>layout(c)==='profile');
+  const fourCut=visibleNonBanner.find(c=>layout(c)==='four-cut');
+  const extraCategories=visibleNonBanner
+   .filter(c=>layout(c)!=='profile'&&layout(c)!=='four-cut')
+   .map(c=>({id:c.id,label:String(c.label||c.id)}));
   return {
    hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.length>0,
    hasBanner:bannerWorks.length>0,
-   categories
+   profile:profile?{id:profile.id,label:'움짤프사'}:null,
+   fourCut:fourCut?{id:fourCut.id,label:'인생네컷'}:null,
+   extraCategories
   }
  }
  function report(){try{window.parent.postMessage({type:'artmug-mobile-nav-height',height:wrap.classList.contains('is-open')?Math.min(410,wrap.scrollHeight+4):56},'*')}catch{}}
@@ -40,8 +45,10 @@ body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:gri
  function html(d){
   let h='<button type="button" data-target="notice">공지사항</button>';
   if(d.hasPreset)h+='<button type="button" data-target="showcase">미판매 프리셋</button>';
-  for(const c of (Array.isArray(d.categories)?d.categories:[]))h+='<button type="button" data-target="portfolio:'+c.id+'">'+c.label+'</button>';
+  if(d.profile)h+='<button type="button" data-target="portfolio:'+d.profile.id+'">움짤프사</button>';
   if(d.hasBanner)h+='<button type="button" data-target="banner:all">SOOP 배너</button>';
+  if(d.fourCut)h+='<button type="button" data-target="portfolio:'+d.fourCut.id+'">인생네컷</button>';
+  for(const c of (Array.isArray(d.extraCategories)?d.extraCategories:[]))h+='<button type="button" data-target="portfolio:'+c.id+'">'+c.label+'</button>';
   return h
  }
  function show(d){panel.innerHTML=html(d);panel.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target));report()}
