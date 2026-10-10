@@ -566,15 +566,6 @@
       "colorChangeAvailable": true,
       "description": ""
     },
-    "preset/profile/20261007003453-CRNMeR0U-background__8_.png": {
-      "name": "프리셋 03",
-      "enabled": true,
-      "isNew": false,
-      "colorChangeAvailable": false,
-      "description": "",
-      "isReserved": false,
-      "isSold": true
-    },
     "preset/profile/20261008083140-UFADCw7C-background__1_.png": {
       "name": "프리셋 02",
       "enabled": true,
@@ -597,7 +588,6 @@
   "presetOrder": [
     "preset/profile/20261005083843-fCIoUIaH-background__2_.png",
     "preset/profile/20261008083140-UFADCw7C-background__1_.png",
-    "preset/profile/20261007003453-CRNMeR0U-background__8_.png",
     "preset/floating-banner/20261010020945-YPr0fitM-_____.png"
   ],
   "portfolioOrder": [
