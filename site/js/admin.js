@@ -766,8 +766,7 @@ async function replaceMediaFile(kind,index){
 
     const presetMeta=isPreset?{
       ...presetMetaFor(x),
-      name:(document.querySelector(`[data-preset-name="${index}"]`)?.value||presetMetaFor(x).name).trim(),
-      description:(document.querySelector(`[data-preset-desc="${index}"]`)?.value||presetMetaFor(x).description).trim()
+      name:(document.querySelector(`[data-preset-name="${index}"]`)?.value||presetMetaFor(x).name).trim()
     }:null;
     const saved=await queueSettingsMutation(latest=>{
       if(isPreset){
