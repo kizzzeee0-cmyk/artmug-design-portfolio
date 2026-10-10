@@ -286,11 +286,9 @@ async function renderPortfolio(){
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false){root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return}
- let all=[];
- for(const cat of (state.settings.presetCategories||[]).filter(c=>c.enabled!==false)){
-  const arr=await fetchAll('preset',cat.id).catch(()=>[]);all.push(...arr)
- }
- all=applyOrder(all,state.settings.presetOrder).filter(x=>smeta(x).enabled);
+ const presetCats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false);
+ const presetBatches=await Promise.all(presetCats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
+ let all=applyOrder(presetBatches.flat(),state.settings.presetOrder).filter(x=>smeta(x).enabled);
  const preset=all.filter(x=>smeta(x).showcaseKind!=='fixed'),fixed=all.filter(x=>smeta(x).showcaseKind==='fixed');
  state.showcase.preset=preset;state.showcase.fixed=fixed;
  const cols=[];
@@ -315,6 +313,7 @@ async function renderShowcase(){
  root.hidden=false;
  root.innerHTML='<h2>미판매 프리셋 · 고정틀</h2><div class="v2-showcase-columns">'+cols.join('')+'</div>';
  root.querySelectorAll('[data-show-all]').forEach(b=>b.onclick=()=>{state.expanded[b.dataset.showAll]=!state.expanded[b.dataset.showAll];renderShowcase();requestHeight()});
+ root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  requestHeight();announceNavData()
 }
 function requestHeight(){
@@ -518,8 +517,10 @@ async function init(){
  initNav();
  const d=await api('/api/public/settings?fresh='+Date.now());state.settings=d.settings||{};
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
- await Promise.all([renderShowcase(),renderPortfolio()]);
+ const showcasePromise=renderShowcase(),portfolioPromise=renderPortfolio();
+ await showcasePromise;
  initInquiryObserver();
+ await portfolioPromise;
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  const mq=matchMedia('(max-width:680px)');
