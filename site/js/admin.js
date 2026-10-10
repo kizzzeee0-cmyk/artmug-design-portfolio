@@ -433,6 +433,11 @@ function syncAdminManualCollapsers(){
   document.querySelectorAll('.admin-block').forEach((block,index)=>{
     const title=block.querySelector('.admin-block-title');
     if(!title)return;
+    if(block.dataset.manualCollapse==='off'){
+      block.classList.remove('is-manual-collapsed');
+      title.querySelector('.admin-collapse-button')?.remove();
+      return
+    }
     const key=adminBlockKey(block,index);
     block.dataset.adminCollapseKey=key;
 
@@ -457,6 +462,28 @@ function syncAdminManualCollapsers(){
     updateAdminCollapseButton(block)
   })
 }
+function syncPortfolioCategoryCollapse(){
+  const button=$('togglePortfolioCats'),body=$('portfolioCatsBody');
+  if(!button||!body)return;
+  const key='artmug-admin-portfolio-categories-collapsed-v1';
+  const apply=collapsed=>{
+    body.hidden=collapsed;
+    button.textContent=collapsed?'펼치기':'접기';
+    button.setAttribute('aria-expanded',collapsed?'false':'true')
+  };
+  let collapsed=false;
+  try{collapsed=localStorage.getItem(key)==='1'}catch{}
+  apply(collapsed);
+  if(button.dataset.boundPortfolioCats!=='1'){
+    button.dataset.boundPortfolioCats='1';
+    button.addEventListener('click',()=>{
+      const next=!body.hidden;
+      apply(next);
+      try{localStorage.setItem(key,next?'1':'0')}catch{}
+    })
+  }
+}
+
 function syncAdminVisibilityCollapse(){
   const ids=['workStatusEnabled','authorEnabled','eventsEnabled','presetEnabled','scheduleEnabled'];
   ids.forEach(id=>{
@@ -491,7 +518,7 @@ $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+a
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('배너 입력 문구 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseFixedDescription'))$('showcaseFixedDescription').value=S.showcaseFixedDescription??'색상이나 일부 디자인은 수정될 수 있지만 전체적인 디자인은 다 똑같이 제작됩니다.';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Number(S.showcaseInitialDesktop||4);if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Number(S.showcaseInitialMobile||2);if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcaseFixedEnabled'))$('showcaseFixedEnabled').checked=S.showcaseFixedEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;if($('showcaseFixedExpandEnabled'))$('showcaseFixedExpandEnabled').checked=S.showcaseFixedExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncAdminVisibilityCollapse();loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseFixedDescription'))$('showcaseFixedDescription').value=S.showcaseFixedDescription??'색상이나 일부 디자인은 수정될 수 있지만 전체적인 디자인은 다 똑같이 제작됩니다.';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Number(S.showcaseInitialDesktop||4);if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Number(S.showcaseInitialMobile||2);if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcaseFixedEnabled'))$('showcaseFixedEnabled').checked=S.showcaseFixedEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;if($('showcaseFixedExpandEnabled'))$('showcaseFixedExpandEnabled').checked=S.showcaseFixedExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
 function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
 function renderTypes(){
   $('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit">
@@ -525,8 +552,26 @@ function renderTypes(){
   })
 }
 function catRow(c,i,prefix='cat'){
-  const layoutFields=prefix==='cat'?'<label>PC 한 줄<input type="number" min="1" max="12" data-'+prefix+'-pc-cols="'+i+'" value="'+Number(c.pcColumns||4)+'"></label><label>PC 페이지<input type="number" min="1" data-'+prefix+'-pc-page="'+i+'" value="'+Number(c.pcPerPage||16)+'"></label><label>모바일 한 줄<input type="number" min="1" max="8" data-'+prefix+'-mo-cols="'+i+'" value="'+Number(c.mobileColumns||2)+'"></label><label>모바일 페이지<input type="number" min="1" data-'+prefix+'-mo-page="'+i+'" value="'+Number(c.mobilePerPage||10)+'"></label>':'';
-  return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label><label>ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label><label>표시 가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>표시 세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label>${layoutFields}<label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`
+  if(prefix==='cat'){
+    return `<div class="cat-row cat-row-portfolio">
+      <div class="cat-row-main">
+        <label class="cat-name-field">이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label>
+        <label class="cat-id-field">ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label>
+        <label class="cat-number-field">표시 가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label>
+        <label class="cat-number-field">표시 세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label>
+        <label class="cat-number-field">PC 한 줄<input type="number" min="1" max="12" data-${prefix}-pc-cols="${i}" value="${Number(c.pcColumns||4)}"></label>
+        <label class="cat-number-field">PC 페이지<input type="number" min="1" data-${prefix}-pc-page="${i}" value="${Number(c.pcPerPage||16)}"></label>
+        <label class="cat-number-field">모바일 한 줄<input type="number" min="1" max="8" data-${prefix}-mo-cols="${i}" value="${Number(c.mobileColumns||2)}"></label>
+        <label class="cat-number-field">모바일 페이지<input type="number" min="1" data-${prefix}-mo-page="${i}" value="${Number(c.mobilePerPage||10)}"></label>
+      </div>
+      <div class="cat-row-actions">
+        <label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label>
+        <div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div>
+        <button class="danger admin-compact" data-del-${prefix}="${i}">삭제</button>
+      </div>
+    </div>`
+  }
+  return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label><label>ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label><label>표시 가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>표시 세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label><label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`
 }
 function moveCategory(arr,prefix,index,dir){
   collectCats(arr,prefix);
