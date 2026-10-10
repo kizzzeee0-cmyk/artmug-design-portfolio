@@ -26,7 +26,7 @@ body{display:flex;align-items:flex-start;justify-content:flex-start;min-height:1
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v8';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v9';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={};
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
@@ -73,7 +73,7 @@ function send(target){
 function listFrom(d){
  currentSummary=d||{};
  const list=[{label:'공지사항',target:'notice'}];
- if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase'});
+ if(d.hasPreset)list.push({label:'프리셋',target:'showcase'});
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
