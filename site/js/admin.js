@@ -163,7 +163,7 @@ function ensureBannerTypeGuide(){
     if(x.description==null)x.description=t==='A'?'장식과 패턴이 비교적 적고 깔끔하게 정돈된 디자인':'다양한 패턴과 장식을 조합한 기존 스타일의 디자인';
     if(x.price==null)x.price=0;
     if(x.referenceFile==null)x.referenceFile='';
-    if(x.referenceImage==null)x.referenceImage=''
+    if(x.referenceImage==null)x.referenceImage=t==='A'?String(S.comparisonAImage||''):String(S.comparisonBImage||'')
   });
   return S.bannerTypeGuide
 }
