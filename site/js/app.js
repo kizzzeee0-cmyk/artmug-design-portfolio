@@ -835,7 +835,7 @@ function presetMetaForItem(x){
 function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
   sec.hidden=!on;
-  set('presetTitle',s.presetTitle||'미판매 프리셋');
+  set('presetTitle',s.presetTitle||'프리셋');
   const notice=$('presetNotice'),noticeText=String(s.presetNotice||'').trim();
   notice.textContent=noticeText;
   notice.hidden=!noticeText;
