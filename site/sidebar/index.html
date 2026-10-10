@@ -21,46 +21,40 @@ body{display:flex;justify-content:flex-start;align-items:flex-start;min-height:1
 <script src="/js/config.js"></script>
 <script>
 (function(){
- const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',root=document.getElementById('navList');
- const ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
- const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
- const api=async p=>{const r=await fetch(API+p,{credentials:'include'});return r.ok?r.json():{}};
- const layout=c=>{const id=String(c.id||''),l=String(c.label||'').replace(/\s/g,'');if(/^profile(?:-|$)/.test(id)||l.includes('움짤프사'))return'profile';if(id==='top-banner'||l.includes('상단배너'))return'top-banner';if(id==='floating-banner'||l.includes('플로팅'))return'floating-banner';if(id==='bottom-banner'||l.includes('하단배너일반'))return'bottom-banner';if(id==='bottom-split'||l.includes('하단배너분할'))return'bottom-split';if(/4cut|four-cut/.test(id)||l.includes('인생네컷'))return'four-cut';return id};
- const banners=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
- async function all(kind,cat){const base=kind==='preset'?'/api/public/presets?category=':'/api/public/portfolio?category=';const f=await api(base+encodeURIComponent(cat)+'&page=1&perPage=60'),a=[...(f.items||[])];for(let p=2;p<=Number(f.totalPages||1);p++){const d=await api(base+encodeURIComponent(cat)+'&page='+p+'&perPage=60');a.push(...(d.items||[]))}return a}
- function send(target){if(ch)ch.postMessage({type:'navigate',target});try{const topWin=window.top;for(let i=0;i<topWin.length;i++)try{topWin.frames[i].postMessage({type:'artmug-section-nav',target},'*')}catch{}}catch{};try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{};root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))}
- async function init(){
-  const d=await api('/api/public/settings?fresh='+Date.now()),s=d.settings||{},meta=s.portfolioMeta||{},pmeta=s.presetMeta||{};
-  const cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy),data=[];
-  for(const c of cats){
-   let arr=[];
-   if(layout(c)==='profile'){for(const p of (s.portfolioCategories||[]).filter(x=>/^profile(?:-|$)/.test(String(x.id||''))))arr.push(...await all('portfolio',p.id))}else arr=await all('portfolio',c.id);
-   arr=arr.filter(x=>(meta[x.file]||{}).enabled!==false);
-   if(!arr.length||data.some(x=>x.key===layout(c)))continue;
-   data.push({key:layout(c),id:c.id,label:c.label,arr,banner:banners.has(layout(c))})
-  }
-  let presets=[];
-  for(const c of (s.presetCategories||[]).filter(c=>c.enabled!==false))presets.push(...await all('preset',c.id));
-  presets=presets.filter(x=>{const m=pmeta[x.file]||{};return m.enabled!==false});
-  const hasPreset=s.showcasePresetEnabled!==false&&presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))!=='fixed');
-  const hasFixed=s.showcaseFixedEnabled!==false&&presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))==='fixed');
-  const normal=data.filter(x=>!x.banner),banner=data.filter(x=>x.banner);
-  const typeGroups=['A','B'].map(t=>({t,items:banner.filter(x=>x.arr.some(v=>(meta[v.file]||{}).isFixed!==true&&(((meta[v.file]||{}).bannerType)||'B')===t))}));
-  let h='<button type="button" data-target="notice">공지사항</button>';
-  if(hasPreset)h+='<button type="button" data-target="showcase-preset">미판매 프리셋</button>';
-  if(hasFixed)h+='<button type="button" data-target="showcase-fixed">고정틀</button>';
-  normal.forEach(x=>h+='<button type="button" data-target="portfolio:'+esc(x.id)+'">'+esc(x.label)+'</button>');
-  typeGroups.forEach(g=>{if(!g.items.length)return;h+='<details><summary>배너 TYPE '+g.t+'</summary><div class="submenu">'+g.items.map(x=>'<button type="button" data-target="portfolio:'+esc(x.id)+':'+g.t+'">'+esc(x.label)+'</button>').join('')+'</div></details>'});
-  h+='<div class="divider"></div><button type="button" class="inquiry-button" data-target="inquiry">문의 양식</button><button type="button" class="top-button" data-target="top">↑ TOP</button>';
-  root.innerHTML=h;root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target))
- }
- if(ch)ch.addEventListener('message',e=>{if(e.data?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===e.data.target))});
- window.addEventListener('message',e=>{
-  const d=e.data;
-  if(d&&d.type==='artmug-active-section'&&d.target){
-   root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))
-  }
- });
- init().catch(()=>{root.innerHTML='<button type="button" data-target="notice">공지사항</button><div class="divider"></div><button type="button" class="inquiry-button" data-target="inquiry">문의 양식</button><button type="button" class="top-button" data-target="top">↑ TOP</button>';root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target))})
-})();
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v3';
+const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
+const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
+function send(target){
+ if(ch)ch.postMessage({type:'navigate',target});
+ try{for(let i=0;i<window.top.length;i++)try{window.top.frames[i].postMessage({type:'artmug-section-nav',target},'*')}catch{}}catch{}
+ try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{}
+ root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))
+}
+function listFrom(d){
+ const list=[{label:'공지사항',target:'notice'}];
+ if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase-preset'});
+ if(d.hasFixed)list.push({label:'고정틀',target:'showcase-fixed'});
+ if(d.hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
+ if(d.hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
+ if(d.fourCutId)list.push({label:'인생네컷',target:'portfolio:'+d.fourCutId});
+ list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
+ return list
+}
+function show(items){
+ root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+x.label+'</button>').join('');
+ root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)))
+}
+function cached(){
+ try{const x=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<60000?x.data:null}catch{return null}
+}
+function saveCache(data){try{sessionStorage.setItem(CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}}
+async function init(){
+ const old=cached();if(old)show(listFrom(old));
+ try{const d=await api('/api/public/nav-summary');saveCache(d);show(listFrom(d))}
+ catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}])}
+}
+if(ch)ch.addEventListener('message',e=>{const d=e.data;if(d?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))});
+window.addEventListener('message',e=>{const d=e.data;if(d&&d.type==='artmug-active-section'&&d.target)root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))});
+init()
+})();;
 </script></body></html>
