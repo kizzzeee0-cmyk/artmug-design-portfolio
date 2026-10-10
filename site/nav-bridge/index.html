@@ -17,7 +17,7 @@
     if(!data||data.type!=='artmug-nav-bridge')return;
 
     const target=String(data.target||'');
-    if(!['inquiry','portfolio','notice','preset'].includes(target))return;
+    if(!target)return;
 
     if(channel){
       channel.postMessage({
