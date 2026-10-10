@@ -3,64 +3,87 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>빠른 이동</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
-body{display:flex;justify-content:flex-start;align-items:flex-start;min-height:100vh}
-.quick-nav{position:sticky;top:8px;width:154px;padding:9px;border:1px solid #dcecf4;border-radius:16px;background:#fff}
-.nav-list{display:grid;gap:2px}.quick-nav button,.quick-nav summary{width:100%;min-height:33px;padding:7px 9px;border:0;border-radius:9px;background:transparent;color:#617887;font:inherit;font-size:11.5px;font-weight:650;line-height:1.35;text-align:left;cursor:pointer;list-style:none}
-.quick-nav summary::-webkit-details-marker{display:none}.quick-nav summary{display:flex;align-items:center;justify-content:space-between}.quick-nav summary::after{content:"▾";font-size:9px}.quick-nav details[open] summary::after{content:"▴"}
-.quick-nav button:hover,.quick-nav button:focus-visible,.quick-nav summary:hover{background:#edf8fd;color:#5a9bbf;outline:none}
-.submenu{display:grid;gap:1px;padding:2px 0 4px 10px}.submenu button{min-height:29px;font-size:10.5px;font-weight:600;padding:5px 7px}
-.quick-nav button.is-active{background:#edf8fd;color:#4f8fb3}.divider{height:1px;margin:7px 4px;background:#dcecf4}
-.inquiry-button{background:#69add2!important;color:#fff!important;text-align:center!important;font-weight:750!important}.inquiry-button:hover{background:#5b9fc5!important;color:#fff!important}
-.top-button{color:#69add2!important;text-align:center!important}
-.loading{padding:8px;color:#81909a;font-size:10px;text-align:center}
-</style>
-</head>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:#344651;overflow-x:hidden}
+body{display:flex;align-items:flex-start;justify-content:flex-start;min-height:100vh}
+.quick-nav{position:sticky;top:8px;width:100%;max-width:194px;min-width:0;padding:14px;border:1px solid #d6e9f5;border-radius:28px;background:#fff}
+.nav-list{display:grid;gap:7px}
+.quick-nav button{display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;padding:10px 9px;border:0;border-radius:999px;background:#edf8fd;color:#407e9f;font:inherit;font-size:12px;font-weight:700;line-height:1.35;text-align:center;cursor:pointer}
+.quick-nav button:hover,.quick-nav button:focus-visible{background:#deeffa;color:#2e718f;outline:2px solid transparent}
+.quick-nav button.is-active{background:#8fc9e8;color:#fff}
+.divider{height:1px;margin:8px 0 5px;background:#dcecf4}
+.quick-nav .inquiry-button{background:#8fc9e8;color:#fff;font-weight:800}
+.quick-nav .inquiry-button:hover,.quick-nav .inquiry-button:focus-visible{background:#69add2;color:#fff}
+.quick-nav .top-button{min-height:34px;background:transparent;color:#619fc4;font-size:12px}
+.quick-nav .top-button:hover{background:#edf8fd}
+.loading{padding:12px;text-align:center;color:#71818c;font-size:11px}
+@media(max-width:165px){.quick-nav{padding:9px;border-radius:22px}.quick-nav button{font-size:10.5px;min-height:36px}}
+</style></head>
 <body>
-<nav class="quick-nav" aria-label="페이지 빠른 이동"><div id="navList" class="nav-list"><div class="loading">메뉴 불러오는 중…</div></div></nav>
+<nav class="quick-nav" aria-label="페이지 빠른 이동">
+ <div id="navList" class="nav-list"><div class="loading">메뉴 불러오는 중…</div></div>
+</nav>
 <script src="/js/config.js"></script>
 <script>
 (function(){
- const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',root=document.getElementById('navList');
- const ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
- const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
- const api=async p=>{const r=await fetch(API+p,{credentials:'include'});return r.ok?r.json():{}};
- const layout=c=>{const id=String(c.id||''),l=String(c.label||'').replace(/\s/g,'');if(/^profile(?:-|$)/.test(id)||l.includes('움짤프사'))return'profile';if(id==='top-banner'||l.includes('상단배너'))return'top-banner';if(id==='floating-banner'||l.includes('플로팅'))return'floating-banner';if(id==='bottom-banner'||l.includes('하단배너일반'))return'bottom-banner';if(id==='bottom-split'||l.includes('하단배너분할'))return'bottom-split';if(/4cut|four-cut/.test(id)||l.includes('인생네컷'))return'four-cut';return id};
- const banners=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
- async function all(kind,cat){const base=kind==='preset'?'/api/public/presets?category=':'/api/public/portfolio?category=';const f=await api(base+encodeURIComponent(cat)+'&page=1&perPage=60'),a=[...(f.items||[])];for(let p=2;p<=Number(f.totalPages||1);p++){const d=await api(base+encodeURIComponent(cat)+'&page='+p+'&perPage=60');a.push(...(d.items||[]))}return a}
- function send(target){if(ch)ch.postMessage({type:'navigate',target});try{const topWin=window.top;for(let i=0;i<topWin.length;i++)try{topWin.frames[i].postMessage({type:'artmug-section-nav',target},'*')}catch{}}catch{};try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{};root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))}
- async function init(){
-  const d=await api('/api/public/settings?fresh='+Date.now()),s=d.settings||{},meta=s.portfolioMeta||{},pmeta=s.presetMeta||{};
-  const cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy),data=[];
-  for(const c of cats){
-   let arr=[];
-   if(layout(c)==='profile'){for(const p of (s.portfolioCategories||[]).filter(x=>/^profile(?:-|$)/.test(String(x.id||''))))arr.push(...await all('portfolio',p.id))}else arr=await all('portfolio',c.id);
-   arr=arr.filter(x=>(meta[x.file]||{}).enabled!==false);
-   if(!arr.length||data.some(x=>x.key===layout(c)))continue;
-   data.push({key:layout(c),id:c.id,label:c.label,arr,banner:banners.has(layout(c))})
-  }
-  let presets=[];
-  for(const c of (s.presetCategories||[]).filter(c=>c.enabled!==false))presets.push(...await all('preset',c.id));
-  presets=presets.filter(x=>{const m=pmeta[x.file]||{};return m.enabled!==false});
-  const hasPreset=s.showcasePresetEnabled!==false&&presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))!=='fixed');
-  const hasFixed=s.showcaseFixedEnabled!==false&&presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))==='fixed');
-  const normal=data.filter(x=>!x.banner),banner=data.filter(x=>x.banner);
-  const typeGroups=['A','B'].map(t=>({t,items:banner.filter(x=>x.arr.some(v=>(((meta[v.file]||{}).bannerType)||'B')===t))}));
-  let h='<button type="button" data-target="notice">공지사항</button>';
-  if(hasPreset)h+='<button type="button" data-target="showcase-preset">미판매 프리셋</button>';
-  if(hasFixed)h+='<button type="button" data-target="showcase-fixed">고정틀</button>';
-  normal.forEach(x=>h+='<button type="button" data-target="portfolio:'+esc(x.id)+'">'+esc(x.label)+'</button>');
-  typeGroups.forEach(g=>{if(!g.items.length)return;h+='<details><summary>배너 TYPE '+g.t+'</summary><div class="submenu">'+g.items.map(x=>'<button type="button" data-target="portfolio:'+esc(x.id)+':'+g.t+'">'+esc(x.label)+'</button>').join('')+'</div></details>'});
-  h+='<div class="divider"></div><button type="button" class="inquiry-button" data-target="inquiry">문의 양식</button><button type="button" class="top-button" data-target="top">↑ TOP</button>';
-  root.innerHTML=h;root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target))
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList');
+const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
+const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
+const layout=c=>{
+ const id=String(c.id||''),label=String(c.label||'').replace(/\s/g,'');
+ if(id==='top-banner'||label.includes('상단배너'))return'top-banner';
+ if(id==='floating-banner'||label.includes('플로팅'))return'floating-banner';
+ if(id==='bottom-banner'||label.includes('하단배너일반'))return'bottom-banner';
+ if(id==='bottom-split'||label.includes('하단배너분할'))return'bottom-split';
+ if(/4cut|four-cut/.test(id)||label.includes('인생네컷'))return'four-cut';
+ return id;
+};
+const bannerKinds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
+function send(target){
+ if(ch)ch.postMessage({type:'navigate',target});
+ try{for(let i=0;i<window.top.length;i++)try{window.top.frames[i].postMessage({type:'artmug-section-nav',target},'*')}catch{}}catch{}
+ try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{}
+ root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))
+}
+function show(items){
+ root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+x.label+'</button>').join('');
+ root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)))
+}
+async function all(cat){
+ let url='/api/public/portfolio?category='+encodeURIComponent(cat)+'&page=1&perPage=60';
+ const first=await api(url),arr=[...(first.items||[])];
+ for(let p=2;p<=Number(first.totalPages||1);p++){
+  const next=await api('/api/public/portfolio?category='+encodeURIComponent(cat)+'&page='+p+'&perPage=60');
+  arr.push(...(next.items||[]))
  }
- if(ch)ch.addEventListener('message',e=>{if(e.data?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===e.data.target))});
- window.addEventListener('message',e=>{
-  const d=e.data;
-  if(d&&d.type==='artmug-active-section'&&d.target){
-   root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))
-  }
- });
- init().catch(()=>{root.innerHTML='<button type="button" data-target="notice">공지사항</button><div class="divider"></div><button type="button" class="inquiry-button" data-target="inquiry">문의 양식</button><button type="button" class="top-button" data-target="top">↑ TOP</button>';root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target))})
+ return arr
+}
+async function init(){
+ const d=await api('/api/public/settings?fresh='+Date.now()),s=d.settings||{},m=s.portfolioMeta||{};
+ const cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy);
+ const bannerItems=[],four=[];
+ for(const c of cats){
+  const k=layout(c);
+  if(!bannerKinds.has(k)&&k!=='four-cut')continue;
+  const arr=(await all(c.id).catch(()=>[])).filter(x=>(m[x.file]||{}).enabled!==false);
+  if(k==='four-cut')four.push({id:c.id,items:arr});
+  else bannerItems.push(...arr)
+ }
+ const hasA=bannerItems.some(x=>((m[x.file]||{}).bannerType||'B')==='A');
+ const hasB=bannerItems.some(x=>((m[x.file]||{}).bannerType||'B')==='B');
+ const hasFour=four.find(x=>x.items.length);
+ const list=[{label:'공지사항',target:'notice'}];
+ if(s.presetEnabled!==false&&s.showcasePresetEnabled!==false)list.push({label:'미판매 프리셋',target:'showcase-preset'});
+ if(s.presetEnabled!==false&&s.showcaseFixedEnabled!==false)list.push({label:'고정틀',target:'showcase-fixed'});
+ if(hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
+ if(hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
+ if(hasFour)list.push({label:'인생네컷',target:'portfolio:'+hasFour.id});
+ list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
+ show(list)
+}
+if(ch)ch.addEventListener('message',e=>{
+ const d=e.data;if(d?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))
+});
+init().catch(()=>show([{label:'공지사항',target:'notice'},{label:'미판매 프리셋',target:'showcase-preset'},{label:'고정틀',target:'showcase-fixed'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}]));
 })();
 </script></body></html>
