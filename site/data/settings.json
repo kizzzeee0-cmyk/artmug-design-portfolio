@@ -572,7 +572,7 @@
       "isNew": false,
       "colorChangeAvailable": false,
       "description": "",
-      "isReserved": true
+      "isReserved": false
     },
     "preset/profile/20261008083140-UFADCw7C-background__1_.png": {
       "name": "프리셋 02",
