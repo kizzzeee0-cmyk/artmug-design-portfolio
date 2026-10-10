@@ -180,11 +180,13 @@ async function renderShowcase(){
  state.showcase.preset=preset;state.showcase.fixed=fixed;
  const cols=[];
  for(const kind of ['preset','fixed']){
-  const arr=state.showcase[kind];if(!arr.length)continue;
+  const areaEnabled=kind==='preset'?state.settings.showcasePresetEnabled!==false:state.settings.showcaseFixedEnabled!==false;
+  const arr=state.showcase[kind];if(!areaEnabled||!arr.length)continue;
   const featured=arr.filter(x=>smeta(x).featured),rest=arr.filter(x=>!smeta(x).featured),ordered=[...featured,...rest];
   const limit=state.mobile?Number(state.settings.showcaseInitialMobile||2):Number(state.settings.showcaseInitialDesktop||4);
   const shown=state.expanded[kind]?ordered:ordered.slice(0,limit);
-  cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'"><div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div><div class="v2-showcase-grid">'+shown.map(presetCard).join('')+'</div>'+(ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
+  const expandEnabled=kind==='preset'?state.settings.showcasePresetExpandEnabled!==false:state.settings.showcaseFixedExpandEnabled!==false;
+  cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'"><div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div><div class="v2-showcase-grid">'+shown.map(presetCard).join('')+'</div>'+(expandEnabled&&ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
  }
  if(!cols.length){root.hidden=true;root.innerHTML='';return}
  root.hidden=false;root.innerHTML='<h2>미판매 프리셋 / 고정틀</h2><div class="v2-showcase-columns '+(cols.length===1?'is-single':'')+'">'+cols.join('')+'</div>';
