@@ -580,12 +580,24 @@
       "isNew": true,
       "colorChangeAvailable": true,
       "description": ""
+    },
+    "preset/floating-banner/20261010020945-YPr0fitM-_____.png": {
+      "name": "플로팅배너 고정틀 A",
+      "enabled": true,
+      "isNew": false,
+      "isReserved": false,
+      "isSold": false,
+      "colorChangeAvailable": false,
+      "showcaseKind": "fixed",
+      "featured": false,
+      "bannerType": ""
     }
   },
   "presetOrder": [
     "preset/profile/20261005083843-fCIoUIaH-background__2_.png",
     "preset/profile/20261008083140-UFADCw7C-background__1_.png",
-    "preset/profile/20261007003453-CRNMeR0U-background__8_.png"
+    "preset/profile/20261007003453-CRNMeR0U-background__8_.png",
+    "preset/floating-banner/20261010020945-YPr0fitM-_____.png"
   ],
   "portfolioOrder": [
     "portfolio/floating-banner/20261009202139-xpi4OrF_-_____.png",
