@@ -6157,10 +6157,10 @@ html.artmug-embed-root body.artmug-part .site-shell{
   }
 }
 
-/* 2026-10-10 MOBILE HELPER 12PX + QUICK MENU POLISH V2 */
+/* 2026-10-10 MOBILE HELPER 12.5PX + QUICK MENU POLISH V3 */
 @media(max-width:680px){
   .form-card #formDescription,
   .preset-section #presetNotice{
-    font-size:12px!important;
+    font-size:12.5px!important;
   }
 }
