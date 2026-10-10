@@ -945,3 +945,181 @@ body.artmug-part-portfolio #inquirySection{
     border-radius:7px;
   }
 }
+
+
+/* =========================================================
+   2026-10-10 preset-only showcase layout
+   ========================================================= */
+.showcase-section-v2{
+  padding:clamp(20px,3vw,30px)!important;
+  border:1px solid rgba(143,201,232,.20)!important;
+  border-radius:26px!important;
+  background:#fff!important;
+  box-shadow:0 10px 28px rgba(70,126,158,.045)!important;
+}
+.showcase-section-v2>h2{
+  margin:0!important;
+  text-align:center!important;
+  font-size:20px;
+  font-weight:700;
+}
+.v2-showcase-main-description{
+  margin:8px auto 20px;
+  max-width:760px;
+  color:#71818c;
+  font-size:12px;
+  line-height:1.65;
+  text-align:center;
+  white-space:pre-line;
+}
+.v2-preset-category-layout{
+  display:grid;
+  gap:20px;
+}
+.v2-preset-category-layout.is-single{
+  grid-template-columns:1fr;
+}
+.v2-preset-category-layout.is-multi{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+}
+.v2-preset-category{
+  min-width:0;
+}
+.v2-preset-category-layout.is-multi .v2-preset-category{
+  padding:0 12px;
+}
+.v2-preset-category-head{
+  display:flex;
+  justify-content:center;
+  margin-bottom:12px;
+}
+.v2-preset-category-head h3{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  margin:0;
+  padding:5px 14px;
+  border-radius:999px;
+  background:var(--primary-action,var(--accent));
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  line-height:1.2;
+  text-align:center;
+}
+.v2-preset-category-grid{
+  display:grid;
+  gap:12px;
+  align-items:start;
+}
+.v2-preset-category-layout.is-single .v2-preset-category-grid{
+  grid-template-columns:repeat(var(--preset-cols),minmax(0,150px));
+  justify-content:center;
+}
+.v2-preset-category-layout.is-multi .v2-preset-category.is-profile-category .v2-preset-category-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.v2-preset-category-layout.is-multi .v2-preset-category.is-media-category .v2-preset-category-grid{
+  grid-template-columns:1fr;
+}
+.v2-preset-category.is-profile-category .v2-showcase-card{
+  min-width:0;
+}
+.v2-preset-category.is-profile-category .v2-showcase-media{
+  width:min(100%,150px);
+  aspect-ratio:1;
+  min-height:0;
+  max-height:none;
+  margin:0 auto;
+  border-radius:50%;
+  background:transparent;
+}
+.v2-preset-category.is-profile-category .v2-showcase-media img{
+  width:100%;
+  height:100%;
+  max-height:none;
+  border-radius:50%;
+  object-fit:cover;
+}
+.v2-preset-category.is-media-category .v2-showcase-media{
+  width:100%;
+  min-height:0;
+  max-height:none;
+  height:auto;
+  overflow:visible;
+  background:transparent;
+}
+.v2-preset-category.is-media-category .v2-showcase-media img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:none;
+  object-fit:contain;
+}
+.v2-preset-category .v2-showcase-name-row{
+  max-width:100%;
+}
+.v2-preset-category .v2-showcase-name-row strong{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+@media(max-width:680px){
+  .showcase-section-v2{
+    padding:18px 12px!important;
+    border-radius:22px!important;
+  }
+  .showcase-section-v2>h2{
+    font-size:18px;
+  }
+  .v2-showcase-main-description{
+    margin:7px auto 16px;
+    font-size:10.5px;
+    line-height:1.55;
+  }
+  .v2-preset-category-layout.is-single .v2-preset-category-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px 7px;
+    max-width:340px;
+    margin:0 auto;
+  }
+  .v2-preset-category-layout.is-multi{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px 8px;
+  }
+  .v2-preset-category-layout.is-multi .v2-preset-category{
+    padding:0 3px;
+  }
+  .v2-preset-category-head{
+    margin-bottom:8px;
+  }
+  .v2-preset-category-head h3{
+    min-height:26px;
+    padding:4px 10px;
+    font-size:13px;
+    font-weight:700;
+  }
+  .v2-preset-category-layout.is-multi .v2-preset-category.is-profile-category .v2-preset-category-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px 5px;
+  }
+  .v2-preset-category-layout.is-multi .v2-preset-category.is-media-category .v2-preset-category-grid{
+    grid-template-columns:1fr!important;
+    gap:7px;
+  }
+  .v2-preset-category.is-profile-category .v2-showcase-media{
+    width:100%;
+    max-width:132px;
+  }
+  .v2-preset-category .v2-showcase-name-row{
+    gap:3px;
+    margin-top:5px;
+  }
+  .v2-preset-category .v2-showcase-name-row strong{
+    font-size:10px!important;
+  }
+}
