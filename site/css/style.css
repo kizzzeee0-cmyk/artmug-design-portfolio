@@ -6142,3 +6142,17 @@ html.artmug-embed-root body.artmug-part .site-shell{
     padding-bottom:10px!important;
   }
 }
+
+
+/* 2026-10-10 schedule optical vertical centering */
+.schedule-card .schedule-heading,
+.schedule-card .schedule-content{
+  position:relative;
+  top:4px;
+}
+@media(max-width:680px){
+  .schedule-card .schedule-heading,
+  .schedule-card .schedule-content{
+    top:3px;
+  }
+}
