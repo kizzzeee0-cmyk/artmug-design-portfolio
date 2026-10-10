@@ -380,7 +380,7 @@ function renderScheduleAdmin(){
       <div class="fields schedule-estimate-fields">
         <label><span>최소 일수</span><input id="scheduleEstimateMinDays" type="number" min="0" value="${Number(S.scheduleEstimateMinDays??1)}"></label>
         <label><span>최대 일수</span><input id="scheduleEstimateMaxDays" type="number" min="0" value="${Number(S.scheduleEstimateMaxDays??3)}"></label>
-        <label><span>아래 문구</span><input id="scheduleEstimateLabel" value="${adminEsc(S.scheduleEstimateLabel||'작업 완료까지')}" placeholder="예: 작업 완료까지"></label>
+        <label><span>아래 문구</span><input id="scheduleEstimateLabel" value="${adminEsc(!S.scheduleEstimateLabel||S.scheduleEstimateLabel==='작업 완료까지'?'이내 작업 완료 예정':S.scheduleEstimateLabel)}" placeholder="예: 작업 완료까지"></label>
       </div>
     </div>
   `;
