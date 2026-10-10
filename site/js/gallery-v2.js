@@ -170,7 +170,10 @@ function renderPortfolioCategory(id,scroll){
  const pages=Math.max(1,Math.ceil(items.length/cfg.perPage));data.page=Math.min(Math.max(1,data.page||1),pages);
  const slice=items.slice((data.page-1)*cfg.perPage,data.page*cfg.perPage);
  const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');if(!sec)return;
- const controls=bannerIds.has(k)?'<div class="v2-type-filter">'+['ALL','A','B'].map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':'TYPE '+v)+'</button>').join('')+'</div>':'';
+ const presentTypes=bannerIds.has(k)?['A','B'].filter(t=>data.items.some(x=>(pmeta(x).bannerType||'B')===t)):[];
+ const filterValues=bannerIds.has(k)?['ALL',...presentTypes]:[];
+ if(data.filter!=='ALL'&&!presentTypes.includes(data.filter)){data.filter='ALL';data.page=1}
+ const controls=bannerIds.has(k)?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':'TYPE '+v)+'</button>').join('')+'</div>':'';
  sec.innerHTML='<div class="v2-cat-head"><h3>'+esc(cat.label)+'</h3>'+controls+'</div>'+guideHtml(cat)+
   '<div class="v2-cat-grid '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+slice.map(x=>itemCard(x,cat)).join('')+'</div>'+
   pagination(id,pages,data.page);
