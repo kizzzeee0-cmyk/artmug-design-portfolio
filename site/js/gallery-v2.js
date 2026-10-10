@@ -76,7 +76,7 @@ function smeta(x){
 }
 function itemCard(x,c){
  const k=layoutKey(c),m=pmeta(x),type=bannerIds.has(k)?(m.bannerType||'B'):'';
- return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'">'+
+ return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
    '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" draggable="false"></div>'+
    (type?'<span class="v2-type-badge">TYPE '+type+'</span>':'')+
   '</article>'
@@ -113,21 +113,53 @@ function guideHtml(cat){
    '<div><strong>TYPE '+t+' · '+esc(x.title||title)+'</strong><p>'+esc(x.description||desc)+'</p>'+(Number(x.price||0)>0?'<span>'+Number(x.price).toLocaleString('ko-KR')+'원</span>':'')+'</div></div>'
   ).join('')+'</div></details>'
 }
+function imageSizeFor(x){
+ if(x.__v2NaturalWidth&&x.__v2NaturalHeight)return Promise.resolve([x.__v2NaturalWidth,x.__v2NaturalHeight]);
+ return new Promise(resolve=>{
+  const im=new Image();
+  const done=(w,h)=>{x.__v2NaturalWidth=w||0;x.__v2NaturalHeight=h||0;resolve([x.__v2NaturalWidth,x.__v2NaturalHeight])};
+  im.onload=()=>done(im.naturalWidth,im.naturalHeight);
+  im.onerror=()=>done(0,0);
+  im.src=media(x.demoSrc||x.file)
+ })
+}
+async function preclassifyBottomSplit(items){
+ await Promise.all(items.map(async x=>{
+  const [w,h]=await imageSizeFor(x);
+  x.__v2SplitSlot=w===720&&h===450?'left':w===1440&&h===450?'right':'other'
+ }));
+ const left=items.filter(x=>x.__v2SplitSlot==='left'),right=items.filter(x=>x.__v2SplitSlot==='right'),other=items.filter(x=>x.__v2SplitSlot==='other');
+ if(!left.length||!right.length)return items;
+ const out=[];let i=0,j=0;
+ while(i<left.length||j<right.length){if(i<left.length)out.push(left[i++]);if(j<right.length)out.push(right[j++])}
+ out.push(...other);
+ return out
+}
 function arrangeSplit(root){
  const cards=$$('.v2-work-card',root);
+ if(!cards.length)return;
+ const place=rows=>{
+  const left=rows.filter(x=>x.slot==='left'),right=rows.filter(x=>x.slot==='right'),other=rows.filter(x=>x.slot!=='left'&&x.slot!=='right');
+  root.innerHTML='<div class="v2-split-col" data-col="left"></div><div class="v2-split-col" data-col="right"></div>';
+  const L=root.querySelector('[data-col="left"]'),R=root.querySelector('[data-col="right"]');
+  if(left.length&&right.length){
+   left.forEach(x=>L.appendChild(x.card));right.forEach(x=>R.appendChild(x.card));other.forEach((x,i)=>(i%2?R:L).appendChild(x.card))
+  }else{
+   rows.forEach((x,i)=>(i%2?R:L).appendChild(x.card))
+  }
+ };
+ const known=cards.map(card=>({card,slot:card.dataset.splitSlot||''}));
+ if(known.every(x=>x.slot)){place(known);return}
  let loaded=0;const rows=[];
  cards.forEach(card=>{
   const img=card.querySelector('img');
-  const done=()=>{rows.push({card,w:img.naturalWidth||0,h:img.naturalHeight||0});if(++loaded===cards.length)place()};
-  if(img.complete&&img.naturalWidth)done();else img.addEventListener('load',done,{once:true})
- });
- function place(){
-  const narrow=rows.filter(x=>x.w===720&&x.h===450),wide=rows.filter(x=>x.w===1440&&x.h===450),other=rows.filter(x=>!narrow.includes(x)&&!wide.includes(x));
-  root.innerHTML='<div class="v2-split-col" data-col="left"></div><div class="v2-split-col" data-col="right"></div>';
-  const L=root.querySelector('[data-col="left"]'),R=root.querySelector('[data-col="right"]');
-  if(narrow.length&&wide.length){narrow.forEach(x=>L.appendChild(x.card));wide.forEach(x=>R.appendChild(x.card));other.forEach((x,i)=>(i%2?R:L).appendChild(x.card))}
-  else rows.forEach((x,i)=>(i%2?R:L).appendChild(x.card))
- }
+  const done=()=>{
+   const w=img?.naturalWidth||0,h=img?.naturalHeight||0;
+   rows.push({card,slot:w===720&&h===450?'left':w===1440&&h===450?'right':'other'});
+   if(++loaded===cards.length)place(rows)
+  };
+  if(img?.complete&&img.naturalWidth)done();else if(img)img.addEventListener('load',done,{once:true});else done()
+ })
 }
 function renderPortfolioCategory(id,scroll){
  const data=state.portfolio.get(id);if(!data)return;
@@ -145,6 +177,7 @@ function renderPortfolioCategory(id,scroll){
  const grid=sec.querySelector('.v2-cat-grid');if(k==='bottom-split'&&grid&&slice.length)arrangeSplit(grid);
  sec.querySelectorAll('[data-v2-filter]').forEach(b=>b.onclick=()=>{const [,f]=b.dataset.v2Filter.split(':');data.filter=f;data.page=1;renderPortfolioCategory(id,true);announceActive('portfolio:'+id+':'+f)});
  sec.querySelectorAll('[data-v2-page]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop();data.page=token==='prev'?data.page-1:token==='next'?data.page+1:Number(token);renderPortfolioCategory(id,true)});
+ sendDetailedSectionMap();
  if(scroll)scrollToElement(sec)
 }
 async function renderPortfolio(){
@@ -160,13 +193,14 @@ async function renderPortfolio(){
   }else items=await fetchAll('portfolio',cat.id).catch(()=>[]);
   items=applyOrder(items,state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
   if(!items.length)continue;
+  if(layoutKey(cat)==='bottom-split')items=await preclassifyBottomSplit(items);
   state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL'});
  }
  if(!state.portfolio.size){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
  $('#portfolioAllSectionV2').hidden=false;
  root.innerHTML=[...state.portfolio.entries()].map(([id,d])=>'<section class="v2-portfolio-category" data-v2-cat="'+esc(id)+'" id="portfolio-'+esc(id)+'"></section>').join('');
  state.portfolio.forEach((_,id)=>renderPortfolioCategory(id,false));
- announceNavData()
+ announceNavData();sendDetailedSectionMap()
 }
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
@@ -195,7 +229,8 @@ async function renderShowcase(){
 }
 function requestHeight(){
  window.dispatchEvent(new Event('artmug-sections-changed'));
- setTimeout(()=>window.dispatchEvent(new Event('artmug-sections-changed')),80)
+ requestAnimationFrame(sendDetailedSectionMap);
+ setTimeout(()=>{window.dispatchEvent(new Event('artmug-sections-changed'));sendDetailedSectionMap()},80)
 }
 function scrollToElement(el){
  if(!el)return;
@@ -222,6 +257,23 @@ function navigate(target){
 function announceActive(target){
  try{window.__v2nav?.postMessage({type:'active',target})}catch{}
 }
+function sendDetailedSectionMap(){
+ const sections=[];
+ const add=(target,el)=>{
+  if(!el||el.hidden||!el.getClientRects().length)return;
+  sections.push({target,offset:Math.max(0,Math.round(el.getBoundingClientRect().top+window.scrollY))})
+ };
+ add('notice',$('.notice-card'));
+ add('showcase-preset',$('#showcase-preset'));
+ add('showcase-fixed',$('#showcase-fixed'));
+ state.portfolio.forEach((d,id)=>{
+  const target='portfolio:'+id+((d.filter==='A'||d.filter==='B')?':'+d.filter:'');
+  add(target,document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
+ });
+ add('inquiry',$('#inquirySection'));
+ const role=document.body.classList.contains('artmug-part-inquiry')?'inquiry':document.body.classList.contains('artmug-part-portfolio')?'portfolio':'full';
+ try{if(window.parent!==window)window.parent.postMessage({type:'artmug-v2-section-map',role,sections},'*')}catch{}
+}
 function announceNavData(){
  const cats=[...state.portfolio.entries()].map(([id,d])=>({id,label:d.cat.label,banner:bannerIds.has(layoutKey(d.cat)),hasA:d.items.some(x=>pmeta(x).bannerType==='A'),hasB:d.items.some(x=>(pmeta(x).bannerType||'B')==='B')}));
  const payload={type:'nav-data',preset:state.showcase.preset.length>0,fixed:state.showcase.fixed.length>0,categories:cats};
@@ -245,7 +297,7 @@ function injectInquiry(card){
  if(!box){box=document.createElement('div');box.className='v2-inquiry-enhancements';fields.prepend(box)}
  const profileMode=card.dataset.profileMode||'custom',floatingMode=card.dataset.floatingMode||'custom';
  const availableProfilePresets=state.showcase.preset.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},m=smeta(x);return layoutKey(c)==='profile'&&m.enabled&&!m.isReserved&&!m.isSold});
- const availableFixed=state.showcase.fixed.filter(x=>{const m=smeta(x);return m.enabled&&!m.isReserved&&!m.isSold});
+ const availableFixed=state.showcase.fixed.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},m=smeta(x);return layoutKey(c)==='floating-banner'&&m.enabled&&!m.isReserved&&!m.isSold});
  let html='';
  if(hasProfile){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
@@ -289,6 +341,7 @@ function injectInquiry(card){
 function selectionHtml(kind,selected){
  let arr=state.showcase[kind].filter(x=>smeta(x).enabled);
  if(kind==='preset')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='profile'});
+ if(kind==='fixed')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='floating-banner'});
  const label=kind==='preset'?'프리셋 선택':'고정틀 선택';
  return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend><div class="v2-product-grid">'+arr.map(x=>{const m=smeta(x),disabled=m.isReserved||m.isSold;return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'><img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+(disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>'}).join('')+'</div></fieldset>'
 }
