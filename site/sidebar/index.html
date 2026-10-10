@@ -21,7 +21,7 @@ body{display:flex;justify-content:flex-start;align-items:flex-start;min-height:1
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v6';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v7';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={};
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
@@ -43,12 +43,14 @@ function summarize(settings,index,presets){
  const bannerWorks=works.filter(x=>banners.has(layout(catById.get(x.category))));
  const presetItems=(Array.isArray(presets)?presets:[]).filter(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&((pm[x.file]||{}).showcaseKind||'preset')!=='fixed');
  const bannerIds=[...new Set(bannerWorks.map(x=>x.category))];
- const fourCutId=works.find(x=>layout(catById.get(x.category))==='four-cut')?.category||'';
+ const categories=cats
+  .filter(c=>!banners.has(layout(c))&&works.some(x=>x.category===c.id))
+  .map(c=>({id:c.id,label:String(c.label||c.id).replace(/^움짤\s*프사$/,'움짤프사')}));
  return {
   hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.length>0,
   hasBanner:bannerWorks.length>0,
   bannerIds,
-  fourCutId
+  categories
  }
 }
 function send(target){
@@ -61,8 +63,8 @@ function listFrom(d){
  currentSummary=d||{};
  const list=[{label:'공지사항',target:'notice'}];
  if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase'});
+ (Array.isArray(d.categories)?d.categories:[]).forEach(c=>list.push({label:c.label,target:'portfolio:'+c.id}));
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
- if(d.fourCutId)list.push({label:'인생네컷',target:'portfolio:'+d.fourCutId});
  list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
  return list
 }
@@ -97,7 +99,10 @@ if(ch)ch.addEventListener('message',e=>{
    hasPreset:!!d.preset,
    hasBanner:cats.some(c=>c.banner),
    bannerIds:cats.filter(c=>c.banner).map(c=>c.id),
-   fourCutId:cats.find(c=>c.kind==='four-cut')?.id||''
+   categories:cats.filter(c=>!c.banner).map(c=>({
+    id:c.id,
+    label:String(c.label||c.id).replace(/^움짤\s*프사$/,'움짤프사')
+   }))
   };
   saveCache(summary);show(listFrom(summary));return
  }
