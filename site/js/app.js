@@ -809,10 +809,13 @@ function parsePresetOriginalName(name){
   return m?{cleanName:m[3]}:{cleanName:raw}
 }
 function presetMetaForItem(x){
-  const saved=(S?.presetMeta&&S.presetMeta[x.file])||{};
+  const meta=S?.presetMeta;
+  const registered=!!(x?.file&&meta&&typeof meta==='object'&&Object.prototype.hasOwnProperty.call(meta,x.file));
+  const saved=registered?meta[x.file]:{};
   return {
+    registered,
     name:String(saved.name||''),
-    enabled:saved.enabled!==undefined?saved.enabled:x.enabled!==false,
+    enabled:registered&&saved.enabled!==false,
     isNew:saved.isNew===true,
     isReserved:saved.isReserved===true,
     colorChangeAvailable:saved.colorChangeAvailable===true
@@ -1015,7 +1018,7 @@ async function loadPresets(){
     let all=await fetchAllPresets(presetState.category);
     all=[...all].sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
     all=applyManualOrder(all,S?.presetOrder);
-    all=all.filter(x=>presetMetaForItem(x).enabled);
+    all=all.filter(x=>{const meta=presetMetaForItem(x);return meta.registered&&meta.enabled});
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,presetState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     presetState.page=page;
     presetGrid(items,presetState.category);
