@@ -607,7 +607,6 @@ async function saveSettings(){
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
   collectCats(S.presetCategories||[],'preset');collectPresetGroups();
-  delete S.backgroundGuide;delete S.comparisonAImage;delete S.comparisonBImage;delete S.presetColorMeta;delete S.presetVariantFiles;
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
