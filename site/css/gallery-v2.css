@@ -1280,6 +1280,6 @@ body.artmug-part-portfolio #inquirySection{
 }
 @media(max-width:680px){
   .showcase-section-v2 .v2-showcase-main-description{
-    font-size:var(--public-help-size-mobile,14px)!important;
+    font-size:12.5px!important;
   }
 }
