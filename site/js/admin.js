@@ -338,7 +338,7 @@ $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+a
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('배너 입력 문구 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Number(S.showcaseInitialDesktop||4);if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Number(S.showcaseInitialMobile||2);$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Number(S.showcaseInitialDesktop||4);if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Number(S.showcaseInitialMobile||2);if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcaseFixedEnabled'))$('showcaseFixedEnabled').checked=S.showcaseFixedEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;if($('showcaseFixedExpandEnabled'))$('showcaseFixedExpandEnabled').checked=S.showcaseFixedExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
 function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
 function renderTypes(){
   $('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit">
@@ -594,6 +594,10 @@ async function saveSettings(){
   S.presetNotice=$('presetNotice').value;
   if($('showcaseInitialDesktop'))S.showcaseInitialDesktop=Math.max(1,Number($('showcaseInitialDesktop').value||4));
   if($('showcaseInitialMobile'))S.showcaseInitialMobile=Math.max(1,Number($('showcaseInitialMobile').value||2));
+  if($('showcasePresetEnabled'))S.showcasePresetEnabled=$('showcasePresetEnabled').checked;
+  if($('showcaseFixedEnabled'))S.showcaseFixedEnabled=$('showcaseFixedEnabled').checked;
+  if($('showcasePresetExpandEnabled'))S.showcasePresetExpandEnabled=$('showcasePresetExpandEnabled').checked;
+  if($('showcaseFixedExpandEnabled'))S.showcaseFixedExpandEnabled=$('showcaseFixedExpandEnabled').checked;
   S.authorEnabled=$('authorEnabled').checked;
   S.authorText=$('authorText').value;
   S.authorFontSize=Number($('authorFontSize').value||15);
@@ -899,7 +903,7 @@ async function uploadFiles(kind){
       const path=String(d.path||'');if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
       const saved=await queueSettingsMutation(latest=>{
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,colorChangeAvailable:false,showcaseKind:cat==='floating-banner'?'fixed':'preset',featured:false,bannerType:''};
+        const chosenKind=$('presetUploadKind')?.value|| (cat==='floating-banner'?'fixed':'preset');const chosenType=$('presetUploadBannerType')?.value||'';latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,colorChangeAvailable:false,showcaseKind:chosenKind,featured:false,bannerType:chosenType};
         const order=Array.isArray(latest.presetOrder)?latest.presetOrder.filter(v=>v!==path):[];
         order.push(path);
         latest.presetOrder=order;
@@ -920,11 +924,15 @@ async function uploadFiles(kind){
       if(d.path)uploadedPaths.push(String(d.path))
     }
     if(uploadedPaths.length){
+      const selectedType=$('portfolioUploadBannerType')?.value||'B';
+      const isBannerUpload=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(cat);
       const saved=await queueSettingsMutation(latest=>{
         const current=Array.isArray(latest.portfolioOrder)?latest.portfolioOrder:[];
         const fresh=[...uploadedPaths].reverse();
         const newSet=new Set(fresh);
-        latest.portfolioOrder=[...fresh,...current.filter(v=>!newSet.has(v))]
+        latest.portfolioOrder=[...fresh,...current.filter(v=>!newSet.has(v))];
+        if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
+        uploadedPaths.forEach(path=>{latest.portfolioMeta[path]={...(latest.portfolioMeta[path]||{}),enabled:true,...(isBannerUpload?{bannerType:selectedType}:{})}})
       });
       S.portfolioOrder=saved.portfolioOrder||S.portfolioOrder||[]
     }
