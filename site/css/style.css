@@ -5987,6 +5987,9 @@ html.artmug-embed-root body.artmug-part .site-shell{
   box-shadow:none!important;
   white-space:nowrap;
 }
+.schedule-card .schedule-estimate[hidden]{
+  display:none!important;
+}
 .schedule-card .schedule-estimate-range{
   display:inline!important;
   color:#fff!important;
