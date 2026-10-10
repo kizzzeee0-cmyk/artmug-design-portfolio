@@ -1123,3 +1123,150 @@ body.artmug-part-portfolio #inquirySection{
     font-size:10px!important;
   }
 }
+
+
+/* 2026-10-10 visual polish: shared section titles, preset helper, inquiry numbers,
+   and single-column schedule banner. This stylesheet loads after style.css. */
+
+/* Match the same major-section font scale/weight as the notice and inquiry titles. */
+.showcase-section-v2 > h2,
+.portfolio-all-section-v2 > .v2-section-heading h2{
+  font-size:23px!important;
+  font-weight:800!important;
+  line-height:1.3!important;
+  letter-spacing:-.025em!important;
+  text-align:center!important;
+}
+
+/* One line for desktop; retain the administrator's actual two-line copy on mobile. */
+.showcase-section-v2 .v2-showcase-main-description{
+  font-size:14px!important;  /* same as desktop notice item descriptions */
+  font-weight:400!important;
+  line-height:1.55!important;
+  white-space:normal!important;
+  text-align:center!important;
+}
+@media(min-width:681px){
+  .showcase-section-v2 .v2-showcase-main-description{
+    white-space:nowrap!important;
+    font-size:clamp(12px,1.5vw,14px)!important;
+  }
+}
+@media(max-width:680px){
+  .showcase-section-v2 > h2,
+  .portfolio-all-section-v2 > .v2-section-heading h2{
+    font-size:20px!important;
+  }
+  .showcase-section-v2 .v2-showcase-main-description{
+    font-size:12px!important;  /* same as mobile notice content */
+    white-space:pre-line!important;
+    margin:8px auto 16px!important;
+  }
+}
+
+/* Inquiry question numbers use the exact same blue as selected category pills. */
+.contact-form [data-question-title]::before{
+  color:var(--primary-action,var(--accent))!important;
+}
+
+/* Schedule: a small top-left duration pill above one full-width centered heading.
+   Keep the existing editable min/max duration and dynamic date rendering. */
+.schedule-card .schedule-content,
+.schedule-card.has-estimate .schedule-content,
+.schedule-card:not(.has-estimate) .schedule-content{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  gap:12px!important;
+}
+.schedule-card .schedule-estimate{
+  order:-1!important;
+  display:inline-flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  align-self:flex-start!important;
+  width:max-content!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:8px 15px!important;
+  gap:4px!important;
+  border:1px solid var(--primary-action,var(--accent))!important;
+  border-radius:999px!important;
+  background:var(--primary-action,var(--accent))!important;
+  box-shadow:none!important;
+  white-space:nowrap;
+}
+.schedule-card .schedule-estimate[hidden]{
+  display:none!important;
+}
+.schedule-card .schedule-estimate-range,
+.schedule-card .schedule-estimate-caption{
+  display:inline!important;
+  margin:0!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  line-height:1.25!important;
+  letter-spacing:-.015em!important;
+}
+.schedule-card .schedule-message-box{
+  width:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:5px 0 10px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.schedule-card .schedule-message-box #scheduleText{
+  width:100%!important;
+  margin:0!important;
+  color:#263D52!important;
+  font-size:clamp(19px,2.6vw,30px)!important;
+  font-weight:800!important;
+  line-height:1.45!important;
+  letter-spacing:-.035em!important;
+  text-align:center!important;
+}
+.schedule-card .schedule-date{
+  color:inherit!important;
+  font-size:inherit!important;
+  font-weight:inherit!important;
+}
+@media(max-width:680px){
+  .schedule-card .schedule-content,
+  .schedule-card.has-estimate .schedule-content{
+    gap:9px!important;
+  }
+  .schedule-card .schedule-estimate{
+    padding:7px 12px!important;
+    gap:3px!important;
+  }
+  .schedule-card .schedule-estimate-range,
+  .schedule-card .schedule-estimate-caption{
+    font-size:11.5px!important;
+  }
+  .schedule-card .schedule-message-box{
+    padding:5px 0 8px!important;
+  }
+  .schedule-card .schedule-message-box #scheduleText{
+    font-size:clamp(17px,4.3vw,22px)!important;
+    line-height:1.5!important;
+    overflow-wrap:anywhere;
+  }
+  .schedule-card .schedule-mobile-line{
+    white-space:normal!important;
+  }
+}
