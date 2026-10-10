@@ -1,7 +1,9 @@
 const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 function initArtmugEmbedMode(){
-  if(!document.body?.classList.contains('artmug-part'))return;
-  document.documentElement.classList.add('artmug-embed-root');
+  // Report content height for both the complete public page and split embed pages.
+  if(window.parent===window)return;
+  // Preserve a usable inner scrollbar if the host blocks parent resize scripts.
+  // Hide inner scrolling only after the parent confirms it handles live height updates.
 
   const shell=document.querySelector('.site-shell');
   let raf=0;
@@ -115,7 +117,11 @@ function initArtmugEmbedMode(){
   window.addEventListener('artmug-sections-changed',()=>report(true));
   window.addEventListener('message',e=>{
     const d=e&&e.data;
-    if(d&&d.type==='artmug-request-section-map')report(true)
+    if(d&&d.type==='artmug-request-section-map')report(true);
+    if(d&&d.type==='artmug-parent-resize-ready'){
+      document.documentElement.classList.add('artmug-embed-root');
+      report(true)
+    }
   });
 
   if(document.fonts&&document.fonts.ready){
