@@ -53,9 +53,9 @@
       quickNavFrames.set(frame,saved)
     }
 
-    const followerRightGap=Math.max(-24,saved.rightGap-40);
+    const followerRightGap=6;
     frame.style.setProperty('position','fixed','important');
-    frame.style.setProperty('top','clamp(190px,27vh,315px)','important');
+    frame.style.setProperty('top','clamp(210px,29vh,335px)','important');
     frame.style.setProperty('right',followerRightGap+'px','important');
     frame.style.setProperty('left','auto','important');
     frame.style.setProperty('z-index','50','important');
