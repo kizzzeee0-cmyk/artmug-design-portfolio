@@ -326,16 +326,6 @@ function collectScheduleAdmin(){
   if(custom)S.scheduleCustomText=custom.value;
   S.scheduleExtras=Array.from(document.querySelectorAll('[data-schedule-extra]')).map(x=>x.value);
 
-  const estimateEnabled=$('scheduleEstimateEnabled');
-  if(estimateEnabled)S.scheduleEstimateEnabled=estimateEnabled.checked;
-  const estimateLabel=$('scheduleEstimateLabel');
-  if(estimateLabel)S.scheduleEstimateLabel=estimateLabel.value;
-  const estimateMin=$('scheduleEstimateMinDays');
-  if(estimateMin)S.scheduleEstimateMinDays=Math.max(0,Number(estimateMin.value||0));
-  const estimateMax=$('scheduleEstimateMaxDays');
-  if(estimateMax)S.scheduleEstimateMaxDays=Math.max(0,Number(estimateMax.value||0));
-  const estimateText=$('scheduleEstimateText');
-  if(estimateText)S.scheduleEstimateText=estimateText.value;
 }
 function renderScheduleAdmin(){
   if(!$('scheduleFields'))return;
@@ -371,17 +361,6 @@ function renderScheduleAdmin(){
     <div class="wide schedule-extra-admin">
       <div class="schedule-extra-head"><div><strong>추가 안내 문구</strong><p class="muted">선택한 안내 문구 아래에 필요한 내용을 추가할 수 있습니다.</p></div><button id="addScheduleExtra" type="button" class="ghost admin-compact">+ 문구 추가</button></div>
       <div id="scheduleExtraList">${extras.map((text,i)=>`<div class="schedule-extra-row"><input data-schedule-extra="${i}" value="${adminEsc(text)}" placeholder="추가 안내 문구"><button type="button" class="danger admin-compact" data-del-schedule-extra="${i}">삭제</button></div>`).join('')||'<p class="muted schedule-extra-empty">추가 안내 문구가 없습니다.</p>'}</div>
-    </div>
-    <div class="wide schedule-estimate-admin">
-      <div class="schedule-estimate-admin-head">
-        <div><strong>작업 완료 예상 박스</strong><p class="muted">일정 문구 오른쪽에 “1~3일 / 작업 완료까지” 형태로 표시합니다.</p></div>
-        <label class="toggle"><input id="scheduleEstimateEnabled" type="checkbox" ${S.scheduleEstimateEnabled!==false?'checked':''}> 표시</label>
-      </div>
-      <div class="fields schedule-estimate-fields">
-        <label><span>최소 일수</span><input id="scheduleEstimateMinDays" type="number" min="0" value="${Number(S.scheduleEstimateMinDays??1)}"></label>
-        <label><span>최대 일수</span><input id="scheduleEstimateMaxDays" type="number" min="0" value="${Number(S.scheduleEstimateMaxDays??3)}"></label>
-        <label><span>아래 문구</span><input id="scheduleEstimateLabel" value="${adminEsc(!S.scheduleEstimateLabel||S.scheduleEstimateLabel==='작업 완료까지'?'이내 작업 완료 예정':S.scheduleEstimateLabel)}" placeholder="예: 작업 완료까지"></label>
-      </div>
     </div>
   `;
 
