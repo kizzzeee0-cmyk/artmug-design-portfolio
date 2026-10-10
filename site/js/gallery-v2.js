@@ -85,8 +85,9 @@ function smeta(x){
   pairChild:m.pairChild===true
  }
 }
+function bannerTypeEnabled(){return state.settings?.bannerTypeEnabled!==false}
 function itemCard(x,c){
- const k=layoutKey(c),m=pmeta(x),type=bannerIds.has(k)?(m.bannerType||'B'):'';
+ const k=layoutKey(c),m=pmeta(x),type=bannerTypeEnabled()&&bannerIds.has(k)?(m.bannerType||'B'):'';
  const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">TYPE '+type+'</span></span>':'';
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
    '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" draggable="false"></div>'+
@@ -128,7 +129,7 @@ function mixAB(items){
  return out
 }
 function guideHtml(cat){
- if(!bannerIds.has(layoutKey(cat)))return'';
+ if(!bannerTypeEnabled()||!bannerIds.has(layoutKey(cat)))return'';
  const g=state.settings?.bannerTypeGuide||{},A=g.A||{},B=g.B||{};
  return '<details class="v2-type-guide"><summary>TYPE A / B 차이 보기</summary><div class="v2-type-guide-grid">'+
   [['A',A,'장식과 패턴이 적은 깔끔한 구성'],['B',B,'패턴과 장식이 더 풍부한 구성']].map(([t,x,desc])=>{
@@ -198,6 +199,8 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  const data=state.portfolio.get(id);if(!data)return;
  const {cat}=data,k=layoutKey(cat),cfg=catConfig(cat);
  const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');if(!sec)return;
+ const typeOn=bannerTypeEnabled()&&bannerIds.has(k);
+ if(!typeOn&&data.filter!=='ALL'){data.filter='ALL';data.page=1}
  if(data.remote&&loadRemote){
   sec.setAttribute('aria-busy','true');
   try{await loadRemotePortfolioPage(data)}catch(e){sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>';sec.removeAttribute('aria-busy');return}
@@ -206,20 +209,20 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  if(data.remote){
   items=data.items||[];
   pages=Math.max(1,Number(data.totalPages||1));
-  filterValues=bannerIds.has(k)?['ALL',...(data.availableFilters||[]).filter(v=>v==='A'||v==='B')]:[];
+  filterValues=typeOn?['ALL',...(data.availableFilters||[]).filter(v=>v==='A'||v==='B')]:[];
  }else{
   items=(data.items||[]).filter(x=>pmeta(x).enabled);
-  if(data.filter==='A'||data.filter==='B')items=items.filter(x=>pmeta(x).bannerType===data.filter);
-  else if(bannerIds.has(k))items=mixAB(items);
-  const presentTypes=bannerIds.has(k)?['A','B'].filter(t=>(data.items||[]).some(x=>pmeta(x).bannerType===t)):[];
-  filterValues=bannerIds.has(k)?['ALL',...presentTypes]:[];
+  if(typeOn&&(data.filter==='A'||data.filter==='B'))items=items.filter(x=>pmeta(x).bannerType===data.filter);
+  else if(typeOn)items=mixAB(items);
+  const presentTypes=typeOn?['A','B'].filter(t=>(data.items||[]).some(x=>pmeta(x).bannerType===t)):[];
+  filterValues=typeOn?['ALL',...presentTypes]:[];
   pages=Math.max(1,Math.ceil(items.length/cfg.perPage));
   data.page=Math.min(Math.max(1,data.page||1),pages);
   items=items.slice((data.page-1)*cfg.perPage,data.page*cfg.perPage)
  }
- if(data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1;if(data.remote)return renderPortfolioCategory(id,scroll,true)}
+ if(typeOn&&data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1;if(data.remote)return renderPortfolioCategory(id,scroll,true)}
  data.page=Math.min(Math.max(1,data.page||1),pages);
- const controls=bannerIds.has(k)?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':'TYPE '+v)+'</button>').join('')+'</div>':'';
+ const controls=typeOn?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':'TYPE '+v)+'</button>').join('')+'</div>':'';
  sec.hidden=false;
  sec.innerHTML='<div class="v2-cat-head"><h3>'+esc(cat.label)+'</h3>'+controls+'</div>'+guideHtml(cat)+
   '<div class="v2-cat-grid v2-layout-'+k+' '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+items.map(x=>itemCard(x,cat)).join('')+'</div>'+
@@ -359,6 +362,13 @@ function navigate(target){
  if(target==='inquiry')return scrollToElement($('#inquirySection')||$('.form-card'));
  if(target==='showcase'||target==='preset'||target==='showcase-preset')return scrollToElement($('#showcaseSectionV2'));
  if(target==='portfolio')return scrollToElement($('#portfolioAllSectionV2'));
+ if(target==='banner:all'||(!bannerTypeEnabled()&&(target==='banner:A'||target==='banner:B'))){
+  const entry=[...state.portfolio.entries()].find(([id,d])=>bannerIds.has(layoutKey(d.cat)));
+  if(!entry)return;
+  const [id,d]=entry;d.filter='ALL';d.page=1;
+  renderPortfolioCategory(id,false,true).then(()=>{scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'));announceActive('banner:all')});
+  return
+ }
  if(target==='banner:A'||target==='banner:B'){
   const type=target.slice(-1);
   const entry=[...state.portfolio.entries()].find(([id,d])=>bannerIds.has(layoutKey(d.cat))&&(d.remote?(d.availableFilters||[]).includes(type):(d.items||[]).some(x=>pmeta(x).bannerType===type)));
@@ -369,7 +379,10 @@ function navigate(target){
  }
  if(target.startsWith('portfolio:')){
   const [,id,type]=target.split(':');const d=state.portfolio.get(id);
-  if(d&&type&&['A','B','ALL'].includes(type)){d.filter=type;d.page=1;renderPortfolioCategory(id,false,true).then(()=>scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]')));return}
+  if(d&&type&&['A','B','ALL'].includes(type)){
+   d.filter=bannerTypeEnabled()?type:'ALL';d.page=1;
+   renderPortfolioCategory(id,false,true).then(()=>scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]')));return
+  }
   return scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
  }
 }
@@ -385,7 +398,7 @@ function sendDetailedSectionMap(){
  add('notice',$('.notice-card'));
  add('showcase',$('#showcaseSectionV2'));
  state.portfolio.forEach((d,id)=>{
-  const target='portfolio:'+id+(['A','B'].includes(d.filter)?':'+d.filter:'');
+  const target='portfolio:'+id+(bannerTypeEnabled()&&['A','B'].includes(d.filter)?':'+d.filter:'');
   add(target,document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
  });
  add('inquiry',$('#inquirySection'));
@@ -395,7 +408,7 @@ function sendDetailedSectionMap(){
 function announceNavData(){
  const cats=[...state.portfolio.entries()].map(([id,d])=>{
   const filters=d.remote?(d.availableFilters||[]):null;
-  return {id,label:d.cat.label,banner:bannerIds.has(layoutKey(d.cat)),
+  return {id,label:d.cat.label,kind:layoutKey(d.cat),banner:bannerIds.has(layoutKey(d.cat)),
    hasA:filters?filters.includes('A'):(d.items||[]).some(x=>pmeta(x).bannerType==='A'),
    hasB:filters?filters.includes('B'):(d.items||[]).some(x=>pmeta(x).bannerType==='B')}
  });
@@ -426,7 +439,7 @@ function injectInquiry(card){
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label></div></fieldset>';
   if(profileMode==='preset')html+=selectionHtml(card.dataset.selectedPresetFile)
  }
- if(banners.length){
+ if(bannerTypeEnabled()&&banners.length){
   html+='<div class="v2-banner-type-fields">'+banners.map((x,i)=>{
    const val=card.dataset['bannerType'+i]||'B';
    return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>'+esc(x.label)+' TYPE</legend><div class="choice-row">'+
@@ -487,7 +500,7 @@ window.__ARTMUG_V2__={
    selectedPresetFile:card.dataset.selectedPresetFile||'',
    selectedPresetName:selectedProductName(card),
    selectedPresetStatus:selectedProductStatus(card),
-   bannerTypes:banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})),
+   bannerTypes:bannerTypeEnabled()?banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})):[],
    profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||x.id==='profile-a'),
    floatingSelected:types.some(x=>/플로팅/.test(x.label))
   }
