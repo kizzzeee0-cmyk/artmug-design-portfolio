@@ -991,3 +991,49 @@
 .admin-block.is-schedule-visibility-collapsed .schedule-admin-top{
   margin-bottom:0!important;
 }
+
+
+/* 2026-10-10 manual admin section folding */
+.admin-block-title{
+  grid-template-columns:auto minmax(0,1fr) auto auto!important;
+}
+.admin-collapse-button{
+  grid-column:4;
+  align-self:start;
+  min-width:58px!important;
+  min-height:30px!important;
+  height:30px;
+  padding:0 9px!important;
+  border-radius:999px!important;
+  font-size:10.5px!important;
+  font-weight:700!important;
+  white-space:nowrap;
+}
+.admin-block.is-manual-collapsed > :not(.admin-block-title){
+  display:none!important;
+}
+.admin-block.is-manual-collapsed > .admin-block-title{
+  margin-bottom:0!important;
+}
+.admin-block.is-manual-collapsed{
+  padding-bottom:18px;
+}
+.admin-block.is-visibility-collapsed .admin-collapse-button,
+.admin-block.is-schedule-visibility-collapsed .admin-collapse-button{
+  opacity:.65;
+  cursor:default;
+}
+
+@media(max-width:720px){
+  .admin-block-title{
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+  }
+  .admin-block-title .toggle{
+    grid-column:1/-1!important;
+  }
+  .admin-collapse-button{
+    grid-column:3!important;
+    grid-row:1!important;
+    justify-self:end;
+  }
+}
