@@ -371,7 +371,14 @@ function selectionHtml(kind,selected){
  if(kind==='preset')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='profile'});
  if(kind==='fixed')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='floating-banner'});
  const label=kind==='preset'?'프리셋 선택':'고정틀 선택';
- return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend><div class="v2-product-grid">'+(arr.length?arr.map(x=>{const m=smeta(x),disabled=m.isReserved||m.isSold;return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'><img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+(disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>').join(''):'<p class="v2-empty-products">현재 선택 가능한 상품이 없습니다.</p>')+'</div></fieldset>'
+ const options=arr.map(x=>{
+  const m=smeta(x),disabled=m.isReserved||m.isSold;
+  return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'>'+
+   '<img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+
+   (disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>'
+ }).join('');
+ return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend>'+
+  '<div class="v2-product-grid">'+(options||'<p class="v2-empty-products">현재 선택 가능한 상품이 없습니다.</p>')+'</div></fieldset>'
 }
 function initInquiryObserver(){
  const root=$('#requestsContainer');if(!root)return;
