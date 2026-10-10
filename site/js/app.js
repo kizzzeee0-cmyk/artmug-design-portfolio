@@ -157,6 +157,7 @@ function artmugNavTarget(name){
     notice:document.querySelector('.notice-card'),
     inquiry:document.getElementById('inquirySection')||document.querySelector('.form-card'),
     portfolio:document.getElementById('portfolioAllSectionV2')||document.getElementById('portfolioSection'),
+    showcase:document.getElementById('showcaseSectionV2'),
     preset:document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection'),
     fixed:document.getElementById('showcase-fixed')
   };
