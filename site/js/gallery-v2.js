@@ -73,11 +73,15 @@ function pmeta(x){
   featured:m.featured===true
  }
 }
+function presetRegistered(x){
+ const meta=state.settings?.presetMeta;
+ return !!(x?.file&&meta&&typeof meta==='object'&&Object.prototype.hasOwnProperty.call(meta,x.file))
+}
 function smeta(x){
  const m=state.settings?.presetMeta?.[x.file]||{};
  return {
-  name:String(m.name||x.originalName||''),
-  enabled:m.enabled!==undefined?m.enabled:x.enabled!==false,
+  name:String(m.name||''),
+  enabled:presetRegistered(x)&&(m.enabled!==false),
   isNew:m.isNew===true,isReserved:m.isReserved===true,isSold:m.isSold===true,
   colorChangeAvailable:m.colorChangeAvailable===true,
   showcaseKind:['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:'preset',
@@ -302,6 +306,7 @@ async function renderShowcase(){
   source=batches.flat()
  }
  const all=applyOrder(source,state.settings.presetOrder).filter(x=>{
+  if(!presetRegistered(x))return false;
   const m=smeta(x);
   return m.enabled&&m.showcaseKind!=='fixed'&&!m.pairChild
  });
