@@ -325,23 +325,6 @@ function renderSchedule(s){
     `<span class="schedule-main-line">${main}</span>`+
     (extras.length?`<span class="schedule-extra-lines">${extras.map(x=>`<span class="schedule-extra-line">${htmlAttr(x)}</span>`).join('')}</span>`:'');
 
-  const estimate=$('scheduleEstimate');
-  const estimateOn=s.scheduleEstimateEnabled!==false;
-  if(card)card.classList.toggle('has-estimate',estimateOn);
-  if(estimate){
-    estimate.hidden=!estimateOn;
-    if(estimateOn){
-      const min=Math.max(0,Number(s.scheduleEstimateMinDays??1));
-      const max=Math.max(min,Number(s.scheduleEstimateMaxDays??3));
-      const range=$('scheduleEstimateRange');
-      if(range)range.textContent=min===max?`${min}일`:`${min}~${max}일`;
-      const caption=$('scheduleEstimateKicker');
-      if(caption){
-        const savedCaption=String(s.scheduleEstimateLabel||'작업 완료까지');
-        caption.textContent=savedCaption==='작업 완료까지'?'이내 작업 완료 예정':savedCaption;
-      }
-    }
-  }
 }
 function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
 function renderEvents(s){
