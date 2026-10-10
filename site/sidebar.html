@@ -62,8 +62,7 @@ function send(target){
 }
 function listFrom(d){
  const list=[{label:'공지사항',target:'notice'}];
- if(d.hasPreset)list.push({label:'프리셋',target:'showcase-preset'});
- if(d.hasFixed)list.push({label:'고정틀',target:'showcase-fixed'});
+ if(d.hasPreset||d.hasFixed)list.push({label:'프리셋 · 고정틀',target:'showcase'});
  if(d.hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
  if(d.hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
  if(d.fourCutId)list.push({label:'인생네컷',target:'portfolio:'+d.fourCutId});
@@ -83,8 +82,8 @@ async function init(){
   const summary=summarize(d.settings||{},index,presets);saveCache(summary);show(listFrom(summary))
  }catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}])}
 }
-if(ch)ch.addEventListener('message',e=>{const d=e.data;if(d?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))});
-window.addEventListener('message',e=>{const d=e.data;if(d&&d.type==='artmug-active-section'&&d.target)root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))});
+if(ch)ch.addEventListener('message',e=>{const d=e.data;if(d?.type==='active'){const target=String(d.target||'').startsWith('showcase-')?'showcase':d.target;root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))}});
+window.addEventListener('message',e=>{const d=e.data;if(d&&d.type==='artmug-active-section'&&d.target){const target=String(d.target).startsWith('showcase-')?'showcase':d.target;root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))}});
 init()
 })();;;
 </script></body></html>
