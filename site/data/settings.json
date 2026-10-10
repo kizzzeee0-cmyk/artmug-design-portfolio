@@ -110,7 +110,11 @@
         "gif"
       ],
       "emptyText": "등록된 움짤프사 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": true,
+      "pcColumns": 6,
+      "pcPerPage": 24,
+      "mobileColumns": 4,
+      "mobilePerPage": 16
     },
     {
       "id": "profile-b",
@@ -125,7 +129,11 @@
       ],
       "emptyText": "등록된 움짤프사 B 작업물이 아직 없습니다.",
       "enabled": false,
-      "hiddenLegacy": true
+      "hiddenLegacy": true,
+      "pcColumns": 6,
+      "pcPerPage": 24,
+      "mobileColumns": 4,
+      "mobilePerPage": 16
     },
     {
       "id": "profile-c",
@@ -140,7 +148,11 @@
       ],
       "emptyText": "등록된 움짤프사 C 작업물이 아직 없습니다.",
       "enabled": false,
-      "hiddenLegacy": true
+      "hiddenLegacy": true,
+      "pcColumns": 6,
+      "pcPerPage": 24,
+      "mobileColumns": 4,
+      "mobilePerPage": 16
     },
     {
       "id": "signature",
@@ -157,7 +169,11 @@
         "webp"
       ],
       "emptyText": "등록된 시그니처풍 작업물이 아직 없습니다.",
-      "enabled": false
+      "enabled": false,
+      "pcColumns": 4,
+      "pcPerPage": 16,
+      "mobileColumns": 2,
+      "mobilePerPage": 10
     },
     {
       "id": "top-banner",
@@ -174,7 +190,11 @@
         "webp"
       ],
       "emptyText": "등록된 상단 배너 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": true,
+      "pcColumns": 2,
+      "pcPerPage": 18,
+      "mobileColumns": 2,
+      "mobilePerPage": 18
     },
     {
       "id": "floating-banner",
@@ -191,7 +211,11 @@
         "webp"
       ],
       "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": true,
+      "pcColumns": 8,
+      "pcPerPage": 24,
+      "mobileColumns": 5,
+      "mobilePerPage": 15
     },
     {
       "id": "bottom-banner",
@@ -208,7 +232,11 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": true,
+      "pcColumns": 2,
+      "pcPerPage": 16,
+      "mobileColumns": 2,
+      "mobilePerPage": 16
     },
     {
       "id": "bottom-split",
@@ -225,7 +253,11 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 작업물이 아직 없습니다.",
-      "enabled": true
+      "enabled": true,
+      "pcColumns": 2,
+      "pcPerPage": 10,
+      "mobileColumns": 2,
+      "mobilePerPage": 10
     },
     {
       "id": "4cutframe",
@@ -242,7 +274,11 @@
         "gif",
         "webp"
       ],
-      "emptyText": "등록된 작업물이 아직 없습니다."
+      "emptyText": "등록된 작업물이 아직 없습니다.",
+      "pcColumns": 5,
+      "pcPerPage": 15,
+      "mobileColumns": 3,
+      "mobilePerPage": 9
     }
   ],
   "aboutImage": "",
@@ -578,5 +614,21 @@
   "scheduleEstimateMinDays": 1,
   "scheduleEstimateMaxDays": 2,
   "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다.",
-  "bannerTextPlaceholder": "예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페"
+  "bannerTextPlaceholder": "예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페",
+  "showcaseInitialDesktop": 4,
+  "showcaseInitialMobile": 2,
+  "bannerTypeGuide": {
+    "A": {
+      "title": "심플형",
+      "description": "장식과 패턴이 비교적 적고 깔끔하게 정돈된 디자인",
+      "price": 0,
+      "referenceFile": ""
+    },
+    "B": {
+      "title": "기존 디자인형",
+      "description": "다양한 패턴과 장식을 조합한 기존 스타일의 디자인",
+      "price": 0,
+      "referenceFile": ""
+    }
+  }
 }
