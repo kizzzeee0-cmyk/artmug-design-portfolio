@@ -1,174 +1,44 @@
 <!doctype html>
 <html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light">
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>모바일 빠른 이동</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light"><title>모바일 빠른 이동</title>
 <style>
-  *{box-sizing:border-box}
-  html,body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:transparent;
-    font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
-    -webkit-transform:translateZ(0);
-    transform:translateZ(0);
-    -webkit-backface-visibility:hidden;
-    backface-visibility:hidden;
-  }
-  body{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:2px;
-  }
-  .mobile-nav{
-    width:100%;
-    height:52px;
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    align-items:center;
-    padding:4px 7px;
-    border:1px solid #dcecf4;
-    border-radius:19px;
-    background:#ffffff;
-    box-shadow:none;
-    -webkit-transform:translateZ(0);
-    transform:translateZ(0);
-    -webkit-backface-visibility:hidden;
-    backface-visibility:hidden;
-    will-change:transform;
-  }
-  .mobile-nav button{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:2px;
-    min-width:0;
-    height:42px;
-    padding:3px 5px;
-    border:0;
-    border-radius:13px;
-    background:transparent;
-    color:#617887;
-    font:inherit;
-    cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .mobile-nav button:active{
-    background:#f1f9fd;
-    color:#69add2;
-  }
-  .mobile-nav svg{
-    width:16px;
-    height:16px;
-    display:block;
-    fill:none;
-    stroke:currentColor;
-    stroke-width:1.8;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-  }
-  .mobile-nav span{
-    font-size:10px;
-    font-weight:600;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-  .mobile-nav .top-button,
-  .mobile-nav .top-button:link,
-  .mobile-nav .top-button:visited{
-    background:#8fc8e8!important;
-    color:#ffffff!important;
-  }
-  .mobile-nav .top-button:hover,
-  .mobile-nav .top-button:focus,
-  .mobile-nav .top-button:focus-visible{
-    background:#8fc8e8!important;
-    color:#ffffff!important;
-    outline:none;
-  }
-  .mobile-nav .top-button:active{
-    background:#78b9df!important;
-    color:#ffffff!important;
-  }
-  .mobile-nav .top-button svg,
-  .mobile-nav .top-button span{
-    color:#ffffff!important;
-    stroke:#ffffff!important;
-  }
-</style>
-</head>
-<body>
+*{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow:hidden;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;padding:4px 7px;border:1px solid #dcecf4;border-radius:19px;background:#fff}
+.mobile-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:42px;padding:3px 5px;border:0;border-radius:13px;background:transparent;color:#617887;font:inherit;cursor:pointer}.mobile-nav button:active{background:#f1f9fd;color:#69add2}.mobile-nav svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mobile-nav span{font-size:10px;font-weight:650;white-space:nowrap}.mobile-nav .inquiry{background:#69add2;color:#fff}.mobile-nav .top{color:#69add2}
+.panel{display:none;margin-top:6px;max-height:350px;overflow:auto;padding:8px;border:1px solid #dcecf4;border-radius:16px;background:#fff}.wrap.is-open .panel{display:block}.panel button,.panel summary{display:block;width:100%;min-height:36px;padding:8px 10px;border:0;border-radius:9px;background:transparent;color:#617887;font:inherit;font-size:11.5px;font-weight:650;text-align:left;cursor:pointer;list-style:none}.panel summary{display:flex;justify-content:space-between;align-items:center}.panel summary::-webkit-details-marker{display:none}.panel summary::after{content:"▾";font-size:9px}.panel details[open] summary::after{content:"▴"}.panel button:active,.panel summary:active{background:#edf8fd;color:#4f8fb3}.sub{padding-left:10px}.sub button{min-height:32px;font-size:10.5px}.loading{padding:10px;text-align:center;color:#81909a;font-size:10px}
+</style></head>
+<body><div class="wrap" id="wrap">
 <nav class="mobile-nav" aria-label="모바일 빠른 이동">
-  <button type="button" data-target="inquiry" aria-label="문의양식으로 이동">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="5" y="3.5" width="14" height="17" rx="2"></rect>
-      <path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"></path>
-    </svg>
-    <span>문의양식</span>
-  </button>
-
-  <button type="button" data-target="portfolio" aria-label="포트폴리오로 이동">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.5" y="4" width="17" height="16" rx="2"></rect>
-      <circle cx="9" cy="9" r="1.5"></circle>
-      <path d="M5.5 17l4.2-4.3 3 2.8 2.4-2.4 3.4 3.9"></path>
-    </svg>
-    <span>포트폴리오</span>
-  </button>
-
-  <button type="button" class="top-button" data-target="top" aria-label="맨 위로 이동" style="background:#8fc8e8!important;color:#ffffff!important">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 10l6-6 6 6"></path>
-      <path d="M12 4v16"></path>
-    </svg>
-    <span>맨 위로</span>
-  </button>
+<button type="button" id="quick"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>빠른 이동</span></button>
+<button type="button" class="inquiry" data-target="inquiry"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"></path></svg><span>문의 양식</span></button>
+<button type="button" class="top" data-target="top"><svg viewBox="0 0 24 24"><path d="M6 10l6-6 6 6"></path><path d="M12 4v16"></path></svg><span>TOP</span></button>
 </nav>
-
+<div class="panel" id="panel"><div class="loading">메뉴 불러오는 중…</div></div>
+</div>
+<script src="/js/config.js"></script>
 <script>
 (function(){
-  const channelName='artmug-portfolio-section-nav';
-  const channel=('BroadcastChannel' in window)?new BroadcastChannel(channelName):null;
-  let locked=false;
-
-  function send(target){
-    if(locked)return;
-    locked=true;
-
-    if(target==='top'){
-      try{
-        window.parent.postMessage({
-          type:'artmug-mobile-top'
-        },'*');
-      }catch(e){}
-    }else if(channel){
-      channel.postMessage({
-        type:'navigate',
-        target:target
-      });
-    }
-
-    setTimeout(function(){
-      locked=false;
-    },160);
-  }
-
-  document.querySelectorAll('[data-target]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      send(btn.dataset.target);
-    });
-  });
-})();;
-</script>
-</body>
-</html>
+ const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',wrap=document.getElementById('wrap'),panel=document.getElementById('panel'),ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ const api=async p=>{const r=await fetch(API+p,{credentials:'include'});return r.ok?r.json():{}};
+ const layout=c=>{const id=String(c.id||''),l=String(c.label||'').replace(/\s/g,'');if(/^profile(?:-|$)/.test(id)||l.includes('움짤프사'))return'profile';if(id==='top-banner'||l.includes('상단배너'))return'top-banner';if(id==='floating-banner'||l.includes('플로팅'))return'floating-banner';if(id==='bottom-banner'||l.includes('하단배너일반'))return'bottom-banner';if(id==='bottom-split'||l.includes('하단배너분할'))return'bottom-split';if(/4cut|four-cut/.test(id)||l.includes('인생네컷'))return'four-cut';return id};const banners=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
+ async function all(kind,cat){const base=kind==='preset'?'/api/public/presets?category=':'/api/public/portfolio?category=';const f=await api(base+encodeURIComponent(cat)+'&page=1&perPage=60'),a=[...(f.items||[])];for(let p=2;p<=Number(f.totalPages||1);p++){const d=await api(base+encodeURIComponent(cat)+'&page='+p+'&perPage=60');a.push(...(d.items||[]))}return a}
+ function report(){try{window.parent.postMessage({type:'artmug-mobile-nav-height',height:wrap.classList.contains('is-open')?Math.min(410,wrap.scrollHeight+4):56},'*')}catch{}}
+ function close(){wrap.classList.remove('is-open');report()}
+ function send(target){if(ch)ch.postMessage({type:'navigate',target});try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{};close()}
+ document.getElementById('quick').onclick=()=>{wrap.classList.toggle('is-open');report()};
+ document.querySelectorAll('.mobile-nav [data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target));
+ async function init(){
+  const d=await api('/api/public/settings?fresh='+Date.now()),s=d.settings||{},meta=s.portfolioMeta||{},pm=s.presetMeta||{},cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy),data=[];
+  for(const c of cats){let arr=[];if(layout(c)==='profile'){for(const p of (s.portfolioCategories||[]).filter(x=>/^profile(?:-|$)/.test(String(x.id||''))))arr.push(...await all('portfolio',p.id))}else arr=await all('portfolio',c.id);arr=arr.filter(x=>(meta[x.file]||{}).enabled!==false);if(!arr.length||data.some(x=>x.key===layout(c)))continue;data.push({key:layout(c),id:c.id,label:c.label,arr,banner:banners.has(layout(c))})}
+  let presets=[];for(const c of (s.presetCategories||[]).filter(c=>c.enabled!==false))presets.push(...await all('preset',c.id));presets=presets.filter(x=>(pm[x.file]||{}).enabled!==false);
+  const hasPreset=presets.some(x=>((pm[x.file]||{}).showcaseKind||(x.category==='floating-banner'?'fixed':'preset'))!=='fixed'),hasFixed=presets.some(x=>((pm[x.file]||{}).showcaseKind||(x.category==='floating-banner'?'fixed':'preset'))==='fixed');
+  let h='<button type="button" data-target="notice">공지사항</button>';if(hasPreset)h+='<button type="button" data-target="showcase-preset">미판매 프리셋</button>';if(hasFixed)h+='<button type="button" data-target="showcase-fixed">고정틀</button>';
+  data.filter(x=>!x.banner).forEach(x=>h+='<button type="button" data-target="portfolio:'+esc(x.id)+'">'+esc(x.label)+'</button>');
+  ['A','B'].forEach(t=>{const arr=data.filter(x=>x.banner&&x.arr.some(v=>(((meta[v.file]||{}).bannerType)||'B')===t));if(arr.length)h+='<details><summary>배너 TYPE '+t+'</summary><div class="sub">'+arr.map(x=>'<button type="button" data-target="portfolio:'+esc(x.id)+':'+t+'">'+esc(x.label)+'</button>').join('')+'</div></details>'});
+  panel.innerHTML=h;panel.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target));report()
+ }
+ init().catch(()=>{panel.innerHTML='<button type="button" data-target="notice">공지사항</button>';panel.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target));report()});
+ report()
+})();
+</script></body></html>
