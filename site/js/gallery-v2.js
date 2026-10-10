@@ -59,7 +59,13 @@ function applyOrder(items,order){
 }
 function pmeta(x){
  const m=state.settings?.portfolioMeta?.[x.file]||{};
- return {enabled:m.enabled!==false,bannerType:['A','B'].includes(m.bannerType)?m.bannerType:(bannerIds.has(layoutKey({id:x.category,label:x.category}))?'B':''),featured:m.featured===true,isFixed:m.isFixed===true}
+ const isFixed=m.isFixed===true;
+ return {
+  enabled:m.enabled!==false,
+  bannerType:isFixed?'':(['A','B'].includes(m.bannerType)?m.bannerType:(bannerIds.has(layoutKey({id:x.category,label:x.category}))?'B':'')),
+  featured:m.featured===true,
+  isFixed
+ }
 }
 function smeta(x){
  const m=state.settings?.presetMeta?.[x.file]||{};
@@ -75,10 +81,13 @@ function smeta(x){
  }
 }
 function itemCard(x,c){
- const k=layoutKey(c),m=pmeta(x),type=bannerIds.has(k)?(m.bannerType||'B'):'',fixed=k==='floating-banner'&&m.isFixed;
+ const k=layoutKey(c),m=pmeta(x),fixed=k==='floating-banner'&&m.isFixed,type=bannerIds.has(k)&&!fixed?(m.bannerType||'B'):'';
+ const badge=fixed
+  ?'<span class="v2-type-badge v2-fixed-badge"><span class="v2-badge-label">고정틀</span></span>'
+  :type?'<span class="v2-type-badge"><span class="v2-badge-label">TYPE '+type+'</span></span>':'';
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
    '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" draggable="false"></div>'+
-   (type||fixed?'<div class="v2-work-tags">'+(type?'<span class="v2-type-badge">TYPE '+type+'</span>':'')+(fixed?'<span class="v2-type-badge v2-fixed-badge">고정틀</span>':'')+'</div>':'')+
+   (badge?'<div class="v2-work-tags">'+badge+'</div>':'')+
   '</article>'
 }
 function presetCard(x){
@@ -86,9 +95,9 @@ function presetCard(x){
  const badge=m.isSold?'판매완료':m.isReserved?'예약중':m.isNew?'NEW':'';
  const statusClass=m.isSold?'is-sold':m.isReserved?'is-reserved':'is-new';
  return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'">'+
-   (badge?'<span class="v2-mobile-status '+statusClass+'">'+esc(badge)+'</span>':'')+
+   (badge?'<span class="v2-mobile-status '+statusClass+'"><span class="v2-badge-label">'+esc(badge)+'</span></span>':'')+
    '<div class="v2-showcase-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" draggable="false"></div>'+
-   '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong>'+(badge?'<span class="v2-inline-status '+statusClass+'">'+esc(badge)+'</span>':'')+'</div>'+
+   '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong>'+(badge?'<span class="v2-inline-status '+statusClass+'"><span class="v2-badge-label">'+esc(badge)+'</span></span>':'')+'</div>'+
    (m.colorChangeAvailable?'<span class="v2-editable-note">수정가능</span>':'')+
   '</article>'
 }
@@ -105,10 +114,16 @@ function pagination(catId,total,page){
   '<button class="v2-page-arrow" type="button" aria-label="다음 페이지" data-v2-page="'+catId+':next" '+(page>=total?'disabled':'')+'>›</button></nav>'
 }
 function mixAB(items){
- const a=items.filter(x=>pmeta(x).bannerType==='A'),b=items.filter(x=>pmeta(x).bannerType!=='A');
- if(!a.length||!b.length)return items;
- const out=[];let i=0,j=0;
- while(i<a.length||j<b.length){if(i<a.length)out.push(a[i++]);if(j<b.length)out.push(b[j++])}
+ const a=items.filter(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='A'});
+ const b=items.filter(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='B'});
+ const fixed=items.filter(x=>pmeta(x).isFixed);
+ if(!a.length&&!b.length)return items;
+ const out=[];let i=0,j=0,k=0;
+ while(i<a.length||j<b.length||k<fixed.length){
+  if(i<a.length)out.push(a[i++]);
+  if(j<b.length)out.push(b[j++]);
+  if(k<fixed.length)out.push(fixed[k++])
+ }
  return out
 }
 function guideHtml(cat){
@@ -173,15 +188,17 @@ function renderPortfolioCategory(id,scroll){
  const data=state.portfolio.get(id);if(!data)return;
  const {cat}=data,k=layoutKey(cat),cfg=catConfig(cat);
  let items=data.items.filter(x=>pmeta(x).enabled);
- if(data.filter==='A'||data.filter==='B')items=items.filter(x=>(pmeta(x).bannerType||'B')===data.filter);
+ if(data.filter==='A'||data.filter==='B')items=items.filter(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===data.filter});
+ else if(data.filter==='FIXED'&&k==='floating-banner')items=items.filter(x=>pmeta(x).isFixed);
  else if(bannerIds.has(k))items=mixAB(items);
  const pages=Math.max(1,Math.ceil(items.length/cfg.perPage));data.page=Math.min(Math.max(1,data.page||1),pages);
  const slice=items.slice((data.page-1)*cfg.perPage,data.page*cfg.perPage);
  const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');if(!sec)return;
- const presentTypes=bannerIds.has(k)?['A','B'].filter(t=>data.items.some(x=>(pmeta(x).bannerType||'B')===t)):[];
- const filterValues=bannerIds.has(k)?['ALL',...presentTypes]:[];
- if(data.filter!=='ALL'&&!presentTypes.includes(data.filter)){data.filter='ALL';data.page=1}
- const controls=bannerIds.has(k)?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':'TYPE '+v)+'</button>').join('')+'</div>':'';
+ const presentTypes=bannerIds.has(k)?['A','B'].filter(t=>data.items.some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===t})):[];
+ const hasFixed=k==='floating-banner'&&data.items.some(x=>pmeta(x).isFixed);
+ const filterValues=bannerIds.has(k)?['ALL',...presentTypes,...(hasFixed?['FIXED']:[])]:[];
+ if(data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1}
+ const controls=bannerIds.has(k)?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':v==='FIXED'?'고정틀':'TYPE '+v)+'</button>').join('')+'</div>':'';
  sec.innerHTML='<div class="v2-cat-head"><h3>'+esc(cat.label)+'</h3>'+controls+'</div>'+guideHtml(cat)+
   '<div class="v2-cat-grid '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+slice.map(x=>itemCard(x,cat)).join('')+'</div>'+
   pagination(id,pages,data.page);
@@ -277,7 +294,7 @@ function navigate(target){
  }
  if(target.startsWith('portfolio:')){
   const [,id,type]=target.split(':');const d=state.portfolio.get(id);
-  if(d&&type&&['A','B','ALL'].includes(type)){d.filter=type;d.page=1;renderPortfolioCategory(id,false)}
+  if(d&&type&&['A','B','ALL','FIXED'].includes(type)){d.filter=type;d.page=1;renderPortfolioCategory(id,false)}
   return scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
  }
 }
@@ -294,7 +311,7 @@ function sendDetailedSectionMap(){
  add('showcase-preset',$('#showcase-preset'));
  add('showcase-fixed',$('#showcase-fixed'));
  state.portfolio.forEach((d,id)=>{
-  const target='portfolio:'+id+((d.filter==='A'||d.filter==='B')?':'+d.filter:'');
+  const target='portfolio:'+id+(['A','B','FIXED'].includes(d.filter)?':'+d.filter:'');
   add(target,document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
  });
  add('inquiry',$('#inquirySection'));
@@ -302,7 +319,7 @@ function sendDetailedSectionMap(){
  try{if(window.parent!==window)window.parent.postMessage({type:'artmug-v2-section-map',role,sections},'*')}catch{}
 }
 function announceNavData(){
- const cats=[...state.portfolio.entries()].map(([id,d])=>({id,label:d.cat.label,banner:bannerIds.has(layoutKey(d.cat)),hasA:d.items.some(x=>pmeta(x).bannerType==='A'),hasB:d.items.some(x=>(pmeta(x).bannerType||'B')==='B')}));
+ const cats=[...state.portfolio.entries()].map(([id,d])=>({id,label:d.cat.label,banner:bannerIds.has(layoutKey(d.cat)),hasA:d.items.some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='A'}),hasB:d.items.some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='B'}),hasFixed:layoutKey(d.cat)==='floating-banner'&&d.items.some(x=>pmeta(x).isFixed)}));
  const payload={type:'nav-data',preset:state.showcase.preset.length>0,fixed:state.showcase.fixed.length>0,categories:cats};
  try{window.__v2nav?.postMessage(payload)}catch{}
 }
@@ -323,7 +340,7 @@ function injectInquiry(card){
  let box=fields.querySelector('.v2-inquiry-enhancements');
  if(!box){box=document.createElement('div');box.className='v2-inquiry-enhancements';fields.prepend(box)}
  const profileMode=card.dataset.profileMode||'custom',floatingMode=card.dataset.floatingMode||'custom';
- const availableProfilePresets=state.showcase.preset.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},m=smeta(x);return layoutKey(c)==='profile'&&m.enabled&&!m.isReserved&&!m.isSold});
+ const availableProfilePresets=state.showcase.preset.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},m=smeta(x);return layoutKey(c)==='profile'&&m.enabled&&!m.isSold});
  const availableFixed=state.showcase.fixed.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},m=smeta(x);return layoutKey(c)==='floating-banner'&&m.enabled&&!m.isReserved&&!m.isSold});
  let html='';
  if(hasProfile){
@@ -372,12 +389,13 @@ function selectionHtml(kind,selected){
  if(kind==='fixed')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='floating-banner'});
  const label=kind==='preset'?'프리셋 선택':'고정틀 선택';
  const options=arr.map(x=>{
-  const m=smeta(x),disabled=m.isReserved||m.isSold;
+  const m=smeta(x),disabled=m.isSold||(kind==='fixed'&&m.isReserved);
+  const status=m.isSold?'판매완료':m.isReserved?'예약중':m.isNew?'NEW':'';
   return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'>'+
    '<img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+
-   (disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>'
+   (status?'<em>'+status+'</em>':'')+'</button>'
  }).join('');
- return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend>'+
+ return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice" data-product-kind="'+kind+'"><legend data-question-title>'+label+'</legend>'+
   '<div class="v2-product-grid">'+(options||'<p class="v2-empty-products">현재 선택 가능한 상품이 없습니다.</p>')+'</div></fieldset>'
 }
 function initInquiryObserver(){
@@ -393,6 +411,13 @@ function selectedProductName(card,kind){
  const file=kind==='preset'?card.dataset.selectedPresetFile:card.dataset.selectedFixedFile;
  const x=state.showcase[kind].find(v=>v.file===file);return x?smeta(x).name:''
 }
+function selectedProductStatus(card,kind){
+ const file=kind==='preset'?card.dataset.selectedPresetFile:card.dataset.selectedFixedFile;
+ const x=state.showcase[kind].find(v=>v.file===file);
+ if(!x)return'';
+ const m=smeta(x);
+ return m.isSold?'판매완료':m.isReserved?'예약중':m.isNew?'NEW':''
+}
 window.__ARTMUG_V2__={
  inquiryData(card){
   const types=selectedTypeInputs(card),banners=types.filter(x=>/배너/.test(x.label));
@@ -401,6 +426,7 @@ window.__ARTMUG_V2__={
    floatingMode:card.dataset.floatingMode||'custom',
    selectedPresetFile:card.dataset.selectedPresetFile||'',
    selectedPresetName:selectedProductName(card,'preset'),
+   selectedPresetStatus:selectedProductStatus(card,'preset'),
    selectedFixedFile:card.dataset.selectedFixedFile||'',
    selectedFixedName:selectedProductName(card,'fixed'),
    bannerTypes:banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})),
@@ -416,7 +442,13 @@ window.__ARTMUG_V2__={
  },
  inquiryLines(card){
   const d=this.inquiryData(card),out=[];
-  if(d.profileSelected){out.push('움짤프사 신청 방식: '+(d.profileMode==='preset'?'프리셋 구매':'맞춤제작'));if(d.profileMode==='preset'&&d.selectedPresetName)out.push('선택 프리셋: '+d.selectedPresetName+' ['+d.selectedPresetFile+']')}
+  if(d.profileSelected){
+   out.push('움짤프사 신청 방식: '+(d.profileMode==='preset'?'프리셋 구매':'맞춤제작'));
+   if(d.profileMode==='preset'&&d.selectedPresetName){
+    out.push('선택 프리셋: '+d.selectedPresetName+' ['+d.selectedPresetFile+']');
+    if(d.selectedPresetStatus)out.push('프리셋 상태: '+d.selectedPresetStatus)
+   }
+  }
   if(d.floatingSelected){out.push('플로팅 배너 신청 방식: '+(d.floatingMode==='fixed'?'고정틀':'맞춤제작'));if(d.floatingMode==='fixed'&&d.selectedFixedName)out.push('선택 고정틀: '+d.selectedFixedName+' ['+d.selectedFixedFile+']')}
   d.bannerTypes.forEach(x=>out.push(x.label+' TYPE: '+x.type));
   return out
