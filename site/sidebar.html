@@ -69,8 +69,8 @@ async function init(){
   if(k==='four-cut')four.push({id:c.id,items:arr});
   else bannerItems.push(...arr)
  }
- const hasA=bannerItems.some(x=>((m[x.file]||{}).bannerType||'B')==='A');
- const hasB=bannerItems.some(x=>((m[x.file]||{}).bannerType||'B')==='B');
+ const hasA=bannerItems.some(x=>(m[x.file]||{}).isFixed!==true&&((m[x.file]||{}).bannerType||'B')==='A');
+ const hasB=bannerItems.some(x=>(m[x.file]||{}).isFixed!==true&&((m[x.file]||{}).bannerType||'B')==='B');
  const hasFour=four.find(x=>x.items.length);
  const list=[{label:'공지사항',target:'notice'}];
  if(s.presetEnabled!==false&&s.showcasePresetEnabled!==false)list.push({label:'미판매 프리셋',target:'showcase-preset'});
