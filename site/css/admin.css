@@ -1180,3 +1180,24 @@
   .preset-admin-preview>img,
   .preset-admin-preview>.preset-secondary-empty{height:105px}
 }
+
+
+/* 2026-10-10 banner TYPE A/B master toggle */
+.banner-type-toggle-admin{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:2px 0 12px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.banner-type-toggle-admin h4{margin:0 0 3px}
+.banner-type-toggle-admin p{margin:0}
+.banner-type-toggle-admin .toggle{flex:0 0 auto}
+#bannerTypeAdminDetails[hidden]{display:none!important}
+@media(max-width:720px){
+  .banner-type-toggle-admin{align-items:flex-start}
+}
