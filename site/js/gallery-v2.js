@@ -3,7 +3,7 @@
 const C=window.ARTMUG_CONFIG||{};
 const API=C.API_BASE||'';
 const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
+const $$=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/'):'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
@@ -321,8 +321,11 @@ window.__ARTMUG_V2__={
 async function init(){
  initNav();
  const d=await api('/api/public/settings?fresh='+Date.now());state.settings=d.settings||{};
+ const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  await Promise.all([renderShowcase(),renderPortfolio()]);
  initInquiryObserver();
+ document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
+ document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  const mq=matchMedia('(max-width:680px)');
  mq.addEventListener?.('change',e=>{state.mobile=e.matches;renderShowcase();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
  requestHeight()
