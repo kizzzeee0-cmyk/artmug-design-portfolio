@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Artmug Portfolio Admin</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css"><link rel="stylesheet" href="./css/style.css?v=20261010-showcase-polish-v4"><link rel="stylesheet" href="./css/admin.css?v=20261010-fixed-pairs-v1"></head><body><main class="admin-shell">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Artmug Portfolio Admin</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css"><link rel="stylesheet" href="./css/style.css?v=20261010-showcase-polish-v4"><link rel="stylesheet" href="./css/admin.css?v=20261010-preset-only-v1"></head><body><main class="admin-shell">
 <header class="card admin-top"><div><span class="section-kicker">ARTMUG PORTFOLIO STUDIO</span><h1>관리자 페이지</h1><p class="muted">공개 페이지에 보이는 순서대로 내용을 관리할 수 있어요.</p></div><div id="userBox" hidden><span id="userName"></span><button id="logout" class="ghost">로그아웃</button></div></header>
 <section id="login" class="card login-card"><h2>관리자 로그인</h2><p class="muted">관리자 비밀번호를 입력해 주세요.</p><form id="loginForm"><input id="adminPassword" type="password" autocomplete="current-password" placeholder="관리자 비밀번호"><button type="submit" class="primary-button">로그인</button><p id="loginError" class="status"></p></form></section>
 <div id="panel" hidden>
@@ -37,12 +37,12 @@
   <div class="head"><div><h4>배너 TYPE A / B 안내</h4><p class="muted">각 TYPE별 통합 대표 이미지를 직접 업로드하고 설명을 수정합니다. 실제 포트폴리오 작품과는 별개로 관리됩니다.</p></div></div>
   <div id="bannerTypeGuideAdmin" class="banner-type-guide-admin"></div>
 </div>
-<div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><select id="portfolioUploadBannerType" aria-label="배너 분류"><option value="B">TYPE B (기본)</option><option value="A">TYPE A</option><option value="fixed">고정틀</option></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="portfolioUploadHint" class="muted" aria-live="polite"></p><p id="uploadStatus" class="status"></p><div id="items"></div><nav id="itemsPagination" class="admin-pagination" aria-label="포트폴리오 관리자 페이지"></nav></div>
+<div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><select id="portfolioUploadBannerType" aria-label="배너 분류"><option value="B">TYPE B (기본)</option><option value="A">TYPE A</option></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="portfolioUploadHint" class="muted" aria-live="polite"></p><p id="uploadStatus" class="status"></p><div id="items"></div><nav id="itemsPagination" class="admin-pagination" aria-label="포트폴리오 관리자 페이지"></nav></div>
 <div class="sub card-in admin-block">
-  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>프리셋 / 고정틀</h3><p class="muted">상품별 쇼케이스 구분, 대표작, 공개 상태, NEW·예약중·판매완료 상태를 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
-  <div class="fields"><label>영역 제목<input id="presetTitle"></label><label class="wide">프리셋 설명<textarea id="presetNotice" rows="3"></textarea></label><label class="wide">고정틀 설명<textarea id="showcaseFixedDescription" rows="3" placeholder="색상이나 일부 디자인은 수정될 수 있지만 전체적인 디자인은 다 똑같이 제작됩니다."></textarea></label><label>PC 대표 노출 수<input id="showcaseInitialDesktop" type="number" min="1" max="12"></label><label>모바일 대표 노출 수<input id="showcaseInitialMobile" type="number" min="1" max="8"></label><label class="mini-toggle"><input id="showcasePresetEnabled" type="checkbox"> 프리셋 영역 공개</label><label class="mini-toggle"><input id="showcaseFixedEnabled" type="checkbox"> 고정틀 영역 공개</label><label class="mini-toggle"><input id="showcasePresetExpandEnabled" type="checkbox"> 프리셋 전체보기 사용</label><label class="mini-toggle"><input id="showcaseFixedExpandEnabled" type="checkbox"> 고정틀 전체보기 사용</label></div>
+  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>미판매 프리셋</h3><p class="muted">프리셋 카테고리, 대표작, 공개 상태, NEW·예약중·판매완료 상태를 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
+  <div class="fields"><label>영역 제목<input id="presetTitle"></label><label class="wide">프리셋 설명<textarea id="presetNotice" rows="3"></textarea></label><label>PC 단일 카테고리 노출 수<input id="showcaseInitialDesktop" type="number" min="1" max="5"></label><label>모바일 기본 노출 수<input id="showcaseInitialMobile" type="number" min="1" max="4"></label><label class="mini-toggle"><input id="showcasePresetEnabled" type="checkbox"> 프리셋 영역 공개</label><label class="mini-toggle"><input id="showcasePresetExpandEnabled" type="checkbox"> 전체보기 사용</label></div>
 
-  <div class="head"><h4>기본 프리셋 카테고리</h4><button id="addPresetCat" class="ghost">+ 프리셋 카테고리 추가</button></div>
+  <div class="head"><h4>프리셋 카테고리</h4><button id="addPresetCat" class="ghost">+ 프리셋 카테고리 추가</button></div>
   <div id="presetCats"></div>
 
   <button id="savePresetCats" class="primary-button">프리셋 설정 저장</button>
@@ -51,11 +51,9 @@
   <h4>새 프리셋 등록</h4>
   <div class="upload-row preset-upload-row">
     <select id="presetUploadCat"></select>
-    <select id="presetUploadKind"><option value="preset">프리셋</option><option value="fixed">고정틀</option></select>
-    <select id="presetUploadBannerType"><option value="">TYPE 없음</option><option value="A">TYPE A</option><option value="B">TYPE B</option></select>
     <input id="presetUploadName" type="text" placeholder="상품 이름">
     <div class="preset-file-upload-wrap"><input id="presetFiles" type="file" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp"><small id="presetFilesHint" class="muted">프리셋은 이미지 1장을 선택해 주세요.</small></div>
-    <button id="uploadPreset" class="primary-button">상품 등록</button>
+    <button id="uploadPreset" class="primary-button">프리셋 등록</button>
   </div>
   <p id="presetUploadStatus" class="status"></p>
   <div id="presetItems" class="preset-admin-items"></div><nav id="presetItemsPagination" class="admin-pagination" aria-label="프리셋 관리자 페이지"></nav>
@@ -85,4 +83,4 @@
 </section>
 
 <section class="card admin-section" data-section="status" hidden><span class="section-kicker">CONNECTION</span><h2>연결 상태</h2><dl><div><dt>API</dt><dd id="api"></dd></div><div><dt>GitHub 관리자</dt><dd id="githubUser"></dd></div><div><dt>Worker</dt><dd id="health">확인 중…</dd></div></dl></section>
-</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261010-preset-label-v2"></script></body></html>
+</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261010-preset-only-v1"></script></body></html>
