@@ -84,9 +84,11 @@ function itemCard(x,c){
 function presetCard(x){
  const m=smeta(x),c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},profile=layoutKey(c)==='profile';
  const badge=m.isSold?'판매완료':m.isReserved?'예약중':m.isNew?'NEW':'';
+ const statusClass=m.isSold?'is-sold':m.isReserved?'is-reserved':'is-new';
  return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'">'+
+   (badge?'<span class="v2-mobile-status '+statusClass+'">'+esc(badge)+'</span>':'')+
    '<div class="v2-showcase-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" draggable="false"></div>'+
-   '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong>'+(badge?'<span class="v2-status '+(m.isReserved||m.isSold?'is-muted':'')+'">'+esc(badge)+'</span>':'')+'</div>'+
+   '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong>'+(badge?'<span class="v2-inline-status '+statusClass+'">'+esc(badge)+'</span>':'')+'</div>'+
    (m.colorChangeAvailable?'<span class="v2-editable-note">수정가능</span>':'')+
   '</article>'
 }
@@ -226,7 +228,7 @@ async function renderShowcase(){
   cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'"><div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div><div class="v2-showcase-grid">'+shown.map(presetCard).join('')+'</div>'+(expandEnabled&&ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
  }
  if(!cols.length){root.hidden=true;root.innerHTML='';return}
- root.hidden=false;root.innerHTML='<h2>미판매 프리셋 / 고정틀</h2><div class="v2-showcase-columns '+(cols.length===1?'is-single':'')+'">'+cols.join('')+'</div>';
+ root.hidden=false;root.innerHTML='<div class="v2-showcase-columns '+(cols.length===1?'is-single':'')+'">'+cols.join('')+'</div>';
  root.querySelectorAll('[data-show-all]').forEach(b=>b.onclick=()=>{state.expanded[b.dataset.showAll]=!state.expanded[b.dataset.showAll];renderShowcase();requestHeight()});
  requestHeight();announceNavData()
 }
