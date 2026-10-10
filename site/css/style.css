@@ -6164,3 +6164,12 @@ html.artmug-embed-root body.artmug-part .site-shell{
     font-size:12.5px!important;
   }
 }
+  
+/* 2026-10-10 INQUIRY DIRECT-CHOICE TITLE SPACING */
+/* Fieldset <legend> does not always honor grid row-gap consistently.
+   Give direct checkbox/radio rows the same 8px title-to-control spacing
+   used by the rest of the inquiry form. */
+.contact-form fieldset.choice-field > legend + .choice-row,
+.contact-form fieldset.choice-field > legend + .check-grid{
+  margin-top:8px!important;
+}
