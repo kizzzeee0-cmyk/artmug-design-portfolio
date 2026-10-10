@@ -53,7 +53,7 @@
       quickNavFrames.set(frame,saved)
     }
 
-    const followerRightGap=6;
+    const followerRightGap=30;
     frame.style.setProperty('position','fixed','important');
     frame.style.setProperty('top','clamp(210px,29vh,335px)','important');
     frame.style.setProperty('right',followerRightGap+'px','important');
