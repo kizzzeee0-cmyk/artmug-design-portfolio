@@ -26,11 +26,16 @@
 </section>
 
 <section class="card admin-section" data-section="portfolio" hidden>
-<div class="head"><div><span class="section-kicker">PORTFOLIO</span><h2>포트폴리오 · 프리셋 관리</h2><p class="muted">공개 페이지의 포트폴리오 → 미판매 프리셋 순서로 정리되어 있습니다.</p></div><button id="reload" class="ghost">목록 새로고침</button></div>
-<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오</h3><p class="muted">움짤프사는 하나의 카테고리에서 관리하며, 작업물 순서와 파일 수정이 가능합니다.</p></div></div><div class="head"><h4>카테고리</h4><button id="addCat" class="ghost">+ 카테고리 추가</button></div><div id="cats"></div><button id="saveCats" class="primary-button">카테고리 설정 저장</button><div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="portfolioUploadHint" class="muted" aria-live="polite"></p><p id="uploadStatus" class="status"></p><div id="items"></div></div>
+<div class="head"><div><span class="section-kicker">PORTFOLIO</span><h2>포트폴리오 · 쇼케이스 관리</h2><p class="muted">포트폴리오 카테고리, 배너 TYPE, 미판매 프리셋과 고정틀을 한곳에서 관리합니다.</p></div><button id="reload" class="ghost">목록 새로고침</button></div>
+<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오</h3><p class="muted">움짤프사는 하나의 카테고리에서 관리하며, 작업물 순서와 파일 수정이 가능합니다.</p></div></div><div class="head"><h4>카테고리</h4><button id="addCat" class="ghost">+ 카테고리 추가</button></div><div id="cats"></div><button id="saveCats" class="primary-button">카테고리 설정 저장</button><div class="inner-divider"></div>
+<div class="banner-type-guide-admin-block">
+  <div class="head"><div><h4>배너 TYPE A / B 안내</h4><p class="muted">포트폴리오의 작은 TYPE 비교 안내에 표시할 설명·가격·대표 작품을 설정합니다.</p></div></div>
+  <div id="bannerTypeGuideAdmin" class="banner-type-guide-admin"></div>
+</div>
+<div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="portfolioUploadHint" class="muted" aria-live="polite"></p><p id="uploadStatus" class="status"></p><div id="items"></div></div>
 <div class="sub card-in admin-block">
-  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>고정틀 프리셋</h3><p class="muted">프리셋 이름·대표 이미지·공개 상태와 ‘수정가능’ 표시 여부를 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
-  <div class="fields"><label>영역 제목<input id="presetTitle"></label><label class="wide">상단 안내 문구<textarea id="presetNotice"></textarea></label></div>
+  <div class="admin-block-title"><span class="order-chip">07</span><div><h3>미판매 프리셋 / 고정틀</h3><p class="muted">상품별 쇼케이스 구분, 대표작, 공개 상태, NEW·예약중·판매완료 상태를 관리할 수 있습니다.</p></div><label class="toggle"><input id="presetEnabled" type="checkbox"> 공개 표시</label></div>
+  <div class="fields"><label>영역 제목<input id="presetTitle"></label><label class="wide">상단 안내 문구<textarea id="presetNotice"></textarea></label><label>PC 대표 노출 수<input id="showcaseInitialDesktop" type="number" min="1" max="12"></label><label>모바일 대표 노출 수<input id="showcaseInitialMobile" type="number" min="1" max="8"></label></div>
 
   <div class="head"><h4>기본 프리셋 카테고리</h4><button id="addPresetCat" class="ghost">+ 프리셋 카테고리 추가</button></div>
   <div id="presetCats"></div>
