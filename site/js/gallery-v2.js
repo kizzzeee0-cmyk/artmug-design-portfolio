@@ -305,6 +305,20 @@ async function renderPortfolio(){
  if(!shown){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
  announceNavData();sendDetailedSectionMap();requestHeight()
 }
+function syncFixedShowcaseHeight(){
+ const root=$('#showcaseSectionV2');if(!root)return;
+ const presetGrid=root.querySelector('[data-showcase-kind="preset"] .v2-showcase-grid');
+ const fixedGrid=root.querySelector('[data-showcase-kind="fixed"] .v2-showcase-grid');
+ if(!presetGrid||!fixedGrid)return;
+ requestAnimationFrame(()=>{
+  const h=Math.ceil(presetGrid.getBoundingClientRect().height);
+  if(h>0){
+   fixedGrid.style.setProperty('--v2-fixed-match-height',h+'px');
+   fixedGrid.style.height=h+'px'
+  }
+  requestHeight()
+ })
+}
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false){root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return}
@@ -349,7 +363,10 @@ async function renderShowcase(){
  root.hidden=false;
  root.innerHTML='<h2>미판매 프리셋 · 고정틀</h2><div class="v2-showcase-columns">'+cols.join('')+'</div>';
  root.querySelectorAll('[data-show-all]').forEach(b=>b.onclick=()=>{state.expanded[b.dataset.showAll]=!state.expanded[b.dataset.showAll];renderShowcase();requestHeight()});
- root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
+ root.querySelectorAll('img').forEach(img=>{
+  if(!img.complete)img.addEventListener('load',()=>{syncFixedShowcaseHeight();requestHeight()},{once:true})
+ });
+ syncFixedShowcaseHeight();
  requestHeight();announceNavData()
 }
 function requestHeight(){
@@ -570,7 +587,8 @@ async function init(){
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  const mq=matchMedia('(max-width:680px)');
- mq.addEventListener?.('change',e=>{state.mobile=e.matches;renderShowcase();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
+ mq.addEventListener?.('change',e=>{state.mobile=e.matches;renderShowcase();state.portfolio.forEach(d=>{d.page=1});renderPortfolio();syncFixedShowcaseHeight()});
+ window.addEventListener('resize',()=>syncFixedShowcaseHeight(),{passive:true});
  requestHeight()
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init().catch(console.error),{once:true});else init().catch(console.error);
