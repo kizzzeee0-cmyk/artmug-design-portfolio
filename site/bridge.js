@@ -69,6 +69,25 @@
       return
     }
 
+    if(data&&typeof data==='object'&&data.type==='artmug-mobile-nav-height'){
+      const frame=iframeForSource(e.source,'');
+      applyIframeHeight(frame,data.height);
+      return
+    }
+
+    if(data&&typeof data==='object'&&data.type==='artmug-scroll-request'){
+      if(data.top){
+        window.scrollTo({top:0,behavior:'smooth'});
+        return
+      }
+      const frame=iframeForSource(e.source,String(data.role||''));
+      if(!frame)return;
+      const offset=Math.max(0,Number(data.offset)||0);
+      const top=Math.max(0,Math.round(frame.getBoundingClientRect().top+window.scrollY+offset));
+      window.scrollTo({top:top,behavior:'smooth'});
+      return
+    }
+
     if(data==='chilgong:open-inquiry'){
       if(!window.pLightBox||typeof window.pLightBox.show!=='function')return;
       window.pLightBox.show(
