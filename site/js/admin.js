@@ -203,11 +203,18 @@ async function uploadBannerTypeGuideImage(t){
   const ext=String(file.name||'').split('.').pop().toLowerCase();
   if(!['png','jpg','jpeg','webp'].includes(ext))return alert('PNG, JPG, JPEG, WEBP 이미지만 업로드할 수 있습니다.');
   collectBannerTypeGuideAdmin();
-  const fd=new FormData();fd.append('file',file);fd.append('kind','type-guide-'+t.toLowerCase());
+  const kind=t==='A'?'comparison-a':'comparison-b';
+  const fd=new FormData();fd.append('file',file);fd.append('kind',kind);
   try{
     const r=await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
-    const g=ensureBannerTypeGuide();g[t].referenceImage=String(d.path||'');
+    const path=String(d.path||'');
+    const saved=await queueSettingsMutation(latest=>{
+      if(!latest.bannerTypeGuide||typeof latest.bannerTypeGuide!=='object')latest.bannerTypeGuide={};
+      if(!latest.bannerTypeGuide[t]||typeof latest.bannerTypeGuide[t]!=='object')latest.bannerTypeGuide[t]={};
+      latest.bannerTypeGuide[t].referenceImage=path
+    });
+    S.bannerTypeGuide=saved.bannerTypeGuide||S.bannerTypeGuide||{};
     renderBannerTypeGuideAdmin();showToast('TYPE '+t+' 대표 이미지가 저장되었습니다.')
   }catch(e){alert('대표 이미지 업로드에 실패했습니다.\n'+e.message)}
 }
@@ -215,9 +222,15 @@ async function deleteBannerTypeGuideImage(t){
   t=String(t||'').toUpperCase();
   if(!confirm('TYPE '+t+' 대표 이미지를 삭제할까요?'))return;
   collectBannerTypeGuideAdmin();
+  const kind=t==='A'?'comparison-a':'comparison-b';
   try{
-    const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind:'type-guide-'+t.toLowerCase()})});
-    ensureBannerTypeGuide()[t].referenceImage='';
+    await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});
+    const saved=await queueSettingsMutation(latest=>{
+      if(!latest.bannerTypeGuide||typeof latest.bannerTypeGuide!=='object')latest.bannerTypeGuide={};
+      if(!latest.bannerTypeGuide[t]||typeof latest.bannerTypeGuide[t]!=='object')latest.bannerTypeGuide[t]={};
+      latest.bannerTypeGuide[t].referenceImage=''
+    });
+    S.bannerTypeGuide=saved.bannerTypeGuide||S.bannerTypeGuide||{};
     renderBannerTypeGuideAdmin();showToast('TYPE '+t+' 대표 이미지를 삭제했습니다.')
   }catch(e){alert('대표 이미지 삭제에 실패했습니다.\n'+e.message)}
 }
