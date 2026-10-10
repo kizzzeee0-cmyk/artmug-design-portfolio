@@ -5944,3 +5944,125 @@ html.artmug-embed-root body.artmug-part .site-shell{
   border:0!important;
   box-shadow:none!important;
 }
+
+
+/* =========================================================
+   2026-10-10 SCHEDULE CENTERED PILL + MOBILE READABILITY
+   Visual-only: schedule data/admin behavior remains unchanged.
+   ========================================================= */
+.schedule-card .schedule-heading{
+  width:100%;
+  margin-bottom:10px!important;
+  text-align:center!important;
+}
+.schedule-card .schedule-heading h2,
+.schedule-card #scheduleTitle{
+  width:100%;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+}
+.schedule-card .schedule-content,
+.schedule-card.has-estimate .schedule-content{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  gap:10px!important;
+}
+.schedule-card .schedule-estimate{
+  order:1!important;
+  display:inline-flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:max-content!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0 auto!important;
+  padding:7px 12px!important;
+  gap:4px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:var(--primary-action,var(--accent))!important;
+  box-shadow:none!important;
+  white-space:nowrap;
+}
+.schedule-card .schedule-estimate-range{
+  display:inline!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+  letter-spacing:-.02em!important;
+}
+.schedule-card .schedule-estimate-caption{
+  display:inline!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:600!important;
+  line-height:1.35!important;
+}
+.schedule-card .schedule-message-box{
+  order:2!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+}
+.schedule-card .schedule-message-box #scheduleText,
+.schedule-card .schedule-main-line,
+.schedule-card .schedule-extra-line{
+  text-align:center!important;
+}
+
+@media(max-width:680px){
+  .schedule-card .schedule-heading{
+    margin-bottom:9px!important;
+  }
+  .schedule-card .schedule-content,
+  .schedule-card.has-estimate .schedule-content{
+    gap:9px!important;
+  }
+  .schedule-card .schedule-estimate{
+    width:max-content!important;
+    min-width:0!important;
+    max-width:calc(100% - 12px)!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:6px 11px!important;
+  }
+  .schedule-card .schedule-estimate-range{
+    font-size:12.5px!important;
+  }
+  .schedule-card .schedule-estimate-caption{
+    font-size:10.5px!important;
+  }
+  .schedule-card .schedule-message-box{
+    min-height:0!important;
+    height:auto!important;
+    padding-top:13px!important;
+    padding-bottom:13px!important;
+  }
+  .schedule-card .schedule-message-box #scheduleText{
+    font-size:15.5px!important;
+    line-height:1.55!important;
+    text-align:center!important;
+    overflow-wrap:anywhere;
+    word-break:keep-all;
+  }
+  .schedule-card .schedule-main-line{
+    display:block!important;
+    white-space:normal!important;
+    text-align:center!important;
+  }
+  .schedule-card .schedule-mobile-line{
+    display:inline!important;
+    white-space:normal!important;
+  }
+  .schedule-card .schedule-mobile-line + .schedule-mobile-line::before{
+    content:" "!important;
+  }
+}
