@@ -18,7 +18,7 @@ body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:gri
 <script src="/js/config.js"></script>
 <script>
 (function(){
- const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',wrap=document.getElementById('wrap'),panel=document.getElementById('panel'),CACHE_KEY='artmug-nav-summary-v4',ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
+ const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',wrap=document.getElementById('wrap'),panel=document.getElementById('panel'),CACHE_KEY='artmug-nav-summary-v5',ch=('BroadcastChannel'in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
  const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
  const raw=async p=>{const r=await fetch(RAW+p,{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
  function layout(c){const id=String(c?.id||''),l=String(c?.label||'').replace(/\s/g,'');if(id==='top-banner'||l.includes('상단배너'))return'top-banner';if(id==='floating-banner'||l.includes('플로팅'))return'floating-banner';if(id==='bottom-banner'||l.includes('하단배너일반'))return'bottom-banner';if(id==='bottom-split'||l.includes('하단배너분할'))return'bottom-split';if(/4cut|four-cut/.test(id)||l.includes('인생네컷'))return'four-cut';return id}
