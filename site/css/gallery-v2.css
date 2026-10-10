@@ -762,3 +762,75 @@ body.artmug-part-portfolio #inquirySection{
     max-height:none;
   }
 }
+
+
+/* =========================================================
+   2026-10-10 portfolio category alignment refinement
+   ========================================================= */
+
+/* Desktop: keep the category pill visually centered while TYPE controls stay on the right. */
+.v2-cat-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center!important;
+  gap:12px;
+}
+.v2-cat-head h3{
+  grid-column:2;
+  justify-self:center;
+  text-align:center;
+}
+.v2-cat-head .v2-type-filter{
+  grid-column:3;
+  justify-self:end;
+}
+
+/* TYPE A/B comparison guide remains explicitly left-aligned. */
+.v2-type-guide,
+.v2-type-guide summary{
+  text-align:left!important;
+}
+.v2-type-guide summary{
+  margin-left:0!important;
+  margin-right:auto!important;
+}
+
+/* Slightly enlarge the floating-banner fixed-frame badge text. */
+.v2-work-tags .v2-fixed-badge{
+  font-size:8px!important;
+}
+
+@media(max-width:680px){
+  /* Mobile: center both category name and TYPE selector as one vertical group. */
+  .v2-cat-head{
+    display:flex!important;
+    flex-direction:column;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:8px;
+    text-align:center;
+  }
+  .v2-cat-head h3{
+    align-self:center;
+    text-align:center;
+  }
+  .v2-cat-head .v2-type-filter{
+    align-self:center;
+    justify-content:center!important;
+    width:100%;
+  }
+
+  /* Keep the comparison-guide label independent and left-aligned. */
+  .v2-type-guide,
+  .v2-type-guide summary{
+    text-align:left!important;
+  }
+  .v2-type-guide summary{
+    margin-left:0!important;
+    margin-right:auto!important;
+  }
+
+  .v2-work-tags .v2-fixed-badge{
+    font-size:7px!important;
+  }
+}
