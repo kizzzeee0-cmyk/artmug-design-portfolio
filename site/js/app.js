@@ -38,9 +38,10 @@ function initArtmugEmbedMode(){
     const sections={
       top:0,
       notice:sectionTop(document.querySelector('.notice-card')),
-      inquiry:sectionTop(document.querySelector('.form-card')),
-      portfolio:sectionTop(document.getElementById('portfolioSection')),
-      preset:sectionTop(document.getElementById('presetSection'))
+      inquiry:sectionTop(document.getElementById('inquirySection')||document.querySelector('.form-card')),
+      portfolio:sectionTop(document.getElementById('portfolioAllSectionV2')||document.getElementById('portfolioSection')),
+      preset:sectionTop(document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection')),
+      fixed:sectionTop(document.getElementById('showcase-fixed'))
     };
     const role=document.body.classList.contains('artmug-part-inquiry')
       ?'inquiry'
@@ -142,9 +143,10 @@ function artmugNavTarget(name){
   const map={
     top:document.querySelector('.site-shell'),
     notice:document.querySelector('.notice-card'),
-    inquiry:document.querySelector('.form-card'),
-    portfolio:document.getElementById('portfolioSection'),
-    preset:document.getElementById('presetSection')
+    inquiry:document.getElementById('inquirySection')||document.querySelector('.form-card'),
+    portfolio:document.getElementById('portfolioAllSectionV2')||document.getElementById('portfolioSection'),
+    preset:document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection'),
+    fixed:document.getElementById('showcase-fixed')
   };
   return map[name]||null
 }
@@ -166,9 +168,9 @@ function initArtmugSectionNavigation(){
   const sectionMap=[
     ['.site-shell','page-top'],
     ['.notice-card','notice-section'],
-    ['.form-card','inquiry-section'],
-    ['#portfolioSection','portfolio-section'],
-    ['#presetSection','preset-section']
+    ['#inquirySection','inquiry-section'],
+    ['#portfolioAllSectionV2','portfolio-section'],
+    ['#showcaseSectionV2','preset-section']
   ];
   sectionMap.forEach(([selector,id])=>{
     const el=document.querySelector(selector);
