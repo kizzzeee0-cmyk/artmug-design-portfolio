@@ -391,11 +391,24 @@ function bindCategoryOrder(arr,prefix){
   document.querySelectorAll(`[data-move-${prefix}]`).forEach(b=>b.onclick=()=>moveCategory(arr,prefix,Number(b.getAttribute(`data-move-${prefix}`)),Number(b.dataset.dir)))
 }
 function updatePortfolioUploadHint(){
-  const c=(S?.portfolioCategories||[]).find(x=>x.id===$('uploadCat').value),input=$('files'),hint=$('portfolioUploadHint');
-  if(!c){input.removeAttribute('accept');if(hint)hint.textContent='';return}
+  const c=(S?.portfolioCategories||[]).find(x=>x.id===$('uploadCat').value),input=$('files'),hint=$('portfolioUploadHint'),classification=$('portfolioUploadBannerType');
+  if(!c){
+    input.removeAttribute('accept');
+    if(hint)hint.textContent='';
+    if(classification)classification.hidden=true;
+    return
+  }
   const formats=(c.formats||[]).map(x=>String(x).toLowerCase());
   input.accept=formats.flatMap(x=>x==='jpeg'||x==='jpg'?['.jpg','.jpeg']:['.'+x]).join(',');
   const parts=[formats.join(', ').toUpperCase()];
+  const isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(c.id);
+  const isFloating=c.id==='floating-banner'||String(c.label||'').replace(/\s/g,'').includes('플로팅');
+  if(classification){
+    classification.hidden=!isBanner;
+    const fixedOption=classification.querySelector('option[value="fixed"]');
+    if(fixedOption){fixedOption.disabled=!isFloating;fixedOption.hidden=!isFloating}
+    if(!isFloating&&classification.value==='fixed')classification.value='B'
+  }
   if(hint)hint.textContent='업로드 조건: '+parts.filter(Boolean).join(' · ')+' · 파일 용량 제한 없음 · 이미지 픽셀 크기 제한 없음'
 }
 function renderCats(){
@@ -795,25 +808,28 @@ function renderPresetItems(){
       <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" decoding="async" draggable="false">
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
-        <label>상품 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
-        <label class="wide">상품 설명<textarea data-preset-desc="${i}" placeholder="선택 입력">${adminEsc(meta.description)}</textarea></label>
-        <label>쇼케이스 구분<select data-preset-kind="${i}"><option value="preset" ${meta.showcaseKind==='preset'?'selected':''}>미판매 프리셋</option><option value="fixed" ${meta.showcaseKind==='fixed'?'selected':''}>고정틀</option></select></label>
-        <label>배너 TYPE<select data-preset-banner-type="${i}"><option value="">없음</option><option value="A" ${meta.bannerType==='A'?'selected':''}>TYPE A</option><option value="B" ${meta.bannerType==='B'?'selected':''}>TYPE B</option></select></label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-featured="${i}" ${meta.featured?'checked':''}> 대표작</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중 표시</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-sold="${i}" ${meta.isSold?'checked':''}> 판매완료</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능 표시</label>
+        <label class="preset-name-field">상품 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
+        <div class="preset-admin-select-grid">
+          <label>쇼케이스<select data-preset-kind="${i}"><option value="preset" ${meta.showcaseKind==='preset'?'selected':''}>미판매 프리셋</option><option value="fixed" ${meta.showcaseKind==='fixed'?'selected':''}>고정틀</option></select></label>
+          <label>배너 TYPE<select data-preset-banner-type="${i}"><option value="">없음</option><option value="A" ${meta.bannerType==='A'?'selected':''}>TYPE A</option><option value="B" ${meta.bannerType==='B'?'selected':''}>TYPE B</option></select></label>
+        </div>
+        <div class="preset-admin-toggle-grid">
+          <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-featured="${i}" ${meta.featured?'checked':''}> 대표작</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-sold="${i}" ${meta.isSold?'checked':''}> 판매완료</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능</label>
+        </div>
       </div>
       <div class="preset-admin-actions">
         <div class="media-order-controls">
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button>
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
         </div>
-        <button class="ghost admin-compact" data-replace-preset="${i}">대표 이미지 수정</button>
+        <button class="ghost admin-compact" data-replace-preset="${i}">이미지 수정</button>
         <button class="ghost admin-compact" data-save-preset="${i}">이름 저장</button>
-        <button class="danger" data-delete-preset="${encodeURIComponent(x.file)}">프리셋 삭제</button>
+        <button class="danger admin-compact" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button>
       </div>
     </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
@@ -857,37 +873,60 @@ async function savePresetMetaField(i,key,value,exclusiveStatus){
 
 function renderItems(){
   $('items').innerHTML=items.map((x,i)=>{
-    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file),isProfile=logical==='profile',isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category),meta=portfolioMetaFor(x),cat=(S.portfolioCategories||[]).find(c=>c.id===x.category);
+    const logical=logicalPortfolioCategory(x.category);
+    const same=items.filter(v=>logicalPortfolioCategory(v.category)===logical);
+    const samePos=same.findIndex(v=>v.file===x.file);
+    const isProfile=logical==='profile';
+    const isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category);
+    const isFloating=logical==='floating-banner'||x.category==='floating-banner';
+    const meta=portfolioMetaFor(x);
+    const cat=(S.portfolioCategories||[]).find(c=>c.id===x.category);
+    const classification=meta.isFixed?'fixed':(meta.bannerType||'B');
     return `<div class="item portfolio-admin-item">
       <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
-      <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${adminEsc(cat?.label||(isProfile?'움짤프사':x.category))}</div>
-        <div class="portfolio-admin-copy"><label>작품 이름<input data-portfolio-name="${i}" value="${adminEsc(meta.name)}" placeholder="선택 입력"></label><label>설명<textarea data-portfolio-description="${i}" placeholder="선택 입력">${adminEsc(meta.description)}</textarea></label><button type="button" class="ghost admin-compact" data-save-portfolio-info="${i}">정보 저장</button></div>
+      <div class="portfolio-item-info">
+        <strong title="${adminEsc(x.originalName)}">${adminEsc(x.originalName)}</strong>
+        <div class="muted portfolio-item-category">${adminEsc(cat?.label||(isProfile?'움짤프사':x.category))}</div>
         <div class="portfolio-admin-meta">
           <label class="mini-toggle"><input type="checkbox" data-portfolio-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
-          ${isBanner?'<label>배너 TYPE<select data-portfolio-banner-type="'+i+'"><option value="A" '+(meta.bannerType==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(meta.bannerType!=='A'?'selected':'')+'>TYPE B</option></select></label>':''}
-          ${logical==='floating-banner'?'<label class="mini-toggle"><input type="checkbox" data-portfolio-fixed="'+i+'" '+(meta.isFixed?'checked':'')+'> 고정틀 태그</label>':''}
+          ${isFloating
+            ?'<label class="portfolio-classification-field">분류<select data-portfolio-classification="'+i+'"><option value="A" '+(classification==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(classification==='B'?'selected':'')+'>TYPE B</option><option value="fixed" '+(classification==='fixed'?'selected':'')+'>고정틀</option></select></label>'
+            :isBanner
+              ?'<label class="portfolio-classification-field">TYPE<select data-portfolio-banner-type="'+i+'"><option value="A" '+(meta.bannerType==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(meta.bannerType!=='A'?'selected':'')+'>TYPE B</option></select></label>'
+              :''
+          }
         </div>
       </div>
       <div class="item-actions">
-        <div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div>
+        <div class="media-order-controls">
+          <button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button>
+          <button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
+        </div>
         <button class="ghost admin-compact" data-replace-portfolio="${i}">파일 수정</button>
-        <button class="danger" data-delete="${encodeURIComponent(x.file)}">삭제</button>
+        <button class="danger admin-compact" data-delete="${encodeURIComponent(x.file)}">삭제</button>
       </div>
     </div>`
   }).join('');
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
-  document.querySelectorAll('[data-save-portfolio-info]').forEach(el=>el.onclick=()=>savePortfolioInfo(+el.dataset.savePortfolioInfo));
   document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
-  document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{bannerType:el.value}));
-  document.querySelectorAll('[data-portfolio-fixed]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioFixed,{isFixed:el.checked}));
-  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
-}
-async function savePortfolioInfo(i){
-  const x=items[i];if(!x)return;
-  const name=document.querySelector('[data-portfolio-name="'+i+'"]')?.value.trim()||'';
-  const description=document.querySelector('[data-portfolio-description="'+i+'"]')?.value.trim()||'';
-  await savePortfolioMeta(i,{name,description})
+  document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{isFixed:false,bannerType:el.value}));
+  document.querySelectorAll('[data-portfolio-classification]').forEach(el=>el.onchange=()=>{
+    const value=el.value;
+    const patch=value==='fixed'?{isFixed:true,bannerType:''}:{isFixed:false,bannerType:value};
+    savePortfolioMeta(+el.dataset.portfolioClassification,patch)
+  });
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('이 작업물을 삭제할까요?'))return;
+    const file=decodeURIComponent(b.dataset.delete);
+    S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);
+    await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});
+    await queueSettingsMutation(latest=>{
+      latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);
+      if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]
+    }).catch(()=>{});
+    loadItems()
+  })
 }
 async function savePortfolioMeta(i,patch){
   const x=items[i];if(!x)return;
@@ -936,17 +975,22 @@ async function uploadFiles(kind){
       if(d.path)uploadedPaths.push(String(d.path))
     }
     if(uploadedPaths.length){
-      const selectedType=$('portfolioUploadBannerType')?.value||'B';
+      const selectedClass=$('portfolioUploadBannerType')?.value||'B';
       const isBannerUpload=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(cat);
+      const isFloatingUpload=cat==='floating-banner';
+      const classificationPatch=isBannerUpload
+        ?(isFloatingUpload&&selectedClass==='fixed'?{isFixed:true,bannerType:''}:{isFixed:false,bannerType:['A','B'].includes(selectedClass)?selectedClass:'B'})
+        :{};
       const saved=await queueSettingsMutation(latest=>{
         const current=Array.isArray(latest.portfolioOrder)?latest.portfolioOrder:[];
         const fresh=[...uploadedPaths].reverse();
         const newSet=new Set(fresh);
         latest.portfolioOrder=[...fresh,...current.filter(v=>!newSet.has(v))];
         if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
-        uploadedPaths.forEach(path=>{latest.portfolioMeta[path]={...(latest.portfolioMeta[path]||{}),enabled:true,...(isBannerUpload?{bannerType:selectedType}:{})}})
+        uploadedPaths.forEach(path=>{latest.portfolioMeta[path]={...(latest.portfolioMeta[path]||{}),enabled:true,...classificationPatch}})
       });
-      S.portfolioOrder=saved.portfolioOrder||S.portfolioOrder||[]
+      S.portfolioOrder=saved.portfolioOrder||S.portfolioOrder||[];
+      S.portfolioMeta=saved.portfolioMeta||S.portfolioMeta||{}
     }
     status.textContent='업로드가 완료되었습니다.';fileInput.value='';await loadItems();showToast('업로드되었습니다.')
   }catch(e){status.textContent=e.message;alert('업로드에 실패했습니다.\n'+e.message)}
