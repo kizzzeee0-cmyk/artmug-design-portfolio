@@ -2,12 +2,14 @@
 'use strict';
 const C=window.ARTMUG_CONFIG||{};
 const API=C.API_BASE||'';
+const RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/';
+const rawJson=path=>fetch(RAW+path,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
 const $=s=>document.querySelector(s);
 const $$=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/'):'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const state={settings:null,navSummary:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
+const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
 const portfolioOrder=['profile','top-banner','floating-banner','bottom-banner','bottom-split','four-cut'];
 const bannerIds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
@@ -250,8 +252,10 @@ async function renderPortfolio(){
  const root=$('#portfolioAllSections');if(!root)return;
  state.portfolio.clear();
  let cats=visibleCats();
- const counts=state.navSummary?.categoryCounts;
- if(counts&&typeof counts==='object'){
+ const meta=state.settings?.portfolioMeta||{};
+ if(Array.isArray(state.portfolioIndex)){
+  const counts={};
+  state.portfolioIndex.forEach(x=>{if(x&&x.category&&(meta[x.file]||{}).enabled!==false)counts[x.category]=(counts[x.category]||0)+1});
   cats=cats.filter(cat=>{
    if(layoutKey(cat)==='profile'){
     return (state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).some(c=>Number(counts[c.id]||0)>0)
@@ -266,25 +270,22 @@ async function renderPortfolio(){
  const tasks=cats.map(async cat=>{
   const k=layoutKey(cat),sec=document.querySelector('[data-v2-cat="'+CSS.escape(cat.id)+'"]');
   try{
-   if(k==='profile'){
-    const physical=(state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||'')));
-    const batches=await Promise.all(physical.map(p=>fetchAll('portfolio',p.id).catch(()=>[])));
-    const items=applyOrder(batches.flat(),state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
-    if(!items.length){sec.hidden=true;return}
-    state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});shown++;
-    await renderPortfolioCategory(cat.id,false,false);return
+   let items=[];
+   if(Array.isArray(state.portfolioIndex)){
+    if(k==='profile'){
+     const physical=new Set((state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).map(c=>c.id));
+     items=state.portfolioIndex.filter(x=>physical.has(x.category))
+    }else items=state.portfolioIndex.filter(x=>x.category===cat.id)
+   }else{
+    if(k==='profile'){
+     const physical=(state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||'')));
+     const batches=await Promise.all(physical.map(p=>fetchAll('portfolio',p.id).catch(()=>[])));
+     items=batches.flat()
+    }else items=await fetchAll('portfolio',cat.id).catch(()=>[])
    }
-   if(k==='bottom-split'){
-    let items=applyOrder(await fetchAll('portfolio',cat.id).catch(()=>[]),state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
-    if(!items.length){sec.hidden=true;return}
-    items=await preclassifyBottomSplit(items);
-    state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});shown++;
-    await renderPortfolioCategory(cat.id,false,false);return
-   }
-   const cfg=catConfig(cat),res=await fetchPortfolioPage(cat.id,1,cfg.perPage,'ALL');
-   const items=applyOrder(res.items||[],state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+   items=applyOrder(items,state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
    if(!items.length){sec.hidden=true;return}
-   state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:true,total:Number(res.total||items.length),totalPages:Math.max(1,Number(res.totalPages||1)),availableFilters:Array.isArray(res.availableFilters)?res.availableFilters:[]});
+   state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});
    shown++;await renderPortfolioCategory(cat.id,false,false)
   }catch(e){if(sec)sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'}
  });
@@ -295,9 +296,14 @@ async function renderPortfolio(){
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false){root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return}
- const presetCats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false);
- const presetBatches=await Promise.all(presetCats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
- let all=applyOrder(presetBatches.flat(),state.settings.presetOrder).filter(x=>smeta(x).enabled);
+ const presetCats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false),allowed=new Set(presetCats.map(c=>c.id));
+ let source;
+ if(Array.isArray(state.presetIndex))source=state.presetIndex.filter(x=>allowed.has(x.category));
+ else{
+  const presetBatches=await Promise.all(presetCats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
+  source=presetBatches.flat()
+ }
+ let all=applyOrder(source,state.settings.presetOrder).filter(x=>smeta(x).enabled);
  const preset=all.filter(x=>smeta(x).showcaseKind!=='fixed'),fixed=all.filter(x=>smeta(x).showcaseKind==='fixed');
  state.showcase.preset=preset;state.showcase.fixed=fixed;
  const cols=[];
@@ -524,12 +530,14 @@ window.__ARTMUG_V2__={
 };
 async function init(){
  initNav();
- const [d,nav]=await Promise.all([
+ const [d,portfolioIndex,presetIndex]=await Promise.all([
   api('/api/public/settings?fresh='+Date.now()),
-  api('/api/public/nav-summary').catch(()=>null)
+  rawJson('portfolio/index.json').catch(()=>null),
+  rawJson('site/data/presets.json').catch(()=>null)
  ]);
  state.settings=d.settings||{};
- state.navSummary=nav||null;
+ state.portfolioIndex=Array.isArray(portfolioIndex)?portfolioIndex:null;
+ state.presetIndex=Array.isArray(presetIndex)?presetIndex:null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const showcasePromise=renderShowcase(),portfolioPromise=renderPortfolio();
  await showcasePromise;
