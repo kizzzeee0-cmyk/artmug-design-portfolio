@@ -316,7 +316,7 @@ async function renderShowcase(){
  const categoryHtml=groups.map(({cat,items})=>{
   const featured=items.filter(x=>smeta(x).featured),rest=items.filter(x=>!smeta(x).featured),ordered=[...featured,...rest];
   const key='preset-cat:'+cat.id,expanded=state.expanded[key]===true;
-  const limit=single?(state.mobile?4:5):4;
+  const limit=single?(state.mobile?Math.min(4,Math.max(1,Number(state.settings.showcaseInitialMobile||4))):Math.min(5,Math.max(1,Number(state.settings.showcaseInitialDesktop||5)))):4;
   const shown=expanded?ordered:ordered.slice(0,limit);
   const profile=layoutKey(cat)==='profile';
   const layoutClass=profile?'is-profile-category':'is-media-category';
@@ -329,7 +329,7 @@ async function renderShowcase(){
  }).join('');
 
  root.hidden=false;
- root.innerHTML='<h2>미판매 프리셋</h2><p class="v2-showcase-main-description">'+esc(description)+'</p>'+
+ root.innerHTML='<h2>'+esc(state.settings.presetTitle||'미판매 프리셋')+'</h2><p class="v2-showcase-main-description">'+esc(description)+'</p>'+
   '<div class="v2-preset-category-layout '+(single?'is-single':'is-multi')+'">'+categoryHtml+'</div>';
  root.querySelectorAll('[data-show-preset-category]').forEach(b=>b.onclick=()=>{
   const key='preset-cat:'+b.dataset.showPresetCategory;
