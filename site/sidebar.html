@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>빠른 이동</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css">
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:#344651;overflow-x:hidden}
@@ -15,6 +16,8 @@ body{display:flex;align-items:flex-start;justify-content:flex-start;min-height:1
 .quick-nav .inquiry-button{background:#8fc9e8;color:#fff;font-weight:800}
 .quick-nav .inquiry-button:hover,.quick-nav .inquiry-button:focus-visible{background:#69add2;color:#fff}
 .quick-nav .top-button{min-height:34px;background:transparent;color:#619fc4;font-size:12px}
+.quick-nav .top-button{gap:4px}
+.quick-nav .top-button .top-arrow{display:inline-block;font-size:9px;font-weight:700;line-height:1;transform:translateY(-1px)}
 .quick-nav .top-button:hover{background:#edf8fd}
 .loading{padding:12px;text-align:center;color:#71818c;font-size:11px}
 @media(max-width:165px){.quick-nav{padding:9px;border-radius:22px}.quick-nav button{font-size:10.5px;min-height:36px}}
@@ -78,7 +81,7 @@ function listFrom(d){
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
  (Array.isArray(d.extraCategories)?d.extraCategories:[]).forEach(c=>list.push({label:c.label,target:'portfolio:'+c.id}));
- list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
+ list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP',target:'top',cls:'top-button'});
  return list
 }
 function normalizeActiveTarget(target){
@@ -92,7 +95,7 @@ function normalizeActiveTarget(target){
  return target
 }
 function show(items){
- root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+x.label+'</button>').join('');
+ root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+(x.target==='top'?'TOP <span class="top-arrow" aria-hidden="true">▲</span>':x.label)+'</button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)))
 }
 function cached(){try{const x=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<60000?x.data:null}catch{return null}}
@@ -102,7 +105,7 @@ async function init(){
  try{
   const [d,index,presets]=await Promise.all([api('/api/public/settings?fresh='+Date.now()),raw('portfolio/index.json'),raw('site/data/presets.json')]);
   const summary=summarize(d.settings||{},index,presets);saveCache(summary);show(listFrom(summary))
- }catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}])}
+ }catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP',target:'top',cls:'top-button'}])}
 }
 if(ch)ch.addEventListener('message',e=>{
  const d=e.data;
