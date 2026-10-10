@@ -593,3 +593,20 @@
   }
   
 }
+
+
+/* 2026-10-10 gallery/showcase admin extensions */
+.banner-type-guide-admin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.banner-type-admin-card{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.banner-type-admin-card h4{margin:0 0 10px}
+.portfolio-admin-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.portfolio-admin-meta label:not(.mini-toggle){display:flex;align-items:center;gap:6px;font-size:11px}
+.portfolio-admin-meta select,
+.preset-admin-fields select{min-height:32px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:4px 8px}
+.cat-row{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important;align-items:end}
+.preset-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+.preset-admin-fields .preset-location{grid-column:1/-1}
+@media(max-width:720px){
+  .banner-type-guide-admin{grid-template-columns:1fr}
+  .preset-admin-fields{grid-template-columns:1fr}
+}
