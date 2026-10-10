@@ -42,8 +42,8 @@ body{display:flex;justify-content:flex-start;align-items:flex-start;min-height:1
   let presets=[];
   for(const c of (s.presetCategories||[]).filter(c=>c.enabled!==false))presets.push(...await all('preset',c.id));
   presets=presets.filter(x=>{const m=pmeta[x.file]||{};return m.enabled!==false});
-  const hasPreset=presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))!=='fixed');
-  const hasFixed=presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))==='fixed');
+  const hasPreset=s.showcasePresetEnabled!==false&&presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))!=='fixed');
+  const hasFixed=s.showcaseFixedEnabled!==false&&presets.some(x=>((pmeta[x.file]||{}).showcaseKind|| (x.category==='floating-banner'?'fixed':'preset'))==='fixed');
   const normal=data.filter(x=>!x.banner),banner=data.filter(x=>x.banner);
   const typeGroups=['A','B'].map(t=>({t,items:banner.filter(x=>x.arr.some(v=>(((meta[v.file]||{}).bannerType)||'B')===t))}));
   let h='<button type="button" data-target="notice">공지사항</button>';
