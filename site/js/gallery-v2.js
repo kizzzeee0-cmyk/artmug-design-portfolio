@@ -242,17 +242,19 @@ function injectInquiry(card){
  let box=fields.querySelector('.v2-inquiry-enhancements');
  if(!box){box=document.createElement('div');box.className='v2-inquiry-enhancements';fields.prepend(box)}
  const profileMode=card.dataset.profileMode||'custom',floatingMode=card.dataset.floatingMode||'custom';
+ const availableProfilePresets=state.showcase.preset.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},m=smeta(x);return layoutKey(c)==='profile'&&m.enabled&&!m.isReserved&&!m.isSold});
+ const availableFixed=state.showcase.fixed.filter(x=>{const m=smeta(x);return m.enabled&&!m.isReserved&&!m.isSold});
  let html='';
  if(hasProfile){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="custom" '+(profileMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
-   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+' '+(!state.showcase.preset.some(x=>!smeta(x).isReserved&&!smeta(x).isSold)?'disabled':'')+'><span>프리셋 구매</span></label></div></fieldset>';
+   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+' '+(!availableProfilePresets.length?'disabled':'')+'><span>프리셋 구매</span></label></div></fieldset>';
   if(profileMode==='preset')html+=selectionHtml('preset',card.dataset.selectedPresetFile)
  }
  if(hasFloating){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>플로팅 배너 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="floating" name="v2-floating-'+card.dataset.requestId+'" value="custom" '+(floatingMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
-   '<label class="choice-pill"><input type="radio" data-v2-mode="floating" name="v2-floating-'+card.dataset.requestId+'" value="fixed" '+(floatingMode==='fixed'?'checked':'')+' '+(!state.showcase.fixed.some(x=>!smeta(x).isReserved&&!smeta(x).isSold)?'disabled':'')+'><span>고정틀</span></label></div></fieldset>';
+   '<label class="choice-pill"><input type="radio" data-v2-mode="floating" name="v2-floating-'+card.dataset.requestId+'" value="fixed" '+(floatingMode==='fixed'?'checked':'')+' '+(!availableFixed.length?'disabled':'')+'><span>고정틀</span></label></div></fieldset>';
   if(floatingMode==='fixed')html+=selectionHtml('fixed',card.dataset.selectedFixedFile)
  }
  if(banners.length){
@@ -266,7 +268,7 @@ function injectInquiry(card){
    const val=autoType||card.dataset[key]||'B';
    if(autoType)card.dataset[key]=autoType;
    return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>'+esc(x.label)+' TYPE</legend><div class="choice-row">'+
-    ['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v2-banner-index="'+i+'" data-v2-banner-label="'+esc(x.label)+'" name="v2-banner-'+card.dataset.requestId+'-'+i+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+
+    ['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v2-banner-index="'+i+'" data-v2-banner-label="'+esc(x.label)+'" name="v2-banner-'+card.dataset.requestId+'-'+i+'" value="'+t+'" '+(val===t?'checked':'')+' '+(autoType?'disabled':'')+'><span>TYPE '+t+'</span></label>').join('')+
    '</div></fieldset>'
   }).join('')+'</div>'
  }
