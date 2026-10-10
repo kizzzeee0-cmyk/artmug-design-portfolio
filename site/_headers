@@ -9,6 +9,12 @@
 /mobile-nav/*
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
+/sidebar.html
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/sidebar/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
 /bridge.js
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
