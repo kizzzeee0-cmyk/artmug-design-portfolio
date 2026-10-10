@@ -26,7 +26,7 @@ body{display:flex;align-items:flex-start;justify-content:flex-start;min-height:1
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v7';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v8';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={};
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
@@ -37,6 +37,7 @@ function layout(c){
  if(id==='floating-banner'||label.includes('플로팅'))return'floating-banner';
  if(id==='bottom-banner'||label.includes('하단배너일반'))return'bottom-banner';
  if(id==='bottom-split'||label.includes('하단배너분할'))return'bottom-split';
+ if(/^profile(?:-|$)/.test(id)||label.includes('움짤프사'))return'profile';
  if(/4cut|four-cut/.test(id)||label.includes('인생네컷'))return'four-cut';
  return id
 }
@@ -48,14 +49,19 @@ function summarize(settings,index,presets){
  const bannerWorks=works.filter(x=>banners.has(layout(catById.get(x.category))));
  const presetItems=(Array.isArray(presets)?presets:[]).filter(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&((pm[x.file]||{}).showcaseKind||'preset')!=='fixed');
  const bannerIds=[...new Set(bannerWorks.map(x=>x.category))];
- const categories=cats
-  .filter(c=>!banners.has(layout(c))&&works.some(x=>x.category===c.id))
-  .map(c=>({id:c.id,label:String(c.label||c.id).replace(/^움짤\s*프사$/,'움짤프사')}));
+ const visibleNonBanner=cats.filter(c=>!banners.has(layout(c))&&works.some(x=>x.category===c.id));
+ const profile=visibleNonBanner.find(c=>layout(c)==='profile');
+ const fourCut=visibleNonBanner.find(c=>layout(c)==='four-cut');
+ const extraCategories=visibleNonBanner
+  .filter(c=>layout(c)!=='profile'&&layout(c)!=='four-cut')
+  .map(c=>({id:c.id,label:String(c.label||c.id)}));
  return {
   hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.length>0,
   hasBanner:bannerWorks.length>0,
   bannerIds,
-  categories
+  profile:profile?{id:profile.id,label:'움짤프사'}:null,
+  fourCut:fourCut?{id:fourCut.id,label:'인생네컷'}:null,
+  extraCategories
  }
 }
 function send(target){
@@ -68,8 +74,10 @@ function listFrom(d){
  currentSummary=d||{};
  const list=[{label:'공지사항',target:'notice'}];
  if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase'});
- (Array.isArray(d.categories)?d.categories:[]).forEach(c=>list.push({label:c.label,target:'portfolio:'+c.id}));
+ if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
+ if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
+ (Array.isArray(d.extraCategories)?d.extraCategories:[]).forEach(c=>list.push({label:c.label,target:'portfolio:'+c.id}));
  list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
  return list
 }
@@ -100,14 +108,18 @@ if(ch)ch.addEventListener('message',e=>{
  const d=e.data;
  if(d?.type==='nav-data'){
   const cats=Array.isArray(d.categories)?d.categories:[];
+  const nonBanner=cats.filter(c=>!c.banner);
+  const profile=nonBanner.find(c=>c.kind==='profile');
+  const fourCut=nonBanner.find(c=>c.kind==='four-cut');
   const summary={
    hasPreset:!!d.preset,
    hasBanner:cats.some(c=>c.banner),
    bannerIds:cats.filter(c=>c.banner).map(c=>c.id),
-   categories:cats.filter(c=>!c.banner).map(c=>({
-    id:c.id,
-    label:String(c.label||c.id).replace(/^움짤\s*프사$/,'움짤프사')
-   }))
+   profile:profile?{id:profile.id,label:'움짤프사'}:null,
+   fourCut:fourCut?{id:fourCut.id,label:'인생네컷'}:null,
+   extraCategories:nonBanner
+    .filter(c=>c.kind!=='profile'&&c.kind!=='four-cut')
+    .map(c=>({id:c.id,label:String(c.label||c.id)}))
   };
   saveCache(summary);show(listFrom(summary));return
  }
