@@ -54,7 +54,7 @@
     }
 
     frame.style.setProperty('position','fixed','important');
-    frame.style.setProperty('top','16px','important');
+    frame.style.setProperty('top','clamp(150px,22vh,260px)','important');
     frame.style.setProperty('right',saved.rightGap+'px','important');
     frame.style.setProperty('left','auto','important');
     frame.style.setProperty('z-index','50','important');
