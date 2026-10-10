@@ -82,7 +82,7 @@ function presetMetaFor(x){
   }
 }
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
-function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:'',bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:'B',enabled:meta.enabled!==false,featured:meta.featured===true}}
+function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:'',bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:'B',enabled:meta.enabled!==false,featured:meta.featured===true,name:String(meta.name||''),description:String(meta.description||'')}}
 function isProfilePortfolioCategory(id){return /^profile(?:-|$)/.test(String(id||''))}
 function logicalPortfolioCategory(id){return isProfilePortfolioCategory(id)?'profile':id}
 
@@ -859,6 +859,7 @@ function renderItems(){
     return `<div class="item portfolio-admin-item">
       <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
       <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${adminEsc(cat?.label||(isProfile?'움짤프사':x.category))}</div>
+        <div class="portfolio-admin-copy"><label>작품 이름<input data-portfolio-name="${i}" value="${adminEsc(meta.name)}" placeholder="선택 입력"></label><label>설명<textarea data-portfolio-description="${i}" placeholder="선택 입력">${adminEsc(meta.description)}</textarea></label><button type="button" class="ghost admin-compact" data-save-portfolio-info="${i}">정보 저장</button></div>
         <div class="portfolio-admin-meta">
           <label class="mini-toggle"><input type="checkbox" data-portfolio-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
           ${isBanner?'<label>배너 TYPE<select data-portfolio-banner-type="'+i+'"><option value="A" '+(meta.bannerType==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(meta.bannerType!=='A'?'selected':'')+'>TYPE B</option></select></label>':''}
@@ -873,9 +874,16 @@ function renderItems(){
   }).join('');
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
+  document.querySelectorAll('[data-save-portfolio-info]').forEach(el=>el.onclick=()=>savePortfolioInfo(+el.dataset.savePortfolioInfo));
   document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
   document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{bannerType:el.value}));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
+}
+async function savePortfolioInfo(i){
+  const x=items[i];if(!x)return;
+  const name=document.querySelector('[data-portfolio-name="'+i+'"]')?.value.trim()||'';
+  const description=document.querySelector('[data-portfolio-description="'+i+'"]')?.value.trim()||'';
+  await savePortfolioMeta(i,{name,description})
 }
 async function savePortfolioMeta(i,patch){
   const x=items[i];if(!x)return;
