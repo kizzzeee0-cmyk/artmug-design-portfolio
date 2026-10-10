@@ -329,7 +329,7 @@ async function renderShowcase(){
  }).join('');
 
  root.hidden=false;
- root.innerHTML='<h2>'+esc(state.settings.presetTitle||'미판매 프리셋')+'</h2><p class="v2-showcase-main-description">'+esc(description)+'</p>'+
+ root.innerHTML='<h2>'+esc(state.settings.presetTitle||'프리셋')+'</h2><p class="v2-showcase-main-description">'+esc(description)+'</p>'+
   '<div class="v2-preset-category-layout '+(single?'is-single':'is-multi')+'">'+categoryHtml+'</div>';
  root.querySelectorAll('[data-show-preset-category]').forEach(b=>b.onclick=()=>{
   const key='preset-cat:'+b.dataset.showPresetCategory;
