@@ -34,7 +34,13 @@ function initArtmugEmbedMode(){
   function sendHeight(force){
     if(window.parent===window)return;
     const height=actualContentHeight();
-    if(!force&&height===lastHeight)return;
+    const contentHeightChanged=height!==lastHeight;
+    // Chrome 154+ supports native cross-origin responsive iframe sizing.
+    // Recalculate only when the actual content height changes, avoiding resize loops.
+    if(contentHeightChanged&&typeof window.requestResize==='function'){
+      try{window.requestResize()}catch{}
+    }
+    if(!force&&!contentHeightChanged)return;
     lastHeight=height;
 
     const sections={
