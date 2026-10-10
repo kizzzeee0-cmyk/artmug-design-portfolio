@@ -329,13 +329,13 @@ function injectInquiry(card){
  if(hasProfile){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="custom" '+(profileMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
-   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+' '+(!availableProfilePresets.length?'disabled':'')+'><span>프리셋 구매</span></label></div></fieldset>';
+   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label></div></fieldset>';
   if(profileMode==='preset')html+=selectionHtml('preset',card.dataset.selectedPresetFile)
  }
  if(hasFloating){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>플로팅 배너 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="floating" name="v2-floating-'+card.dataset.requestId+'" value="custom" '+(floatingMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
-   '<label class="choice-pill"><input type="radio" data-v2-mode="floating" name="v2-floating-'+card.dataset.requestId+'" value="fixed" '+(floatingMode==='fixed'?'checked':'')+' '+(!availableFixed.length?'disabled':'')+'><span>고정틀</span></label></div></fieldset>';
+   '<label class="choice-pill"><input type="radio" data-v2-mode="floating" name="v2-floating-'+card.dataset.requestId+'" value="fixed" '+(floatingMode==='fixed'?'checked':'')+'><span>고정틀</span></label></div></fieldset>';
   if(floatingMode==='fixed')html+=selectionHtml('fixed',card.dataset.selectedFixedFile)
  }
  if(banners.length){
@@ -371,7 +371,7 @@ function selectionHtml(kind,selected){
  if(kind==='preset')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='profile'});
  if(kind==='fixed')arr=arr.filter(x=>{const c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{};return layoutKey(c)==='floating-banner'});
  const label=kind==='preset'?'프리셋 선택':'고정틀 선택';
- return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend><div class="v2-product-grid">'+arr.map(x=>{const m=smeta(x),disabled=m.isReserved||m.isSold;return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'><img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+(disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>'}).join('')+'</div></fieldset>'
+ return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice"><legend data-question-title>'+label+'</legend><div class="v2-product-grid">'+(arr.length?arr.map(x=>{const m=smeta(x),disabled=m.isReserved||m.isSold;return '<button type="button" data-v2-select="'+kind+'" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'><img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+(disabled?'<em>'+(m.isSold?'판매완료':'예약중')+'</em>':'')+'</button>').join(''):'<p class="v2-empty-products">현재 선택 가능한 상품이 없습니다.</p>')+'</div></fieldset>'
 }
 function initInquiryObserver(){
  const root=$('#requestsContainer');if(!root)return;
