@@ -354,14 +354,14 @@ async function renderShowcase(){
     ? String(state.settings.showcasePresetDescription??state.settings.presetNotice??'아직 판매되지 않은 작업물입니다. 그대로 제작을 원하시면 문의 시 말씀해 주세요.')
     : String(state.settings.showcaseFixedDescription??'색상이나 일부 디자인은 수정될 수 있지만 전체적인 디자인은 다 똑같이 제작됩니다.');
   cols.push('<section class="v2-showcase-column" data-showcase-kind="'+kind+'" id="showcase-'+kind+'">'+
-    '<div class="v2-showcase-head"><h3>'+(kind==='preset'?'미판매 프리셋':'고정틀')+'</h3></div>'+
+    '<div class="v2-showcase-head"><h3>'+(kind==='preset'?'프리셋':'고정틀')+'</h3></div>'+
     '<p class="v2-showcase-description">'+esc(description)+'</p>'+
     (shown.length?'<div class="v2-showcase-grid">'+shown.map(kind==='fixed'?fixedCard:presetCard).join('')+'</div>':'<div class="v2-showcase-empty">준비중입니다</div>')+
     (expandEnabled&&ordered.length>limit?'<button type="button" class="v2-show-all" data-show-all="'+kind+'">'+(state.expanded[kind]?'접기':'전체보기')+'</button>':'')+'</section>')
  }
  if(!cols.length){root.hidden=true;root.innerHTML='';return}
  root.hidden=false;
- root.innerHTML='<h2>미판매 프리셋 · 고정틀</h2><div class="v2-showcase-columns">'+cols.join('')+'</div>';
+ root.innerHTML='<h2>프리셋 · 고정틀</h2><div class="v2-showcase-columns">'+cols.join('')+'</div>';
  root.querySelectorAll('[data-show-all]').forEach(b=>b.onclick=()=>{state.expanded[b.dataset.showAll]=!state.expanded[b.dataset.showAll];renderShowcase();requestHeight()});
  root.querySelectorAll('img').forEach(img=>{
   if(!img.complete)img.addEventListener('load',()=>{syncFixedShowcaseHeight();requestHeight()},{once:true})
