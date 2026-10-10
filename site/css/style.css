@@ -5776,10 +5776,10 @@ body.artmug-part-inquiry .form-actions{
     font-size:14.5px!important;
   }
 
-  /* Notice body: 1px smaller than the current mobile placeholder-based size. */
+  /* Notice body matches the mobile inquiry placeholder size. */
   .notice-card #noticeText,
   .notice-card .notice-item-description{
-    font-size:12px!important;
+    font-size:13px!important;
     line-height:1.55!important;
     letter-spacing:-.01em;
   }
