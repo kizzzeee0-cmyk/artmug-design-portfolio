@@ -1177,9 +1177,10 @@ body.artmug-part-portfolio #inquirySection{
   display:flex!important;
   flex-direction:column!important;
   align-items:stretch!important;
-  width:100%!important;
+  width:max-content!important;
   max-width:100%!important;
-  gap:12px!important;
+  margin:0 auto!important;
+  gap:10px!important;
 }
 .schedule-card .schedule-estimate{
   order:-1!important;
@@ -1216,7 +1217,7 @@ body.artmug-part-portfolio #inquirySection{
   letter-spacing:-.015em!important;
 }
 .schedule-card .schedule-message-box{
-  width:100%!important;
+  width:auto!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -1231,19 +1232,20 @@ body.artmug-part-portfolio #inquirySection{
   box-shadow:none!important;
 }
 .schedule-card .schedule-message-box #scheduleText{
-  width:100%!important;
+  width:max-content!important;
+  max-width:100%!important;
   margin:0!important;
-  color:#263D52!important;
-  font-size:clamp(19px,2.6vw,30px)!important;
-  font-weight:800!important;
-  line-height:1.45!important;
-  letter-spacing:-.035em!important;
+  color:#465e6d!important;
+  font-size:16.5px!important;
+  font-weight:500!important;
+  line-height:1.6!important;
+  letter-spacing:-.012em!important;
   text-align:center!important;
 }
 .schedule-card .schedule-date{
-  color:inherit!important;
-  font-size:inherit!important;
-  font-weight:inherit!important;
+  color:var(--primary-action,var(--accent))!important;
+  font-size:1.08em!important;
+  font-weight:800!important;
 }
 @media(max-width:680px){
   .schedule-card .schedule-content,
@@ -1262,8 +1264,8 @@ body.artmug-part-portfolio #inquirySection{
     padding:5px 0 8px!important;
   }
   .schedule-card .schedule-message-box #scheduleText{
-    font-size:clamp(17px,4.3vw,22px)!important;
-    line-height:1.5!important;
+    font-size:12.5px!important;
+    line-height:1.45!important;
     overflow-wrap:anywhere;
   }
   .schedule-card .schedule-mobile-line{
