@@ -163,7 +163,7 @@ function ensureBannerTypeGuide(){
     if(x.description==null)x.description=t==='A'?'장식과 패턴이 비교적 적고 깔끔하게 정돈된 디자인':'다양한 패턴과 장식을 조합한 기존 스타일의 디자인';
     if(x.price==null)x.price=0;
     if(x.referenceFile==null)x.referenceFile='';
-    if(x.referenceImage==null)x.referenceImage=t==='A'?String(S.comparisonAImage||''):String(S.comparisonBImage||'')
+    if(x.referenceImage==null)x.referenceImage=''
   });
   return S.bannerTypeGuide
 }
@@ -203,18 +203,22 @@ async function uploadBannerTypeGuideImage(t){
   const ext=String(file.name||'').split('.').pop().toLowerCase();
   if(!['png','jpg','jpeg','webp'].includes(ext))return alert('PNG, JPG, JPEG, WEBP 이미지만 업로드할 수 있습니다.');
   collectBannerTypeGuideAdmin();
-  const kind=t==='A'?'comparison-a':'comparison-b';
-  const fd=new FormData();fd.append('file',file);fd.append('kind',kind);
+  const old=String(ensureBannerTypeGuide()[t].referenceImage||'');
+  const fd=new FormData();fd.append('category','type-guide-assets');fd.append('file',file);
   try{
-    const r=await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+    const r=await fetch(API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
-    const path=String(d.path||'');
+    const path=String(d.path||'');if(!path)throw new Error('업로드 경로를 확인하지 못했습니다.');
     const saved=await queueSettingsMutation(latest=>{
       if(!latest.bannerTypeGuide||typeof latest.bannerTypeGuide!=='object')latest.bannerTypeGuide={};
       if(!latest.bannerTypeGuide[t]||typeof latest.bannerTypeGuide[t]!=='object')latest.bannerTypeGuide[t]={};
       latest.bannerTypeGuide[t].referenceImage=path
     });
     S.bannerTypeGuide=saved.bannerTypeGuide||S.bannerTypeGuide||{};
+    if(old&&old!==path&&old.startsWith('portfolio/type-guide-assets/')){
+      await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file:old})}).catch(()=>{})
+    }
+    if(input)input.value='';
     renderBannerTypeGuideAdmin();showToast('TYPE '+t+' 대표 이미지가 저장되었습니다.')
   }catch(e){alert('대표 이미지 업로드에 실패했습니다.\n'+e.message)}
 }
@@ -222,15 +226,17 @@ async function deleteBannerTypeGuideImage(t){
   t=String(t||'').toUpperCase();
   if(!confirm('TYPE '+t+' 대표 이미지를 삭제할까요?'))return;
   collectBannerTypeGuideAdmin();
-  const kind=t==='A'?'comparison-a':'comparison-b';
+  const old=String(ensureBannerTypeGuide()[t].referenceImage||'');
   try{
-    await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});
     const saved=await queueSettingsMutation(latest=>{
       if(!latest.bannerTypeGuide||typeof latest.bannerTypeGuide!=='object')latest.bannerTypeGuide={};
       if(!latest.bannerTypeGuide[t]||typeof latest.bannerTypeGuide[t]!=='object')latest.bannerTypeGuide[t]={};
       latest.bannerTypeGuide[t].referenceImage=''
     });
     S.bannerTypeGuide=saved.bannerTypeGuide||S.bannerTypeGuide||{};
+    if(old.startsWith('portfolio/type-guide-assets/')){
+      await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file:old})}).catch(()=>{})
+    }
     renderBannerTypeGuideAdmin();showToast('TYPE '+t+' 대표 이미지를 삭제했습니다.')
   }catch(e){alert('대표 이미지 삭제에 실패했습니다.\n'+e.message)}
 }
@@ -748,7 +754,7 @@ async function loadItems(){
       api('/api/admin/portfolio'),
       loadPresetItemsOnly()
     ]);
-    items=applyAdminOrder(d.items||[],S?.portfolioOrder);
+    items=applyAdminOrder((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
     renderItems();renderBannerTypeGuideAdmin()
   }catch(e){$('uploadStatus').textContent=e.message}
 }
