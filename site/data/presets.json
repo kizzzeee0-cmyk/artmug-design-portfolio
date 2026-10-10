@@ -25,5 +25,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261008083140"
+  },
+  {
+    "id": "preset-fx7eTNDdkP0",
+    "category": "floating-banner",
+    "file": "preset/floating-banner/20261010020945-YPr0fitM-_____.png",
+    "originalName": "딴지플로팅.png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261010020945"
   }
 ]
