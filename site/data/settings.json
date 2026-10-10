@@ -635,7 +635,7 @@
   "bannerEventDescription": "상단배너 / 플로팅배너 / 하단배너 중\n2개 이상을 구매하시면 적용됩니다.",
   "inquiryReviewEnabled": false,
   "workStatusEnabled": true,
-  "workStatusMode": "sleeping",
+  "workStatusMode": "working",
   "workStatusWorkingText": "",
   "workStatusSleepingText": "현재 취침 중으로 문의 답변이 다소 늦어질 수 있습니다.",
   "scheduleEnabled": true,
