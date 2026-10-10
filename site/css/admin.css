@@ -973,3 +973,21 @@
     overflow:hidden;
   }
 }
+
+
+/* 2026-10-10 collapse unpublished admin sections */
+.admin-block.is-visibility-collapsed > :not(.admin-block-title){
+  display:none!important;
+}
+.admin-block.is-visibility-collapsed > .admin-block-title{
+  margin-bottom:0!important;
+}
+.admin-block.is-visibility-collapsed{
+  padding-bottom:18px;
+}
+.admin-block.is-schedule-visibility-collapsed #scheduleFields > :not(.schedule-admin-top){
+  display:none!important;
+}
+.admin-block.is-schedule-visibility-collapsed .schedule-admin-top{
+  margin-bottom:0!important;
+}
