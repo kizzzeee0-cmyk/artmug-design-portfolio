@@ -336,7 +336,10 @@ function renderSchedule(s){
       const range=$('scheduleEstimateRange');
       if(range)range.textContent=min===max?`${min}일`:`${min}~${max}일`;
       const caption=$('scheduleEstimateKicker');
-      if(caption)caption.textContent=String(s.scheduleEstimateLabel||'작업 완료까지');
+      if(caption){
+        const savedCaption=String(s.scheduleEstimateLabel||'작업 완료까지');
+        caption.textContent=savedCaption==='작업 완료까지'?'이내 작업 완료 예정':savedCaption;
+      }
     }
   }
 }
