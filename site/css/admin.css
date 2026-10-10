@@ -1037,3 +1037,117 @@
     justify-self:end;
   }
 }
+
+
+/* 2026-10-10 compact portfolio category settings */
+.portfolio-main-admin > .admin-block-title .admin-collapse-button{
+  display:none!important;
+}
+.portfolio-category-settings{
+  margin-top:2px;
+}
+.portfolio-category-settings-head{
+  margin-bottom:8px;
+}
+.portfolio-category-head-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+#portfolioCatsBody[hidden]{
+  display:none!important;
+}
+
+.cat-row-portfolio{
+  display:block!important;
+  padding:8px 0!important;
+  margin:0!important;
+  border-bottom:1px solid var(--line);
+}
+.cat-row-portfolio .cat-row-main{
+  display:grid;
+  grid-template-columns:minmax(135px,1.35fr) minmax(110px,1.1fr) repeat(6,minmax(62px,72px));
+  gap:5px;
+  align-items:end;
+}
+.cat-row-portfolio .cat-row-main label{
+  min-width:0;
+  gap:4px;
+  font-size:10px;
+  line-height:1.15;
+}
+.cat-row-portfolio .cat-row-main input{
+  width:100%;
+  min-width:0;
+  min-height:30px;
+  height:30px;
+  padding:4px 6px;
+  border-radius:8px;
+  font-size:10.5px;
+}
+.cat-row-portfolio .cat-number-field input{
+  text-align:center;
+  padding-inline:3px;
+}
+.cat-row-portfolio .cat-row-actions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin-top:5px;
+  min-height:30px;
+}
+.cat-row-portfolio .cat-row-actions .mini-toggle{
+  margin:0;
+  padding:0 3px 0 0!important;
+  font-size:10px;
+}
+.cat-row-portfolio .cat-order-controls{
+  display:flex;
+  gap:4px;
+}
+.cat-row-portfolio .cat-order-button{
+  width:30px!important;
+  min-width:30px!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:0!important;
+}
+.cat-row-portfolio .cat-row-actions .danger{
+  min-height:30px!important;
+  height:30px;
+  padding:0 9px!important;
+  font-size:10px!important;
+}
+#saveCats{
+  margin-top:8px;
+}
+
+@media(max-width:900px){
+  .cat-row-portfolio .cat-row-main{
+    grid-template-columns:minmax(120px,1.3fr) minmax(100px,1fr) repeat(6,minmax(54px,1fr));
+    gap:4px;
+  }
+  .cat-row-portfolio .cat-row-main label{
+    font-size:9px;
+  }
+  .cat-row-portfolio .cat-row-main input{
+    padding-inline:4px;
+    font-size:10px;
+  }
+}
+@media(max-width:720px){
+  .portfolio-category-settings-head{
+    flex-direction:row!important;
+    align-items:center!important;
+  }
+  .portfolio-category-head-actions{
+    margin-left:auto;
+  }
+  .cat-row-portfolio .cat-row-main{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+  }
+  .cat-row-portfolio .cat-row-main label{
+    font-size:9.5px;
+  }
+}
