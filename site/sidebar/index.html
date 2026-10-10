@@ -8,10 +8,10 @@ body{display:flex;flex-direction:column;justify-content:flex-start;align-items:f
 .quick-menu-title-wrap{width:128px;margin:0 0 8px 13px;display:flex;justify-content:center}
 .quick-menu-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:30px;padding:6px 15px;border:1px solid rgba(143,201,232,.34);border-radius:999px;background:#8fc9e8;color:#fff;font-size:13.5px;font-weight:800;line-height:1;letter-spacing:.03em;white-space:nowrap;box-shadow:0 7px 22px rgba(143,201,232,.24),0 2px 7px rgba(70,126,158,.05)}
 .quick-nav{position:sticky;top:8px;width:154px;padding:9px;border:1.5px solid #dcecf4;border-radius:16px;background:#fff;box-shadow:0 8px 28px rgba(143,201,232,.18),0 2px 8px rgba(70,126,158,.045)}
-.nav-list{display:grid;gap:2px;padding-top:3px}.quick-nav button,.quick-nav summary{width:100%;min-height:30px;padding:6px 9px;border:0;border-radius:9px;background:#f7fbfe;color:#6b9fba;font:inherit;font-size:11px;font-weight:550;line-height:1.35;text-align:left;cursor:pointer;list-style:none}
+.nav-list{display:grid;gap:2px;padding-top:3px}.quick-nav button,.quick-nav summary{width:100%;min-height:30px;padding:6px 9px;border:0;border-radius:9px;background:#f7fbfe;color:#6b9fba;font:inherit;font-size:11px;font-weight:600;line-height:1.35;text-align:left;cursor:pointer;list-style:none}
 .quick-nav summary::-webkit-details-marker{display:none}.quick-nav summary{display:flex;align-items:center;justify-content:space-between}.quick-nav summary::after{content:"▾";font-size:9px}.quick-nav details[open] summary::after{content:"▴"}
 .quick-nav button:hover,.quick-nav button:focus-visible,.quick-nav summary:hover{background:#edf8fd;color:#5a9bbf;outline:none}
-.submenu{display:grid;gap:1px;padding:2px 0 4px 10px}.submenu button{min-height:26px;font-size:10.5px;font-weight:600;padding:4px 7px}
+.submenu{display:grid;gap:1px;padding:2px 0 4px 10px}.submenu button{min-height:26px;font-size:10.5px;font-weight:650;padding:4px 7px}
 .quick-nav button.is-active{background:#edf8fd;color:#4f8fb3}.divider{height:1px;margin:7px 4px;background:#dcecf4}
 .inquiry-button{background:#69add2!important;color:#fff!important;text-align:center!important;font-weight:650!important}.inquiry-button:hover{background:#5b9fc5!important;color:#fff!important}
 .top-button{
@@ -26,6 +26,7 @@ body{display:flex;flex-direction:column;justify-content:flex-start;align-items:f
   letter-spacing:.055em!important;
   text-align:center!important
 }
+.top-button .top-arrow{display:inline-block;font-size:12px;font-weight:800;line-height:1;transform:translateY(-1px);margin-left:4px}
 .top-button:hover,
 .top-button:focus-visible{
   background:transparent!important;
@@ -93,7 +94,7 @@ function listFrom(d){
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
  (Array.isArray(d.extraCategories)?d.extraCategories:[]).forEach(c=>list.push({label:c.label,target:'portfolio:'+c.id}));
- list.push({divider:true},{label:'문의양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
+ list.push({divider:true},{label:'문의양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP',target:'top',cls:'top-button'});
  return list
 }
 function normalizeActiveTarget(target){
@@ -107,7 +108,7 @@ function normalizeActiveTarget(target){
  return target
 }
 function show(items){
- root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+x.label+'</button>').join('');
+ root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+(x.target==='top'?'TOP <span class="top-arrow" aria-hidden="true">▲</span>':x.label)+'</button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)))
 }
 function cached(){try{const x=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<60000?x.data:null}catch{return null}}
@@ -117,7 +118,7 @@ async function init(){
  try{
   const [d,index,presets]=await Promise.all([api('/api/public/settings?fresh='+Date.now()),raw('portfolio/index.json'),raw('site/data/presets.json')]);
   const summary=summarize(d.settings||{},index,presets);saveCache(summary);show(listFrom(summary))
- }catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}])}
+ }catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP',target:'top',cls:'top-button'}])}
 }
 if(ch)ch.addEventListener('message',e=>{
  const d=e.data;

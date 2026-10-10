@@ -6156,3 +6156,11 @@ html.artmug-embed-root body.artmug-part .site-shell{
     top:3px;
   }
 }
+
+/* 2026-10-10 MOBILE HELPER 12PX + QUICK MENU POLISH V2 */
+@media(max-width:680px){
+  .form-card #formDescription,
+  .preset-section #presetNotice{
+    font-size:12px!important;
+  }
+}
