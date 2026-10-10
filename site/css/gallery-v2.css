@@ -312,3 +312,13 @@
   .v2-showcase-columns{grid-template-columns:1fr}
   .v2-showcase-column+ .v2-showcase-column{border-left:0;border-top:1px solid var(--line);padding:14px 0 0}
 }
+
+
+/* Keep legacy split embed endpoints from duplicating the new full-page regions. */
+body.artmug-part-inquiry .showcase-section-v2,
+body.artmug-part-inquiry .portfolio-all-section-v2{
+  display:none!important;
+}
+body.artmug-part-portfolio #inquirySection{
+  display:none!important;
+}
