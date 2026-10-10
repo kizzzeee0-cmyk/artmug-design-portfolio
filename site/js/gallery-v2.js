@@ -8,6 +8,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/'):'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 const state={settings:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
+const portfolioPageCache=new Map();
 const portfolioOrder=['profile','top-banner','floating-banner','bottom-banner','bottom-split','four-cut'];
 const bannerIds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
 const defaults={
@@ -46,12 +47,17 @@ function visibleCats(){
 async function fetchAll(kind,category){
  const base=kind==='preset'?'/api/public/presets?category=':'/api/public/portfolio?category=';
  const first=await api(base+encodeURIComponent(category)+'&page=1&perPage=60');
- let arr=[...(first.items||[])],count=Number(first.totalPages||1);
- for(let p=2;p<=count;p++){
-  const d=await api(base+encodeURIComponent(category)+'&page='+p+'&perPage=60').catch(()=>({items:[]}));
-  arr.push(...(d.items||[]))
- }
- return arr
+ const count=Number(first.totalPages||1);
+ if(count<=1)return [...(first.items||[])];
+ const rest=await Promise.all(Array.from({length:count-1},(_,i)=>api(base+encodeURIComponent(category)+'&page='+(i+2)+'&perPage=60').catch(()=>({items:[]}))));
+ return [...(first.items||[]),...rest.flatMap(d=>d.items||[])]
+}
+async function fetchPortfolioPage(category,page,perPage,filter='ALL'){
+ const key=[category,page,perPage,filter].join('|');
+ if(portfolioPageCache.has(key))return portfolioPageCache.get(key);
+ const promise=api('/api/public/portfolio?category='+encodeURIComponent(category)+'&page='+page+'&perPage='+perPage+'&filter='+encodeURIComponent(filter)).catch(e=>{portfolioPageCache.delete(key);throw e});
+ portfolioPageCache.set(key,promise);
+ return promise
 }
 function applyOrder(items,order){
  const pos=new Map((order||[]).map((x,i)=>[x,i]));
@@ -128,13 +134,14 @@ function mixAB(items){
 }
 function guideHtml(cat){
  if(!bannerIds.has(layoutKey(cat)))return'';
- const g=state.settings?.bannerTypeGuide||{};
- const A=g.A||{},B=g.B||{};
+ const g=state.settings?.bannerTypeGuide||{},A=g.A||{},B=g.B||{};
  return '<details class="v2-type-guide"><summary>TYPE A / B 차이 보기</summary><div class="v2-type-guide-grid">'+
-  [['A',A,'심플형','장식과 패턴이 적은 깔끔한 구성'],['B',B,'기존 디자인형','패턴과 장식이 더 풍부한 구성']].map(([t,x,title,desc])=>
-   '<div class="v2-type-guide-item">'+(x.referenceFile?'<img src="'+esc(media(x.referenceFile))+'" alt="TYPE '+t+' 대표 이미지">':'')+
-   '<div><strong>TYPE '+t+' · '+esc(x.title||title)+'</strong><p>'+esc(x.description||desc)+'</p>'+(Number(x.price||0)>0?'<span>'+Number(x.price).toLocaleString('ko-KR')+'원</span>':'')+'</div></div>'
-  ).join('')+'</div></details>'
+  [['A',A,'장식과 패턴이 적은 깔끔한 구성'],['B',B,'패턴과 장식이 더 풍부한 구성']].map(([t,x,desc])=>{
+   const image=x.referenceImage||x.referenceFile||'';
+   return '<div class="v2-type-guide-item">'+
+    (image?'<img src="'+esc(media(image))+'" alt="TYPE '+t+' 통합 대표 이미지" loading="lazy" decoding="async">':'')+
+    '<div><strong>TYPE '+t+'</strong><p>'+esc(x.description||desc)+'</p></div></div>'
+  }).join('')+'</div></details>'
 }
 function imageSizeFor(x){
  if(x.__v2NaturalWidth&&x.__v2NaturalHeight)return Promise.resolve([x.__v2NaturalWidth,x.__v2NaturalHeight]);
@@ -184,51 +191,97 @@ function arrangeSplit(root){
   if(img?.complete&&img.naturalWidth)done();else if(img)img.addEventListener('load',done,{once:true});else done()
  })
 }
-function renderPortfolioCategory(id,scroll){
+async function loadRemotePortfolioPage(data){
+ const cfg=catConfig(data.cat),res=await fetchPortfolioPage(data.cat.id,data.page||1,cfg.perPage,data.filter||'ALL');
+ data.items=applyOrder(res.items||[],state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+ data.total=Number(res.total||data.items.length);
+ data.totalPages=Math.max(1,Number(res.totalPages||1));
+ data.availableFilters=Array.isArray(res.availableFilters)?res.availableFilters:[];
+ return data
+}
+async function renderPortfolioCategory(id,scroll,loadRemote=true){
  const data=state.portfolio.get(id);if(!data)return;
  const {cat}=data,k=layoutKey(cat),cfg=catConfig(cat);
- let items=data.items.filter(x=>pmeta(x).enabled);
- if(data.filter==='A'||data.filter==='B')items=items.filter(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===data.filter});
- else if(data.filter==='FIXED'&&k==='floating-banner')items=items.filter(x=>pmeta(x).isFixed);
- else if(bannerIds.has(k))items=mixAB(items);
- const pages=Math.max(1,Math.ceil(items.length/cfg.perPage));data.page=Math.min(Math.max(1,data.page||1),pages);
- const slice=items.slice((data.page-1)*cfg.perPage,data.page*cfg.perPage);
  const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');if(!sec)return;
- const presentTypes=bannerIds.has(k)?['A','B'].filter(t=>data.items.some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===t})):[];
- const hasFixed=k==='floating-banner'&&data.items.some(x=>pmeta(x).isFixed);
- const filterValues=bannerIds.has(k)?['ALL',...presentTypes,...(hasFixed?['FIXED']:[])]:[];
- if(data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1}
+ if(data.remote&&loadRemote){
+  sec.setAttribute('aria-busy','true');
+  try{await loadRemotePortfolioPage(data)}catch(e){sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>';sec.removeAttribute('aria-busy');return}
+ }
+ let items,pages,filterValues;
+ if(data.remote){
+  items=data.items||[];
+  pages=Math.max(1,Number(data.totalPages||1));
+  filterValues=bannerIds.has(k)?['ALL',...(data.availableFilters||[])]:[];
+ }else{
+  items=(data.items||[]).filter(x=>pmeta(x).enabled);
+  if(data.filter==='A'||data.filter==='B')items=items.filter(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===data.filter});
+  else if(data.filter==='FIXED'&&k==='floating-banner')items=items.filter(x=>pmeta(x).isFixed);
+  else if(bannerIds.has(k))items=mixAB(items);
+  const presentTypes=bannerIds.has(k)?['A','B'].filter(t=>(data.items||[]).some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===t})):[];
+  const hasFixed=k==='floating-banner'&&(data.items||[]).some(x=>pmeta(x).isFixed);
+  filterValues=bannerIds.has(k)?['ALL',...presentTypes,...(hasFixed?['FIXED']:[])]:[];
+  pages=Math.max(1,Math.ceil(items.length/cfg.perPage));
+  data.page=Math.min(Math.max(1,data.page||1),pages);
+  items=items.slice((data.page-1)*cfg.perPage,data.page*cfg.perPage)
+ }
+ if(data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1;if(data.remote)return renderPortfolioCategory(id,scroll,true)}
+ data.page=Math.min(Math.max(1,data.page||1),pages);
  const controls=bannerIds.has(k)?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':v==='FIXED'?'고정틀':'TYPE '+v)+'</button>').join('')+'</div>':'';
+ sec.hidden=false;
  sec.innerHTML='<div class="v2-cat-head"><h3>'+esc(cat.label)+'</h3>'+controls+'</div>'+guideHtml(cat)+
-  '<div class="v2-cat-grid '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+slice.map(x=>itemCard(x,cat)).join('')+'</div>'+
+  '<div class="v2-cat-grid v2-layout-'+k+' '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+items.map(x=>itemCard(x,cat)).join('')+'</div>'+
   pagination(id,pages,data.page);
- const grid=sec.querySelector('.v2-cat-grid');if(k==='bottom-split'&&grid&&slice.length)arrangeSplit(grid);
- sec.querySelectorAll('[data-v2-filter]').forEach(b=>b.onclick=()=>{const [,f]=b.dataset.v2Filter.split(':');data.filter=f;data.page=1;renderPortfolioCategory(id,true);announceActive('portfolio:'+id+':'+f)});
- sec.querySelectorAll('[data-v2-page]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop();data.page=token==='prev'?data.page-1:token==='next'?data.page+1:Number(token);renderPortfolioCategory(id,true)});
- sendDetailedSectionMap();
+ const grid=sec.querySelector('.v2-cat-grid');if(k==='bottom-split'&&grid&&items.length)arrangeSplit(grid);
+ sec.querySelectorAll('[data-v2-filter]').forEach(b=>b.onclick=async()=>{
+  const [,f]=b.dataset.v2Filter.split(':');data.filter=f;data.page=1;
+  await renderPortfolioCategory(id,true,true);announceActive('portfolio:'+id+':'+f)
+ });
+ sec.querySelectorAll('[data-v2-page]').forEach(b=>b.onclick=async()=>{
+  const token=b.dataset.v2Page.split(':').pop();
+  data.page=token==='prev'?data.page-1:token==='next'?data.page+1:Number(token);
+  await renderPortfolioCategory(id,true,true)
+ });
+ sec.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
+ sec.removeAttribute('aria-busy');
+ sendDetailedSectionMap();requestHeight();
  if(scroll)scrollToElement(sec)
 }
 async function renderPortfolio(){
  const root=$('#portfolioAllSections');if(!root)return;
- root.innerHTML='<p class="v2-loading">작품을 불러오는 중…</p>';
  state.portfolio.clear();
  const cats=visibleCats();
- for(const cat of cats){
-  let items=[];
-  if(layoutKey(cat)==='profile'){
-   const physical=(state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||'')));
-   for(const p of physical)items.push(...await fetchAll('portfolio',p.id).catch(()=>[]))
-  }else items=await fetchAll('portfolio',cat.id).catch(()=>[]);
-  items=applyOrder(items,state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
-  if(!items.length)continue;
-  if(layoutKey(cat)==='bottom-split')items=await preclassifyBottomSplit(items);
-  state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL'});
- }
- if(!state.portfolio.size){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
+ if(!cats.length){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
  $('#portfolioAllSectionV2').hidden=false;
- root.innerHTML=[...state.portfolio.entries()].map(([id,d])=>'<section class="v2-portfolio-category" data-v2-cat="'+esc(id)+'" id="portfolio-'+esc(id)+'"></section>').join('');
- state.portfolio.forEach((_,id)=>renderPortfolioCategory(id,false));
- announceNavData();sendDetailedSectionMap()
+ root.innerHTML=cats.map(cat=>'<section class="v2-portfolio-category" data-v2-cat="'+esc(cat.id)+'" id="portfolio-'+esc(cat.id)+'"><p class="v2-loading">작품을 불러오는 중…</p></section>').join('');
+ let shown=0;
+ const tasks=cats.map(async cat=>{
+  const k=layoutKey(cat),sec=document.querySelector('[data-v2-cat="'+CSS.escape(cat.id)+'"]');
+  try{
+   if(k==='profile'){
+    const physical=(state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||'')));
+    const batches=await Promise.all(physical.map(p=>fetchAll('portfolio',p.id).catch(()=>[])));
+    const items=applyOrder(batches.flat(),state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+    if(!items.length){sec.hidden=true;return}
+    state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});shown++;
+    await renderPortfolioCategory(cat.id,false,false);return
+   }
+   if(k==='bottom-split'){
+    let items=applyOrder(await fetchAll('portfolio',cat.id).catch(()=>[]),state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+    if(!items.length){sec.hidden=true;return}
+    items=await preclassifyBottomSplit(items);
+    state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});shown++;
+    await renderPortfolioCategory(cat.id,false,false);return
+   }
+   const cfg=catConfig(cat),res=await fetchPortfolioPage(cat.id,1,cfg.perPage,'ALL');
+   const items=applyOrder(res.items||[],state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+   if(!items.length){sec.hidden=true;return}
+   state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:true,total:Number(res.total||items.length),totalPages:Math.max(1,Number(res.totalPages||1)),availableFilters:Array.isArray(res.availableFilters)?res.availableFilters:[]});
+   shown++;await renderPortfolioCategory(cat.id,false,false)
+  }catch(e){if(sec)sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'}
+ });
+ await Promise.all(tasks);
+ if(!shown){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
+ announceNavData();sendDetailedSectionMap();requestHeight()
 }
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
@@ -246,7 +299,7 @@ async function renderShowcase(){
   if(!areaEnabled)continue;
   const arr=state.showcase[kind];
   const featured=arr.filter(x=>smeta(x).featured),rest=arr.filter(x=>!smeta(x).featured),ordered=[...featured,...rest];
-  const limit=state.mobile?Number(state.settings.showcaseInitialMobile||2):Number(state.settings.showcaseInitialDesktop||4);
+  const limit=state.mobile?(kind==='preset'?4:Number(state.settings.showcaseInitialMobile||2)):Number(state.settings.showcaseInitialDesktop||4);
   const shown=state.expanded[kind]?ordered:ordered.slice(0,limit);
   const expandEnabled=kind==='preset'?state.settings.showcasePresetExpandEnabled!==false:state.settings.showcaseFixedExpandEnabled!==false;
   const description=kind==='preset'
@@ -287,14 +340,15 @@ function navigate(target){
  if(target==='portfolio')return scrollToElement($('#portfolioAllSectionV2'));
  if(target==='banner:A'||target==='banner:B'){
   const type=target.slice(-1);
-  const entry=[...state.portfolio.entries()].find(([id,d])=>bannerIds.has(layoutKey(d.cat))&&d.items.some(x=>pmeta(x).bannerType===type));
+  const entry=[...state.portfolio.entries()].find(([id,d])=>bannerIds.has(layoutKey(d.cat))&&(d.remote?(d.availableFilters||[]).includes(type):(d.items||[]).some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType===type})));
   if(!entry)return;
-  const [id,d]=entry;d.filter=type;d.page=1;renderPortfolioCategory(id,false);
-  return scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
+  const [id,d]=entry;d.filter=type;d.page=1;
+  renderPortfolioCategory(id,false,true).then(()=>scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]')));
+  return
  }
  if(target.startsWith('portfolio:')){
   const [,id,type]=target.split(':');const d=state.portfolio.get(id);
-  if(d&&type&&['A','B','ALL','FIXED'].includes(type)){d.filter=type;d.page=1;renderPortfolioCategory(id,false)}
+  if(d&&type&&['A','B','ALL','FIXED'].includes(type)){d.filter=type;d.page=1;renderPortfolioCategory(id,false,true).then(()=>scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]')));return}
   return scrollToElement(document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]'))
  }
 }
@@ -319,7 +373,13 @@ function sendDetailedSectionMap(){
  try{if(window.parent!==window)window.parent.postMessage({type:'artmug-v2-section-map',role,sections},'*')}catch{}
 }
 function announceNavData(){
- const cats=[...state.portfolio.entries()].map(([id,d])=>({id,label:d.cat.label,banner:bannerIds.has(layoutKey(d.cat)),hasA:d.items.some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='A'}),hasB:d.items.some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='B'}),hasFixed:layoutKey(d.cat)==='floating-banner'&&d.items.some(x=>pmeta(x).isFixed)}));
+ const cats=[...state.portfolio.entries()].map(([id,d])=>{
+  const filters=d.remote?(d.availableFilters||[]):null;
+  return {id,label:d.cat.label,banner:bannerIds.has(layoutKey(d.cat)),
+   hasA:filters?filters.includes('A'):(d.items||[]).some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='A'}),
+   hasB:filters?filters.includes('B'):(d.items||[]).some(x=>{const m=pmeta(x);return !m.isFixed&&m.bannerType==='B'}),
+   hasFixed:layoutKey(d.cat)==='floating-banner'&&(filters?filters.includes('FIXED'):(d.items||[]).some(x=>pmeta(x).isFixed))}
+ });
  const payload={type:'nav-data',preset:state.showcase.preset.length>0,fixed:state.showcase.fixed.length>0,categories:cats};
  try{window.__v2nav?.postMessage(payload)}catch{}
 }
