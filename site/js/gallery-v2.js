@@ -7,7 +7,7 @@ const $$=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/'):'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const state={settings:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
+const state={settings:null,navSummary:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
 const portfolioOrder=['profile','top-banner','floating-banner','bottom-banner','bottom-split','four-cut'];
 const bannerIds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
@@ -249,7 +249,16 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
 async function renderPortfolio(){
  const root=$('#portfolioAllSections');if(!root)return;
  state.portfolio.clear();
- const cats=visibleCats();
+ let cats=visibleCats();
+ const counts=state.navSummary?.categoryCounts;
+ if(counts&&typeof counts==='object'){
+  cats=cats.filter(cat=>{
+   if(layoutKey(cat)==='profile'){
+    return (state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).some(c=>Number(counts[c.id]||0)>0)
+   }
+   return Number(counts[cat.id]||0)>0
+  })
+ }
  if(!cats.length){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
  $('#portfolioAllSectionV2').hidden=false;
  root.innerHTML=cats.map(cat=>'<section class="v2-portfolio-category" data-v2-cat="'+esc(cat.id)+'" id="portfolio-'+esc(cat.id)+'"><p class="v2-loading">작품을 불러오는 중…</p></section>').join('');
@@ -515,7 +524,12 @@ window.__ARTMUG_V2__={
 };
 async function init(){
  initNav();
- const d=await api('/api/public/settings?fresh='+Date.now());state.settings=d.settings||{};
+ const [d,nav]=await Promise.all([
+  api('/api/public/settings?fresh='+Date.now()),
+  api('/api/public/nav-summary').catch(()=>null)
+ ]);
+ state.settings=d.settings||{};
+ state.navSummary=nav||null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const showcasePromise=renderShowcase(),portfolioPromise=renderPortfolio();
  await showcasePromise;
