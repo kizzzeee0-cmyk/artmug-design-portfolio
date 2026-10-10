@@ -55,6 +55,12 @@ body{display:flex;justify-content:flex-start;align-items:flex-start;min-height:1
   root.innerHTML=h;root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target))
  }
  if(ch)ch.addEventListener('message',e=>{if(e.data?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===e.data.target))});
+ window.addEventListener('message',e=>{
+  const d=e.data;
+  if(d&&d.type==='artmug-active-section'&&d.target){
+   root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))
+  }
+ });
  init().catch(()=>{root.innerHTML='<button type="button" data-target="notice">공지사항</button><div class="divider"></div><button type="button" class="inquiry-button" data-target="inquiry">문의 양식</button><button type="button" class="top-button" data-target="top">↑ TOP</button>';root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>send(b.dataset.target))})
 })();
 </script></body></html>
