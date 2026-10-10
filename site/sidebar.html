@@ -47,7 +47,7 @@ function summarize(settings,index,presets){
  const bannerWorks=works.filter(x=>banners.has(layout(catById.get(x.category))));
  const presetItems=(Array.isArray(presets)?presets:[]).filter(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false);
  return {
-  hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.some(x=>((pm[x.file]||{}).showcaseKind||(x.category==='floating-banner'?'fixed':'preset'))!=='fixed'),
+  hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.some(x=>((pm[x.file]||{}).showcaseKind||'preset')!=='fixed'),
   hasFixed:settings.presetEnabled!==false&&settings.showcaseFixedEnabled!==false&&presetItems.some(x=>((pm[x.file]||{}).showcaseKind||(x.category==='floating-banner'?'fixed':'preset'))==='fixed'),
   hasA:bannerWorks.some(x=>(meta[x.file]||{}).isFixed!==true&&((meta[x.file]||{}).bannerType||'B')==='A'),
   hasB:bannerWorks.some(x=>(meta[x.file]||{}).isFixed!==true&&((meta[x.file]||{}).bannerType||'B')==='B'),
@@ -62,7 +62,7 @@ function send(target){
 }
 function listFrom(d){
  const list=[{label:'공지사항',target:'notice'}];
- if(d.hasPreset||d.hasFixed)list.push({label:'프리셋 · 고정틀',target:'showcase'});
+ if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase'});
  if(d.hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
  if(d.hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
  if(d.fourCutId)list.push({label:'인생네컷',target:'portfolio:'+d.fourCutId});
