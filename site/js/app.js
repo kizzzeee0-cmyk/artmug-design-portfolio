@@ -48,8 +48,7 @@ function initArtmugEmbedMode(){
       notice:sectionTop(document.querySelector('.notice-card')),
       inquiry:sectionTop(document.getElementById('inquirySection')||document.querySelector('.form-card')),
       portfolio:sectionTop(document.getElementById('portfolioAllSectionV2')||document.getElementById('portfolioSection')),
-      preset:sectionTop(document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection')),
-      fixed:sectionTop(document.getElementById('showcase-fixed'))
+      preset:sectionTop(document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection'))
     };
     const role=document.body.classList.contains('artmug-part-inquiry')
       ?'inquiry'
@@ -158,8 +157,7 @@ function artmugNavTarget(name){
     inquiry:document.getElementById('inquirySection')||document.querySelector('.form-card'),
     portfolio:document.getElementById('portfolioAllSectionV2')||document.getElementById('portfolioSection'),
     showcase:document.getElementById('showcaseSectionV2'),
-    preset:document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection'),
-    fixed:document.getElementById('showcase-fixed')
+    preset:document.getElementById('showcase-preset')||document.getElementById('showcaseSectionV2')||document.getElementById('presetSection')
   };
   return map[name]||null
 }
@@ -837,7 +835,7 @@ function presetMetaForItem(x){
 function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
   sec.hidden=!on;
-  set('presetTitle',s.presetTitle||'고정틀 프리셋');
+  set('presetTitle',s.presetTitle||'미판매 프리셋');
   const notice=$('presetNotice'),noticeText=String(s.presetNotice||'').trim();
   notice.textContent=noticeText;
   notice.hidden=!noticeText;
