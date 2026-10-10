@@ -279,6 +279,27 @@
       "pcPerPage": 15,
       "mobileColumns": 3,
       "mobilePerPage": 9
+    },
+    {
+      "id": "type-guide-assets",
+      "label": "TYPE 안내 이미지",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 1200,
+      "displayHeight": 800,
+      "pcColumns": 1,
+      "pcPerPage": 1,
+      "mobileColumns": 1,
+      "mobilePerPage": 1,
+      "strictSize": false,
+      "uploadWidth": 0,
+      "uploadHeight": 0,
+      "formats": [
+        "png",
+        "jpeg",
+        "webp"
+      ],
+      "emptyText": ""
     }
   ],
   "aboutImage": "",
