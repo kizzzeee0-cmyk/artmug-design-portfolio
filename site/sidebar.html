@@ -6,7 +6,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:#344651;overflow-x:hidden}
 body{display:flex;align-items:flex-start;justify-content:flex-start;min-height:100vh}
-.quick-nav{position:sticky;top:8px;width:100%;max-width:194px;min-width:0;padding:14px;border:1px solid #d6e9f5;border-radius:28px;background:#fff}
+.quick-nav{position:sticky;top:8px;width:calc(100% - 8px);max-width:194px;min-width:0;margin-left:8px;padding:14px;border:1px solid #d6e9f5;border-radius:28px;background:#fff}
 .nav-list{display:grid;gap:7px}
 .quick-nav button{display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;padding:10px 9px;border:0;border-radius:999px;background:#edf8fd;color:#407e9f;font:inherit;font-size:12px;font-weight:700;line-height:1.35;text-align:center;cursor:pointer}
 .quick-nav button:hover,.quick-nav button:focus-visible{background:#deeffa;color:#2e718f;outline:2px solid transparent}
@@ -26,64 +26,40 @@ body{display:flex;align-items:flex-start;justify-content:flex-start;min-height:1
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList');
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v3';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const layout=c=>{
- const id=String(c.id||''),label=String(c.label||'').replace(/\s/g,'');
- if(id==='top-banner'||label.includes('상단배너'))return'top-banner';
- if(id==='floating-banner'||label.includes('플로팅'))return'floating-banner';
- if(id==='bottom-banner'||label.includes('하단배너일반'))return'bottom-banner';
- if(id==='bottom-split'||label.includes('하단배너분할'))return'bottom-split';
- if(/4cut|four-cut/.test(id)||label.includes('인생네컷'))return'four-cut';
- return id;
-};
-const bannerKinds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
 function send(target){
  if(ch)ch.postMessage({type:'navigate',target});
  try{for(let i=0;i<window.top.length;i++)try{window.top.frames[i].postMessage({type:'artmug-section-nav',target},'*')}catch{}}catch{}
  try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{}
  root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))
 }
+function listFrom(d){
+ const list=[{label:'공지사항',target:'notice'}];
+ if(d.hasPreset)list.push({label:'미판매 프리셋',target:'showcase-preset'});
+ if(d.hasFixed)list.push({label:'고정틀',target:'showcase-fixed'});
+ if(d.hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
+ if(d.hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
+ if(d.fourCutId)list.push({label:'인생네컷',target:'portfolio:'+d.fourCutId});
+ list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
+ return list
+}
 function show(items){
  root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+x.label+'</button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)))
 }
-async function all(cat){
- let url='/api/public/portfolio?category='+encodeURIComponent(cat)+'&page=1&perPage=60';
- const first=await api(url),arr=[...(first.items||[])];
- for(let p=2;p<=Number(first.totalPages||1);p++){
-  const next=await api('/api/public/portfolio?category='+encodeURIComponent(cat)+'&page='+p+'&perPage=60');
-  arr.push(...(next.items||[]))
- }
- return arr
+function cached(){
+ try{const x=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<60000?x.data:null}catch{return null}
 }
+function saveCache(data){try{sessionStorage.setItem(CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}}
 async function init(){
- const d=await api('/api/public/settings?fresh='+Date.now()),s=d.settings||{},m=s.portfolioMeta||{};
- const cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy);
- const bannerItems=[],four=[];
- for(const c of cats){
-  const k=layout(c);
-  if(!bannerKinds.has(k)&&k!=='four-cut')continue;
-  const arr=(await all(c.id).catch(()=>[])).filter(x=>(m[x.file]||{}).enabled!==false);
-  if(k==='four-cut')four.push({id:c.id,items:arr});
-  else bannerItems.push(...arr)
- }
- const hasA=bannerItems.some(x=>(m[x.file]||{}).isFixed!==true&&((m[x.file]||{}).bannerType||'B')==='A');
- const hasB=bannerItems.some(x=>(m[x.file]||{}).isFixed!==true&&((m[x.file]||{}).bannerType||'B')==='B');
- const hasFour=four.find(x=>x.items.length);
- const list=[{label:'공지사항',target:'notice'}];
- if(s.presetEnabled!==false&&s.showcasePresetEnabled!==false)list.push({label:'미판매 프리셋',target:'showcase-preset'});
- if(s.presetEnabled!==false&&s.showcaseFixedEnabled!==false)list.push({label:'고정틀',target:'showcase-fixed'});
- if(hasA)list.push({label:'배너 TYPE A',target:'banner:A'});
- if(hasB)list.push({label:'배너 TYPE B',target:'banner:B'});
- if(hasFour)list.push({label:'인생네컷',target:'portfolio:'+hasFour.id});
- list.push({divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'});
- show(list)
+ const old=cached();if(old)show(listFrom(old));
+ try{const d=await api('/api/public/nav-summary');saveCache(d);show(listFrom(d))}
+ catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}])}
 }
-if(ch)ch.addEventListener('message',e=>{
- const d=e.data;if(d?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))
-});
-init().catch(()=>show([{label:'공지사항',target:'notice'},{label:'미판매 프리셋',target:'showcase-preset'},{label:'고정틀',target:'showcase-fixed'},{divider:true},{label:'문의 양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP ↑',target:'top',cls:'top-button'}]));
-})();
+if(ch)ch.addEventListener('message',e=>{const d=e.data;if(d?.type==='active')root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))});
+window.addEventListener('message',e=>{const d=e.data;if(d&&d.type==='artmug-active-section'&&d.target)root.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.target===d.target))});
+init()
+})();;
 </script></body></html>
