@@ -834,3 +834,50 @@ body.artmug-part-portfolio #inquirySection{
     font-size:7px!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-10 portfolio filter alignment v2
+   ========================================================= */
+
+/* PC + mobile: category title first, filter row centered directly underneath. */
+.v2-cat-head{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  text-align:center;
+}
+.v2-cat-head h3{
+  align-self:center!important;
+  justify-self:auto!important;
+  text-align:center!important;
+}
+.v2-cat-head .v2-type-filter{
+  align-self:center!important;
+  justify-self:auto!important;
+  justify-content:center!important;
+  width:100%;
+}
+
+/* TYPE A/B comparison guide stays left aligned. */
+.v2-type-guide,
+.v2-type-guide summary{
+  text-align:left!important;
+}
+.v2-type-guide summary{
+  margin-left:0!important;
+  margin-right:auto!important;
+}
+
+/* Floating fixed-frame badge: +0.5px from the current size. */
+.v2-work-tags .v2-fixed-badge{
+  font-size:8.5px!important;
+}
+
+@media(max-width:680px){
+  .v2-work-tags .v2-fixed-badge{
+    font-size:7.5px!important;
+  }
+}
