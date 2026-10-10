@@ -5405,7 +5405,7 @@ body.artmug-part-inquiry .form-actions{
 /* Keep mobile stacked while preserving the same exact relationship. */
 @media(max-width:680px){
   :root{
-    --inquiry-placeholder-size:13px;
+    --inquiry-placeholder-size:12px;
   }
   .inquiry-concept-color-row{
     grid-template-columns:1fr!important;
@@ -5779,7 +5779,7 @@ body.artmug-part-inquiry .form-actions{
   /* Notice body matches the mobile inquiry placeholder size. */
   .notice-card #noticeText,
   .notice-card .notice-item-description{
-    font-size:13px!important;
+    font-size:12px!important;
     line-height:1.55!important;
     letter-spacing:-.01em;
   }
