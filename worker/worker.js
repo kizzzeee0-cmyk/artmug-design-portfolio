@@ -147,6 +147,8 @@ async function publicNavSummary(env){
   const bannerWorks=works.filter(x=>bannerKinds.has(publicCategoryLayout(catById.get(x.category))));
   const hasA=bannerWorks.some(x=>{const m=meta[x.file]||{};return m.isFixed!==true&&(m.bannerType||'B')==='A'});
   const hasB=bannerWorks.some(x=>{const m=meta[x.file]||{};return m.isFixed!==true&&(m.bannerType||'B')==='B'});
+  const categoryCounts={};
+  works.forEach(x=>{categoryCounts[x.category]=(categoryCounts[x.category]||0)+1});
   const four=works.find(x=>publicCategoryLayout(catById.get(x.category))==='four-cut');
   const presetItems=(Array.isArray(presets)?presets:[]).filter(x=>{
     const m=pm[x.file]||{};
@@ -160,7 +162,7 @@ async function publicNavSummary(env){
     const m=pm[x.file]||{};
     return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))==='fixed'
   });
-  return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||''},200,{'Cache-Control':'public,max-age=30,stale-while-revalidate=120'})
+  return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts},200,{'Cache-Control':'public,max-age=30,stale-while-revalidate=120'})
 }
 async function media(path,env){const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`);if(!r.ok)return new Response('Not found',{status:404});const h=new Headers({'Cache-Control':'public,max-age=31536000,immutable'}),ct=r.headers.get('Content-Type');if(ct)h.set('Content-Type',ct);return new Response(r.body,{status:200,headers:h})}
 function b64(buf){const bytes=new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
