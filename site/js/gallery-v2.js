@@ -448,6 +448,7 @@ function injectInquiry(card){
   }).join('')+'</div>'
  }
  if(box.dataset.renderSignature!==html){box.innerHTML=html;box.dataset.renderSignature=html}
+ box.hidden=!String(html||'').trim();
  const profileOnly=hasProfile&&types.length===1&&profileMode==='preset';
  fields.querySelectorAll('.concept-request-field,.frame-retention-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileOnly));
  box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{card.dataset.profileMode=i.value;injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())});
