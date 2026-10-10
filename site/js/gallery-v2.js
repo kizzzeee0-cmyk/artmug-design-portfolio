@@ -139,7 +139,7 @@ function guideHtml(cat){
  const g=state.settings?.bannerTypeGuide||{},A=g.A||{},B=g.B||{};
  return '<details class="v2-type-guide"><summary>TYPE A / B 차이 보기</summary><div class="v2-type-guide-grid">'+
   [['A',A,'장식과 패턴이 적은 깔끔한 구성'],['B',B,'패턴과 장식이 더 풍부한 구성']].map(([t,x,desc])=>{
-   const image=x.referenceImage||x.referenceFile||'';
+   const image=x.referenceImage||'';
    return '<div class="v2-type-guide-item">'+
     (image?'<img src="'+esc(media(image))+'" alt="TYPE '+t+' 통합 대표 이미지" loading="lazy" decoding="async">':'')+
     '<div><strong>TYPE '+t+'</strong><p>'+esc(x.description||desc)+'</p></div></div>'
@@ -539,9 +539,12 @@ async function init(){
  state.portfolioIndex=Array.isArray(portfolioIndex)?portfolioIndex:null;
  state.presetIndex=Array.isArray(presetIndex)?presetIndex:null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
- const showcasePromise=renderShowcase(),portfolioPromise=renderPortfolio();
+ const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
+ const portfolioPart=document.body.classList.contains('artmug-part-portfolio');
+ const showcasePromise=renderShowcase();
+ const portfolioPromise=inquiryPart?Promise.resolve():renderPortfolio();
  await showcasePromise;
- initInquiryObserver();
+ if(!portfolioPart)initInquiryObserver();
  await portfolioPromise;
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
