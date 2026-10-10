@@ -696,8 +696,8 @@ function presetLocationText(x){
 }
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
-  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`),desc=document.querySelector(`[data-preset-desc="${i}"]`);
-  const patch={name:name?name.value.trim():meta.name,description:desc?desc.value.trim():meta.description};
+  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`);
+  const patch={name:name?name.value.trim():meta.name};
 
   const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
@@ -705,7 +705,7 @@ async function savePresetItem(i){
     latest.presetMeta[x.file]={...prev,...patch}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
-  showToast('프리셋 정보가 저장되었습니다.');
+  showToast('프리셋 이름이 저장되었습니다.');
   renderPresetItems()
 }
 async function savePresetBadgeToggle(i,key,value){
