@@ -4,6 +4,41 @@
 
   const CHILD_ORIGIN='https://artmug-portfolio.pages.dev';
 
+  const sectionMaps=new Map();
+  let activeRaf=0;
+
+  function broadcastToArtmugFrames(message){
+    document.querySelectorAll('iframe').forEach(function(frame){
+      try{
+        const src=String(frame.getAttribute('src')||frame.src||'');
+        if(src.includes('artmug-portfolio.pages.dev'))frame.contentWindow.postMessage(message,CHILD_ORIGIN)
+      }catch(e){}
+    })
+  }
+
+  function updateActiveSection(){
+    cancelAnimationFrame(activeRaf);
+    activeRaf=requestAnimationFrame(function(){
+      const y=window.scrollY+Math.min(180,Math.max(70,window.innerHeight*.18));
+      const candidates=[];
+      sectionMaps.forEach(function(sections,frame){
+        if(!frame||!frame.isConnected)return;
+        const base=Math.round(frame.getBoundingClientRect().top+window.scrollY);
+        (sections||[]).forEach(function(x){
+          const top=base+Math.max(0,Number(x.offset)||0);
+          candidates.push({target:String(x.target||''),top:top})
+        })
+      });
+      if(!candidates.length)return;
+      candidates.sort((a,b)=>a.top-b.top);
+      let active=candidates[0];
+      for(const x of candidates){if(x.top<=y)active=x;else break}
+      if(active&&active.target)broadcastToArtmugFrames({type:'artmug-active-section',target:active.target})
+    })
+  }
+  window.addEventListener('scroll',updateActiveSection,{passive:true});
+  window.addEventListener('resize',updateActiveSection,{passive:true});
+
   function iframeForSource(source,role){
     const frames=Array.from(document.querySelectorAll('iframe'));
 
@@ -66,6 +101,15 @@
     if(data&&typeof data==='object'&&data.type==='artmug-portfolio-height'){
       const frame=iframeForSource(e.source,String(data.role||''));
       applyIframeHeight(frame,data.height);
+      return
+    }
+
+    if(data&&typeof data==='object'&&data.type==='artmug-v2-section-map'){
+      const frame=iframeForSource(e.source,String(data.role||''));
+      if(frame){
+        sectionMaps.set(frame,Array.isArray(data.sections)?data.sections:[]);
+        updateActiveSection()
+      }
       return
     }
 
