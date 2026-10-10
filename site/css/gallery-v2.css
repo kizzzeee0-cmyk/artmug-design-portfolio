@@ -1272,3 +1272,14 @@ body.artmug-part-portfolio #inquirySection{
     white-space:normal!important;
   }
 }
+
+
+/* 2026-10-10 match preset helper text to inquiry helper text */
+.showcase-section-v2 .v2-showcase-main-description{
+  font-size:var(--public-help-size,15px)!important;
+}
+@media(max-width:680px){
+  .showcase-section-v2 .v2-showcase-main-description{
+    font-size:var(--public-help-size-mobile,14px)!important;
+  }
+}
