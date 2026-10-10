@@ -74,11 +74,15 @@ function presetMetaFor(x){
     enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,
     isNew:meta.isNew===true,
     isReserved:meta.isReserved===true,
-    colorChangeAvailable:meta.colorChangeAvailable===true
+    isSold:meta.isSold===true,
+    colorChangeAvailable:meta.colorChangeAvailable===true,
+    showcaseKind:['preset','fixed'].includes(meta.showcaseKind)?meta.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'),
+    featured:meta.featured===true,
+    bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:''
   }
 }
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
-function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:''}}
+function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:'',bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:'B',enabled:meta.enabled!==false,featured:meta.featured===true}}
 function isProfilePortfolioCategory(id){return /^profile(?:-|$)/.test(String(id||''))}
 function logicalPortfolioCategory(id){return isProfilePortfolioCategory(id)?'profile':id}
 
@@ -296,7 +300,7 @@ $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+a
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('배너 입력 문구 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'미판매 프리셋';$('presetNotice').value=S.presetNotice||'';$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;loadItems();}
 function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
 function renderTypes(){
   $('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit">
@@ -330,7 +334,8 @@ function renderTypes(){
   })
 }
 function catRow(c,i,prefix='cat'){
-  return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label><label>ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label><label>표시 가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>표시 세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label><label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`
+  const layoutFields=prefix==='cat'?'<label>PC 한 줄<input type="number" min="1" max="12" data-'+prefix+'-pc-cols="'+i+'" value="'+Number(c.pcColumns||4)+'"></label><label>PC 페이지<input type="number" min="1" data-'+prefix+'-pc-page="'+i+'" value="'+Number(c.pcPerPage||16)+'"></label><label>모바일 한 줄<input type="number" min="1" max="8" data-'+prefix+'-mo-cols="'+i+'" value="'+Number(c.mobileColumns||2)+'"></label><label>모바일 페이지<input type="number" min="1" data-'+prefix+'-mo-page="'+i+'" value="'+Number(c.mobilePerPage||10)+'"></label>':'';
+  return `<div class="cat-row"><label>이름<input data-${prefix}-label="${i}" value="${adminEsc(c.label||'')}"></label><label>ID<input data-${prefix}-id="${i}" value="${adminEsc(c.id||'')}"></label><label>표시 가로<input type="number" data-${prefix}-w="${i}" value="${c.displayWidth||200}"></label><label>표시 세로<input type="number" data-${prefix}-h="${i}" value="${c.displayHeight||200}"></label>${layoutFields}<label class="mini-toggle"><input type="checkbox" data-${prefix}-enabled="${i}" ${c.enabled!==false?'checked':''}> 공개</label><div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="-1" aria-label="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-${prefix}="${i}" data-dir="1" aria-label="아래로 이동">↓</button></div><button class="danger" data-del-${prefix}="${i}">삭제</button></div>`
 }
 function moveCategory(arr,prefix,index,dir){
   collectCats(arr,prefix);
@@ -543,9 +548,9 @@ async function copyQuote(){
 }
 
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
-function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked})}
+function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
-  collect();collectWorkStatusAdmin();collectScheduleAdmin();collectBackgroundGuide();collectCats(S.portfolioCategories||[],'cat');
+  collect();collectWorkStatusAdmin();collectScheduleAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
   S.presetEnabled=$('presetEnabled').checked;
   S.presetTitle=$('presetTitle').value;
   S.presetNotice=$('presetNotice').value;
@@ -562,7 +567,7 @@ async function saveSettings(){
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
   collectCats(S.presetCategories||[],'preset');collectPresetGroups();
-  delete S.backgroundGuide;delete S.comparisonAImage;delete S.comparisonBImage;delete S.portfolioMeta;delete S.presetColorMeta;delete S.presetVariantFiles;
+  delete S.backgroundGuide;delete S.comparisonAImage;delete S.comparisonBImage;delete S.presetColorMeta;delete S.presetVariantFiles;
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
