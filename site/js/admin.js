@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],quoteState={};const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
+const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],quoteState={};let portfolioAdminPage=1,presetAdminPage=1;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
 function validatePresetUploadFile(file){
   if(!file)throw new Error('업로드할 파일을 선택해주세요.');
@@ -162,33 +162,81 @@ function ensureBannerTypeGuide(){
     if(x.title==null)x.title=t==='A'?'심플형':'기존 디자인형';
     if(x.description==null)x.description=t==='A'?'장식과 패턴이 비교적 적고 깔끔하게 정돈된 디자인':'다양한 패턴과 장식을 조합한 기존 스타일의 디자인';
     if(x.price==null)x.price=0;
-    if(x.referenceFile==null)x.referenceFile=''
+    if(x.referenceFile==null)x.referenceFile='';
+    if(x.referenceImage==null)x.referenceImage=''
   });
   return S.bannerTypeGuide
 }
 function renderBannerTypeGuideAdmin(){
   const root=$('bannerTypeGuideAdmin');if(!root)return;
   const g=ensureBannerTypeGuide();
-  const bannerItems=items.filter(x=>['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category));
   root.innerHTML=['A','B'].map(t=>{
-    const x=g[t]||{};
-    const options='<option value="">대표 이미지 없음</option>'+bannerItems.map(v=>'<option value="'+adminEsc(v.file)+'" '+(x.referenceFile===v.file?'selected':'')+'>'+adminEsc(v.originalName||v.file)+'</option>').join('');
-    return '<div class="banner-type-admin-card"><h4>TYPE '+t+'</h4><div class="fields">'+
-      '<label>표시 이름<input data-banner-guide-title="'+t+'" value="'+adminEsc(x.title||'')+'"></label>'+
-      '<label>가격<input type="number" step="100" data-banner-guide-price="'+t+'" value="'+Number(x.price||0)+'"></label>'+
-      '<label class="wide">설명<textarea data-banner-guide-desc="'+t+'">'+adminEsc(x.description||'')+'</textarea></label>'+
-      '<label class="wide">대표 이미지<select data-banner-guide-ref="'+t+'">'+options+'</select></label>'+
-    '</div></div>'
-  }).join('')
+    const x=g[t]||{},kind='type-guide-'+t.toLowerCase(),has=!!x.referenceImage;
+    return '<div class="banner-type-admin-card">'+
+      '<div class="banner-type-admin-card-head"><h4>TYPE '+t+'</h4><span class="muted">통합 대표 이미지</span></div>'+
+      '<div class="banner-type-guide-preview '+(has?'has-image':'')+'">'+
+        (has?'<img src="'+API+'/media/'+x.referenceImage.split('/').map(encodeURIComponent).join('/')+'" alt="TYPE '+t+' 대표 이미지" loading="lazy">':'<span>대표 이미지 없음</span>')+
+      '</div>'+
+      '<div class="banner-type-image-actions">'+
+        '<input id="bannerTypeGuideFile'+t+'" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">'+
+        '<button type="button" class="ghost admin-compact" data-upload-banner-guide="'+t+'">'+(has?'이미지 변경':'이미지 업로드')+'</button>'+
+        '<button type="button" class="danger admin-compact" data-delete-banner-guide="'+t+'" '+(has?'':'disabled')+'>이미지 삭제</button>'+
+      '</div>'+
+      '<label class="banner-type-guide-description">TYPE '+t+' 설명<textarea data-banner-guide-desc="'+t+'">'+adminEsc(x.description||'')+'</textarea></label>'+
+    '</div>'
+  }).join('');
+  root.querySelectorAll('[data-upload-banner-guide]').forEach(b=>b.onclick=()=>uploadBannerTypeGuideImage(b.dataset.uploadBannerGuide));
+  root.querySelectorAll('[data-delete-banner-guide]').forEach(b=>b.onclick=()=>deleteBannerTypeGuideImage(b.dataset.deleteBannerGuide))
 }
 function collectBannerTypeGuideAdmin(){
   if(!$('bannerTypeGuideAdmin'))return;
   const g=ensureBannerTypeGuide();
   ['A','B'].forEach(t=>{
-    g[t].title=document.querySelector('[data-banner-guide-title="'+t+'"]')?.value||'';
-    g[t].price=Number(document.querySelector('[data-banner-guide-price="'+t+'"]')?.value||0);
-    g[t].description=document.querySelector('[data-banner-guide-desc="'+t+'"]')?.value||'';
-    g[t].referenceFile=document.querySelector('[data-banner-guide-ref="'+t+'"]')?.value||''
+    const d=document.querySelector('[data-banner-guide-desc="'+t+'"]');
+    if(d)g[t].description=d.value
+  })
+}
+async function uploadBannerTypeGuideImage(t){
+  t=String(t||'').toUpperCase();
+  const input=$('bannerTypeGuideFile'+t),file=input?.files?.[0];
+  if(!file)return alert('업로드할 대표 이미지를 선택해주세요.');
+  const ext=String(file.name||'').split('.').pop().toLowerCase();
+  if(!['png','jpg','jpeg','webp'].includes(ext))return alert('PNG, JPG, JPEG, WEBP 이미지만 업로드할 수 있습니다.');
+  collectBannerTypeGuideAdmin();
+  const fd=new FormData();fd.append('file',file);fd.append('kind','type-guide-'+t.toLowerCase());
+  try{
+    const r=await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
+    const g=ensureBannerTypeGuide();g[t].referenceImage=String(d.path||'');
+    renderBannerTypeGuideAdmin();showToast('TYPE '+t+' 대표 이미지가 저장되었습니다.')
+  }catch(e){alert('대표 이미지 업로드에 실패했습니다.\n'+e.message)}
+}
+async function deleteBannerTypeGuideImage(t){
+  t=String(t||'').toUpperCase();
+  if(!confirm('TYPE '+t+' 대표 이미지를 삭제할까요?'))return;
+  collectBannerTypeGuideAdmin();
+  try{
+    const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind:'type-guide-'+t.toLowerCase()})});
+    ensureBannerTypeGuide()[t].referenceImage='';
+    renderBannerTypeGuideAdmin();showToast('TYPE '+t+' 대표 이미지를 삭제했습니다.')
+  }catch(e){alert('대표 이미지 삭제에 실패했습니다.\n'+e.message)}
+}
+function adminPaginationHtml(page,totalPages){
+  if(totalPages<=1)return'';
+  const maxDots=12,start=Math.max(1,Math.min(totalPages-maxDots+1,page-Math.floor(maxDots/2))),end=Math.min(totalPages,start+maxDots-1);
+  let dots='';
+  for(let i=start;i<=end;i++)dots+='<button type="button" class="admin-page-dot '+(i===page?'is-active':'')+'" data-admin-page="'+i+'" aria-label="'+i+'페이지"></button>';
+  return '<button type="button" class="admin-page-arrow" data-admin-page="prev" '+(page<=1?'disabled':'')+'>‹</button><div class="admin-page-dots">'+dots+'</div><span class="admin-page-counter">'+page+' / '+totalPages+'</span><button type="button" class="admin-page-arrow" data-admin-page="next" '+(page>=totalPages?'disabled':'')+'>›</button>'
+}
+function bindAdminPagination(rootId,type,page,totalPages){
+  const root=$(rootId);if(!root)return;
+  root.innerHTML=adminPaginationHtml(page,totalPages);
+  root.hidden=totalPages<=1;
+  root.querySelectorAll('[data-admin-page]').forEach(b=>b.onclick=()=>{
+    const token=b.dataset.adminPage,next=token==='prev'?page-1:token==='next'?page+1:Number(token);
+    if(type==='portfolio'){portfolioAdminPage=Math.max(1,Math.min(totalPages,next));renderItems()}
+    else{presetAdminPage=Math.max(1,Math.min(totalPages,next));renderPresetItems()}
+    document.getElementById(type==='portfolio'?'items':'presetItems')?.scrollIntoView({behavior:'smooth',block:'start'})
   })
 }
 
@@ -801,7 +849,11 @@ async function replaceMediaFile(kind,index){
   }
 }
 function renderPresetItems(){
-  $('presetItems').innerHTML=presetItems.map((x,i)=>{
+  const totalPages=Math.max(1,Math.ceil(presetItems.length/ADMIN_PAGE_SIZE));
+  presetAdminPage=Math.min(Math.max(1,presetAdminPage),totalPages);
+  const start=(presetAdminPage-1)*ADMIN_PAGE_SIZE;
+  const pageItems=presetItems.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>({x,i:start+local}));
+  $('presetItems').innerHTML=pageItems.map(({x,i})=>{
     const meta=presetMetaFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
     return `<div class="preset-admin-item preset-admin-item-v2">
       <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" decoding="async" draggable="false">
@@ -832,6 +884,7 @@ function renderPresetItems(){
       </div>
     </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
+  bindAdminPagination('presetItemsPagination','preset',presetAdminPage,totalPages);
 
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
@@ -871,7 +924,11 @@ async function savePresetMetaField(i,key,value,exclusiveStatus){
 }
 
 function renderItems(){
-  $('items').innerHTML=items.map((x,i)=>{
+  const totalPages=Math.max(1,Math.ceil(items.length/ADMIN_PAGE_SIZE));
+  portfolioAdminPage=Math.min(Math.max(1,portfolioAdminPage),totalPages);
+  const start=(portfolioAdminPage-1)*ADMIN_PAGE_SIZE;
+  const pageItems=items.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>({x,i:start+local}));
+  $('items').innerHTML=pageItems.map(({x,i})=>{
     const logical=logicalPortfolioCategory(x.category);
     const same=items.filter(v=>logicalPortfolioCategory(v.category)===logical);
     const samePos=same.findIndex(v=>v.file===x.file);
@@ -906,6 +963,7 @@ function renderItems(){
       </div>
     </div>`
   }).join('');
+  bindAdminPagination('itemsPagination','portfolio',portfolioAdminPage,totalPages);
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
   document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
