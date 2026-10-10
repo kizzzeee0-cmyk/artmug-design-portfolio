@@ -193,8 +193,8 @@
       "enabled": true,
       "pcColumns": 2,
       "pcPerPage": 18,
-      "mobileColumns": 2,
-      "mobilePerPage": 18
+      "mobileColumns": 1,
+      "mobilePerPage": 8
     },
     {
       "id": "floating-banner",
