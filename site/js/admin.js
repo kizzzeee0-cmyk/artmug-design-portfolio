@@ -402,6 +402,61 @@ function renderScheduleAdmin(){
   });
   syncAdminVisibilityCollapse();
 }
+const ADMIN_COLLAPSE_STORAGE_KEY='artmug-admin-collapsed-blocks-v1';
+
+function adminBlockKey(block,index){
+  const title=block.querySelector('.admin-block-title h3')?.textContent?.trim()||'section';
+  const section=block.closest('[data-section]')?.dataset.section||'page';
+  return section+':'+index+':'+title
+}
+function readAdminCollapsedBlocks(){
+  try{
+    const value=JSON.parse(localStorage.getItem(ADMIN_COLLAPSE_STORAGE_KEY)||'[]');
+    return new Set(Array.isArray(value)?value:[])
+  }catch{return new Set()}
+}
+function writeAdminCollapsedBlocks(set){
+  try{localStorage.setItem(ADMIN_COLLAPSE_STORAGE_KEY,JSON.stringify([...set]))}catch{}
+}
+function updateAdminCollapseButton(block){
+  const button=block.querySelector('.admin-collapse-button');
+  if(!button)return;
+  const visibilityCollapsed=block.classList.contains('is-visibility-collapsed')||block.classList.contains('is-schedule-visibility-collapsed');
+  const manualCollapsed=block.classList.contains('is-manual-collapsed');
+  const collapsed=visibilityCollapsed||manualCollapsed;
+  button.textContent=collapsed?'펼치기':'접기';
+  button.setAttribute('aria-expanded',collapsed?'false':'true');
+  button.title=collapsed?'세부 설정 펼치기':'세부 설정 접기'
+}
+function syncAdminManualCollapsers(){
+  const saved=readAdminCollapsedBlocks();
+  document.querySelectorAll('.admin-block').forEach((block,index)=>{
+    const title=block.querySelector('.admin-block-title');
+    if(!title)return;
+    const key=adminBlockKey(block,index);
+    block.dataset.adminCollapseKey=key;
+
+    let button=title.querySelector('.admin-collapse-button');
+    if(!button){
+      button=document.createElement('button');
+      button.type='button';
+      button.className='ghost admin-collapse-button';
+      title.appendChild(button);
+      button.addEventListener('click',()=>{
+        const autoCollapsed=block.classList.contains('is-visibility-collapsed')||block.classList.contains('is-schedule-visibility-collapsed');
+        if(autoCollapsed)return;
+        const next=!block.classList.contains('is-manual-collapsed');
+        block.classList.toggle('is-manual-collapsed',next);
+        const current=readAdminCollapsedBlocks();
+        if(next)current.add(key);else current.delete(key);
+        writeAdminCollapsedBlocks(current);
+        updateAdminCollapseButton(block)
+      })
+    }
+    block.classList.toggle('is-manual-collapsed',saved.has(key));
+    updateAdminCollapseButton(block)
+  })
+}
 function syncAdminVisibilityCollapse(){
   const ids=['workStatusEnabled','authorEnabled','eventsEnabled','presetEnabled','scheduleEnabled'];
   ids.forEach(id=>{
@@ -412,6 +467,15 @@ function syncAdminVisibilityCollapse(){
       const collapsed=!input.checked;
       block.classList.toggle('is-visibility-collapsed',collapsed&&!isSchedule);
       block.classList.toggle('is-schedule-visibility-collapsed',collapsed&&isSchedule);
+
+      // Turning a section back on always opens it immediately.
+      if(!collapsed){
+        block.classList.remove('is-manual-collapsed');
+        const current=readAdminCollapsedBlocks();
+        current.delete(block.dataset.adminCollapseKey||'');
+        writeAdminCollapsedBlocks(current)
+      }
+      updateAdminCollapseButton(block)
     };
     if(input.dataset.visibilityCollapseBound!=='1'){
       input.dataset.visibilityCollapseBound='1';
@@ -419,6 +483,7 @@ function syncAdminVisibilityCollapse(){
     }
     apply()
   })
+  syncAdminManualCollapsers()
 }
 function render(){
 renderScheduleAdmin();
@@ -906,10 +971,8 @@ function renderPresetItems(){
         </div>
         <div class="preset-admin-toggle-grid">
           <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
-          <label class="mini-toggle"><input type="checkbox" data-preset-featured="${i}" ${meta.featured?'checked':''}> 대표작</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중</label>
-          <label class="mini-toggle"><input type="checkbox" data-preset-sold="${i}" ${meta.isSold?'checked':''}> 판매완료</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능</label>
         </div>
       </div>
@@ -930,12 +993,10 @@ function renderPresetItems(){
   document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetEnabled,'enabled',el.checked));
-  document.querySelectorAll('[data-preset-featured]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetFeatured,'featured',el.checked));
   document.querySelectorAll('[data-preset-kind]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetKind,'showcaseKind',el.value));
   document.querySelectorAll('[data-preset-banner-type]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetBannerType,'bannerType',el.value));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-sold]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetSold,'isSold',el.checked,true));
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
     if(!confirm('이 프리셋을 삭제할까요?'))return;
