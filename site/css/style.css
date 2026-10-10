@@ -6107,3 +6107,38 @@ html.artmug-embed-root body.artmug-part .site-shell{
     line-height:1.58!important;
   }
 }
+
+
+/* 2026-10-10 schedule symmetric spacing + banner-only inquiry gap fix */
+.schedule-card{
+  padding-top:22px!important;
+  padding-bottom:22px!important;
+}
+.schedule-card .schedule-heading{
+  margin-top:0!important;
+  margin-bottom:10px!important;
+}
+.schedule-card .schedule-message-box{
+  min-height:0!important;
+  height:auto!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+.v2-inquiry-enhancements[hidden],
+.v2-inquiry-enhancements:empty{
+  display:none!important;
+}
+
+@media(max-width:680px){
+  .schedule-card{
+    padding-top:18px!important;
+    padding-bottom:18px!important;
+  }
+  .schedule-card .schedule-heading{
+    margin-bottom:9px!important;
+  }
+  .schedule-card .schedule-message-box{
+    padding-top:10px!important;
+    padding-bottom:10px!important;
+  }
+}
