@@ -154,6 +154,44 @@ function collectBackgroundGuide(){
     x.buttonLabel=document.querySelector(`[data-bg-button="${i}"]`)?.value||'';
   })
 }
+function ensureBannerTypeGuide(){
+  if(!S.bannerTypeGuide||typeof S.bannerTypeGuide!=='object')S.bannerTypeGuide={};
+  ['A','B'].forEach(t=>{
+    if(!S.bannerTypeGuide[t]||typeof S.bannerTypeGuide[t]!=='object')S.bannerTypeGuide[t]={};
+    const x=S.bannerTypeGuide[t];
+    if(x.title==null)x.title=t==='A'?'심플형':'기존 디자인형';
+    if(x.description==null)x.description=t==='A'?'장식과 패턴이 비교적 적고 깔끔하게 정돈된 디자인':'다양한 패턴과 장식을 조합한 기존 스타일의 디자인';
+    if(x.price==null)x.price=0;
+    if(x.referenceFile==null)x.referenceFile=''
+  });
+  return S.bannerTypeGuide
+}
+function renderBannerTypeGuideAdmin(){
+  const root=$('bannerTypeGuideAdmin');if(!root)return;
+  const g=ensureBannerTypeGuide();
+  const bannerItems=items.filter(x=>['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category));
+  root.innerHTML=['A','B'].map(t=>{
+    const x=g[t]||{};
+    const options='<option value="">대표 이미지 없음</option>'+bannerItems.map(v=>'<option value="'+adminEsc(v.file)+'" '+(x.referenceFile===v.file?'selected':'')+'>'+adminEsc(v.originalName||v.file)+'</option>').join('');
+    return '<div class="banner-type-admin-card"><h4>TYPE '+t+'</h4><div class="fields">'+
+      '<label>표시 이름<input data-banner-guide-title="'+t+'" value="'+adminEsc(x.title||'')+'"></label>'+
+      '<label>가격<input type="number" step="100" data-banner-guide-price="'+t+'" value="'+Number(x.price||0)+'"></label>'+
+      '<label class="wide">설명<textarea data-banner-guide-desc="'+t+'">'+adminEsc(x.description||'')+'</textarea></label>'+
+      '<label class="wide">대표 이미지<select data-banner-guide-ref="'+t+'">'+options+'</select></label>'+
+    '</div></div>'
+  }).join('')
+}
+function collectBannerTypeGuideAdmin(){
+  if(!$('bannerTypeGuideAdmin'))return;
+  const g=ensureBannerTypeGuide();
+  ['A','B'].forEach(t=>{
+    g[t].title=document.querySelector('[data-banner-guide-title="'+t+'"]')?.value||'';
+    g[t].price=Number(document.querySelector('[data-banner-guide-price="'+t+'"]')?.value||0);
+    g[t].description=document.querySelector('[data-banner-guide-desc="'+t+'"]')?.value||'';
+    g[t].referenceFile=document.querySelector('[data-banner-guide-ref="'+t+'"]')?.value||''
+  })
+}
+
 function ensureEventItems(){
   if(!Array.isArray(S.eventsItems)){
     const oldPrice=Number(S.eventsOldPrice||0),newPrice=Number(S.eventsNewPrice||0);
@@ -631,7 +669,7 @@ async function loadItems(){
       loadPresetItemsOnly()
     ]);
     items=applyAdminOrder(d.items||[],S?.portfolioOrder);
-    renderItems()
+    renderItems();renderBannerTypeGuideAdmin()
   }catch(e){$('uploadStatus').textContent=e.message}
 }
 function presetLocationText(x){
@@ -749,10 +787,14 @@ function renderPresetItems(){
       <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" decoding="async" draggable="false">
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
-        <label>프리셋 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
+        <label>상품 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
+        <label>쇼케이스 구분<select data-preset-kind="${i}"><option value="preset" ${meta.showcaseKind==='preset'?'selected':''}>미판매 프리셋</option><option value="fixed" ${meta.showcaseKind==='fixed'?'selected':''}>고정틀</option></select></label>
+        <label>배너 TYPE<select data-preset-banner-type="${i}"><option value="">없음</option><option value="A" ${meta.bannerType==='A'?'selected':''}>TYPE A</option><option value="B" ${meta.bannerType==='B'?'selected':''}>TYPE B</option></select></label>
         <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-featured="${i}" ${meta.featured?'checked':''}> 대표작</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW 표시</label>
-        <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약 표시</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중 표시</label>
+        <label class="mini-toggle"><input type="checkbox" data-preset-sold="${i}" ${meta.isSold?'checked':''}> 판매완료</label>
         <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능 표시</label>
       </div>
       <div class="preset-admin-actions">
@@ -770,10 +812,14 @@ function renderPresetItems(){
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
   document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
-  document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetEnabled,'enabled',el.checked).catch(e=>{el.checked=!el.checked;alert('공개 상태 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetEnabled,'enabled',el.checked));
+  document.querySelectorAll('[data-preset-featured]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetFeatured,'featured',el.checked));
+  document.querySelectorAll('[data-preset-kind]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetKind,'showcaseKind',el.value));
+  document.querySelectorAll('[data-preset-banner-type]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetBannerType,'bannerType',el.value));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetToggle(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked).catch(e=>{el.checked=!el.checked;alert('수정가능 표시 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-sold]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetSold,'isSold',el.checked,true));
+  document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
     if(!confirm('이 프리셋을 삭제할까요?'))return;
     const file=decodeURIComponent(b.dataset.deletePreset);
@@ -787,13 +833,30 @@ function renderPresetItems(){
     loadItems()
   })
 }
+async function savePresetMetaField(i,key,value,exclusiveStatus){
+  const x=presetItems[i];if(!x)return;
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    const prev=latest.presetMeta[x.file]||{};
+    const extra=exclusiveStatus&&value?{isNew:false,isReserved:false}:{};
+    latest.presetMeta[x.file]={...prev,[key]:value,...extra}
+  });
+  S.presetMeta=saved.presetMeta||{};
+  renderPresetItems();
+  showToast('프리셋 설정이 저장되었습니다.')
+}
 
 function renderItems(){
   $('items').innerHTML=items.map((x,i)=>{
-    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file),isProfile=logical==='profile';
+    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file),isProfile=logical==='profile',isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category),meta=portfolioMetaFor(x),cat=(S.portfolioCategories||[]).find(c=>c.id===x.category);
     return `<div class="item portfolio-admin-item">
       <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
-      <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${isProfile?'움짤프사':adminEsc(x.category)}</div></div>
+      <div class="portfolio-item-info"><strong>${adminEsc(x.originalName)}</strong><div class="muted">${adminEsc(cat?.label||(isProfile?'움짤프사':x.category))}</div>
+        <div class="portfolio-admin-meta">
+          <label class="mini-toggle"><input type="checkbox" data-portfolio-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
+          ${isBanner?'<label>배너 TYPE<select data-portfolio-banner-type="'+i+'"><option value="A" '+(meta.bannerType==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(meta.bannerType!=='A'?'selected':'')+'>TYPE B</option></select></label>':''}
+        </div>
+      </div>
       <div class="item-actions">
         <div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button></div>
         <button class="ghost admin-compact" data-replace-portfolio="${i}">파일 수정</button>
@@ -803,7 +866,18 @@ function renderItems(){
   }).join('');
   document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
+  document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
+  document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{bannerType:el.value}));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
+}
+async function savePortfolioMeta(i,patch){
+  const x=items[i];if(!x)return;
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
+    latest.portfolioMeta[x.file]={...(latest.portfolioMeta[x.file]||{}),...patch}
+  });
+  S.portfolioMeta=saved.portfolioMeta||{};
+  showToast('작업물 설정이 저장되었습니다.')
 }
 async function uploadFiles(kind){
   const isPreset=kind==='preset',fileInput=isPreset?$('presetFiles'):$('files'),cat=isPreset?$('presetUploadCat').value:$('uploadCat').value,status=$(isPreset?'presetUploadStatus':'uploadStatus'),files=[...fileInput.files];
@@ -822,7 +896,7 @@ async function uploadFiles(kind){
       const path=String(d.path||'');if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
       const saved=await queueSettingsMutation(latest=>{
         if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,colorChangeAvailable:false};
+        latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,colorChangeAvailable:false,showcaseKind:cat==='floating-banner'?'fixed':'preset',featured:false,bannerType:''};
         const order=Array.isArray(latest.presetOrder)?latest.presetOrder.filter(v=>v!==path):[];
         order.push(path);
         latest.presetOrder=order;
