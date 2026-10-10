@@ -203,7 +203,7 @@ async function uploadBannerTypeGuideImage(t){
   const ext=String(file.name||'').split('.').pop().toLowerCase();
   if(!['png','jpg','jpeg','webp'].includes(ext))return alert('PNG, JPG, JPEG, WEBP 이미지만 업로드할 수 있습니다.');
   collectBannerTypeGuideAdmin();
-  const old=String(ensureBannerTypeGuide()[t].referenceImage||'');
+  const current=ensureBannerTypeGuide()[t],old=String(current.referenceImage||''),description=String(current.description||'');
   const fd=new FormData();fd.append('category','type-guide-assets');fd.append('file',file);
   try{
     const r=await fetch(API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
@@ -212,7 +212,8 @@ async function uploadBannerTypeGuideImage(t){
     const saved=await queueSettingsMutation(latest=>{
       if(!latest.bannerTypeGuide||typeof latest.bannerTypeGuide!=='object')latest.bannerTypeGuide={};
       if(!latest.bannerTypeGuide[t]||typeof latest.bannerTypeGuide[t]!=='object')latest.bannerTypeGuide[t]={};
-      latest.bannerTypeGuide[t].referenceImage=path
+      latest.bannerTypeGuide[t].referenceImage=path;
+      latest.bannerTypeGuide[t].description=description
     });
     S.bannerTypeGuide=saved.bannerTypeGuide||S.bannerTypeGuide||{};
     if(old&&old!==path&&old.startsWith('portfolio/type-guide-assets/')){
@@ -226,12 +227,13 @@ async function deleteBannerTypeGuideImage(t){
   t=String(t||'').toUpperCase();
   if(!confirm('TYPE '+t+' 대표 이미지를 삭제할까요?'))return;
   collectBannerTypeGuideAdmin();
-  const old=String(ensureBannerTypeGuide()[t].referenceImage||'');
+  const current=ensureBannerTypeGuide()[t],old=String(current.referenceImage||''),description=String(current.description||'');
   try{
     const saved=await queueSettingsMutation(latest=>{
       if(!latest.bannerTypeGuide||typeof latest.bannerTypeGuide!=='object')latest.bannerTypeGuide={};
       if(!latest.bannerTypeGuide[t]||typeof latest.bannerTypeGuide[t]!=='object')latest.bannerTypeGuide[t]={};
-      latest.bannerTypeGuide[t].referenceImage=''
+      latest.bannerTypeGuide[t].referenceImage='';
+      latest.bannerTypeGuide[t].description=description
     });
     S.bannerTypeGuide=saved.bannerTypeGuide||S.bannerTypeGuide||{};
     if(old.startsWith('portfolio/type-guide-assets/')){
