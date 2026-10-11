@@ -566,13 +566,6 @@
       "colorChangeAvailable": true,
       "description": ""
     },
-    "preset/profile/20261008083140-UFADCw7C-background__1_.png": {
-      "name": "프리셋 02",
-      "enabled": true,
-      "isNew": true,
-      "colorChangeAvailable": true,
-      "description": ""
-    },
     "preset/floating-banner/20261010020945-YPr0fitM-_____.png": {
       "name": "플로팅배너 고정틀 A",
       "enabled": true,
@@ -587,7 +580,6 @@
   },
   "presetOrder": [
     "preset/profile/20261005083843-fCIoUIaH-background__2_.png",
-    "preset/profile/20261008083140-UFADCw7C-background__1_.png",
     "preset/floating-banner/20261010020945-YPr0fitM-_____.png"
   ],
   "portfolioOrder": [
