@@ -6173,3 +6173,45 @@ html.artmug-embed-root body.artmug-part .site-shell{
 .contact-form fieldset.choice-field > legend + .check-grid{
   margin-top:8px!important;
 }
+
+/* 2026-10-11 INQUIRY ATTACHMENT NOTICE */
+.inquiry-attachment-notice{
+  grid-column:1!important;
+  width:100%;
+  margin:0!important;
+  padding:9px 12px;
+  border:1px solid #d2e8fa;
+  border-radius:12px;
+  background:#f7fbfe;
+  color:#5f7482;
+  font-size:12.5px;
+  font-weight:500;
+  line-height:1.45;
+  text-align:center;
+}
+.inquiry-attachment-notice-line{
+  display:inline;
+}
+.inquiry-attachment-notice-line + .inquiry-attachment-notice-line::before{
+  content:" ";
+}
+@media(min-width:681px){
+  .inquiry-attachment-notice{
+    white-space:nowrap;
+    font-size:clamp(10.5px,1.25vw,12.5px);
+  }
+}
+@media(max-width:680px){
+  .inquiry-attachment-notice{
+    padding:9px 10px;
+    font-size:11.5px;
+    line-height:1.5;
+    white-space:normal;
+  }
+  .inquiry-attachment-notice-line{
+    display:block;
+  }
+  .inquiry-attachment-notice-line + .inquiry-attachment-notice-line::before{
+    content:"";
+  }
+}
