@@ -734,8 +734,6 @@ function buildInquiryText(){
   var card=document.querySelector('.request-card');
   var request=card?requestText(card):'';
   var sections=[(S.nicknameLabel||'방송 닉네임 및 주소')+': '+nickname,request];
-  var attachmentNotice='※ 작업에 사용되는 모든 이미지 및 동영상은 아트머그 <파일첨부>를 통해\n개별 첨부 또는 압축 파일로 전달 부탁드립니다.';
-  sections.push(attachmentNotice);
   return sections.filter(Boolean).join('\n\n');
 }
 
