@@ -583,6 +583,7 @@
     "preset/floating-banner/20261010020945-YPr0fitM-_____.png"
   ],
   "portfolioOrder": [
+    "portfolio/profile/20261011234252-Nk02BEls-__.gif",
     "portfolio/floating-banner/20261009202139-xpi4OrF_-_____.png",
     "portfolio/floating-banner/20261009202109-TEdh0GK_-______1.png",
     "portfolio/profile/20261008192002-l0PPqtVn-______.gif",
@@ -656,6 +657,9 @@
   "portfolioMeta": {
     "portfolio/floating-banner/20261009202139-xpi4OrF_-_____.png": {
       "isFixed": true
+    },
+    "portfolio/profile/20261011234252-Nk02BEls-__.gif": {
+      "enabled": true
     }
   },
   "bannerTypeEnabled": false
