@@ -604,7 +604,7 @@
       "isNew": true,
       "isReserved": false,
       "isSold": false,
-      "colorChangeAvailable": false,
+      "colorChangeAvailable": true,
       "showcaseKind": "preset",
       "featured": false
     }
