@@ -6757,3 +6757,8 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     padding-top:1px!important;
   }
 }
+
+/* 2026-10-13 CONFIGURABLE SCHEDULE DATE COLOR */
+.schedule-date{
+  color:var(--schedule-date-color,#4E9BC6)!important;
+}
