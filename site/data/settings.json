@@ -11,23 +11,25 @@
     {
       "icon": "🎞️",
       "title": "움짤 프사 파일 전달",
-      "description": "GIF 파일보다 동영상 파일로 전달해 주시면 화질 저하를 최소화할 수 있습니다.",
+      "description": "움짤 프사 제작 시 GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
       "enabled": true,
-      "descriptionRich": "GIF 파일보다<strong><span style=\"color:#8fc9e8\"> 동영상 파일로 전달</span></strong>해 주시면 화질 저하를 최소화할 수 있습니다."
+      "descriptionRich": "움짤 프사 제작 시 <strong><span style=\"color:rgb(95, 189, 236)\">GIF가 아닌 MP4 동영상 파일로 전달</span></strong>해 주세요.",
+      "editorColor": "#5FBDEC"
     },
     {
       "icon": "📂",
       "title": "포트폴리오",
-      "description": "모든 작업물은 포트폴리오에 사용될 수 있습니다. \n비공개를 원하실 경우 추가금이 발생합니다.",
+      "description": "모든 작업물은 포트폴리오에 활용될 수 있으며, 비공개를 원하실 경우 추가금이 발생합니다.",
       "enabled": true,
-      "descriptionRich": "모든 작업물은 포트폴리오에 사용될 수 있습니다. <br>비공개를 원하실 경우 추가금이 발생합니다."
+      "descriptionRich": "모든 작업물은 포트폴리오에 활용될 수 있으며, 비공개를 원하실 경우 추가금이 발생합니다."
     },
     {
       "icon": "📆",
       "title": "작업 일정",
-      "description": "작업 기간은 작업 시작일 기준 최대 7일입니다\n현재 신청 시 1~2일 이내 작업이 완료됩니다",
+      "description": "작업 기간은 작업 시작일 기준 최대 7일이며, 현재 신청 시 2~3일 이내 완료됩니다.",
       "enabled": true,
-      "descriptionRich": "작업 기간은 작업 시작일 기준 최대 7일입니다<br>현재 신청 시<span style=\"color:#74c2ec\"><strong> 1~2일 이내 작업이 완료</strong></span>됩니다"
+      "descriptionRich": "작업 기간은 <strong><span style=\"color:rgb(95, 189, 236)\">작업 시작일 기준 최대 7일</span></strong>이며, 현재 신청 시 <strong><span style=\"color:rgb(95, 189, 236)\">2~3일 이내</span></strong> 완료됩니다.",
+      "editorColor": "#5FBDEC"
     },
     {
       "icon": "💸",
@@ -35,6 +37,15 @@
       "description": "작업 시작 전일 경우 100%, 작업 진행 중일 경우 50% 환불이 가능합니다.",
       "enabled": true,
       "descriptionRich": "작업 시작 전일 경우 100%, 작업 진행 중일 경우 50% 환불이 가능합니다."
+    },
+    {
+      "icon": "",
+      "title": "",
+      "description": "사전 협의 없는 2차 가공 및 재배포를 금지합니다.",
+      "enabled": true,
+      "titleRich": "",
+      "descriptionRich": "사전 협의 없는 <span style=\"color:rgb(95, 189, 236)\"><strong>2차 가공 및 재배포를 금지</strong></span>합니다.",
+      "editorColor": "#5FBDEC"
     }
   ],
   "formTitle": "문의양식",
@@ -312,7 +323,7 @@
   ],
   "aboutImage": "site-assets/about/1791830216080-KuSSBg0-__.png",
   "authorEnabled": true,
-  "authorText": "안녕하세요 칠공입니다 ღ\n합리적인 가격에 예쁘고 만족스러운 결과를 전해드릴 수 있도록 \n맡겨주신 만큼 책임감을 가지고 정성껏 작업하겠습니다!",
+  "authorText": "안녕하세요 칠공입니다 ღ\n예쁘고 만족스러운 결과를 전해드릴 수 있도록 맡겨주신 만큼 책임감을 가지고 정성껏 작업하겠습니다!",
   "authorFontSize": 15,
   "signatureNumberLabel": "시그풍 숫자",
   "signatureNumberPlaceholder": "예: 170 / 486",
@@ -729,5 +740,5 @@
   },
   "bannerTypeEnabled": false,
   "authorName": "CHILGONG DESIGN",
-  "scheduleDateColor": "#4E9BC6"
+  "scheduleDateColor": "#5FBDEC"
 }
