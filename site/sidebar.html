@@ -70,10 +70,10 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .quick-divider.is-action{margin:15px 0 12px}
 .nav-list{display:grid;gap:9px}
 .quick-nav-button{
-  display:flex;
+  display:grid;
+  grid-template-columns:19px minmax(0,1fr) 19px;
   align-items:center;
-  justify-content:flex-start;
-  gap:9px;
+  column-gap:9px;
   width:100%;
   min-height:42px;
   padding:8px 14px;
@@ -94,10 +94,10 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .quick-nav-button.is-active{background:#eef8fd;border-color:#8fc9e8;color:#4f8fb3}
 .quick-inquiry-section[hidden]{display:none!important}
 .quick-inquiry-button{
-  display:flex;
+  display:grid;
+  grid-template-columns:19px minmax(0,1fr) 19px;
   align-items:center;
-  justify-content:flex-start;
-  gap:9px;
+  column-gap:9px;
   width:100%;
   min-height:42px;
   padding:8px 14px;
@@ -127,15 +127,17 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
   color:#8fc9e8
 }
 .quick-nav-icon svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.quick-nav-label{min-width:0;overflow-wrap:anywhere}
-.quick-top-wrap{display:flex;justify-content:center}
+.quick-nav-button::after,.quick-inquiry-button::after{content:"";width:19px;height:1px}
+.quick-nav-label{min-width:0;overflow-wrap:anywhere;text-align:center;justify-self:stretch}
+.quick-top-wrap{display:flex;justify-content:center;align-items:center;min-height:44px}
 .quick-top-button{
-  width:50px;
-  height:50px;
+  position:relative;
+  width:44px;
+  height:44px;
   padding:0;
-  border:1px solid #d7e9f4;
+  border:0;
   border-radius:50%;
-  background:#fff;
+  background:transparent;
   color:#7fbada;
   font:inherit;
   cursor:pointer;
@@ -143,10 +145,24 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
   display:grid;
   place-items:center
 }
-.quick-top-button:hover,.quick-top-button:focus-visible{background:#f2f9fd;border-color:#a9d7ed;color:#5ea6cd;outline:none}
-.quick-top-content{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1}
-.quick-top-arrow{display:block;font-size:16px;font-weight:600;line-height:1}
-.quick-top-text{display:block;font-size:9.5px;font-weight:800;line-height:1;letter-spacing:.025em}
+.quick-top-button::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:35px;
+  height:35px;
+  transform:translate(-50%,-50%);
+  border:1px solid #d7e9f4;
+  border-radius:50%;
+  background:#fff;
+  transition:background .14s ease,border-color .14s ease
+}
+.quick-top-button:hover::before,.quick-top-button:focus-visible::before{background:#f2f9fd;border-color:#a9d7ed}
+.quick-top-button:hover,.quick-top-button:focus-visible{color:#5ea6cd;outline:none}
+.quick-top-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:35px;height:35px;line-height:1;text-align:center}
+.quick-top-arrow{display:block;width:100%;font-size:11.5px;font-weight:650;line-height:1;text-align:center}
+.quick-top-text{display:block;width:100%;font-size:7.7px;font-weight:800;line-height:1;text-align:center;letter-spacing:.015em}
 .loading{padding:14px 4px;text-align:center;color:#71818c;font-size:11px}
 @media(max-width:165px){
   body{padding-left:4px}
@@ -156,14 +172,18 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
   .quick-menu-title{font-size:13px;margin-bottom:11px}
   .quick-divider.is-title{margin-bottom:11px}
   .nav-list{gap:7px}
-  .quick-nav-button{min-height:36px;padding:6px 10px;gap:7px;font-size:11px}
+  .quick-nav-button{grid-template-columns:16px minmax(0,1fr) 16px;min-height:36px;padding:6px 10px;column-gap:7px;font-size:11px}
   .quick-nav-icon{width:16px;height:16px;flex-basis:16px}
+  .quick-nav-button::after,.quick-inquiry-button::after{width:16px}
   .quick-divider.is-action{margin:12px 0 10px}
-  .quick-inquiry-button{min-height:36px;padding:6px 10px;gap:7px;font-size:11px}
+  .quick-inquiry-button{grid-template-columns:16px minmax(0,1fr) 16px;min-height:36px;padding:6px 10px;column-gap:7px;font-size:11px}
   .quick-inquiry-section + .quick-top-wrap{margin-top:9px}
-  .quick-top-button{width:44px;height:44px}
-  .quick-top-arrow{font-size:14px}
-  .quick-top-text{font-size:8.8px}
+  .quick-top-wrap{min-height:40px}
+  .quick-top-button{width:40px;height:40px}
+  .quick-top-button::before{width:31px;height:31px}
+  .quick-top-content{width:31px;height:31px;gap:1px}
+  .quick-top-arrow{font-size:10px}
+  .quick-top-text{font-size:7px}
 }
 </style></head>
 <body>
