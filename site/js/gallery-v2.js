@@ -532,14 +532,15 @@ window.__ARTMUG_V2__={
 };
 async function init(){
  initNav();
- const [d,portfolioIndex,presetIndex]=await Promise.all([
+ const [d,portfolioIndex]=await Promise.all([
   api('/api/public/settings?fresh='+Date.now()),
-  rawJson('portfolio/index.json').catch(()=>null),
-  rawJson('site/data/presets.json').catch(()=>null)
+  rawJson('portfolio/index.json').catch(()=>null)
  ]);
  state.settings=d.settings||{};
  state.portfolioIndex=Array.isArray(portfolioIndex)?portfolioIndex:null;
- state.presetIndex=Array.isArray(presetIndex)?presetIndex:null;
+ // Presets are managed through the Worker and can change without a Pages rebuild.
+ // Always load them from the live public API so the showcase never uses a stale static presets.json.
+ state.presetIndex=null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
  const portfolioPart=document.body.classList.contains('artmug-part-portfolio');
