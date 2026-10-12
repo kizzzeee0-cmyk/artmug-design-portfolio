@@ -601,7 +601,7 @@
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif": {
       "name": "프리셋 04",
       "enabled": true,
-      "isNew": false,
+      "isNew": true,
       "isReserved": false,
       "isSold": false,
       "colorChangeAvailable": false,
