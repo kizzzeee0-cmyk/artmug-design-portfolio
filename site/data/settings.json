@@ -43,7 +43,7 @@
       "showBannerFields": false,
       "enabled": true,
       "showReviewEvent": true,
-      "showBannerTextField": false
+      "showBannerTextField": true
     },
     {
       "id": "signature-style",
@@ -460,12 +460,12 @@
     "customItems": [
       {
         "id": "q-1790441888406",
-        "name": "움짤변경",
+        "name": "움짤프로필 · 움짤 변경",
         "price": 1000
       },
       {
         "id": "q-1790441909217",
-        "name": "이름변경",
+        "name": "움짤프로필 · 이름 변경",
         "price": 2000
       },
       {
@@ -475,7 +475,7 @@
       },
       {
         "id": "q-1791294239142",
-        "name": "배너 텍스트변경",
+        "name": "배너 · 텍스트/이미지 변경",
         "price": 2000
       }
     ],
