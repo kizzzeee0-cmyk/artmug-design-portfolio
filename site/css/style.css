@@ -6788,3 +6788,58 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     padding:4px 16px!important;
   }
 }
+
+/* 2026-10-13 MOBILE AUTHOR + FINAL CATEGORY SCALE */
+.portfolio-card .tab,
+.preset-section .tab{
+  min-height:31px!important;
+  padding:4px 18px!important;
+  font-size:13.5px!important;
+  font-weight:600!important;
+  line-height:1.2!important;
+}
+@media(max-width:680px){
+  .portfolio-card .tab,
+  .preset-section .tab{
+    min-height:25px!important;
+    padding:2px 10px!important;
+    font-size:11.5px!important;
+    font-weight:600!important;
+    line-height:1.2!important;
+  }
+
+  /* Title spans the full mobile author width; image stays centered against the bio row. */
+  .author-intro.has-image{
+    grid-template-columns:82px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    align-items:center!important;
+  }
+  .author-intro.has-image .author-profile-copy{
+    display:contents!important;
+  }
+  .author-intro.has-image .author-profile-name{
+    grid-column:1/-1!important;
+    grid-row:1!important;
+    width:100%!important;
+    margin:0 0 8px!important;
+    text-align:center!important;
+    justify-self:center!important;
+  }
+  .author-intro.has-image .author-profile-media{
+    grid-column:1!important;
+    grid-row:2!important;
+    align-self:center!important;
+    justify-self:center!important;
+  }
+  .author-intro.has-image .author-bio-box{
+    grid-column:2!important;
+    grid-row:2!important;
+    align-self:center!important;
+    min-width:0!important;
+  }
+}
+@media(max-width:390px){
+  .author-intro.has-image{
+    grid-template-columns:72px minmax(0,1fr)!important;
+  }
+}
