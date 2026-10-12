@@ -23,6 +23,13 @@ async function uploadMediaWithRetry(endpoint,cat,file,status){
       lastError=e;
       const network=/failed to fetch|networkerror|load failed|fetch failed/i.test(String(e?.message||e||''));
       if(!network||attempt===1)throw e;
+      let retrySafe=false;
+      try{
+        const hr=await fetch(API+'/health',{credentials:'include',cache:'no-store'});
+        const hd=await hr.json().catch(()=>({}));
+        retrySafe=hr.ok&&hd.version==='1.1.0'
+      }catch{}
+      if(!retrySafe)throw new Error('업로드 서버 업데이트가 아직 적용되지 않았습니다. 잠시 후 다시 시도해주세요.');
       if(status)status.textContent='연결이 끊겨 자동으로 한 번 더 시도하고 있습니다…';
       await settingsDelay(900)
     }
