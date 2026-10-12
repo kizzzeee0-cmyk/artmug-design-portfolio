@@ -338,7 +338,7 @@ function renderAuthorIntro(s){
   const im=$('authorImage'),hasImage=!!s.aboutImage;
   sec.classList.toggle('has-image',hasImage);
   if(hasImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}
-  set('authorName',s.authorName||'칠공');
+  set('authorName',s.authorName||'CHILGONG DESIGN');
   set('authorText',s.authorText||'');
   $('authorText').style.fontSize=(s.authorFontSize||15)+'px'
 }
@@ -407,14 +407,12 @@ function noticeRichHtml(raw,fallback){
 function renderNotices(items){
   const visible=(Array.isArray(items)?items:[]).filter(x=>x&&x.enabled!==false);
   $('noticeItems').innerHTML=visible.map((x,i)=>{
-    const title=noticeRichHtml(x.titleRich,x.title);
     const description=noticeRichHtml(x.descriptionRich,x.description);
     return `
       <article class="notice-item">
         <span class="notice-index" aria-hidden="true">${i+1}</span>
         <div class="notice-message">
-          ${title?'<span class="notice-item-title">'+title+'</span>':''}
-          ${description?'<span class="notice-item-description">'+description+'</span>':''}
+          <span class="notice-item-description">${description}</span>
         </div>
       </article>
     `
