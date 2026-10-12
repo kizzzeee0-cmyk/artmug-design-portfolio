@@ -1283,3 +1283,36 @@ body.artmug-part-portfolio #inquirySection{
     font-size:12.5px!important;
   }
 }
+
+/* 2026-10-13 COMPACT CATEGORY PILLS */
+/* Portfolio and preset category pills share one compact public sizing system. */
+.v2-cat-head h3,
+.v2-preset-category-head h3{
+  min-height:28px!important;
+  padding:5px 11px!important;
+  border-radius:999px!important;
+  font-size:var(--category-pill-font-size,14.5px)!important;
+  font-weight:600!important;
+  line-height:1.2!important;
+}
+.v2-cat-head{
+  gap:9px!important;
+}
+.v2-preset-category-head{
+  margin-bottom:9px!important;
+}
+@media(max-width:680px){
+  .v2-cat-head h3,
+  .v2-preset-category-head h3{
+    min-height:24px!important;
+    padding:4px 9px!important;
+    font-size:var(--category-pill-mobile-font-size,12.5px)!important;
+    font-weight:600!important;
+  }
+  .v2-cat-head{
+    gap:7px!important;
+  }
+  .v2-preset-category-head{
+    margin-bottom:7px!important;
+  }
+}
