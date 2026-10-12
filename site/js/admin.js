@@ -357,6 +357,9 @@ function collectScheduleAdmin(){
   const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value;
   S.scheduleMode=['start','deadline','custom'].includes(mode)?mode:'start';
   S.scheduleDate=$('scheduleDate').value;
+  const dateColorHex=$('scheduleDateColorHex');
+  const validDateColor=normalizeHex6(dateColorHex?.value);
+  if(validDateColor)S.scheduleDateColor=validDateColor;
   const custom=$('scheduleCustomText');
   if(custom)S.scheduleCustomText=custom.value;
   S.scheduleExtras=Array.from(document.querySelectorAll('[data-schedule-extra]')).map(x=>x.value);
@@ -366,11 +369,20 @@ function renderScheduleAdmin(){
   if(!$('scheduleFields'))return;
   const mode=['start','deadline','custom'].includes(S.scheduleMode)?S.scheduleMode:'start';
   const extras=ensureScheduleExtras();
+  const scheduleDateColor=normalizeHex6(S.scheduleDateColor)||'#4E9BC6';
   $('scheduleFields').innerHTML=`
     <div class="wide schedule-admin-top">
       <label class="toggle schedule-enabled-toggle"><input id="scheduleEnabled" type="checkbox" ${S.scheduleEnabled!==false?'checked':''}> 작업 일정 안내 표시</label>
     </div>
     <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"><small class="field-note">공개 페이지는 한국 시간 기준 밤 10시 전에는 오늘, 밤 10시 이후에는 다음날보다 과거인 날짜를 자동으로 보정해 표시합니다.</small></label>
+    <div class="wide schedule-date-color-admin">
+      <div class="schedule-date-color-controls">
+        <label class="schedule-date-color-picker">날짜 강조 색상 <input id="scheduleDateColorPicker" type="color" value="${scheduleDateColor.toLowerCase()}"></label>
+        <label class="schedule-date-color-hex">HEX <input id="scheduleDateColorHex" type="text" value="${scheduleDateColor}" maxlength="7" autocomplete="off" spellcheck="false"></label>
+        <button id="scheduleDateColorEyedropper" type="button" class="ghost admin-compact" ${'EyeDropper' in window?'':'hidden'}>스포이드</button>
+      </div>
+      <div class="schedule-date-color-preview">미리보기 · 현재 신청시 <strong id="scheduleDateColorPreview" style="color:${scheduleDateColor}">9월 28일</strong>부터 작업이 진행됩니다!</div>
+    </div>
     <fieldset class="wide admin-status-choice schedule-mode-choice">
       <legend>안내 문구 선택</legend>
       <div class="admin-status-pills schedule-mode-pills">
@@ -398,6 +410,39 @@ function renderScheduleAdmin(){
       <div id="scheduleExtraList">${extras.map((text,i)=>`<div class="schedule-extra-row"><input data-schedule-extra="${i}" value="${adminEsc(text)}" placeholder="추가 안내 문구"><button type="button" class="danger admin-compact" data-del-schedule-extra="${i}">삭제</button></div>`).join('')||'<p class="muted schedule-extra-empty">추가 안내 문구가 없습니다.</p>'}</div>
     </div>
   `;
+
+  const scheduleColorPicker=$('scheduleDateColorPicker');
+  const scheduleColorHex=$('scheduleDateColorHex');
+  const scheduleColorPreview=$('scheduleDateColorPreview');
+  const applyScheduleColor=value=>{
+    const color=normalizeHex6(value);
+    if(!color)return false;
+    S.scheduleDateColor=color;
+    if(scheduleColorPicker)scheduleColorPicker.value=color.toLowerCase();
+    if(scheduleColorHex){scheduleColorHex.value=color;scheduleColorHex.classList.remove('is-invalid')}
+    if(scheduleColorPreview)scheduleColorPreview.style.color=color;
+    return true
+  };
+  if(scheduleColorPicker){
+    scheduleColorPicker.addEventListener('input',()=>applyScheduleColor(scheduleColorPicker.value));
+    scheduleColorPicker.addEventListener('change',()=>applyScheduleColor(scheduleColorPicker.value))
+  }
+  if(scheduleColorHex){
+    scheduleColorHex.addEventListener('input',()=>{
+      const color=normalizeHex6(scheduleColorHex.value);
+      scheduleColorHex.classList.toggle('is-invalid',!!scheduleColorHex.value&&!color);
+      if(color)applyScheduleColor(color)
+    })
+  }
+  const scheduleEyedropper=$('scheduleDateColorEyedropper');
+  if(scheduleEyedropper)scheduleEyedropper.onclick=async()=>{
+    if(!('EyeDropper' in window))return;
+    try{
+      const result=await new EyeDropper().open();
+      const color=normalizeHex6(result?.sRGBHex);
+      if(color)applyScheduleColor(color)
+    }catch{}
+  };
 
   document.querySelectorAll('input[name="scheduleMode"]').forEach(r=>r.onchange=()=>{
     const field=$('scheduleCustomField');
