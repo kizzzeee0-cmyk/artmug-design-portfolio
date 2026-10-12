@@ -564,6 +564,13 @@ function addRequest(typeIds){
 
 function updateRequestCardMeta(){}
 
+window.refreshInquiryRequestFields=function(card){
+  if(!card)return;
+  var prev=readRequestValues(card);
+  var selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
+  renderRequestFields(card,selected,prev);
+};
+
 function readRequestValues(card){
   function q(s){return card.querySelector(s)}
   function qa(s){return Array.from(card.querySelectorAll(s))}
@@ -591,6 +598,7 @@ function renderRequestFields(card,typeIds,prev){
   var rid=card.dataset.requestId;
   var has=function(key){return types.some(t=>t[key])};
   var hasProfile=types.some(isProfileInquiryType);
+  var profileMode=card.dataset.profileMode||'custom';
   var contentEnabled=types.some(showsContentField);
 
   if(!types.length){
@@ -613,7 +621,7 @@ function renderRequestFields(card,typeIds,prev){
   }
 
   var frameHtml='';
-  if(has('showFrameRetention')){
+  if(has('showFrameRetention')&&!(hasProfile&&profileMode==='change')){
     frameHtml='<fieldset class="choice-field inquiry-plain-choice frame-retention-field">'+
       '<div class="choice-title-row frame-retention-title-row"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</span>'+
       '<span class="frame-retention-inline-help">'+htmlAttr(S.frameKeepDescription||'')+'</span></div>'+
@@ -756,7 +764,7 @@ function requestText(card){
       (S.signatureContentLabel||'시그풍 내용')+': '+v.signatureContent
     )
   }
-  if(has('showFrameRetention')&&!frameHidden){
+  if(has('showFrameRetention')&&frameEl&&!frameHidden){
     details.push((S.frameKeepLabel||'움짤프사 파일 보관 여부')+': '+v.frameKeep)
   }
 
