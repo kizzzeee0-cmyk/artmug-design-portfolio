@@ -5,20 +5,20 @@
 <style>
 *{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
 body{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;min-height:100vh;padding-top:25px}
-.quick-menu-title-wrap{width:128px;margin:0 0 8px 13px;display:flex;justify-content:center}
-.quick-work-status{width:128px;margin:0 0 7px 13px;display:grid;justify-items:center;gap:3px}
+.quick-menu-header{width:154px;margin:0 0 8px;display:flex;align-items:center;gap:5px}
+.quick-menu-title-wrap{flex:1 1 auto;min-width:0;margin:0;display:flex;justify-content:flex-start}
+.quick-work-status{flex:0 0 auto;width:auto;margin:0;display:block}
 .quick-work-status[hidden]{display:none!important}
-.quick-work-status-badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:29px;padding:6px 10px;border:1px solid rgba(143,201,232,.30);border-radius:999px;background:#fff;color:#617786;font-size:11px;font-weight:700;line-height:1;box-shadow:0 4px 14px rgba(70,126,158,.055)}
-.quick-work-status-dot{width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#8fc9e8}
+.quick-work-status-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:23px;padding:4px 6px;border:1px solid rgba(143,201,232,.30);border-radius:999px;background:#fff;color:#617786;font-size:9.5px;font-weight:650;line-height:1;box-shadow:none}
+.quick-work-status-dot{width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:#8fc9e8}
 .quick-work-status[data-status="working"] .quick-work-status-badge{background:#eef8fd;color:#528eaf}
 .quick-work-status[data-status="working"] .quick-work-status-dot{background:#79badd}
 .quick-work-status[data-status="sleeping"] .quick-work-status-badge{background:#f5f9fb;border-color:#dce8ee;color:#6e7d86}
 .quick-work-status[data-status="sleeping"] .quick-work-status-dot{background:#91a8b5}
-.quick-work-status-description{max-width:100%;margin:0;color:#8c9aa3;font-size:9px;font-weight:450;line-height:1.35;text-align:center;overflow-wrap:anywhere}
-body:not(.menu-ready) .quick-work-status,
-body:not(.menu-ready) .quick-menu-title-wrap,
+.quick-work-status-description{display:none!important}
+body:not(.menu-ready) .quick-menu-header,
 body:not(.menu-ready) .quick-nav{visibility:hidden}
-.quick-menu-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:30px;padding:6px 15px;border:1px solid rgba(143,201,232,.34);border-radius:999px;background:#8fc9e8;color:#fff;font-size:13.5px;font-weight:800;line-height:1;letter-spacing:.03em;white-space:nowrap;box-shadow:0 7px 22px rgba(143,201,232,.24),0 2px 7px rgba(70,126,158,.05)}
+.quick-menu-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:30px;padding:6px 9px;border:1px solid rgba(143,201,232,.34);border-radius:999px;background:#8fc9e8;color:#fff;font-size:12.5px;font-weight:800;line-height:1;letter-spacing:.03em;white-space:nowrap;box-shadow:0 7px 22px rgba(143,201,232,.24),0 2px 7px rgba(70,126,158,.05)}
 .quick-nav{position:sticky;top:8px;width:154px;padding:9px;border:2.5px solid #dcecf4;border-radius:16px;background:#fff;box-shadow:0 8px 28px rgba(143,201,232,.18),0 2px 8px rgba(70,126,158,.045)}
 .nav-list{display:grid;gap:2px;padding-top:3px}.quick-nav button,.quick-nav summary{width:100%;min-height:30px;padding:6px 9px;border:0;border-radius:9px;background:#f7fbfe;color:#6b9fba;font:inherit;font-size:11px;font-weight:600;line-height:1.35;text-align:left;cursor:pointer;list-style:none}
 .quick-nav summary::-webkit-details-marker{display:none}.quick-nav summary{display:flex;align-items:center;justify-content:space-between}.quick-nav summary::after{content:"▾";font-size:9px}.quick-nav details[open] summary::after{content:"▴"}
@@ -49,8 +49,10 @@ body:not(.menu-ready) .quick-nav{visibility:hidden}
 </style>
 </head>
 <body>
-<div id="quickWorkStatus" class="quick-work-status" hidden aria-live="polite"><div class="quick-work-status-badge"><span class="quick-work-status-dot" aria-hidden="true"></span><span id="quickWorkStatusLabel"></span></div><p id="quickWorkStatusDescription" class="quick-work-status-description" hidden></p></div>
-<div class="quick-menu-title-wrap" aria-hidden="true"><div class="quick-menu-title">✦ MENU ✦</div></div>
+<div class="quick-menu-header">
+  <div class="quick-menu-title-wrap" aria-hidden="true"><div class="quick-menu-title">✦ MENU ✦</div></div>
+  <div id="quickWorkStatus" class="quick-work-status" hidden aria-live="polite"><div class="quick-work-status-badge"><span class="quick-work-status-dot" aria-hidden="true"></span><span id="quickWorkStatusLabel"></span></div></div>
+</div>
 <nav class="quick-nav" aria-label="페이지 빠른 이동"><div id="navList" class="nav-list"><div class="loading">메뉴 불러오는 중…</div></div></nav>
 <script src="/js/config.js"></script>
 <script>
