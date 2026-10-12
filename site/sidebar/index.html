@@ -138,14 +138,14 @@ function cached(){try{const x=JSON.parse(localStorage.getItem(CACHE_KEY)||'null'
 function saveCache(data){try{localStorage.setItem(CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}}
 async function init(){
  const old=cached();
- if(old)renderSummary(old);
  try{
   const d=await api('/api/public/nav-summary');
   const summary=summaryFromNav(d);
   saveCache(summary);
   renderSummary(summary)
  }catch{
-  if(!old)renderSummary({hasPreset:false,hasBanner:false,bannerIds:[],profile:null,fourCut:null,extraCategories:[]})
+  if(old)renderSummary(old);
+  else renderSummary({hasPreset:false,hasBanner:false,bannerIds:[],profile:null,fourCut:null,extraCategories:[]})
  }
 }
 if(ch)ch.addEventListener('message',e=>{
