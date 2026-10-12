@@ -6223,3 +6223,8 @@ html.artmug-embed-root body.artmug-part .site-shell{
 [data-question-title]::before{
   margin-right:0!important;
 }
+
+/* 2026-10-13 STARTUP FLICKER GUARD */
+.portfolio-all-section-v2[hidden]{
+  display:none!important;
+}
