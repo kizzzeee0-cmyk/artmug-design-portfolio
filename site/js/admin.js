@@ -853,7 +853,7 @@ async function saveSettings(){
     $('saveStatus').textContent='저장 중…';
     const saved=await queueSettingsMutation(latest=>Object.assign(latest,snapshot));
     S=saved;
-    try{localStorage.removeItem('artmug-nav-summary-v10')}catch{}
+    try{localStorage.removeItem('artmug-nav-summary-v11')}catch{}
     $('saveStatus').textContent='저장되었습니다.';
     showToast('저장되었습니다.')
   }catch(e){
