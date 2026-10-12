@@ -6216,7 +6216,7 @@ html.artmug-embed-root body.artmug-part .site-shell{
 .form-card{
   --inquiry-lower-gap:18px;
   --inquiry-footer-pad-y:18px;
-  --inquiry-card-pad:30px;
+  padding-bottom:var(--inquiry-footer-pad-y)!important;
 }
 .form-card .contact-form{
   gap:var(--inquiry-lower-gap)!important;
@@ -6242,14 +6242,11 @@ html.artmug-embed-root body.artmug-part .site-shell{
 /* The footer reaches the card edges so its own top/bottom padding is the only
    vertical space around the copy button. */
 .inquiry-form-footer{
-  width:auto;
-  margin-top:var(--inquiry-lower-gap);
-  margin-left:calc(-1 * var(--inquiry-card-pad));
-  margin-right:calc(-1 * var(--inquiry-card-pad));
-  margin-bottom:calc(-1 * var(--inquiry-card-pad));
-  padding:var(--inquiry-footer-pad-y) var(--inquiry-card-pad);
+  width:100%;
+  margin:var(--inquiry-lower-gap) 0 0;
+  padding:var(--inquiry-footer-pad-y) 0 0;
   border-top:1px solid var(--line);
-  background:var(--surface);
+  background:transparent;
 }
 .inquiry-form-footer .form-actions,
 body.artmug-part-inquiry .inquiry-form-footer .form-actions{
@@ -6293,7 +6290,7 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   .form-card{
     --inquiry-lower-gap:16px;
     --inquiry-footer-pad-y:16px;
-    --inquiry-card-pad:22px;
+    padding-bottom:var(--inquiry-footer-pad-y)!important;
   }
 }
 
