@@ -331,7 +331,17 @@ function renderSchedule(s){
     (extras.length?`<span class="schedule-extra-lines">${extras.map(x=>`<span class="schedule-extra-line">${htmlAttr(x)}</span>`).join('')}</span>`:'');
 
 }
-function renderAuthorIntro(s){const on=!!s.authorEnabled,sec=$('authorIntro');sec.hidden=!on;if(!on)return;const im=$('authorImage');if(s.aboutImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}set('authorText',s.authorText||'');$('authorText').style.fontSize=(s.authorFontSize||15)+'px'}
+function renderAuthorIntro(s){
+  const on=!!s.authorEnabled,sec=$('authorIntro');
+  sec.hidden=!on;
+  if(!on)return;
+  const im=$('authorImage'),hasImage=!!s.aboutImage;
+  sec.classList.toggle('has-image',hasImage);
+  if(hasImage){im.src=media(s.aboutImage);im.hidden=false}else{im.removeAttribute('src');im.hidden=true}
+  set('authorName',s.authorName||'칠공');
+  set('authorText',s.authorText||'');
+  $('authorText').style.fontSize=(s.authorFontSize||15)+'px'
+}
 function renderEvents(s){
   const on=!!s.eventsEnabled,sec=$('eventsSection');sec.hidden=!on;if(!on)return;
   set('eventsKicker',s.eventsKicker||'OPEN EVENT');
@@ -362,16 +372,53 @@ function renderEvents(s){
   }
 }
 
+function safeNoticeTextHtml(value){
+  return String(value??'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\r?\n/g,'<br>')
+}
+function safeNoticeColor(value){
+  const v=String(value||'').trim();
+  if(/^#[0-9a-f]{3,8}$/i.test(v))return v;
+  if(/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i.test(v))return v;
+  return ''
+}
+function noticeRichHtml(raw,fallback){
+  const source=String(raw||'').trim();
+  if(!source)return safeNoticeTextHtml(fallback);
+  const template=document.createElement('template');
+  template.innerHTML=source;
+  const serialize=node=>{
+    if(node.nodeType===Node.TEXT_NODE)return safeNoticeTextHtml(node.nodeValue);
+    if(node.nodeType!==Node.ELEMENT_NODE)return '';
+    const tag=node.tagName.toUpperCase();
+    const inner=Array.from(node.childNodes).map(serialize).join('');
+    if(tag==='BR')return '<br>';
+    if(tag==='B'||tag==='STRONG')return '<strong>'+inner+'</strong>';
+    if(tag==='FONT'||tag==='SPAN'){
+      const color=safeNoticeColor(tag==='FONT'?node.getAttribute('color'):node.style.color);
+      return color?'<span style="color:'+color+'">'+inner+'</span>':inner
+    }
+    if(tag==='DIV'||tag==='P')return inner+'<br>';
+    return inner
+  };
+  return Array.from(template.content.childNodes).map(serialize).join('').replace(/(?:<br>)+$/,'')
+}
 function renderNotices(items){
-  $('noticeItems').innerHTML=items.map((x,i)=>`
-    <article class="notice-item">
-      <div class="notice-item-head">
-        <span class="notice-index">${String(i+1).padStart(2,'0')}</span>
-        <strong class="notice-item-title">${esc(x.title)}</strong>
-      </div>
-      <p class="notice-item-description">${esc(x.description)}</p>
-    </article>
-  `).join('')
+  const visible=(Array.isArray(items)?items:[]).filter(x=>x&&x.enabled!==false);
+  $('noticeItems').innerHTML=visible.map((x,i)=>{
+    const title=noticeRichHtml(x.titleRich,x.title);
+    const description=noticeRichHtml(x.descriptionRich,x.description);
+    return `
+      <article class="notice-item">
+        <span class="notice-index" aria-hidden="true">${i+1}</span>
+        <div class="notice-message">
+          ${title?'<span class="notice-item-title">'+title+'</span>':''}
+          ${description?'<span class="notice-item-description">'+description+'</span>':''}
+        </div>
+      </article>
+    `
+  }).join('')
 }
 
 function guideDefaults(){
