@@ -536,8 +536,9 @@ window.__ARTMUG_V2__={
 };
 async function init(){
  initNav();
+ const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/settings?fresh='+Date.now()));
  const [d,portfolioIndex]=await Promise.all([
-  api('/api/public/settings?fresh='+Date.now()),
+  settingsPromise,
   rawJson('portfolio/index.json').catch(()=>null)
  ]);
  state.settings=d.settings||{};
