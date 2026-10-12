@@ -1316,3 +1316,35 @@ body.artmug-part-portfolio #inquirySection{
     margin-bottom:7px!important;
   }
 }
+
+/* 2026-10-13 QUICK-MENU-SCALE CATEGORY PILLS */
+.v2-cat-head h3,
+.v2-preset-category-head h3{
+  min-height:32px!important;
+  padding:6px 16px!important;
+  font-size:var(--quick-menu-item-font-size,12.5px)!important;
+  font-weight:600!important;
+  line-height:1.25!important;
+  border-radius:999px!important;
+}
+.v2-cat-head{
+  gap:10px!important;
+}
+.v2-preset-category-head{
+  margin-bottom:10px!important;
+}
+@media(max-width:680px){
+  .v2-cat-head h3,
+  .v2-preset-category-head h3{
+    min-height:28px!important;
+    padding:5px 12px!important;
+    font-size:var(--category-pill-mobile-font-size,11.5px)!important;
+    font-weight:600!important;
+  }
+  .v2-cat-head{
+    gap:8px!important;
+  }
+  .v2-preset-category-head{
+    margin-bottom:8px!important;
+  }
+}
