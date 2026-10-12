@@ -6311,3 +6311,37 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     font-size:15.5px!important;
   }
 }
+
+/* 2026-10-13 STATUS PLACEMENT + COPY LABEL SCALE */
+/* Desktop status lives only in the right quick menu. */
+@media(min-width:681px){
+  .work-status{
+    display:none!important;
+  }
+}
+
+/* Mobile keeps the existing status component/design and only moves it right. */
+@media(max-width:680px){
+  .work-status{
+    justify-self:end!important;
+    justify-items:end!important;
+    max-width:100%!important;
+    margin:0 2px -3px!important;
+  }
+  .work-status-description{
+    margin-left:3px!important;
+    margin-right:3px!important;
+    text-align:right!important;
+  }
+}
+
+/* Keep the enlarged button geometry; only reduce its internal type slightly. */
+.inquiry-form-footer #copyButton{
+  font-size:14.5px!important;
+  font-weight:600!important;
+}
+@media(max-width:680px){
+  .inquiry-form-footer #copyButton{
+    font-size:14px!important;
+  }
+}
