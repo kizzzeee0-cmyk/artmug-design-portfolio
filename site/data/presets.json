@@ -34,5 +34,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261012063545"
+  },
+  {
+    "id": "preset-NDyupr7Wuic",
+    "category": "profile",
+    "file": "preset/profile/20261012063603-1v1n0h5j6wofo-background__1_.png",
+    "originalName": "background (1).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261012063605"
   }
 ]
