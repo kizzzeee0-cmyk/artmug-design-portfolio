@@ -41,15 +41,16 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .quick-inquiry-section[hidden] + .quick-top-wrap{margin-top:0}
 .quick-nav-icon{width:16px;height:16px;flex:0 0 16px;display:grid;place-items:center;color:#8fc9e8}
 .quick-nav-icon svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.quick-nav-button::after,.quick-inquiry-button::after{content:"";width:16px;height:1px}
-.quick-nav-label{min-width:0;overflow-wrap:anywhere;text-align:center;justify-self:stretch}
+.quick-nav-balance{width:16px;height:1px;justify-self:center}
+.quick-nav-label{grid-column:2;min-width:0;overflow-wrap:anywhere;text-align:center;justify-self:stretch}
 .quick-top-wrap{display:flex;justify-content:center;align-items:center;min-height:40px}
 .quick-top-button{position:relative;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:transparent;color:#7fbada;font:inherit;cursor:pointer;box-shadow:none;display:grid;place-items:center}
 .quick-top-button::before{content:"";position:absolute;left:50%;top:50%;width:31px;height:31px;transform:translate(-50%,-50%);border:1px solid #dcecf4;border-radius:50%;background:#fff;transition:background .14s ease,border-color .14s ease}
 .quick-top-button:hover::before,.quick-top-button:focus-visible::before{background:#f2f9fd;border-color:#a9d7ed}
 .quick-top-button:hover,.quick-top-button:focus-visible{color:#5ea6cd;outline:none}
-.quick-top-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:31px;height:31px;line-height:1;text-align:center}
-.quick-top-arrow{display:block;width:100%;font-size:10px;font-weight:650;line-height:1;text-align:center}
+.quick-top-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:31px;height:31px;line-height:1;text-align:center;transform:translateY(.25px)}
+.quick-top-arrow{display:block;width:10.5px;height:7px;overflow:visible}
+.quick-top-arrow svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .quick-top-text{display:block;width:100%;font-size:7px;font-weight:800;line-height:1;text-align:center;letter-spacing:.01em}
 .loading{padding:10px 3px;text-align:center;color:#81909a;font-size:10px}
 </style>
@@ -62,9 +63,9 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
   <div id="navList" class="nav-list"><div class="loading">메뉴 불러오는 중…</div></div>
   <div id="quickInquirySection" class="quick-inquiry-section" hidden>
     <div class="quick-divider is-action" aria-hidden="true"></div>
-    <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-icon"></span><span class="quick-nav-label">문의양식</span></button>
+    <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-icon"></span><span class="quick-nav-label">문의양식</span><span class="quick-nav-balance" aria-hidden="true"></span></button>
   </div>
-  <div class="quick-top-wrap"><button id="quickTopButton" type="button" class="quick-top-button" data-target="top" aria-label="페이지 상단으로 이동"><span class="quick-top-content"><span class="quick-top-arrow" aria-hidden="true">↑</span><span class="quick-top-text">TOP</span></span></button></div>
+  <div class="quick-top-wrap"><button id="quickTopButton" type="button" class="quick-top-button" data-target="top" aria-label="페이지 상단으로 이동"><span class="quick-top-content"><span class="quick-top-arrow" aria-hidden="true"><svg viewBox="0 0 12 8"><path d="M1 6 6 1l5 5"/></svg></span><span class="quick-top-text">TOP</span></span></button></div>
 </nav>
 <script src="/js/config.js"></script>
 <script>
@@ -147,7 +148,7 @@ function iconSvg(item){
 function show(items){
  const inquiry=items.find(x=>x.target==='inquiry');
  const categories=items.filter(x=>x.target!=='inquiry');
- root.innerHTML=categories.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+'" data-target="'+x.target+'"><span class="quick-nav-icon">'+iconSvg(x)+'</span><span class="quick-nav-label">'+x.label+'</span></button>').join('');
+ root.innerHTML=categories.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+'" data-target="'+x.target+'"><span class="quick-nav-icon">'+iconSvg(x)+'</span><span class="quick-nav-label">'+x.label+'</span><span class="quick-nav-balance" aria-hidden="true"></span></button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
  const inquirySection=document.getElementById('quickInquirySection');
  const inquiryButton=document.getElementById('quickInquiryButton');
