@@ -6762,3 +6762,15 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
 .schedule-date{
   color:var(--schedule-date-color,#4E9BC6)!important;
 }
+
+/* 2026-10-13 COPY ACTION TYPOGRAPHY SOURCE OF TRUTH */
+.inquiry-form-footer #copyButton{
+  font-size:var(--copy-action-font-size,14.5px)!important;
+  font-weight:var(--copy-action-font-weight,600)!important;
+}
+@media(max-width:680px){
+  .inquiry-form-footer #copyButton{
+    font-size:var(--copy-action-mobile-font-size,14px)!important;
+    font-weight:var(--copy-action-font-weight,600)!important;
+  }
+}
