@@ -6215,3 +6215,11 @@ html.artmug-embed-root body.artmug-part .site-shell{
     content:"";
   }
 }
+
+/* 2026-10-13 INQUIRY QUESTION NUMBER GAP NORMALIZATION */
+[data-question-title]{
+  column-gap:7px!important;
+}
+[data-question-title]::before{
+  margin-right:0!important;
+}
