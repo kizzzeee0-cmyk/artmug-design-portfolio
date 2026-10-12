@@ -6296,3 +6296,18 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     --inquiry-card-pad:22px;
   }
 }
+
+/* 2026-10-13 COPY ACTION SIZE POLISH */
+.inquiry-form-footer #copyButton{
+  min-height:48px!important;
+  padding:0 22px!important;
+  font-size:16px!important;
+  font-weight:600!important;
+}
+@media(max-width:680px){
+  .inquiry-form-footer #copyButton{
+    min-height:46px!important;
+    padding:0 20px!important;
+    font-size:15.5px!important;
+  }
+}
