@@ -457,11 +457,14 @@ function injectInquiry(card){
  box.hidden=!String(html||'').trim();
  const profilePresetOnly=hasProfile&&types.length===1&&profileMode==='preset';
  const profileChangeOnly=hasProfile&&types.length===1&&profileMode==='change';
- const profileChange=hasProfile&&profileMode==='change';
  fields.querySelectorAll('.concept-request-field').forEach(el=>el.classList.toggle('v2-hidden-field',profilePresetOnly||profileChangeOnly));
  fields.querySelectorAll('.content-input-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileChangeOnly));
- fields.querySelectorAll('.frame-retention-field').forEach(el=>el.classList.toggle('v2-hidden-field',profilePresetOnly||profileChange));
- box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{card.dataset.profileMode=i.value;injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())});
+ box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
+  card.dataset.profileMode=i.value;
+  if(typeof window.refreshInquiryRequestFields==='function')window.refreshInquiryRequestFields(card);
+  injectInquiry(card);
+  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+ });
  box.querySelectorAll('[data-v2-banner-index]').forEach(i=>i.onchange=()=>{card.dataset['bannerType'+i.dataset.v2BannerIndex]=i.value});
  box.querySelectorAll('[data-v2-select="preset"]').forEach(b=>b.onclick=()=>{
   card.dataset.selectedPresetFile=b.dataset.file;
