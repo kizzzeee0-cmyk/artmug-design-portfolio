@@ -5860,25 +5860,18 @@ html.artmug-embed-root body.artmug-part .site-shell{
   overflow:visible!important;
 }
 
-/* 4) Inquiry section dividers get a little more breathing room. */
+/* 4) Inquiry section dividers use only the shared grid gap.
+      No extra margins may stack on top of that spacing. */
 .inquiry-form-divider,
 .inquiry-form-divider-primary,
 .inquiry-form-divider-secondary{
-  margin-top:11px!important;
-  margin-bottom:11px!important;
+  margin:0!important;
 }
 
-/* Mobile: keep the same visual changes without changing layout or button size. */
+/* Mobile keeps the same flat copy-button treatment. */
 @media(max-width:680px){
   #copyButton{
     box-shadow:none!important;
-  }
-
-  .inquiry-form-divider,
-  .inquiry-form-divider-primary,
-  .inquiry-form-divider-secondary{
-    margin-top:10px!important;
-    margin-bottom:10px!important;
   }
 }
 
@@ -6228,6 +6221,14 @@ html.artmug-embed-root body.artmug-part .site-shell{
 .form-card .contact-form{
   gap:var(--inquiry-lower-gap)!important;
 }
+.form-card .request-card{
+  gap:var(--inquiry-lower-gap)!important;
+}
+.form-card .inquiry-form-divider,
+.form-card .inquiry-form-divider-primary,
+.form-card .inquiry-form-divider-secondary{
+  margin:0!important;
+}
 
 /* Attachment guidance stays the same size, but reads as a distinct info panel. */
 .inquiry-attachment-notice{
@@ -6268,6 +6269,9 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
+}
+.inquiry-form-footer .status-text:empty{
+  display:none!important;
 }
 .inquiry-form-footer #copyButton,
 .inquiry-form-footer #copyButton:hover,
