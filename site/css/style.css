@@ -6774,3 +6774,17 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     font-weight:var(--copy-action-font-weight,600)!important;
   }
 }
+
+/* 2026-10-13 SLIM LEGACY CATEGORY PILL HEIGHT */
+.portfolio-card .tab,
+.preset-section .tab{
+  min-height:34px!important;
+  padding:5px 22px!important;
+}
+@media(max-width:680px){
+  .portfolio-card .tab,
+  .preset-section .tab{
+    min-height:31px!important;
+    padding:4px 16px!important;
+  }
+}
