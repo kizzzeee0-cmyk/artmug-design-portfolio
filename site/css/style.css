@@ -6228,3 +6228,35 @@ html.artmug-embed-root body.artmug-part .site-shell{
 .portfolio-all-section-v2[hidden]{
   display:none!important;
 }
+
+/* 2026-10-13 INQUIRY ACTION FLAT POLISH */
+/* Copy action uses the exact same fill as selected inquiry choices. */
+.form-actions .primary-button,
+.form-actions .primary-button:hover,
+.form-actions .primary-button:focus-visible,
+.form-actions .primary-button.is-copied{
+  background:var(--primary-action)!important;
+  background-image:none!important;
+  border-color:var(--primary-action)!important;
+  color:#FFFFFF!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+/* Keep the attachment note secondary and give the primary action its own breathing room. */
+.inquiry-attachment-notice{
+  background:#fbfdff!important;
+  border-color:rgba(143,201,232,.24)!important;
+  box-shadow:none!important;
+}
+.inquiry-attachment-notice + .form-actions{
+  margin-top:8px!important;
+}
+@media(max-width:680px){
+  .inquiry-attachment-notice + .form-actions{
+    margin-top:6px!important;
+  }
+}
