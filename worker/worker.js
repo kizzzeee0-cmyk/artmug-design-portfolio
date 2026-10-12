@@ -165,9 +165,48 @@ async function publicNavSummary(env){
   return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts},200,{'Cache-Control':'public,max-age=30,stale-while-revalidate=120'})
 }
 async function media(path,env){const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`);if(!r.ok)return new Response('Not found',{status:404});const h=new Headers({'Cache-Control':'public,max-age=31536000,immutable'}),ct=r.headers.get('Content-Type');if(ct)h.set('Content-Type',ct);return new Response(r.body,{status:200,headers:h})}
-function b64(buf){const bytes=new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
+function b64(buf){const bytes=buf instanceof Uint8Array?buf:new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
 function decodeB64(s){return Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0))}
-async function putFile(env,token,path,bytes,message,sha){const body={message,content:b64(bytes),branch:env.GITHUB_BRANCH||'main'};if(sha)body.sha=sha;const r=await fetch(ghUrl(env,path),{method:'PUT',headers:{...ghHeaders(token),'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(`GitHub ${r.status}: ${d.message||path}`);e.status=r.status;throw e}return d}
+function b64Ascii(bytes){
+  let out='';
+  for(let i=0;i<bytes.length;i+=0x8000)out+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  return btoa(out)
+}
+function githubContentStream(file,message,branch,sha){
+  const encoder=new TextEncoder();
+  const reader=file.stream().getReader();
+  let carry=new Uint8Array(0),started=false,done=false;
+  const prefix=JSON.stringify({message,content:''}).replace('""','"');
+  const head=prefix.slice(0,-2);
+  const tail='","branch":'+JSON.stringify(branch)+(sha?',"sha":'+JSON.stringify(sha):'')+'}';
+  return new ReadableStream({
+    async pull(controller){
+      if(!started){started=true;controller.enqueue(encoder.encode(head));return}
+      if(done){controller.enqueue(encoder.encode(tail));controller.close();return}
+      const part=await reader.read();
+      if(part.done){
+        if(carry.length)controller.enqueue(encoder.encode(b64Ascii(carry)));
+        carry=new Uint8Array(0);done=true;return
+      }
+      const chunk=part.value instanceof Uint8Array?part.value:new Uint8Array(part.value);
+      const merged=new Uint8Array(carry.length+chunk.length);
+      merged.set(carry);merged.set(chunk,carry.length);
+      const usable=merged.length-(merged.length%3);
+      if(usable)controller.enqueue(encoder.encode(b64Ascii(merged.subarray(0,usable))));
+      carry=merged.slice(usable)
+    },
+    cancel(){reader.cancel().catch(()=>{})}
+  })
+}
+async function putFile(env,token,path,bytes,message,sha){
+  const branch=env.GITHUB_BRANCH||'main';
+  const isFile=typeof File!=='undefined'&&bytes instanceof File;
+  const body=isFile?githubContentStream(bytes,message,branch,sha):JSON.stringify({...({message,content:b64(bytes),branch}),...(sha?{sha}:{})});
+  const r=await fetch(ghUrl(env,path),{method:'PUT',headers:{...ghHeaders(token),'Content-Type':'application/json'},body});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(`GitHub ${r.status}: ${d.message||path}`);e.status=r.status;throw e}
+  return d
+}
 async function saveJson(env,token,path,obj,msg){
   const bytes=enc.encode(JSON.stringify(obj,null,2)+'\n');
   let lastError;
@@ -201,7 +240,7 @@ function validateConfiguredSize(bytes,extn,c){
     throw uploadError(`이미지 크기는 ${expected}만 가능합니다.${d?` 선택한 파일: ${d.width} × ${d.height}px`:" 이미지 크기를 읽을 수 없습니다."}`)
   }
 }
-async function upload(req,env,s,isPreset){const token=env.GITHUB_TOKEN||s.token;if(!token)throw uploadError('GitHub 저장 연결을 확인해주세요.',503);const f=await req.formData(),file=f.get('file'),cat=String(f.get('category')||'');if(!(file instanceof File)||!cat)throw uploadError('파일 또는 카테고리가 없습니다.');const bytes=new Uint8Array(await file.arrayBuffer());if(!bytes.length)throw uploadError('빈 파일은 업로드할 수 없습니다.');const extn=ext(file.name);if(!['gif','png','jpg','jpeg','webp'].includes(extn))throw uploadError('지원하지 않는 파일 형식입니다.');const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
+async function upload(req,env,s,isPreset){const token=env.GITHUB_TOKEN||s.token;if(!token)throw uploadError('GitHub 저장 연결을 확인해주세요.',503);const f=await req.formData(),file=f.get('file'),cat=String(f.get('category')||'');if(!(file instanceof File)||!cat)throw uploadError('파일 또는 카테고리가 없습니다.');if(file.size<=0)throw uploadError('빈 파일은 업로드할 수 없습니다.');const extn=ext(file.name);if(!['gif','png','jpg','jpeg','webp'].includes(extn))throw uploadError('지원하지 않는 파일 형식입니다.');const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
 if(isPreset){
   const settings=await ghJson(env,token,SETTINGS);
   const pc=(settings.presetCategories||[]).find(x=>x.id===cat);
@@ -212,7 +251,7 @@ if(isPreset){
   // Preset source files keep their original pixel dimensions.
   // displayWidth/displayHeight are presentation sizes only, not upload restrictions.
 }
-if(!isPreset){const settings=await ghJson(env,token,SETTINGS);const c=(settings.portfolioCategories||[]).find(x=>x.id===cat);if(!c)throw uploadError('존재하지 않는 포트폴리오 카테고리입니다.');if(!(c.formats||[]).map(String).map(x=>x.toLowerCase()).includes(extn==='jpg'?'jpeg':extn))throw uploadError(`이 카테고리는 ${(c.formats||[]).join(', ').toUpperCase()} 파일만 업로드할 수 있습니다.`);}const name=`${stamp}-${random(6)}-${safeName(file.name)}`,path=isPreset?`preset/${cat}/${name}`:`portfolio/${cat}/${name}`;await putFile(env,token,path,bytes,`[CF-Pages-Skip] Upload ${isPreset?'preset':'portfolio'} ${name}`);if(isPreset){let list=await ghJson(env,token,PRESETS).catch(()=>[]);list.push({id:`preset-${random(8)}`,category:cat,file:path,originalName:file.name,description:'',enabled:true,createdAt:stamp});await saveJson(env,token,PRESETS,list,'[CF-Pages-Skip] Update presets')}else{let idx=await ghJson(env,token,INDEX).catch(()=>[]);idx.push({id:`file-${random(8)}`,category:cat,file:path,originalName:file.name,alt:file.name.replace(/\.[^.]+$/,''),createdAt:stamp});await saveJson(env,token,INDEX,idx,'[CF-Pages-Skip] Update portfolio index')}return json({ok:true,path})}
+if(!isPreset){const settings=await ghJson(env,token,SETTINGS);const c=(settings.portfolioCategories||[]).find(x=>x.id===cat);if(!c)throw uploadError('존재하지 않는 포트폴리오 카테고리입니다.');if(!(c.formats||[]).map(String).map(x=>x.toLowerCase()).includes(extn==='jpg'?'jpeg':extn))throw uploadError(`이 카테고리는 ${(c.formats||[]).join(', ').toUpperCase()} 파일만 업로드할 수 있습니다.`);}const name=`${stamp}-${random(6)}-${safeName(file.name)}`,path=isPreset?`preset/${cat}/${name}`:`portfolio/${cat}/${name}`;await putFile(env,token,path,file,`[CF-Pages-Skip] Upload ${isPreset?'preset':'portfolio'} ${name}`);if(isPreset){let list=await ghJson(env,token,PRESETS).catch(()=>[]);list.push({id:`preset-${random(8)}`,category:cat,file:path,originalName:file.name,description:'',enabled:true,createdAt:stamp});await saveJson(env,token,PRESETS,list,'[CF-Pages-Skip] Update presets')}else{let idx=await ghJson(env,token,INDEX).catch(()=>[]);idx.push({id:`file-${random(8)}`,category:cat,file:path,originalName:file.name,alt:file.name.replace(/\.[^.]+$/,''),createdAt:stamp});await saveJson(env,token,INDEX,idx,'[CF-Pages-Skip] Update portfolio index')}return json({ok:true,path})}
 async function savePresetsMetadata(req,env,s){
   const body=await req.json().catch(()=>({})),incoming=Array.isArray(body.items)?body.items:null;
   if(!incoming)throw new Error('프리셋 목록이 없습니다.');
