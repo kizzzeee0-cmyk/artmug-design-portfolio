@@ -439,7 +439,7 @@ function injectInquiry(card){
  const profileMode=card.dataset.profileMode||'custom';
  let html='';
  if(hasProfile){
-  html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
+  html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프로필 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="custom" '+(profileMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="change" '+(profileMode==='change'?'checked':'')+'><span>이름/움짤 변경</span></label></div></fieldset>';
@@ -524,7 +524,7 @@ window.__ARTMUG_V2__={
   const d=this.inquiryData(card),out=[];
   if(d.profileSelected){
    const modeLabel=d.profileMode==='preset'?'프리셋 구매':d.profileMode==='change'?'이름/움짤 변경':'맞춤제작';
-   out.push('움짤프사 신청 방식: '+modeLabel);
+   out.push('움짤프로필 신청 방식: '+modeLabel);
    if(d.profileMode==='preset'&&d.selectedPresetName){
     out.push('선택 프리셋: '+d.selectedPresetName+' ['+d.selectedPresetFile+']');
     if(d.selectedPresetStatus)out.push('프리셋 상태: '+d.selectedPresetStatus)
