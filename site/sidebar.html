@@ -156,8 +156,9 @@ async function init(){
 if(ch)ch.addEventListener('message',e=>{
  const d=e.data;
  if(d?.type==='nav-data'){
-  const summary=summaryFromNav({hasPreset:!!d.preset,categories:d.categories});
-  saveCache(summary);renderSummary(summary);return
+  // Page frames can report partial data while their sections are still loading.
+  // The quick-menu list is sourced only from /api/public/nav-summary to avoid flicker.
+  return
  }
  if(d?.type==='active'){
   const target=normalizeActiveTarget(d.target);
