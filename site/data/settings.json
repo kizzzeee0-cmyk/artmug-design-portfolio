@@ -327,7 +327,7 @@
       "enabled": true,
       "displayWidth": 200,
       "displayHeight": 200,
-      "strictSize": true,
+      "strictSize": false,
       "uploadWidth": 200,
       "uploadHeight": 200,
       "formats": [
