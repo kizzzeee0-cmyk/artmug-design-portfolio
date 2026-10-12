@@ -6225,6 +6225,9 @@ html.artmug-embed-root body.artmug-part .site-shell{
   --inquiry-footer-pad-y:18px;
   --inquiry-card-pad:30px;
 }
+.form-card .contact-form{
+  gap:var(--inquiry-lower-gap)!important;
+}
 
 /* Attachment guidance stays the same size, but reads as a distinct info panel. */
 .inquiry-attachment-notice{
