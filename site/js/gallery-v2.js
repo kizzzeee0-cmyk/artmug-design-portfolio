@@ -441,7 +441,8 @@ function injectInquiry(card){
  if(hasProfile){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="custom" '+(profileMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
-   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label></div></fieldset>';
+   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label>'+
+   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="change" '+(profileMode==='change'?'checked':'')+'><span>이름/움짤 변경</span></label></div></fieldset>';
   if(profileMode==='preset')html+=selectionHtml(card.dataset.selectedPresetFile)
  }
  if(bannerTypeEnabled()&&banners.length){
@@ -454,8 +455,12 @@ function injectInquiry(card){
  }
  if(box.dataset.renderSignature!==html){box.innerHTML=html;box.dataset.renderSignature=html}
  box.hidden=!String(html||'').trim();
- const profileOnly=hasProfile&&types.length===1&&profileMode==='preset';
- fields.querySelectorAll('.concept-request-field,.frame-retention-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileOnly));
+ const profilePresetOnly=hasProfile&&types.length===1&&profileMode==='preset';
+ const profileChangeOnly=hasProfile&&types.length===1&&profileMode==='change';
+ const profileChange=hasProfile&&profileMode==='change';
+ fields.querySelectorAll('.concept-request-field').forEach(el=>el.classList.toggle('v2-hidden-field',profilePresetOnly||profileChangeOnly));
+ fields.querySelectorAll('.content-input-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileChangeOnly));
+ fields.querySelectorAll('.frame-retention-field').forEach(el=>el.classList.toggle('v2-hidden-field',profilePresetOnly||profileChange));
  box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{card.dataset.profileMode=i.value;injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())});
  box.querySelectorAll('[data-v2-banner-index]').forEach(i=>i.onchange=()=>{card.dataset['bannerType'+i.dataset.v2BannerIndex]=i.value});
  box.querySelectorAll('[data-v2-select="preset"]').forEach(b=>b.onclick=()=>{
@@ -507,8 +512,7 @@ window.__ARTMUG_V2__={
    selectedPresetName:selectedProductName(card),
    selectedPresetStatus:selectedProductStatus(card),
    bannerTypes:bannerTypeEnabled()?banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})):[],
-   profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||x.id==='profile-a'),
-   floatingSelected:types.some(x=>/플로팅/.test(x.label))
+   profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||/움짤\s*프로필/.test(x.label)||x.id==='profile-a')
   }
  },
  validateCard(card){
@@ -519,13 +523,13 @@ window.__ARTMUG_V2__={
  inquiryLines(card){
   const d=this.inquiryData(card),out=[];
   if(d.profileSelected){
-   out.push('움짤프사 신청 방식: '+(d.profileMode==='preset'?'프리셋 구매':'맞춤제작'));
+   const modeLabel=d.profileMode==='preset'?'프리셋 구매':d.profileMode==='change'?'이름/움짤 변경':'맞춤제작';
+   out.push('움짤프사 신청 방식: '+modeLabel);
    if(d.profileMode==='preset'&&d.selectedPresetName){
     out.push('선택 프리셋: '+d.selectedPresetName+' ['+d.selectedPresetFile+']');
     if(d.selectedPresetStatus)out.push('프리셋 상태: '+d.selectedPresetStatus)
    }
   }
-  if(d.floatingSelected)out.push('플로팅 배너 신청 방식: 맞춤제작');
   d.bannerTypes.forEach(x=>out.push(x.label+' TYPE: '+x.type));
   return out
  }
