@@ -1,5 +1,34 @@
 const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],quoteState={};let portfolioAdminPage=1,presetAdminPage=1;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
+function createUploadId(){
+  const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
+  const rand=new Uint32Array(2);
+  crypto.getRandomValues(rand);
+  return stamp+'-'+Array.from(rand,n=>n.toString(36)).join('');
+}
+async function uploadMediaWithRetry(endpoint,cat,file,status){
+  const uploadId=createUploadId();
+  let lastError;
+  for(let attempt=0;attempt<2;attempt++){
+    const fd=new FormData();
+    fd.append('category',cat);
+    fd.append('file',file);
+    fd.append('uploadId',uploadId);
+    try{
+      const r=await fetch(API+endpoint,{method:'POST',credentials:'include',body:fd});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+      return d
+    }catch(e){
+      lastError=e;
+      const network=/failed to fetch|networkerror|load failed|fetch failed/i.test(String(e?.message||e||''));
+      if(!network||attempt===1)throw e;
+      if(status)status.textContent='연결이 끊겨 자동으로 한 번 더 시도하고 있습니다…';
+      await settingsDelay(900)
+    }
+  }
+  throw lastError
+}
 function validatePresetUploadFile(file){
   if(!file)throw new Error('업로드할 파일을 선택해주세요.');
   const ext=String(file.name||'').split('.').pop().toLowerCase();
@@ -1110,10 +1139,8 @@ async function uploadFiles(kind){
       if(files.length>1)throw new Error('프리셋은 이미지 1장만 선택해 주세요.');
       const file=files[0],presetCat=(S.presetCategories||[]).find(x=>x.id===cat)||{};
       validatePresetUploadFile(file);await validateCategoryImageSize(file,presetCat);
-      const fd=new FormData();fd.append('category',cat);fd.append('file',file);
       status.textContent='프리셋 이미지 업로드 중…';
-      const r=await fetch(API+'/api/admin/preset-upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
-      if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+      const d=await uploadMediaWithRetry('/api/admin/preset-upload',cat,file,status);
       const path=String(d.path||'');if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
       try{
         const saved=await queueSettingsMutation(latest=>{
@@ -1137,9 +1164,7 @@ async function uploadFiles(kind){
     for(let i=0;i<files.length;i++){
       status.textContent=`${i+1}/${files.length} 업로드 중…`;
       await validateCategoryImageSize(files[i],portfolioCat);
-      const fd=new FormData();fd.append('category',cat);fd.append('file',files[i]);
-      const r=await fetch(API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
-      if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+      const d=await uploadMediaWithRetry('/api/admin/upload',cat,files[i],status);
       if(d.path)uploadedPaths.push(String(d.path))
     }
     if(uploadedPaths.length){
