@@ -434,14 +434,23 @@ function visiblePortfolioCats(xs){
 }
 function inquiryTypes(){return visibleCats((S&&S.designTypes)||[])}
 function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{}}
-function inquiryQuantityOptions(t){
+function isProfileInquiryType(t){
   const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
-  if(id==='profile-a'||label.includes('움짤프사'))return [
-    {key:'nameChangeQty',label:'프사 이름 변경'},
-    {key:'gifChangeQty',label:'프사 움짤 변경'}
+  return id==='profile-a'||label.includes('움짤프사')||label.includes('움짤프로필')
+}
+function isBannerInquiryType(t){
+  return String(t?.label||'').replace(/\s/g,'').includes('배너')
+}
+function showsContentField(t){
+  return t?.showContentField===true||t?.showBannerTextField===true
+}
+function inquiryQuantityOptions(t){
+  if(isProfileInquiryType(t))return [
+    {key:'nameChangeQty',label:'움짤프로필 · 이름 변경'},
+    {key:'gifChangeQty',label:'움짤프로필 · 움짤 변경'}
   ];
-  if(t?.showBannerTextField===true||label.includes('상단배너')||label.includes('플로팅배너')||label.includes('하단배너'))return [
-    {key:'textChangeQty',label:'배너 텍스트 변경'}
+  if(showsContentField(t)||isBannerInquiryType(t))return [
+    {key:'textChangeQty',label:'배너 · 텍스트/이미지 변경'}
   ];
   return []
 }
@@ -581,6 +590,8 @@ function renderRequestFields(card,typeIds,prev){
   var types=typeIds.map(inquiryType).filter(t=>t&&t.id);
   var rid=card.dataset.requestId;
   var has=function(key){return types.some(t=>t[key])};
+  var hasProfile=types.some(isProfileInquiryType);
+  var contentEnabled=types.some(showsContentField);
 
   if(!types.length){
     fields.innerHTML='';
@@ -588,22 +599,22 @@ function renderRequestFields(card,typeIds,prev){
     return;
   }
 
-  var html='';
-
-  html+='<label class="request-full-field inquiry-standard-field concept-request-field concept-color-combined-field">'+
-    requiredLabel(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+
-    '<textarea data-field="concept" aria-required="true" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+'"></textarea>'+
+  var conceptHtml='<label class="request-full-field inquiry-standard-field concept-request-field concept-color-combined-field">'+
+    '<span class="inquiry-field-title" data-question-title>'+htmlAttr(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+'</span>'+
+    '<textarea data-field="concept" aria-required="false" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+'"></textarea>'+
   '</label>';
 
+  var signatureHtml='';
   if(has('showSignatureFields')){
-    html+='<div class="signature-fields signature-inline-fields">'+
+    signatureHtml='<div class="signature-fields signature-inline-fields">'+
       '<label class="signature-inline-row"><span data-question-title>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
       '<label class="signature-inline-row"><span data-question-title>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><input data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></label>'+
     '</div>';
   }
 
+  var frameHtml='';
   if(has('showFrameRetention')){
-    html+='<fieldset class="choice-field inquiry-plain-choice frame-retention-field">'+
+    frameHtml='<fieldset class="choice-field inquiry-plain-choice frame-retention-field">'+
       '<div class="choice-title-row frame-retention-title-row"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</span>'+
       '<span class="frame-retention-inline-help">'+htmlAttr(S.frameKeepDescription||'')+'</span></div>'+
       '<div class="choice-row">'+
@@ -613,16 +624,36 @@ function renderRequestFields(card,typeIds,prev){
     '</fieldset>';
   }
 
+  var bannerFieldsHtml='';
   if(has('showBannerFields')){
     var bannerValues=['하단 1칸','하단 3칸','하단 6칸'];
-    html+='<div class="banner-fields"><fieldset class="choice-field inquiry-plain-choice"><legend data-question-title>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
+    bannerFieldsHtml='<div class="banner-fields"><fieldset class="choice-field inquiry-plain-choice"><legend data-question-title>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
       bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" type="checkbox" value="'+v+'"><span>'+v+'</span></label>'}).join('')+
       '</div></fieldset></div>';
   }
 
-  if(has('showBannerTextField')){
-    html+='<label class="request-full-field inquiry-standard-field banner-text-field"><span class="inquiry-field-title" data-question-title>배너 입력 문구</span>'+
+  var contentHtml='';
+  if(contentEnabled){
+    contentHtml='<label class="request-full-field inquiry-standard-field banner-text-field content-input-field"><span class="inquiry-field-title" data-question-title>내용 입력</span>'+
       '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페')+'"></textarea></label>';
+  }
+
+  var html='';
+  if(hasProfile){
+    // Profile combinations keep shared fields in this exact order:
+    // bottom banner kind -> concept -> content -> frame retention.
+    html+=bannerFieldsHtml;
+    html+=conceptHtml;
+    html+=contentHtml;
+    html+=signatureHtml;
+    html+=frameHtml;
+  }else{
+    // Preserve the previous order for non-profile requests.
+    html+=conceptHtml;
+    html+=signatureHtml;
+    html+=frameHtml;
+    html+=bannerFieldsHtml;
+    html+=contentHtml;
   }
 
   html+='<div class="inquiry-form-divider inquiry-form-divider-secondary" aria-hidden="true"></div>';
@@ -679,10 +710,8 @@ function renderRequestFields(card,typeIds,prev){
 
   var concept=q('[data-field="concept"]');
   if(concept)concept.oninput=function(){
-    if(String(concept.value||'').trim()){
-      concept.classList.remove('is-required-missing');
-      concept.setAttribute('aria-invalid','false');
-    }
+    concept.classList.remove('is-required-missing');
+    concept.setAttribute('aria-invalid','false');
     clearRequiredMessageIfComplete();
   };
 
@@ -693,6 +722,8 @@ function requestText(card){
   var v=readRequestValues(card);
   var types=v.typeIds.map(inquiryType).filter(t=>t&&t.id);
   var has=function(key){return types.some(t=>t[key])};
+  var hasProfile=types.some(isProfileInquiryType);
+  var contentEnabled=types.some(showsContentField);
   var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+types.map(t=>t.label||'').filter(Boolean).join(', ')];
   if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.inquiryLines==='function'){
     info.push.apply(info,window.__ARTMUG_V2__.inquiryLines(card))
@@ -701,18 +732,28 @@ function requestText(card){
   var details=[];
   var conceptEl=card.querySelector('[data-field="concept"]');
   var conceptHidden=!!conceptEl&&!!conceptEl.closest('.v2-hidden-field');
-  if(!conceptHidden)details.push((S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept);
-
-  if(has('showSignatureFields')){
-    details.push(S.signatureNumberLabel+': '+v.signatureNumber,S.signatureContentLabel+': '+v.signatureContent);
-  }
+  var contentEl=card.querySelector('[data-field="bannerText"]');
+  var contentHidden=!!contentEl&&!!contentEl.closest('.v2-hidden-field');
   var frameEl=card.querySelector('.frame-retention-field');
-  if(has('showFrameRetention')&&!(frameEl&&frameEl.classList.contains('v2-hidden-field')))details.push(S.frameKeepLabel+': '+v.frameKeep);
-  if(has('showBannerFields')){
-    details.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'));
-  }
-  if(has('showBannerTextField')){
-    details.push('배너 입력 문구: '+v.bannerText);
+  var frameHidden=!!frameEl&&frameEl.classList.contains('v2-hidden-field');
+
+  function pushConcept(){if(conceptEl&&!conceptHidden)details.push((S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept)}
+  function pushContent(){if(contentEnabled&&contentEl&&!contentHidden)details.push('내용 입력: '+v.bannerText)}
+  function pushFrame(){if(has('showFrameRetention')&&!frameHidden)details.push((S.frameKeepLabel||'움짤프사 파일 보관 여부')+': '+v.frameKeep)}
+  function pushBottomBanner(){if(has('showBannerFields'))details.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'))}
+
+  if(hasProfile){
+    pushBottomBanner();
+    pushConcept();
+    pushContent();
+    if(has('showSignatureFields'))details.push((S.signatureNumberLabel||'시그풍 숫자')+': '+v.signatureNumber,(S.signatureContentLabel||'시그풍 내용')+': '+v.signatureContent);
+    pushFrame();
+  }else{
+    pushConcept();
+    if(has('showSignatureFields'))details.push((S.signatureNumberLabel||'시그풍 숫자')+': '+v.signatureNumber,(S.signatureContentLabel||'시그풍 내용')+': '+v.signatureContent);
+    pushFrame();
+    pushBottomBanner();
+    pushContent();
   }
 
   var additional=[
@@ -720,9 +761,9 @@ function requestText(card){
   ];
 
   var extraOptions=[];
-  if(v.nameChangeQty>0)extraOptions.push('프사 이름 변경 '+v.nameChangeQty+'개');
-  if(v.gifChangeQty>0)extraOptions.push('프사 움짤 변경 '+v.gifChangeQty+'개');
-  if(v.textChangeQty>0)extraOptions.push('배너 텍스트 변경 '+v.textChangeQty+'개');
+  if(v.nameChangeQty>0)extraOptions.push('움짤프로필 · 이름 변경 '+v.nameChangeQty+'개');
+  if(v.gifChangeQty>0)extraOptions.push('움짤프로필 · 움짤 변경 '+v.gifChangeQty+'개');
+  if(v.textChangeQty>0)extraOptions.push('배너 · 텍스트/이미지 변경 '+v.textChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)additional.push('추가 옵션: '+extraOptions.join(', '));
 
@@ -752,19 +793,6 @@ function validateRequiredInquiryFields(){
     selector.classList.toggle('is-required-missing',typeMissing);
     if(typeMissing&&!firstMissing)firstMissing=selector.querySelector('input')||selector;
 
-    var concept=card.querySelector('[data-field="concept"]');
-    var conceptWrap=concept&&concept.closest('.concept-request-field');
-    var conceptVisible=!!concept&&!(conceptWrap&&conceptWrap.classList.contains('v2-hidden-field'));
-    if(conceptVisible){
-      var missing=!String(concept.value||'').trim();
-      concept.classList.toggle('is-required-missing',missing);
-      concept.setAttribute('aria-invalid',missing?'true':'false');
-      if(missing&&!firstMissing)firstMissing=concept;
-    }else if(concept){
-      concept.classList.remove('is-required-missing');
-      concept.setAttribute('aria-invalid','false');
-    }
-
     if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.validateCard==='function'){
       var r=window.__ARTMUG_V2__.validateCard(card);
       if(r&&!r.ok&&!firstMissing){
@@ -789,9 +817,6 @@ function allRequiredInquiryFieldsFilled(){
   var cards=Array.from(document.querySelectorAll('.request-card'));
   return !!cards.length&&cards.every(function(card){
     if(!selectedInquiryTypes(card).length)return false;
-    var concept=card.querySelector('[data-field="concept"]');
-    var conceptWrap=concept&&concept.closest('.concept-request-field');
-    if(concept&&!(conceptWrap&&conceptWrap.classList.contains('v2-hidden-field'))&&!String(concept.value||'').trim())return false;
     if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.validateCard==='function'){
       var r=window.__ARTMUG_V2__.validateCard(card);if(r&&!r.ok)return false
     }
