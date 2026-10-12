@@ -739,7 +739,9 @@ function renderNotices(){
       <div class="notice-rich-toolbar">
         <span class="muted">선택 문구 서식</span>
         <button type="button" class="ghost admin-compact" data-notice-format="bold" data-notice-i="${i}">굵게</button>
-        <label class="notice-color-tool">글자색 <input type="color" data-notice-color="${i}" value="#327CAA"></label>
+        <label class="notice-color-tool">글자색 <input type="color" data-notice-color="${i}" value="${(normalizeHex6(x.editorColor)||'#327CAA').toLowerCase()}"></label>
+        <label class="notice-hex-tool">HEX <input type="text" data-notice-hex="${i}" value="${normalizeHex6(x.editorColor)||'#327CAA'}" inputmode="text" autocomplete="off" spellcheck="false" maxlength="7"></label>
+        <button type="button" class="ghost admin-compact notice-eyedropper" data-notice-eyedropper="${i}" ${'EyeDropper' in window?'':'hidden'}>스포이드</button>
         <button type="button" class="ghost admin-compact" data-notice-format="defaultColor" data-notice-i="${i}">기본색</button>
         <button type="button" class="ghost admin-compact" data-notice-format="clear" data-notice-i="${i}">강조 해제</button>
       </div>
@@ -752,17 +754,67 @@ function renderNotices(){
 
   document.querySelectorAll('.notice-rich-editor').forEach(editor=>{
     const capture=()=>rememberNoticeSelection(editor);
-    editor.addEventListener('mouseup',capture);
+    editor.addEventListener('pointerup',capture);
     editor.addEventListener('keyup',capture);
     editor.addEventListener('focus',capture);
-    editor.addEventListener('input',()=>updateNoticePreview(Number(editor.dataset.noticeI)))
+    editor.addEventListener('input',()=>{
+      noticeColorTargets.delete(noticeSelectionKey(editor));
+      updateNoticePreview(Number(editor.dataset.noticeI))
+    })
   });
+  if(!window.__noticeSelectionTrackerBound){
+    window.__noticeSelectionTrackerBound=true;
+    document.addEventListener('selectionchange',()=>{
+      const sel=window.getSelection();
+      if(!sel||!sel.rangeCount)return;
+      let node=sel.anchorNode;
+      if(node?.nodeType===Node.TEXT_NODE)node=node.parentElement;
+      const editor=node?.closest?.('.notice-rich-editor');
+      if(editor)rememberNoticeSelection(editor)
+    })
+  }
   document.querySelectorAll('[data-notice-format]').forEach(b=>{
     b.addEventListener('mousedown',e=>e.preventDefault());
     b.onclick=()=>applyNoticeFormat(+b.dataset.noticeI,b.dataset.noticeFormat)
   });
   document.querySelectorAll('[data-notice-color]').forEach(input=>{
-    input.onchange=()=>applyNoticeFormat(+input.dataset.noticeColor,'foreColor',input.value)
+    const i=+input.dataset.noticeColor;
+    const capture=()=>{
+      const editor=document.querySelector(`[data-notice-rich="description"][data-notice-i="${i}"]`);
+      if(editor)rememberNoticeSelection(editor);
+      noticeColorTargets.delete(String(i))
+    };
+    input.addEventListener('pointerdown',capture);
+    const apply=()=>{
+      const color=normalizeHex6(input.value);
+      if(!color)return;
+      const hex=document.querySelector(`[data-notice-hex="${i}"]`);
+      if(hex)hex.value=color;
+      applyNoticeColor(i,color)
+    };
+    input.addEventListener('input',apply);
+    input.addEventListener('change',apply)
+  });
+  document.querySelectorAll('[data-notice-hex]').forEach(input=>{
+    const i=+input.dataset.noticeHex;
+    input.addEventListener('pointerdown',()=>{
+      const editor=document.querySelector(`[data-notice-rich="description"][data-notice-i="${i}"]`);
+      if(editor)rememberNoticeSelection(editor);
+      noticeColorTargets.delete(String(i))
+    });
+    input.addEventListener('input',()=>{
+      const color=normalizeHex6(input.value);
+      input.classList.toggle('is-invalid',!!input.value&&!color);
+      if(!color)return;
+      input.value=color;
+      const picker=document.querySelector(`[data-notice-color="${i}"]`);
+      if(picker)picker.value=color.toLowerCase();
+      applyNoticeColor(i,color)
+    })
+  });
+  document.querySelectorAll('[data-notice-eyedropper]').forEach(b=>{
+    b.addEventListener('mousedown',e=>e.preventDefault());
+    b.onclick=()=>pickNoticeEyedropper(+b.dataset.noticeEyedropper)
   });
   document.querySelectorAll('[data-move-notice]').forEach(b=>b.onclick=()=>{
     collectNotices();
