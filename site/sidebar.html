@@ -8,6 +8,8 @@
 html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:#344651;overflow-x:hidden}
 body{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;min-height:100vh;padding-top:25px}
 .quick-menu-title-wrap{width:calc(100% - 46px);max-width:156px;margin:0 0 10px 27px;display:flex;justify-content:center}
+body:not(.menu-ready) .quick-menu-title-wrap,
+body:not(.menu-ready) .quick-nav{visibility:hidden}
 .quick-menu-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:35px;padding:7px 20px;border:1px solid rgba(143,201,232,.34);border-radius:999px;background:#8fc9e8;color:#fff;font-size:15px;font-weight:800;line-height:1;letter-spacing:.03em;white-space:nowrap;box-shadow:0 7px 22px rgba(143,201,232,.24),0 2px 7px rgba(70,126,158,.05)}
 .quick-nav{position:sticky;top:8px;width:calc(100% - 8px);max-width:194px;min-width:0;margin-left:8px;padding:14px;border:2.5px solid #d6e9f5;border-radius:28px;background:#fff;box-shadow:0 8px 28px rgba(143,201,232,.18),0 2px 8px rgba(70,126,158,.045)}
 .nav-list{display:grid;gap:7px;padding-top:4px}
@@ -47,11 +49,10 @@ body{display:flex;flex-direction:column;align-items:flex-start;justify-content:f
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v9';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v10';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={};
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const raw=async p=>{const r=await fetch(RAW+p,{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 function layout(c){
  const id=String(c?.id||''),label=String(c?.label||'').replace(/\s/g,'');
  if(id==='top-banner'||label.includes('상단배너'))return'top-banner';
@@ -114,35 +115,49 @@ function normalizeActiveTarget(target){
 }
 function show(items){
  root.innerHTML=items.map(x=>x.divider?'<div class="divider" aria-hidden="true"></div>':'<button type="button" class="'+(x.cls||'')+'" data-target="'+x.target+'">'+(x.target==='top'?'TOP <span class="top-arrow" aria-hidden="true">▲</span>':x.label)+'</button>').join('');
- root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)))
+ root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
+ document.body.classList.add('menu-ready')
 }
-function cached(){try{const x=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<60000?x.data:null}catch{return null}}
-function saveCache(data){try{sessionStorage.setItem(CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}}
+function summaryFromNav(d){
+ const cats=Array.isArray(d?.categories)?d.categories:[];
+ const nonBanner=cats.filter(c=>!c.banner);
+ const profile=nonBanner.find(c=>c.kind==='profile');
+ const fourCut=nonBanner.find(c=>c.kind==='four-cut');
+ return {
+  hasPreset:!!d?.hasPreset,
+  hasBanner:cats.some(c=>c.banner),
+  bannerIds:cats.filter(c=>c.banner).map(c=>c.id),
+  profile:profile?{id:profile.id,label:'움짤프사'}:null,
+  fourCut:fourCut?{id:fourCut.id,label:'인생네컷'}:null,
+  extraCategories:nonBanner
+   .filter(c=>c.kind!=='profile'&&c.kind!=='four-cut')
+   .map(c=>({id:c.id,label:String(c.label||c.id)}))
+ }
+}
+function summaryKey(d){try{return JSON.stringify(d||{})}catch{return''}}
+function renderSummary(d){
+ if(summaryKey(currentSummary)===summaryKey(d)&&document.body.classList.contains('menu-ready'))return;
+ show(listFrom(d))
+}
+function cached(){try{const x=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<21600000?x.data:null}catch{return null}}
+function saveCache(data){try{localStorage.setItem(CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}}
 async function init(){
- const old=cached();if(old)show(listFrom(old));
+ const old=cached();
+ if(old)renderSummary(old);
  try{
-  const [d,index,presets]=await Promise.all([api('/api/public/settings?fresh='+Date.now()),raw('portfolio/index.json'),raw('site/data/presets.json')]);
-  const summary=summarize(d.settings||{},index,presets);saveCache(summary);show(listFrom(summary))
- }catch{if(!old)show([{label:'공지사항',target:'notice'},{divider:true},{label:'문의양식',target:'inquiry',cls:'inquiry-button'},{label:'TOP',target:'top',cls:'top-button'}])}
+  const d=await api('/api/public/nav-summary?fresh='+Date.now());
+  const summary=summaryFromNav(d);
+  saveCache(summary);
+  renderSummary(summary)
+ }catch{
+  if(!old)renderSummary({hasPreset:false,hasBanner:false,bannerIds:[],profile:null,fourCut:null,extraCategories:[]})
+ }
 }
 if(ch)ch.addEventListener('message',e=>{
  const d=e.data;
  if(d?.type==='nav-data'){
-  const cats=Array.isArray(d.categories)?d.categories:[];
-  const nonBanner=cats.filter(c=>!c.banner);
-  const profile=nonBanner.find(c=>c.kind==='profile');
-  const fourCut=nonBanner.find(c=>c.kind==='four-cut');
-  const summary={
-   hasPreset:!!d.preset,
-   hasBanner:cats.some(c=>c.banner),
-   bannerIds:cats.filter(c=>c.banner).map(c=>c.id),
-   profile:profile?{id:profile.id,label:'움짤프사'}:null,
-   fourCut:fourCut?{id:fourCut.id,label:'인생네컷'}:null,
-   extraCategories:nonBanner
-    .filter(c=>c.kind!=='profile'&&c.kind!=='four-cut')
-    .map(c=>({id:c.id,label:String(c.label||c.id)}))
-  };
-  saveCache(summary);show(listFrom(summary));return
+  const summary=summaryFromNav({hasPreset:!!d.preset,categories:d.categories});
+  saveCache(summary);renderSummary(summary);return
  }
  if(d?.type==='active'){
   const target=normalizeActiveTarget(d.target);
