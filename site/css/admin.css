@@ -1416,3 +1416,16 @@
     align-items:flex-start;
   }
 }
+
+/* 2026-10-13 NOTICE PREVIEW WEIGHT + BADGE OPTICAL CENTER */
+.notice-admin-preview-copy{
+  font-weight:400!important;
+}
+.notice-admin-preview-copy strong{
+  font-weight:650!important;
+}
+.notice-admin-number,
+.notice-admin-preview-index{
+  padding-top:1px;
+  line-height:1!important;
+}
