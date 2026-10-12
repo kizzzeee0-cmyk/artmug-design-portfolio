@@ -728,5 +728,6 @@
     }
   },
   "bannerTypeEnabled": false,
-  "authorName": "CHILGONG DESIGN"
+  "authorName": "CHILGONG DESIGN",
+  "scheduleDateColor": "#4E9BC6"
 }
