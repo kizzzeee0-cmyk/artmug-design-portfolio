@@ -11,22 +11,26 @@
     {
       "icon": "🎞️",
       "title": "움짤 프사 파일 전달",
-      "description": "GIF 파일보다 동영상 파일로 전달해 주시면 화질 저하를 최소화할 수 있습니다."
+      "description": "GIF 파일보다 동영상 파일로 전달해 주시면 화질 저하를 최소화할 수 있습니다.",
+      "enabled": true
     },
     {
       "icon": "📂",
       "title": "포트폴리오",
-      "description": "모든 작업물은 포트폴리오에 사용될 수 있습니다. \n비공개를 원하실 경우 추가금이 발생합니다."
+      "description": "모든 작업물은 포트폴리오에 사용될 수 있습니다. \n비공개를 원하실 경우 추가금이 발생합니다.",
+      "enabled": true
     },
     {
       "icon": "📆",
       "title": "작업 일정",
-      "description": "작업 기간은 작업 시작일 기준 최대 7일입니다\n현재 신청 시 1~2일 이내 작업이 완료됩니다"
+      "description": "작업 기간은 작업 시작일 기준 최대 7일입니다\n현재 신청 시 1~2일 이내 작업이 완료됩니다",
+      "enabled": true
     },
     {
       "icon": "💸",
       "title": "환불",
-      "description": "작업 시작 전일 경우 100%, 작업 진행 중일 경우 50% 환불이 가능합니다."
+      "description": "작업 시작 전일 경우 100%, 작업 진행 중일 경우 50% 환불이 가능합니다.",
+      "enabled": true
     }
   ],
   "formTitle": "문의양식",
@@ -719,5 +723,6 @@
       "enabled": true
     }
   },
-  "bannerTypeEnabled": false
+  "bannerTypeEnabled": false,
+  "authorName": "칠공"
 }
