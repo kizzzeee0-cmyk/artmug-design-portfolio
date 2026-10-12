@@ -549,8 +549,151 @@ $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+a
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('내용 입력 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
-function renderNotices(){$('notices').innerHTML=(S.noticeItems||[]).map((x,i)=>`<div class="editable"><div class="row"><input data-notice-icon="${i}" value="${x.icon||''}"><input data-notice-title="${i}" value="${x.title||''}"><button class="danger" data-del-notice="${i}">삭제</button></div><textarea data-notice-desc="${i}">${x.description||''}</textarea></div>`).join('');document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{S.noticeItems.splice(+b.dataset.delNotice,1);renderNotices()})}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'칠공';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
+let noticeSelectionRange=null,noticeSelectionEditor=null;
+function adminNoticeTextHtml(value){
+  return adminEsc(value).replace(/\r?\n/g,'<br>')
+}
+function adminNoticeSafeColor(value){
+  const v=String(value||'').trim();
+  if(/^#[0-9a-f]{3,8}$/i.test(v))return v;
+  if(/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i.test(v))return v;
+  return ''
+}
+function normalizeNoticeRichHtml(html){
+  const template=document.createElement('template');
+  template.innerHTML=String(html||'');
+  const serialize=node=>{
+    if(node.nodeType===Node.TEXT_NODE)return adminEsc(node.nodeValue);
+    if(node.nodeType!==Node.ELEMENT_NODE)return '';
+    const tag=node.tagName.toUpperCase();
+    const inner=Array.from(node.childNodes).map(serialize).join('');
+    if(tag==='BR')return '<br>';
+    if(tag==='B'||tag==='STRONG')return '<strong>'+inner+'</strong>';
+    if(tag==='FONT'||tag==='SPAN'){
+      const color=adminNoticeSafeColor(tag==='FONT'?node.getAttribute('color'):node.style.color);
+      return color?'<span style="color:'+color+'">'+inner+'</span>':inner
+    }
+    if(tag==='DIV'||tag==='P')return inner+'<br>';
+    return inner
+  };
+  return Array.from(template.content.childNodes).map(serialize).join('').replace(/(?:<br>)+$/,'')
+}
+function noticeEditorHtml(item,richKey,plainKey){
+  const rich=String(item?.[richKey]||'').trim();
+  return rich?normalizeNoticeRichHtml(rich):adminNoticeTextHtml(item?.[plainKey]||'')
+}
+function rememberNoticeSelection(editor){
+  const sel=window.getSelection();
+  if(!editor||!sel||!sel.rangeCount)return;
+  const range=sel.getRangeAt(0);
+  if(editor.contains(range.commonAncestorContainer)){
+    noticeSelectionEditor=editor;
+    noticeSelectionRange=range.cloneRange()
+  }
+}
+function restoreNoticeSelection(editor){
+  if(!editor)return false;
+  editor.focus();
+  if(noticeSelectionEditor!==editor||!noticeSelectionRange)return false;
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(noticeSelectionRange);
+  return true
+}
+function noticeDefaultColor(editor){
+  return editor?.dataset.noticeRich==='title'?'#263D52':'#475569'
+}
+function updateNoticePreview(i){
+  const title=document.querySelector(`[data-notice-rich="title"][data-notice-i="${i}"]`);
+  const desc=document.querySelector(`[data-notice-rich="description"][data-notice-i="${i}"]`);
+  const titleOut=document.querySelector(`[data-notice-preview-title="${i}"]`);
+  const descOut=document.querySelector(`[data-notice-preview-desc="${i}"]`);
+  if(titleOut)titleOut.innerHTML=normalizeNoticeRichHtml(title?.innerHTML||'');
+  if(descOut)descOut.innerHTML=normalizeNoticeRichHtml(desc?.innerHTML||'')
+}
+function applyNoticeFormat(i,command,value){
+  const editor=noticeSelectionEditor&&Number(noticeSelectionEditor.dataset.noticeI)===Number(i)?noticeSelectionEditor:null;
+  if(!editor)return;
+  restoreNoticeSelection(editor);
+  if(command==='defaultColor')document.execCommand('foreColor',false,noticeDefaultColor(editor));
+  else if(command==='clear')document.execCommand('removeFormat',false,null);
+  else document.execCommand(command,false,value||null);
+  rememberNoticeSelection(editor);
+  updateNoticePreview(i)
+}
+function collectNotices(){
+  (S.noticeItems||[]).forEach((x,i)=>{
+    const enabled=document.querySelector(`[data-notice-enabled="${i}"]`);
+    const title=document.querySelector(`[data-notice-rich="title"][data-notice-i="${i}"]`);
+    const desc=document.querySelector(`[data-notice-rich="description"][data-notice-i="${i}"]`);
+    if(enabled)x.enabled=enabled.checked;
+    if(title){
+      x.titleRich=normalizeNoticeRichHtml(title.innerHTML);
+      x.title=String(title.innerText||'').replace(/\u00a0/g,' ').trim()
+    }
+    if(desc){
+      x.descriptionRich=normalizeNoticeRichHtml(desc.innerHTML);
+      x.description=String(desc.innerText||'').replace(/\u00a0/g,' ').trim()
+    }
+  })
+}
+function renderNotices(){
+  const items=Array.isArray(S.noticeItems)?S.noticeItems:[];
+  $('notices').innerHTML=items.map((x,i)=>`
+    <div class="editable notice-admin-card">
+      <div class="notice-admin-head">
+        <span class="notice-admin-number">${i+1}</span>
+        <label class="mini-toggle"><input type="checkbox" data-notice-enabled="${i}" ${x.enabled!==false?'checked':''}> 공개</label>
+        <div class="notice-admin-order">
+          <button type="button" class="ghost cat-order-button" data-move-notice="${i}" data-dir="-1" ${i===0?'disabled':''} aria-label="위로 이동">↑</button>
+          <button type="button" class="ghost cat-order-button" data-move-notice="${i}" data-dir="1" ${i===items.length-1?'disabled':''} aria-label="아래로 이동">↓</button>
+        </div>
+        <button class="danger" data-del-notice="${i}">삭제</button>
+      </div>
+      <label class="notice-rich-label"><span>공지 제목</span><div class="notice-rich-editor" contenteditable="true" spellcheck="true" data-notice-rich="title" data-notice-i="${i}">${noticeEditorHtml(x,'titleRich','title')}</div></label>
+      <label class="notice-rich-label"><span>공지 설명</span><div class="notice-rich-editor notice-rich-description" contenteditable="true" spellcheck="true" data-notice-rich="description" data-notice-i="${i}">${noticeEditorHtml(x,'descriptionRich','description')}</div></label>
+      <div class="notice-rich-toolbar">
+        <span class="muted">선택 문구 서식</span>
+        <button type="button" class="ghost admin-compact" data-notice-format="bold" data-notice-i="${i}">굵게</button>
+        <label class="notice-color-tool">글자색 <input type="color" data-notice-color="${i}" value="#327CAA"></label>
+        <button type="button" class="ghost admin-compact" data-notice-format="defaultColor" data-notice-i="${i}">기본색</button>
+        <button type="button" class="ghost admin-compact" data-notice-format="clear" data-notice-i="${i}">강조 해제</button>
+      </div>
+      <div class="notice-admin-preview" aria-label="공개 미리보기">
+        <span class="notice-admin-preview-index">${i+1}</span>
+        <div class="notice-admin-preview-copy"><span class="notice-admin-preview-title" data-notice-preview-title="${i}">${noticeEditorHtml(x,'titleRich','title')}</span><span data-notice-preview-desc="${i}">${noticeEditorHtml(x,'descriptionRich','description')}</span></div>
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.notice-rich-editor').forEach(editor=>{
+    const capture=()=>rememberNoticeSelection(editor);
+    editor.addEventListener('mouseup',capture);
+    editor.addEventListener('keyup',capture);
+    editor.addEventListener('focus',capture);
+    editor.addEventListener('input',()=>updateNoticePreview(Number(editor.dataset.noticeI)))
+  });
+  document.querySelectorAll('[data-notice-format]').forEach(b=>{
+    b.addEventListener('mousedown',e=>e.preventDefault());
+    b.onclick=()=>applyNoticeFormat(+b.dataset.noticeI,b.dataset.noticeFormat)
+  });
+  document.querySelectorAll('[data-notice-color]').forEach(input=>{
+    input.onchange=()=>applyNoticeFormat(+input.dataset.noticeColor,'foreColor',input.value)
+  });
+  document.querySelectorAll('[data-move-notice]').forEach(b=>b.onclick=()=>{
+    collectNotices();
+    const i=+b.dataset.moveNotice,j=i+Number(b.dataset.dir);
+    if(j<0||j>=S.noticeItems.length)return;
+    [S.noticeItems[i],S.noticeItems[j]]=[S.noticeItems[j],S.noticeItems[i]];
+    renderNotices()
+  });
+  document.querySelectorAll('[data-del-notice]').forEach(b=>b.onclick=()=>{
+    collectNotices();
+    S.noticeItems.splice(+b.dataset.delNotice,1);
+    renderNotices()
+  })
+}
 function renderTypes(){
   $('types').innerHTML=(S.designTypes||[]).map((x,i)=>`<div class="editable type-edit">
     <label class="type-name">디자인 이름<input data-type-label="${i}" value="${adminEsc(x.label||'')}"></label>
@@ -820,7 +963,7 @@ async function copyQuote(){
   catch{alert('견적 복사에 실패했습니다.')}
 }
 
-function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);(S.noticeItems||[]).forEach((x,i)=>{const icon=document.querySelector(`[data-notice-icon="${i}"]`),title=document.querySelector(`[data-notice-title="${i}"]`),desc=document.querySelector(`[data-notice-desc="${i}"]`);if(icon)x.icon=icon.value;if(title)x.title=title.value;if(desc)x.description=desc.value});(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
+function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);collectNotices();(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
   collect();collectWorkStatusAdmin();collectScheduleAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
@@ -836,6 +979,7 @@ async function saveSettings(){
   if($('showcasePresetExpandEnabled'))S.showcasePresetExpandEnabled=$('showcasePresetExpandEnabled').checked;
   
   S.authorEnabled=$('authorEnabled').checked;
+  S.authorName=$('authorName')?$('authorName').value.trim():(S.authorName||'칠공');
   S.authorText=$('authorText').value;
   S.authorFontSize=Number($('authorFontSize').value||15);
   S.eventsEnabled=$('eventsEnabled').checked;
@@ -1190,7 +1334,7 @@ async function uploadFiles(kind){
   }catch(e){status.textContent=e.message;alert('업로드에 실패했습니다.\n'+e.message)}
 }
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=d.settings;render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
-$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'새 공지',description:'설명을 입력해 주세요.'}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'새 공지',description:'설명을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
