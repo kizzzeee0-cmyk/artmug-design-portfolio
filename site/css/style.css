@@ -5795,35 +5795,24 @@ body.artmug-part-inquiry .form-actions{
    2026-10-09 FORM CONTRAST + SEAMLESS ARTMUG SCROLL
    ========================================================= */
 
-/* 1) Copy button: white surface + current sky-blue point color for clearer separation. */
-#copyButton{
-  background:#FFFFFF!important;
-  color:var(--primary-action)!important;
+/* 1) Copy button: same flat fill as the selected inquiry choices. */
+#copyButton,
+#copyButton:hover,
+#copyButton:active,
+#copyButton:focus,
+#copyButton:focus-visible,
+#copyButton.is-copied{
+  background:var(--primary-action)!important;
+  background-image:none!important;
+  color:#FFFFFF!important;
   border:1.5px solid var(--primary-action)!important;
-  box-shadow:0 3px 10px rgba(79,143,179,.10)!important;
-}
-#copyButton:hover{
-  background:#F7FAFD!important;
-  color:var(--accent-deep)!important;
-  border-color:var(--accent-strong)!important;
-}
-#copyButton:active{
-  background:#EAF4FF!important;
-  color:var(--accent-deep)!important;
-  border-color:var(--accent-strong)!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
 }
 #copyButton:focus,
 #copyButton:focus-visible{
-  background:#FFFFFF!important;
-  color:var(--primary-action)!important;
-  border-color:var(--primary-action)!important;
   outline:3px solid rgba(143,200,232,.22)!important;
   outline-offset:2px;
-}
-#copyButton.is-copied{
-  background:#FFFFFF!important;
-  color:var(--primary-action)!important;
-  border-color:var(--primary-action)!important;
 }
 
 /* 2) Inquiry inputs: only a very slight cool-gray/blue tint. */
@@ -5882,7 +5871,7 @@ html.artmug-embed-root body.artmug-part .site-shell{
 /* Mobile: keep the same visual changes without changing layout or button size. */
 @media(max-width:680px){
   #copyButton{
-    box-shadow:0 3px 12px rgba(79,143,179,.12)!important;
+    box-shadow:none!important;
   }
 
   .inquiry-form-divider,
@@ -5896,9 +5885,10 @@ html.artmug-embed-root body.artmug-part .site-shell{
 /* Forced-light mode keeps the same form contrast. */
 @media(prefers-color-scheme:dark){
   #copyButton{
-    background:#FFFFFF!important;
-    color:var(--primary-action)!important;
+    background:var(--primary-action)!important;
+    color:#FFFFFF!important;
     border-color:var(--primary-action)!important;
+    box-shadow:none!important;
   }
   .contact-form input:not([type="radio"]):not([type="checkbox"]):not(.inquiry-qty-input),
   .contact-form textarea,
@@ -6229,12 +6219,47 @@ html.artmug-embed-root body.artmug-part .site-shell{
   display:none!important;
 }
 
-/* 2026-10-13 INQUIRY ACTION FLAT POLISH */
-/* Copy action uses the exact same fill as selected inquiry choices. */
-.form-actions .primary-button,
-.form-actions .primary-button:hover,
-.form-actions .primary-button:focus-visible,
-.form-actions .primary-button.is-copied{
+/* 2026-10-13 INQUIRY FOOTER SEPARATION + FLAT COPY ACTION */
+.inquiry-attachment-notice{
+  background:#fbfdff!important;
+  border-color:rgba(143,201,232,.24)!important;
+  color:#5f7482!important;
+  box-shadow:none!important;
+}
+
+/* The action footer is structurally separate from the variable-height form body. */
+.inquiry-form-footer{
+  width:100%;
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+  background:var(--surface);
+}
+.inquiry-form-footer .form-actions,
+body.artmug-part-inquiry .inquiry-form-footer .form-actions{
+  width:100%;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  text-align:center!important;
+}
+.inquiry-form-footer .form-action-buttons{
+  width:auto!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.inquiry-form-footer #copyButton,
+.inquiry-form-footer #copyButton:hover,
+.inquiry-form-footer #copyButton:active,
+.inquiry-form-footer #copyButton:focus,
+.inquiry-form-footer #copyButton:focus-visible,
+.inquiry-form-footer #copyButton.is-copied{
   background:var(--primary-action)!important;
   background-image:none!important;
   border-color:var(--primary-action)!important;
@@ -6245,18 +6270,9 @@ html.artmug-embed-root body.artmug-part .site-shell{
   align-items:center!important;
   justify-content:center!important;
 }
-
-/* Keep the attachment note secondary and give the primary action its own breathing room. */
-.inquiry-attachment-notice{
-  background:#fbfdff!important;
-  border-color:rgba(143,201,232,.24)!important;
-  box-shadow:none!important;
-}
-.inquiry-attachment-notice + .form-actions{
-  margin-top:8px!important;
-}
 @media(max-width:680px){
-  .inquiry-attachment-notice + .form-actions{
-    margin-top:6px!important;
+  .inquiry-form-footer{
+    margin-top:16px;
+    padding-top:14px;
   }
 }
