@@ -170,7 +170,16 @@ async function publicNavSummary(env){
       kind:publicCategoryLayout(c),
       banner:bannerKinds.has(publicCategoryLayout(c))
     }));
-  return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts,categories},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=60'})
+  const workStatus={
+    enabled:s.workStatusEnabled===true,
+    mode:s.workStatusMode==='sleeping'?'sleeping':'working',
+    description:String(
+      s.workStatusMode==='sleeping'
+        ? (s.workStatusSleepingText??'현재 취침 중으로 문의 답변이 조금 늦을 수 있어요.')
+        : (s.workStatusWorkingText??'')
+    ).trim()
+  };
+  return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts,categories,workStatus},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=60'})
 }
 async function media(path,env){const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`);if(!r.ok)return new Response('Not found',{status:404});const h=new Headers({'Cache-Control':'public,max-age=31536000,immutable'}),ct=r.headers.get('Content-Type');if(ct)h.set('Content-Type',ct);return new Response(r.body,{status:200,headers:h})}
 function b64(buf){const bytes=buf instanceof Uint8Array?buf:new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
