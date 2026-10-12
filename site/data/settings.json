@@ -583,6 +583,7 @@
     "preset/floating-banner/20261010020945-YPr0fitM-_____.png"
   ],
   "portfolioOrder": [
+    "portfolio/profile/20261012022933-LHOOp_VP-_________.gif",
     "portfolio/profile/20261011234252-Nk02BEls-__.gif",
     "portfolio/floating-banner/20261009202139-xpi4OrF_-_____.png",
     "portfolio/floating-banner/20261009202109-TEdh0GK_-______1.png",
@@ -659,6 +660,9 @@
       "isFixed": true
     },
     "portfolio/profile/20261011234252-Nk02BEls-__.gif": {
+      "enabled": true
+    },
+    "portfolio/profile/20261012022933-LHOOp_VP-_________.gif": {
       "enabled": true
     }
   },
