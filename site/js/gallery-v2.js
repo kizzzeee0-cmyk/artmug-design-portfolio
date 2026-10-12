@@ -289,7 +289,7 @@ async function renderPortfolio(){
  });
  await Promise.all(tasks);
  if(!shown){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
- announceNavData();sendDetailedSectionMap();requestHeight()
+ sendDetailedSectionMap();requestHeight()
 }
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
@@ -345,7 +345,7 @@ async function renderShowcase(){
   renderShowcase();requestHeight()
  });
  root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
- requestHeight();announceNavData()
+ requestHeight()
 }
 function requestHeight(){
  window.dispatchEvent(new Event('artmug-sections-changed'));
@@ -553,6 +553,9 @@ async function init(){
  await showcasePromise;
  if(!portfolioPart)initInquiryObserver();
  await portfolioPromise;
+ // Only the complete all-in-one page may announce a menu snapshot.
+ // Split inquiry/portfolio frames are intentionally excluded because each holds partial state.
+ if(!inquiryPart&&!portfolioPart)announceNavData();
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  const mq=matchMedia('(max-width:680px)');
