@@ -6474,7 +6474,7 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   width:100%;
   max-width:100%;
   margin:6px 0 8px!important;
-  padding:24px 20px!important;
+  padding:24px 20px 0!important;
   display:grid!important;
   grid-template-columns:168px minmax(0,1fr)!important;
   align-items:center!important;
@@ -6549,7 +6549,7 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
 }
 @media(max-width:680px){
   .author-intro{
-    padding:18px 10px!important;
+    padding:18px 10px 0!important;
     grid-template-columns:82px minmax(0,1fr)!important;
     gap:12px!important;
     align-items:center!important;
