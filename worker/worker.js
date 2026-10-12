@@ -206,6 +206,11 @@ if(isPreset){
   const settings=await ghJson(env,token,SETTINGS);
   const pc=(settings.presetCategories||[]).find(x=>x.id===cat);
   if(!pc)throw uploadError('존재하지 않는 프리셋 카테고리입니다.');
+  const formats=(pc.formats||['gif','png','jpg','jpeg','webp']).map(String).map(x=>x.toLowerCase());
+  const normalizedExt=extn==='jpg'?'jpeg':extn;
+  if(!formats.includes(normalizedExt))throw uploadError(`이 프리셋 카테고리는 ${formats.join(', ').toUpperCase()} 파일만 업로드할 수 있습니다.`);
+  // Preset source files keep their original pixel dimensions.
+  // displayWidth/displayHeight are presentation sizes only, not upload restrictions.
 }
 if(!isPreset){const settings=await ghJson(env,token,SETTINGS);const c=(settings.portfolioCategories||[]).find(x=>x.id===cat);if(!c)throw uploadError('존재하지 않는 포트폴리오 카테고리입니다.');if(!(c.formats||[]).map(String).map(x=>x.toLowerCase()).includes(extn==='jpg'?'jpeg':extn))throw uploadError(`이 카테고리는 ${(c.formats||[]).join(', ').toUpperCase()} 파일만 업로드할 수 있습니다.`);}const name=`${stamp}-${random(6)}-${safeName(file.name)}`,path=isPreset?`preset/${cat}/${name}`:`portfolio/${cat}/${name}`;await putFile(env,token,path,bytes,`[CF-Pages-Skip] Upload ${isPreset?'preset':'portfolio'} ${name}`);if(isPreset){let list=await ghJson(env,token,PRESETS).catch(()=>[]);list.push({id:`preset-${random(8)}`,category:cat,file:path,originalName:file.name,description:'',enabled:true,createdAt:stamp});await saveJson(env,token,PRESETS,list,'[CF-Pages-Skip] Update presets')}else{let idx=await ghJson(env,token,INDEX).catch(()=>[]);idx.push({id:`file-${random(8)}`,category:cat,file:path,originalName:file.name,alt:file.name.replace(/\.[^.]+$/,''),createdAt:stamp});await saveJson(env,token,INDEX,idx,'[CF-Pages-Skip] Update portfolio index')}return json({ok:true,path})}
 async function savePresetsMetadata(req,env,s){
