@@ -7,5 +7,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261010020945"
+  },
+  {
+    "id": "preset-QqkHASCER5Y",
+    "category": "profile",
+    "file": "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
+    "originalName": "background (1).gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261012061444"
   }
 ]
