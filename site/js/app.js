@@ -498,8 +498,8 @@ function showsContentField(t){
 }
 function inquiryQuantityOptions(t){
   if(isProfileInquiryType(t))return [
-    {key:'nameChangeQty',label:'움짤프로필 · 이름 변경'},
-    {key:'gifChangeQty',label:'움짤프로필 · 움짤 변경'}
+    {key:'nameChangeQty',label:'이름 변경'},
+    {key:'gifChangeQty',label:'움짤 변경'}
   ];
   if(showsContentField(t)||isBannerInquiryType(t))return [
     {key:'textChangeQty',label:'배너 · 텍스트/이미지 변경'}
@@ -823,8 +823,8 @@ function requestText(card){
   // Group 4: additional request and selected options.
   var additional=[(S.extraLabel||'추가 요청사항')+': '+v.extra];
   var extraOptions=[];
-  if(v.nameChangeQty>0)extraOptions.push('움짤프로필 · 이름 변경 '+v.nameChangeQty+'개');
-  if(v.gifChangeQty>0)extraOptions.push('움짤프로필 · 움짤 변경 '+v.gifChangeQty+'개');
+  if(v.nameChangeQty>0)extraOptions.push('이름 변경 '+v.nameChangeQty+'개');
+  if(v.gifChangeQty>0)extraOptions.push('움짤 변경 '+v.gifChangeQty+'개');
   if(v.textChangeQty>0)extraOptions.push('배너 · 텍스트/이미지 변경 '+v.textChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)additional.push('추가 옵션: '+extraOptions.join(', '));
