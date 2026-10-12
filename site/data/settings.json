@@ -14,16 +14,16 @@
       "description": "사전 협의 없는 2차 가공 및 재배포를 금지합니다.",
       "enabled": true,
       "titleRich": "",
-      "descriptionRich": "사전 협의 없는 <span style=\"color:rgb(95, 189, 236)\"><strong>2차 가공 및 재배포를 금지</strong></span>합니다.",
-      "editorColor": "#5FBDEC"
+      "descriptionRich": "사전 협의 없는 <span style=\"color:rgb(95, 189, 236)\"><strong><span style=\"color:rgb(105, 173, 210)\">2차 가공 및 재배포를 금지</span></strong></span>합니다.",
+      "editorColor": "#69ADD2"
     },
     {
       "icon": "🎞️",
       "title": "움짤 프사 파일 전달",
       "description": "움짤 프사 제작 시 GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
       "enabled": true,
-      "descriptionRich": "움짤 프사 제작 시 <strong><span style=\"color:rgb(95, 189, 236)\">GIF가 아닌 MP4 동영상 파일로 전달</span></strong>해 주세요.",
-      "editorColor": "#5FBDEC"
+      "descriptionRich": "움짤 프사 제작 시 <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">GIF가 아닌 MP4 동영상 파일로 전달</span></span></strong>해 주세요.",
+      "editorColor": "#69ADD2"
     },
     {
       "icon": "📂",
@@ -37,8 +37,8 @@
       "title": "작업 일정",
       "description": "작업 기간은 작업 시작일 기준 최대 7일이며, 현재 신청 시 2~3일 이내 완료됩니다.",
       "enabled": true,
-      "descriptionRich": "작업 기간은 <strong><span style=\"color:rgb(95, 189, 236)\">작업 시작일 기준 최대 7일</span></strong>이며, 현재 신청 시 <strong><span style=\"color:rgb(95, 189, 236)\">2~3일 이내</span></strong> 완료됩니다.",
-      "editorColor": "#5FBDEC"
+      "descriptionRich": "작업 기간은 <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">작업 시작일 기준 최대 7일</span></span></strong>이며, 현재 신청 시 <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">2~3일 이내</span></span></strong> 완료됩니다.",
+      "editorColor": "#69ADD2"
     },
     {
       "icon": "💸",
@@ -740,5 +740,5 @@
   },
   "bannerTypeEnabled": false,
   "authorName": "CHILGONG DESIGN",
-  "scheduleDateColor": "#5FBDEC"
+  "scheduleDateColor": "#69ADD2"
 }
