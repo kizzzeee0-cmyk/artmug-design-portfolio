@@ -239,7 +239,7 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  sec.querySelectorAll('[data-v2-page]').forEach(b=>b.onclick=async()=>{
   const token=b.dataset.v2Page.split(':').pop();
   data.page=token==='prev'?data.page-1:token==='next'?data.page+1:Number(token);
-  await renderPortfolioCategory(id,true,true)
+  await renderPortfolioCategory(id,false,true)
  });
  sec.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  sec.removeAttribute('aria-busy');
