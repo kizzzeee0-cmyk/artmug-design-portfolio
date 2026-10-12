@@ -6696,3 +6696,64 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     font-size:var(--category-pill-mobile-font-size,11.5px)!important;
   }
 }
+
+/* 2026-10-13 FINAL RHYTHM CATEGORY NOTICE TUNING */
+:root{
+  --public-section-gap:20px;
+  --copy-action-font-size:14.5px;
+  --copy-action-font-weight:600;
+  --copy-action-mobile-font-size:14px;
+}
+
+/* The outer shell gap and the schedule/notice stack use one source of truth. */
+.site-shell{
+  gap:var(--public-section-gap)!important;
+}
+.notice-stack{
+  gap:var(--public-section-gap)!important;
+}
+.author-intro{
+  margin:0!important;
+}
+
+/* Category typography uses the exact copy-action metrics. */
+.portfolio-card .tab,
+.preset-section .tab{
+  min-height:40px!important;
+  padding:9px 22px!important;
+  font-size:var(--copy-action-font-size)!important;
+  font-weight:var(--copy-action-font-weight)!important;
+  line-height:1.25!important;
+}
+
+/* Notice copy is a touch lighter while keeping a clear emphasis step. */
+.notice-message,
+.notice-message .notice-item-description{
+  font-weight:400!important;
+}
+.notice-message strong{
+  font-weight:650!important;
+}
+
+/* Paperlogy numerals sit optically high; keep the badge box unchanged and nudge glyphs down. */
+.notice-card .notice-index{
+  padding-top:1px!important;
+  line-height:1!important;
+}
+
+@media(max-width:680px){
+  :root{
+    --public-section-gap:14px;
+  }
+  .portfolio-card .tab,
+  .preset-section .tab{
+    min-height:36px!important;
+    padding:7px 16px!important;
+    font-size:var(--copy-action-mobile-font-size)!important;
+    font-weight:var(--copy-action-font-weight)!important;
+    line-height:1.25!important;
+  }
+  .notice-card .notice-index{
+    padding-top:1px!important;
+  }
+}
