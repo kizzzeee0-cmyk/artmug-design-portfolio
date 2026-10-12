@@ -1334,3 +1334,85 @@
     align-items:flex-start;
   }
 }
+
+/* 2026-10-13 COLOR CONTROL RELIABILITY UI */
+.notice-rich-toolbar{
+  row-gap:8px!important;
+}
+.notice-hex-tool,
+.schedule-date-color-hex{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  font-size:11px!important;
+  font-weight:650!important;
+  white-space:nowrap;
+}
+.notice-hex-tool input,
+.schedule-date-color-hex input{
+  width:88px!important;
+  min-height:30px!important;
+  padding:5px 8px!important;
+  border-radius:8px!important;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace!important;
+  font-size:11px!important;
+  text-transform:uppercase;
+}
+.notice-hex-tool input.is-invalid,
+.schedule-date-color-hex input.is-invalid{
+  border-color:#d99898!important;
+  box-shadow:0 0 0 2px rgba(217,152,152,.12)!important;
+}
+.notice-eyedropper[hidden],
+#scheduleDateColorEyedropper[hidden]{
+  display:none!important;
+}
+.schedule-date-color-admin{
+  display:grid;
+  gap:9px;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+.schedule-date-color-controls{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.schedule-date-color-picker{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  font-size:11px!important;
+  font-weight:650!important;
+}
+.schedule-date-color-picker input[type="color"]{
+  width:34px!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:2px!important;
+  border-radius:8px!important;
+}
+.schedule-date-color-preview{
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  color:#52616c;
+  font-size:12px;
+  line-height:1.5;
+}
+.schedule-date-color-preview strong{
+  font-weight:800;
+}
+@media(max-width:720px){
+  .notice-hex-tool input,
+  .schedule-date-color-hex input{
+    width:82px!important;
+  }
+  .schedule-date-color-controls{
+    align-items:flex-start;
+  }
+}
