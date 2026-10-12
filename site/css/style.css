@@ -6679,3 +6679,20 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     line-height:1.55!important;
   }
 }
+
+/* 2026-10-13 QUICK-MENU-SCALE LEGACY CATEGORY PILLS */
+.portfolio-card .tab,
+.preset-section .tab{
+  min-height:32px!important;
+  padding:6px 16px!important;
+  font-size:var(--quick-menu-item-font-size,12.5px)!important;
+  font-weight:600!important;
+}
+@media(max-width:680px){
+  .portfolio-card .tab,
+  .preset-section .tab{
+    min-height:28px!important;
+    padding:5px 12px!important;
+    font-size:var(--category-pill-mobile-font-size,11.5px)!important;
+  }
+}
