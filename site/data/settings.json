@@ -685,7 +685,7 @@
   "scheduleEstimateMinDays": 1,
   "scheduleEstimateMaxDays": 2,
   "scheduleEstimateText": "현재 문의하면 {min}~{max}일 내에 마감됩니다.",
-  "bannerTextPlaceholder": "예: 움짤 프사 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페",
+  "bannerTextPlaceholder": "예: 움짤 프사 - 칠공\n플로팅 배너 - 칠공이랑 공칠이랑",
   "showcaseInitialDesktop": 4,
   "showcaseInitialMobile": 4,
   "bannerTypeGuide": {
