@@ -1381,3 +1381,17 @@ body.artmug-part-portfolio #inquirySection{
     margin-bottom:9px!important;
   }
 }
+
+/* 2026-10-13 SLIM CATEGORY PILL HEIGHT */
+.v2-cat-head h3,
+.v2-preset-category-head h3{
+  min-height:34px!important;
+  padding:5px 22px!important;
+}
+@media(max-width:680px){
+  .v2-cat-head h3,
+  .v2-preset-category-head h3{
+    min-height:31px!important;
+    padding:4px 16px!important;
+  }
+}
