@@ -722,13 +722,20 @@ function requestText(card){
   var v=readRequestValues(card);
   var types=v.typeIds.map(inquiryType).filter(t=>t&&t.id);
   var has=function(key){return types.some(t=>t[key])};
-  var hasProfile=types.some(isProfileInquiryType);
   var contentEnabled=types.some(showsContentField);
-  var info=[(S.designTypeLabel||'신청하시는 디자인 종류')+': '+types.map(t=>t.label||'').filter(Boolean).join(', ')];
+
+  // Group 2: selected design information.
+  var designInfo=[
+    (S.designTypeLabel||'신청하시는 디자인 종류')+': '+types.map(t=>t.label||'').filter(Boolean).join(', ')
+  ];
   if(window.__ARTMUG_V2__&&typeof window.__ARTMUG_V2__.inquiryLines==='function'){
-    info.push.apply(info,window.__ARTMUG_V2__.inquiryLines(card))
+    designInfo.push.apply(designInfo,window.__ARTMUG_V2__.inquiryLines(card))
+  }
+  if(has('showBannerFields')){
+    designInfo.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'))
   }
 
+  // Group 3: only fields currently visible in the inquiry form.
   var details=[];
   var conceptEl=card.querySelector('[data-field="concept"]');
   var conceptHidden=!!conceptEl&&!!conceptEl.closest('.v2-hidden-field');
@@ -737,29 +744,24 @@ function requestText(card){
   var frameEl=card.querySelector('.frame-retention-field');
   var frameHidden=!!frameEl&&frameEl.classList.contains('v2-hidden-field');
 
-  function pushConcept(){if(conceptEl&&!conceptHidden)details.push((S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept)}
-  function pushContent(){if(contentEnabled&&contentEl&&!contentHidden)details.push('내용 입력: '+v.bannerText)}
-  function pushFrame(){if(has('showFrameRetention')&&!frameHidden)details.push((S.frameKeepLabel||'움짤프사 파일 보관 여부')+': '+v.frameKeep)}
-  function pushBottomBanner(){if(has('showBannerFields'))details.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'))}
-
-  if(hasProfile){
-    pushBottomBanner();
-    pushConcept();
-    pushContent();
-    if(has('showSignatureFields'))details.push((S.signatureNumberLabel||'시그풍 숫자')+': '+v.signatureNumber,(S.signatureContentLabel||'시그풍 내용')+': '+v.signatureContent);
-    pushFrame();
-  }else{
-    pushConcept();
-    if(has('showSignatureFields'))details.push((S.signatureNumberLabel||'시그풍 숫자')+': '+v.signatureNumber,(S.signatureContentLabel||'시그풍 내용')+': '+v.signatureContent);
-    pushFrame();
-    pushBottomBanner();
-    pushContent();
+  if(conceptEl&&!conceptHidden){
+    details.push((S.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+v.concept)
+  }
+  if(contentEnabled&&contentEl&&!contentHidden){
+    details.push('내용 입력: '+v.bannerText)
+  }
+  if(has('showSignatureFields')){
+    details.push(
+      (S.signatureNumberLabel||'시그풍 숫자')+': '+v.signatureNumber,
+      (S.signatureContentLabel||'시그풍 내용')+': '+v.signatureContent
+    )
+  }
+  if(has('showFrameRetention')&&!frameHidden){
+    details.push((S.frameKeepLabel||'움짤프사 파일 보관 여부')+': '+v.frameKeep)
   }
 
-  var additional=[
-    (S.extraLabel||'추가 요청사항')+': '+v.extra
-  ];
-
+  // Group 4: additional request and selected options.
+  var additional=[(S.extraLabel||'추가 요청사항')+': '+v.extra];
   var extraOptions=[];
   if(v.nameChangeQty>0)extraOptions.push('움짤프로필 · 이름 변경 '+v.nameChangeQty+'개');
   if(v.gifChangeQty>0)extraOptions.push('움짤프로필 · 움짤 변경 '+v.gifChangeQty+'개');
@@ -767,7 +769,10 @@ function requestText(card){
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)additional.push('추가 옵션: '+extraOptions.join(', '));
 
-  return [info.join('\n'),details.join('\n'),additional.join('\n')].filter(Boolean).join('\n\n');
+  return [designInfo,details,additional]
+    .filter(group=>group.length)
+    .map(group=>group.join('\n'))
+    .join('\n\n');
 }
 
 function buildInquiryText(){
