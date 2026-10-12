@@ -57,7 +57,7 @@ body:not(.menu-ready) .quick-nav{visibility:hidden}
 (function(){
 const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v11';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
-let currentSummary={};
+let currentSummary={},liveWorkStatus=null;
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 function layout(c){
  const id=String(c?.id||''),label=String(c?.label||'').replace(/\s/g,'');
@@ -162,7 +162,7 @@ function renderWorkStatus(status){
 }
 function renderSummary(d){
  if(summaryKey(currentSummary)===summaryKey(d)&&document.body.classList.contains('menu-ready'))return;
- renderWorkStatus(d?.workStatus);
+ renderWorkStatus(liveWorkStatus||d?.workStatus);
  show(listFrom(d))
 }
 function cached(){try{const x=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return x&&Date.now()-x.time<21600000?x.data:null}catch{return null}}
@@ -181,6 +181,11 @@ async function init(){
 }
 if(ch)ch.addEventListener('message',e=>{
  const d=e.data;
+ if(d?.type==='work-status'){
+  liveWorkStatus={enabled:d.enabled===true,mode:d.mode==='sleeping'?'sleeping':'working',description:String(d.description||'')};
+  renderWorkStatus(liveWorkStatus);
+  return
+ }
  if(d?.type==='nav-data'){
   // Page frames can report partial data while their sections are still loading.
   // The quick-menu list is sourced only from /api/public/nav-summary to avoid flicker.
