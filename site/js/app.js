@@ -331,6 +331,7 @@ function renderSchedule(s){
   $('scheduleText').innerHTML=
     `<span class="schedule-main-line">${main}</span>`+
     (extras.length?`<span class="schedule-extra-lines">${extras.map(x=>`<span class="schedule-extra-line">${htmlAttr(x)}</span>`).join('')}</span>`:'');
+  card?.querySelectorAll('.schedule-date').forEach(el=>el.style.setProperty('color',dateColor,'important'));
 
 }
 function renderAuthorIntro(s){
