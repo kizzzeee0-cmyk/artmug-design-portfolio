@@ -140,7 +140,7 @@ async function init(){
  const old=cached();
  if(old)renderSummary(old);
  try{
-  const d=await api('/api/public/nav-summary?fresh='+Date.now());
+  const d=await api('/api/public/nav-summary');
   const summary=summaryFromNav(d);
   saveCache(summary);
   renderSummary(summary)
