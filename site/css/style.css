@@ -6219,19 +6219,31 @@ html.artmug-embed-root body.artmug-part .site-shell{
   display:none!important;
 }
 
-/* 2026-10-13 INQUIRY FOOTER SEPARATION + FLAT COPY ACTION */
+/* 2026-10-13 INQUIRY FOOTER RHYTHM + ATTACHMENT NOTICE CONTRAST */
+.form-card{
+  --inquiry-lower-gap:18px;
+  --inquiry-footer-pad-y:18px;
+  --inquiry-card-pad:30px;
+}
+
+/* Attachment guidance stays the same size, but reads as a distinct info panel. */
 .inquiry-attachment-notice{
-  background:#fbfdff!important;
-  border-color:rgba(143,201,232,.24)!important;
-  color:#5f7482!important;
+  margin:0!important;
+  background:#EAF4FF!important;
+  border-color:var(--accent-mid)!important;
+  color:#365F78!important;
   box-shadow:none!important;
 }
 
-/* The action footer is structurally separate from the variable-height form body. */
+/* The footer reaches the card edges so its own top/bottom padding is the only
+   vertical space around the copy button. */
 .inquiry-form-footer{
-  width:100%;
-  margin-top:18px;
-  padding-top:16px;
+  width:auto;
+  margin-top:var(--inquiry-lower-gap);
+  margin-left:calc(-1 * var(--inquiry-card-pad));
+  margin-right:calc(-1 * var(--inquiry-card-pad));
+  margin-bottom:calc(-1 * var(--inquiry-card-pad));
+  padding:var(--inquiry-footer-pad-y) var(--inquiry-card-pad);
   border-top:1px solid var(--line);
   background:var(--surface);
 }
@@ -6271,8 +6283,9 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   justify-content:center!important;
 }
 @media(max-width:680px){
-  .inquiry-form-footer{
-    margin-top:16px;
-    padding-top:14px;
+  .form-card{
+    --inquiry-lower-gap:16px;
+    --inquiry-footer-pad-y:16px;
+    --inquiry-card-pad:22px;
   }
 }
