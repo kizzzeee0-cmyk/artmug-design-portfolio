@@ -651,6 +651,7 @@ function renderRequestFields(card,typeIds,prev){
   var rid=card.dataset.requestId;
   var has=function(key){return types.some(t=>t[key])};
   var hasProfile=types.some(isProfileInquiryType);
+  var bottomBannerOnly=types.length===1&&types[0]?.showBannerFields===true&&!hasProfile;
   var profileMode=card.dataset.profileMode||'custom';
   var contentEnabled=types.some(showsContentField);
 
@@ -702,14 +703,20 @@ function renderRequestFields(card,typeIds,prev){
   var html='';
   if(hasProfile){
     // Profile combinations keep shared fields in this exact order:
-    // bottom banner kind -> concept -> content -> frame retention.
+    // profile mode (injected by V2) -> bottom banner kind -> concept -> content -> frame retention.
     html+=bannerFieldsHtml;
     html+=conceptHtml;
     html+=contentHtml;
     html+=signatureHtml;
     html+=frameHtml;
+  }else if(bottomBannerOnly){
+    // Bottom-banner-only requests use the dedicated order requested by the inquiry flow:
+    // bottom banner kind -> concept -> content.
+    html+=bannerFieldsHtml;
+    html+=conceptHtml;
+    html+=contentHtml;
   }else{
-    // Preserve the previous order for non-profile requests.
+    // Preserve the existing order for every other non-profile request.
     html+=conceptHtml;
     html+=signatureHtml;
     html+=frameHtml;
