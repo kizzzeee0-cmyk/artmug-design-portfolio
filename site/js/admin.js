@@ -550,7 +550,12 @@ $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+a
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
 renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
-let noticeSelectionRange=null,noticeSelectionEditor=null;
+const noticeSelectionRanges=new Map();
+const noticeColorTargets=new Map();
+function normalizeHex6(value){
+  const v=String(value||'').trim();
+  return /^#[0-9a-f]{6}$/i.test(v)?v.toUpperCase():''
+}
 function adminNoticeTextHtml(value){
   return adminEsc(value).replace(/\r?\n/g,'<br>')
 }
@@ -583,23 +588,72 @@ function noticeEditorHtml(item,richKey,plainKey){
   const rich=String(item?.[richKey]||'').trim();
   return rich?normalizeNoticeRichHtml(rich):adminNoticeTextHtml(item?.[plainKey]||'')
 }
+function noticeSelectionKey(editor){
+  return String(editor?.dataset?.noticeI??'')
+}
 function rememberNoticeSelection(editor){
   const sel=window.getSelection();
   if(!editor||!sel||!sel.rangeCount)return;
   const range=sel.getRangeAt(0);
-  if(editor.contains(range.commonAncestorContainer)){
-    noticeSelectionEditor=editor;
-    noticeSelectionRange=range.cloneRange()
+  if(editor.contains(range.commonAncestorContainer)&&!range.collapsed){
+    const key=noticeSelectionKey(editor);
+    noticeSelectionRanges.set(key,range.cloneRange());
+    noticeColorTargets.delete(key)
   }
 }
-function restoreNoticeSelection(editor){
-  if(!editor)return false;
-  editor.focus();
-  if(noticeSelectionEditor!==editor||!noticeSelectionRange)return false;
+function noticeRangeFor(i){
+  const editor=document.querySelector(`[data-notice-rich="description"][data-notice-i="${i}"]`);
+  const range=noticeSelectionRanges.get(String(i));
+  if(!editor||!range||range.collapsed)return null;
+  try{
+    if(!editor.contains(range.commonAncestorContainer))return null
+  }catch{return null}
+  return {editor,range:range.cloneRange()}
+}
+function selectNoticeRange(i,range){
+  if(!range)return;
   const sel=window.getSelection();
   sel.removeAllRanges();
-  sel.addRange(noticeSelectionRange);
-  return true
+  sel.addRange(range);
+  noticeSelectionRanges.set(String(i),range.cloneRange())
+}
+function wrapNoticeSelection(i,tagName,setup){
+  const state=noticeRangeFor(i);
+  if(!state)return null;
+  const {editor,range}=state;
+  editor.focus({preventScroll:true});
+  selectNoticeRange(i,range);
+  const wrapper=document.createElement(tagName);
+  if(typeof setup==='function')setup(wrapper);
+  try{
+    wrapper.appendChild(range.extractContents());
+    range.insertNode(wrapper);
+  }catch{
+    return null
+  }
+  const next=document.createRange();
+  next.selectNodeContents(wrapper);
+  selectNoticeRange(i,next);
+  noticeSelectionRanges.set(String(i),next.cloneRange());
+  updateNoticePreview(i);
+  return wrapper
+}
+function clearNoticeSelectionFormat(i){
+  const state=noticeRangeFor(i);
+  if(!state)return;
+  const {editor,range}=state;
+  editor.focus({preventScroll:true});
+  const holder=document.createElement('span');
+  let fragment;
+  try{fragment=range.extractContents()}catch{return}
+  holder.appendChild(fragment);
+  holder.querySelectorAll('strong,b,font,span').forEach(el=>el.replaceWith(...Array.from(el.childNodes)));
+  range.insertNode(holder);
+  const next=document.createRange();
+  next.selectNodeContents(holder);
+  selectNoticeRange(i,next);
+  noticeColorTargets.delete(String(i));
+  updateNoticePreview(i)
 }
 function noticeDefaultColor(){
   return '#475569'
@@ -609,16 +663,54 @@ function updateNoticePreview(i){
   const descOut=document.querySelector(`[data-notice-preview-desc="${i}"]`);
   if(descOut)descOut.innerHTML=normalizeNoticeRichHtml(desc?.innerHTML||'')
 }
-function applyNoticeFormat(i,command,value){
-  const editor=noticeSelectionEditor&&Number(noticeSelectionEditor.dataset.noticeI)===Number(i)?noticeSelectionEditor:null;
-  if(!editor)return;
-  restoreNoticeSelection(editor);
-  if(command==='defaultColor')document.execCommand('foreColor',false,noticeDefaultColor(editor));
-  else if(command==='clear')document.execCommand('removeFormat',false,null);
-  else document.execCommand(command,false,value||null);
-  rememberNoticeSelection(editor);
-  updateNoticePreview(i)
+function applyNoticeColor(i,value){
+  const color=normalizeHex6(value);
+  if(!color)return false;
+  const key=String(i);
+  let target=noticeColorTargets.get(key);
+  const editor=document.querySelector(`[data-notice-rich="description"][data-notice-i="${i}"]`);
+  if(!target||!target.isConnected||!editor?.contains(target)){
+    target=wrapNoticeSelection(i,'span',el=>{el.style.color=color});
+    if(!target)return false;
+    noticeColorTargets.set(key,target)
+  }else{
+    target.style.color=color;
+    const next=document.createRange();
+    next.selectNodeContents(target);
+    selectNoticeRange(i,next);
+    updateNoticePreview(i)
+  }
+  if(S.noticeItems?.[i])S.noticeItems[i].editorColor=color;
+  return true
 }
+function applyNoticeFormat(i,command){
+  noticeColorTargets.delete(String(i));
+  if(command==='bold'){
+    wrapNoticeSelection(i,'strong');
+    return
+  }
+  if(command==='defaultColor'){
+    applyNoticeColor(i,noticeDefaultColor());
+    return
+  }
+  if(command==='clear'){
+    clearNoticeSelectionFormat(i)
+  }
+}
+async function pickNoticeEyedropper(i){
+  if(!('EyeDropper' in window))return;
+  try{
+    const result=await new EyeDropper().open();
+    const color=normalizeHex6(result?.sRGBHex);
+    if(!color)return;
+    const picker=document.querySelector(`[data-notice-color="${i}"]`);
+    const hex=document.querySelector(`[data-notice-hex="${i}"]`);
+    if(picker)picker.value=color.toLowerCase();
+    if(hex)hex.value=color;
+    applyNoticeColor(i,color)
+  }catch{}
+}
+
 function collectNotices(){
   (S.noticeItems||[]).forEach((x,i)=>{
     const enabled=document.querySelector(`[data-notice-enabled="${i}"]`);
