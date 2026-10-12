@@ -635,7 +635,7 @@ body.artmug-part-portfolio #inquirySection{
 /* Category title typography follows the showcase subheadings. */
 .v2-cat-head h3{
   font-size:16px!important;
-  font-weight:700!important;
+  font-weight:600!important;
 }
 
 /* Slightly reduce individual showcase product names. */
