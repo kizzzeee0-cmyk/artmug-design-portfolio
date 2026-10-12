@@ -9,6 +9,15 @@
   "noticeText": "",
   "noticeItems": [
     {
+      "icon": "",
+      "title": "",
+      "description": "사전 협의 없는 2차 가공 및 재배포를 금지합니다.",
+      "enabled": true,
+      "titleRich": "",
+      "descriptionRich": "사전 협의 없는 <span style=\"color:rgb(95, 189, 236)\"><strong>2차 가공 및 재배포를 금지</strong></span>합니다.",
+      "editorColor": "#5FBDEC"
+    },
+    {
       "icon": "🎞️",
       "title": "움짤 프사 파일 전달",
       "description": "움짤 프사 제작 시 GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
@@ -37,15 +46,6 @@
       "description": "작업 시작 전일 경우 100%, 작업 진행 중일 경우 50% 환불이 가능합니다.",
       "enabled": true,
       "descriptionRich": "작업 시작 전일 경우 100%, 작업 진행 중일 경우 50% 환불이 가능합니다."
-    },
-    {
-      "icon": "",
-      "title": "",
-      "description": "사전 협의 없는 2차 가공 및 재배포를 금지합니다.",
-      "enabled": true,
-      "titleRich": "",
-      "descriptionRich": "사전 협의 없는 <span style=\"color:rgb(95, 189, 236)\"><strong>2차 가공 및 재배포를 금지</strong></span>합니다.",
-      "editorColor": "#5FBDEC"
     }
   ],
   "formTitle": "문의양식",
