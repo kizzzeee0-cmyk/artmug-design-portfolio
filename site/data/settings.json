@@ -331,7 +331,8 @@
       "uploadWidth": 200,
       "uploadHeight": 200,
       "formats": [
-        "gif"
+        "gif",
+        "png"
       ],
       "emptyText": "등록된 움짤프사 프리셋이 아직 없습니다.",
       "allowedSizes": [
