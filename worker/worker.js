@@ -176,8 +176,7 @@ function githubContentStream(file,message,branch,sha){
   const encoder=new TextEncoder();
   const reader=file.stream().getReader();
   let carry=new Uint8Array(0),started=false,done=false;
-  const prefix=JSON.stringify({message,content:''}).replace('""','"');
-  const head=prefix.slice(0,-2);
+  const head='{"message":'+JSON.stringify(message)+',"content":"';
   const tail='","branch":'+JSON.stringify(branch)+(sha?',"sha":'+JSON.stringify(sha):'')+'}';
   return new ReadableStream({
     async pull(controller){
