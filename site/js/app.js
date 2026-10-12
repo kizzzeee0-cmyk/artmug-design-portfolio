@@ -298,6 +298,8 @@ function armScheduleCutoffRefresh(){
 }
 function renderSchedule(s){
   const card=document.querySelector('.schedule-card');
+  const dateColor=/^#[0-9a-f]{6}$/i.test(String(s.scheduleDateColor||''))?String(s.scheduleDateColor).toUpperCase():'#4E9BC6';
+  if(card)card.style.setProperty('--schedule-date-color',dateColor);
   const enabled=s.scheduleEnabled!==false;
   if(card)card.hidden=!enabled;
   if(!enabled)return;
