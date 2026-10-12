@@ -293,7 +293,6 @@ function bindAdminPagination(rootId,type,page,totalPages){
     const token=b.dataset.adminPage,next=token==='prev'?page-1:token==='next'?page+1:Number(token);
     if(type==='portfolio'){portfolioAdminPage=Math.max(1,Math.min(totalPages,next));renderItems()}
     else{presetAdminPage=Math.max(1,Math.min(totalPages,next));renderPresetItems()}
-    document.getElementById(type==='portfolio'?'items':'presetItems')?.scrollIntoView({behavior:'smooth',block:'start'})
   })
 }
 
