@@ -655,6 +655,7 @@
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif"
   ],
   "portfolioOrder": [
+    "portfolio/bottom-split/20261013090930-mvmy3iat8o59-____.png",
     "portfolio/floating-banner/20261013090907-a70kro1mdlg6c-_______.png",
     "portfolio/profile/20261012022933-LHOOp_VP-_________.gif",
     "portfolio/profile/20261012032811-uNOvLOM2-__.gif",
@@ -739,6 +740,10 @@
       "enabled": true
     },
     "portfolio/floating-banner/20261013090907-a70kro1mdlg6c-_______.png": {
+      "enabled": true,
+      "bannerType": "B"
+    },
+    "portfolio/bottom-split/20261013090930-mvmy3iat8o59-____.png": {
       "enabled": true,
       "bannerType": "B"
     }
