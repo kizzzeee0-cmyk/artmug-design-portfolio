@@ -5,10 +5,11 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:transparent;font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:#344651;overflow:visible}
-body{display:flex;justify-content:flex-start;align-items:flex-start;min-height:100vh;padding:32px 0 24px}
+body{display:flex;justify-content:flex-start;align-items:safe center;min-height:100vh;min-height:100dvh;padding:16px 0}
 .quick-shell{
   position:sticky;
-  top:16px;
+  top:50%;
+  transform:translateY(-50%);
   width:154px;
   padding:15px 10px 13px;
   border:1.5px solid #dcecf4;
@@ -53,6 +54,7 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .quick-top-arrow svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .quick-top-text{display:block;width:100%;font-size:7px;font-weight:800;line-height:1;text-align:center;letter-spacing:.01em}
 .loading{padding:10px 3px;text-align:center;color:#81909a;font-size:10px}
+@media(max-height:560px){body{align-items:flex-start;padding-top:12px;padding-bottom:12px}.quick-shell{top:12px;transform:none}}
 </style>
 </head>
 <body>
