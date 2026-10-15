@@ -1458,7 +1458,7 @@ body.artmug-part-portfolio #inquirySection{
 }
 
 
-/* Seasonal fixed-template showcase: independent from the ordinary preset section. */
+/* Fixed-template showcase: independent from the ordinary preset section. */
 .seasonal-fixed-section{
   padding:clamp(20px,3vw,30px);
   border:1px solid rgba(143,201,232,.22);
@@ -1478,7 +1478,7 @@ body.artmug-part-portfolio #inquirySection{
   line-height:1.3;
   letter-spacing:-.025em;
 }
-.seasonal-fixed-holiday-copy{
+.fixed-section-copy{
   max-width:850px;
   margin:0 auto 17px;
   color:#526a79;
@@ -1487,66 +1487,7 @@ body.artmug-part-portfolio #inquirySection{
   white-space:pre-line;
   overflow-wrap:anywhere;
 }
-.seasonal-fixed-policy{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:11px;
-  margin:0 auto 19px;
-  max-width:980px;
-  text-align:left;
-}
-.seasonal-fixed-policy>div{
-  min-width:0;
-  border:1px solid #dcecf4;
-  border-radius:16px;
-  background:#f7fbfe;
-  padding:12px 15px;
-}
-.seasonal-fixed-policy-label{
-  display:inline-flex;
-  align-items:center;
-  min-height:25px;
-  padding:4px 12px;
-  margin-bottom:8px;
-  background:var(--primary-action,var(--accent,#8fc9e8));
-  border-radius:999px;
-  color:#fff;
-  font-size:12px;
-  font-weight:700;
-}
-.seasonal-fixed-policy p{
-  margin:0;
-  color:#526a79;
-  font-size:12.5px;
-  line-height:1.65;
-  white-space:pre-line;
-  overflow-wrap:anywhere;
-}
-.seasonal-fixed-tabs{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-bottom:17px;
-}
-.seasonal-fixed-tabs button{
-  min-height:32px;
-  border:1px solid #dcecf4;
-  border-radius:999px;
-  padding:6px 14px;
-  background:#f4faff;
-  color:#4f8fb3;
-  font:inherit;
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-}
-.seasonal-fixed-tabs button.is-active{
-  background:var(--primary-action,var(--accent,#8fc9e8));
-  border-color:var(--primary-action,var(--accent,#8fc9e8));
-  color:#fff;
-}
-.seasonal-fixed-tabs button:focus-visible,.seasonal-fixed-pagination button:focus-visible{
+.seasonal-fixed-pagination button:focus-visible{
   outline:2px solid #69add2;
   outline-offset:2px;
 }
@@ -1584,14 +1525,6 @@ body.artmug-part-portfolio #inquirySection{
   border:0;
   box-shadow:none;
 }
-.seasonal-fixed-holiday{
-  color:#4f8fb3;
-  background:#edf8fd;
-  border-radius:999px;
-  padding:3px 9px;
-  font-size:10px;
-  font-weight:700;
-}
 .seasonal-fixed-name{
   max-width:100%;
   color:#344651;
@@ -1599,13 +1532,6 @@ body.artmug-part-portfolio #inquirySection{
   font-weight:700;
   overflow-wrap:anywhere;
   line-height:1.45;
-}
-.seasonal-fixed-description{
-  color:#71818c;
-  font-size:11px;
-  line-height:1.5;
-  max-width:100%;
-  overflow-wrap:anywhere;
 }
 .seasonal-fixed-price{
   color:#4f8fb3;
@@ -1617,22 +1543,14 @@ body.artmug-part-portfolio #inquirySection{
 @media(max-width:680px){
  .seasonal-fixed-section{padding:18px 12px;border-radius:22px}
  .seasonal-fixed-section>h2{font-size:20px}
- .seasonal-fixed-holiday-copy{font-size:12px;margin-bottom:13px}
- .seasonal-fixed-policy{grid-template-columns:1fr;gap:8px;margin-bottom:14px}
- .seasonal-fixed-policy>div{padding:10px 12px}
- .seasonal-fixed-policy p{font-size:11.5px}
- .seasonal-fixed-policy-label{font-size:11px;min-height:23px;margin-bottom:5px}
- .seasonal-fixed-tabs{gap:5px;margin-bottom:12px}
- .seasonal-fixed-tabs button{font-size:11px;min-height:29px;padding:5px 10px}
+ .fixed-section-copy{font-size:12px;margin-bottom:13px}
  .seasonal-fixed-grid{gap:9px 7px}
  .seasonal-fixed-card{padding:6px 5px;gap:4px;border-radius:12px}
  .seasonal-fixed-thumb{border-radius:9px}
  .seasonal-fixed-name,.seasonal-fixed-price{font-size:11px}
- .seasonal-fixed-description{font-size:10px}
- .seasonal-fixed-holiday{font-size:9px}
 }
 
-/* 2026-10-15 PRESET DESIGN + SEASON FILTERS */
+/* 2026-10-15 PRESET DESIGN FILTERS */
 .v2-preset-filters{
   display:grid;
   gap:10px;
@@ -1757,8 +1675,7 @@ body.artmug-part-portfolio #inquirySection{
   letter-spacing:.015em;
   white-space:nowrap;
 }
-.v2-preset-badge.is-reserved,
-.v2-preset-badge.is-sold{
+.v2-preset-badge.is-reserved{
   background:#eff2f5;
   border-color:#e2e7eb;
   color:#556575;
@@ -1772,9 +1689,6 @@ body.artmug-part-portfolio #inquirySection{
   background:#f4f2f7;
   border-color:#e6e1ec;
   color:#756b7f;
-}
-.v2-preset-badge.is-season{
-  box-shadow:none;
 }
 @media(max-width:680px){
   .v2-preset-filters{
@@ -1826,7 +1740,7 @@ body.artmug-part-portfolio #inquirySection{
 }
 
 
-/* 2026-10-15 PRESET + FIXED SHARED SEASON CATEGORIES */
+/* 2026-10-15 FIXED TEMPLATE CATEGORY LAYOUT */
 .seasonal-fixed-card:not(.fixed-layout-profile) .seasonal-fixed-thumb{
   aspect-ratio:auto;
   overflow:visible;
@@ -1844,60 +1758,49 @@ body.artmug-part-portfolio #inquirySection{
 .seasonal-fixed-filters{
   margin-top:2px;
 }
-.fixed-season-category-layout{
+.fixed-category-layout{
   display:grid;
   grid-template-columns:1fr;
   gap:18px;
   margin-top:2px;
 }
-.fixed-season-category-layout.is-two{
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  align-items:start;
-}
-.fixed-season-category{
+.fixed-category-group{
   min-width:0;
 }
-.fixed-season-category-layout.is-stacked .fixed-season-category + .fixed-season-category{
+.fixed-category-group + .fixed-category-group{
   padding-top:18px;
   border-top:1px solid var(--line);
 }
-.fixed-season-category-head{
+.fixed-category-head{
   display:flex;
   align-items:center;
   justify-content:center;
   min-height:30px;
   margin-bottom:9px;
 }
-.fixed-season-category-head h3{
+.fixed-category-head h3{
   margin:0;
   color:#4f8fb3;
   font-size:13px;
   font-weight:750;
 }
-.fixed-season-category .v2-show-all{
+.fixed-category-group .v2-show-all{
   display:block;
   margin:12px auto 0;
 }
-.seasonal-fixed-card .v2-preset-badges{
-  margin-top:0;
-}
 @media(max-width:680px){
-  .fixed-season-category-layout.is-two{
-    grid-template-columns:1fr;
-  }
-  .fixed-season-category-layout{
+  .fixed-category-layout{
     gap:14px;
   }
-  .fixed-season-category-layout.is-two .fixed-season-category + .fixed-season-category,
-  .fixed-season-category-layout.is-stacked .fixed-season-category + .fixed-season-category{
+  .fixed-category-group + .fixed-category-group{
     padding-top:14px;
-    border-top:1px solid var(--line);
   }
-  .fixed-season-category-head{
+  .fixed-category-head{
     min-height:25px;
     margin-bottom:7px;
   }
-  .fixed-season-category-head h3{
+  .fixed-category-head h3{
     font-size:11.5px;
   }
 }
+
