@@ -376,7 +376,6 @@ async function renderShowcase(){
   return m.enabled&&m.showcaseKind!=='fixed'&&!m.pairChild
  });
  state.showcase.preset=all;
- state.showcase.fixed=[];
 
  const groups=cats.map(cat=>{
   const items=all.filter(x=>x.category===cat.id);
