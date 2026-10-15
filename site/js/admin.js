@@ -110,118 +110,13 @@ function presetMetaFor(x){
     enabled:meta.enabled!==undefined?meta.enabled:x.enabled!==false,
     isNew:meta.isNew===true,
     isReserved:meta.isReserved===true,
-    isSold:meta.isSold===true,
     isReservable:meta.isReservable===true,
     isNoEdit:meta.isNoEdit===true,
-    seasonCategoryId:String(meta.seasonCategoryId||''),
     colorChangeAvailable:meta.colorChangeAvailable===true,
     showcaseKind:['preset','fixed'].includes(meta.showcaseKind)?meta.showcaseKind:'preset',
     featured:meta.featured===true,
     pairChild:meta.pairChild===true
   }
-}
-function ensureSeasonCategories(){
-  if(!Array.isArray(S.seasonCategories)){
-    S.seasonCategories=Array.isArray(S.presetSeasonCategories)?S.presetSeasonCategories.map(x=>({...x})):[]
-  }
-  S.presetSeasonCategories=S.seasonCategories;
-  return S.seasonCategories
-}
-function ensurePresetSeasonCategories(){return ensureSeasonCategories()}
-function presetSeasonById(id){
-  return ensureSeasonCategories().find(x=>x.id===id)
-}
-function presetSeasonOptions(selected=''){
-  return '<option value="">시즌 지정 없음</option>'+ensureSeasonCategories().map(x=>'<option value="'+adminEsc(x.id)+'" '+(x.id===selected?'selected':'')+'>'+adminEsc(x.label||x.id)+(x.enabled===false?' · 비공개':'')+'</option>').join('')
-}
-function seasonIdForAdminMeta(meta){
-  const direct=String(meta?.seasonCategoryId||'');if(direct)return direct;
-  const legacy=String(meta?.fixedHoliday||'').trim();if(!legacy)return '';
-  const found=ensureSeasonCategories().find(x=>String(x.label||x.id||'').trim()===legacy);
-  return found?String(found.id||''):''
-}
-function autoContrastText(hex){
-  const v=normalizeHex6(hex)||'#8FC9E8',n=parseInt(v.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
-  return (r*299+g*587+b*114)/1000>160?'#344651':'#FFFFFF'
-}
-function collectPresetSeasonCats(){
-  const arr=ensurePresetSeasonCategories();
-  arr.forEach((x,i)=>{
-    const label=document.querySelector('[data-season-label="'+i+'"]');
-    const id=document.querySelector('[data-season-id="'+i+'"]');
-    const bg=document.querySelector('[data-season-bg-hex="'+i+'"]');
-    const textInput=document.querySelector('[data-season-text-hex="'+i+'"]');
-    const enabled=document.querySelector('[data-season-enabled="'+i+'"]');
-    const auto=document.querySelector('[data-season-auto="'+i+'"]');
-    if(label)x.label=label.value.trim();
-    if(id){
-      const oldId=String(x.id||''),newId=id.value.trim();
-      if(newId&&newId!==oldId){
-        Object.values(ensurePresetMeta()).forEach(m=>{if(m?.seasonCategoryId===oldId)m.seasonCategoryId=newId});
-        x.id=newId
-      }
-    }
-    const bgHex=normalizeHex6(bg?.value);if(bgHex)x.badgeColor=bgHex;
-    const textHex=normalizeHex6(textInput?.value);if(textHex)x.textColor=textHex;
-    if(enabled)x.enabled=enabled.checked;
-    if(auto)x.autoTextColor=auto.checked
-  })
-}
-function renderPresetSeasonCats(){
-  const root=$('presetSeasonCats');if(!root)return;
-  const arr=ensurePresetSeasonCategories();
-  root.innerHTML=arr.map((x,i)=>{
-    const bg=normalizeHex6(x.badgeColor)||'#8FC9E8',textColor=normalizeHex6(x.textColor)||'#FFFFFF',actualText=x.autoTextColor?autoContrastText(bg):textColor;
-    return '<div class="preset-season-admin-row">'+
-      '<label>이름<input data-season-label="'+i+'" value="'+adminEsc(x.label||'')+'"></label>'+
-      '<label>ID<input data-season-id="'+i+'" value="'+adminEsc(x.id||'')+'"></label>'+
-      '<label class="season-color-field">뱃지 배경<div class="season-color-control"><input type="color" data-season-bg-picker="'+i+'" value="'+bg.toLowerCase()+'"><input data-season-bg-hex="'+i+'" value="'+bg+'" maxlength="7"><button type="button" class="ghost admin-compact" data-season-bg-eye="'+i+'" '+('EyeDropper' in window?'':'hidden')+'>스포이드</button></div></label>'+
-      '<label class="season-color-field">글자색<div class="season-color-control"><input type="color" data-season-text-picker="'+i+'" value="'+textColor.toLowerCase()+'"><input data-season-text-hex="'+i+'" value="'+textColor+'" maxlength="7"><button type="button" class="ghost admin-compact" data-season-text-eye="'+i+'" '+('EyeDropper' in window?'':'hidden')+'>스포이드</button></div></label>'+
-      '<div class="season-admin-options"><label class="mini-toggle"><input type="checkbox" data-season-auto="'+i+'" '+(x.autoTextColor?'checked':'')+'> 자동 대비</label><label class="mini-toggle"><input type="checkbox" data-season-enabled="'+i+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><span class="season-badge-preview" data-season-preview="'+i+'" style="background:'+bg+';color:'+actualText+'">'+adminEsc(x.label||'시즌')+'</span></div>'+
-      '<div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-season="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-move-season="'+i+'" data-dir="1" '+(i===arr.length-1?'disabled':'')+'>↓</button></div>'+
-      '<button type="button" class="danger admin-compact" data-del-season="'+i+'">삭제</button>'+
-    '</div>'
-  }).join('')||'<p class="muted">등록된 시즌 카테고리가 없습니다.</p>';
-  const upload=$('presetUploadSeason');if(upload)upload.innerHTML=presetSeasonOptions(upload.value||'');
-  const fixedUpload=$('fixedUploadSeason');if(fixedUpload)fixedUpload.innerHTML=presetSeasonOptions(fixedUpload.value||'');
-
-  const sync=(i,kind,value)=>{
-    const hex=normalizeHex6(value);if(!hex)return false;
-    const picker=document.querySelector('[data-season-'+kind+'-picker="'+i+'"]');
-    const input=document.querySelector('[data-season-'+kind+'-hex="'+i+'"]');
-    if(picker)picker.value=hex.toLowerCase();if(input)input.value=hex;
-    const row=arr[i];if(kind==='bg')row.badgeColor=hex;else row.textColor=hex;
-    const preview=document.querySelector('[data-season-preview="'+i+'"]');
-    if(preview){const bg=normalizeHex6(row.badgeColor)||'#8FC9E8';preview.style.background=bg;preview.style.color=row.autoTextColor?autoContrastText(bg):(normalizeHex6(row.textColor)||'#FFFFFF')}
-    return true
-  };
-  document.querySelectorAll('[data-season-bg-picker]').forEach(el=>el.oninput=()=>sync(+el.dataset.seasonBgPicker,'bg',el.value));
-  document.querySelectorAll('[data-season-text-picker]').forEach(el=>el.oninput=()=>sync(+el.dataset.seasonTextPicker,'text',el.value));
-  document.querySelectorAll('[data-season-bg-hex]').forEach(el=>{el.oninput=()=>{if(normalizeHex6(el.value))sync(+el.dataset.seasonBgHex,'bg',el.value)};el.onblur=()=>{if(!normalizeHex6(el.value))el.value=normalizeHex6(arr[+el.dataset.seasonBgHex].badgeColor)||'#8FC9E8'}});
-  document.querySelectorAll('[data-season-text-hex]').forEach(el=>{el.oninput=()=>{if(normalizeHex6(el.value))sync(+el.dataset.seasonTextHex,'text',el.value)};el.onblur=()=>{if(!normalizeHex6(el.value))el.value=normalizeHex6(arr[+el.dataset.seasonTextHex].textColor)||'#FFFFFF'}});
-  document.querySelectorAll('[data-season-auto]').forEach(el=>el.onchange=()=>{arr[+el.dataset.seasonAuto].autoTextColor=el.checked;renderPresetSeasonCats()});
-  document.querySelectorAll('[data-season-bg-eye]').forEach(b=>b.onclick=async()=>{try{const v=await new EyeDropper().open();sync(+b.dataset.seasonBgEye,'bg',v.sRGBHex)}catch{}});
-  document.querySelectorAll('[data-season-text-eye]').forEach(b=>b.onclick=async()=>{try{const v=await new EyeDropper().open();sync(+b.dataset.seasonTextEye,'text',v.sRGBHex)}catch{}});
-  document.querySelectorAll('[data-move-season]').forEach(b=>b.onclick=()=>{collectPresetSeasonCats();const i=+b.dataset.moveSeason,n=i+Number(b.dataset.dir);if(n<0||n>=arr.length)return;[arr[i],arr[n]]=[arr[n],arr[i]];renderPresetSeasonCats()});
-  document.querySelectorAll('[data-del-season]').forEach(b=>b.onclick=()=>{collectPresetSeasonCats();const i=+b.dataset.delSeason,id=arr[i]?.id;if(!id)return;arr.splice(i,1);Object.values(ensurePresetMeta()).forEach(m=>{if(m?.seasonCategoryId===id)m.seasonCategoryId=''});renderPresetSeasonCats();renderPresetItems();renderFixedItems()})
-}
-async function saveSeasonCategories(){
-  collectPresetSeasonCats();
-  const categories=JSON.parse(JSON.stringify(ensureSeasonCategories()));
-  const assignments=Object.fromEntries(Object.entries(ensurePresetMeta()).map(([file,m])=>[file,String(m?.seasonCategoryId||'')]));
-  const saved=await queueSettingsMutation(latest=>{
-    latest.seasonCategories=JSON.parse(JSON.stringify(categories));
-    latest.presetSeasonCategories=JSON.parse(JSON.stringify(categories));
-    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-    Object.entries(assignments).forEach(([file,seasonCategoryId])=>{
-      latest.presetMeta[file]={...(latest.presetMeta[file]||{}),seasonCategoryId}
-    })
-  });
-  S.seasonCategories=saved.seasonCategories||categories;
-  S.presetSeasonCategories=S.seasonCategories;
-  S.presetMeta=saved.presetMeta||S.presetMeta||{};
-  renderPresetSeasonCats();renderPresetItems();renderFixedItems();
-  showToast('공통 시즌 카테고리가 저장되었습니다.')
 }
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
 function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:'',bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:'B',enabled:meta.enabled!==false,featured:meta.featured===true,name:String(meta.name||''),description:String(meta.description||'')}}
@@ -701,7 +596,7 @@ $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+a
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('내용 입력 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetSeasonCats();renderFixedAdmin();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderFixedAdmin();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
 const noticeSelectionRanges=new Map();
 const noticeColorTargets=new Map();
 function normalizeHex6(value){
@@ -1376,12 +1271,11 @@ async function savePresetBadgeToggle(i,key,value){
   const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
     const prev=latest.presetMeta[x.file]||{};
-    const exclusive=key==='isReserved'&&value?{isSold:false}:key==='isSold'&&value?{isReserved:false}:{};
-    latest.presetMeta[x.file]={...prev,[key]:value,...exclusive}
+    latest.presetMeta[x.file]={...prev,[key]:value}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
   renderPresetItems();
-  const label=key==='isNew'?'NEW':key==='isSold'?'판매완료':'예약중';
+  const label=key==='isNew'?'NEW':'예약중';
   showToast(value?label+' 표시를 켰습니다.':label+' 표시를 껐습니다.')
 }
 async function savePresetToggle(i,key,value){
@@ -1477,12 +1371,10 @@ function renderPresetItems(){
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
         <label class="preset-name-field">상품 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
-        <label class="preset-season-field">시즌 카테고리<select data-preset-season="${i}">${presetSeasonOptions(meta.seasonCategoryId)}</select></label>
         <div class="preset-admin-toggle-grid">
           <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중</label>
-          <label class="mini-toggle"><input type="checkbox" data-preset-sold="${i}" ${meta.isSold?'checked':''}> 판매완료</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reservable="${i}" ${meta.isReservable?'checked':''}> 예약가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-no-edit="${i}" ${meta.isNoEdit?'checked':''}> 수정불가</label>
@@ -1507,8 +1399,6 @@ function renderPresetItems(){
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetEnabled,'enabled',el.checked));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-sold]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetSold,'isSold',el.checked).catch(e=>{el.checked=!el.checked;alert('판매완료 표시 저장에 실패했습니다.\n'+e.message)}));
-  document.querySelectorAll('[data-preset-season]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetSeason,'seasonCategoryId',el.value));
   document.querySelectorAll('[data-preset-reservable]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetReservable,'isReservable',el.checked));
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
   document.querySelectorAll('[data-preset-no-edit]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetNoEdit,'isNoEdit',el.checked));
@@ -1600,7 +1490,6 @@ async function uploadFiles(kind){
       const name=String($('presetUploadName')?.value||'').trim();
       if(!name)throw new Error('프리셋 이름을 입력해주세요.');
       if(files.length>1)throw new Error('프리셋은 이미지 1장만 선택해 주세요.');
-      const seasonCategoryId=String($('presetUploadSeason')?.value||'');
       const isNoEdit=!!$('presetUploadNoEdit')?.checked;
       const isReservable=!!$('presetUploadReservable')?.checked;
       const file=files[0],presetCat=(S.presetCategories||[]).find(x=>x.id===cat)||{};
@@ -1611,13 +1500,13 @@ async function uploadFiles(kind){
       try{
         const saved=await queueSettingsMutation(latest=>{
           if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-          latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,isReservable,isNoEdit,seasonCategoryId,colorChangeAvailable:false,showcaseKind:'preset',featured:false};
+          latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isReservable,isNoEdit,colorChangeAvailable:false,showcaseKind:'preset',featured:false};
           const order=Array.isArray(latest.presetOrder)?latest.presetOrder.filter(v=>v!==path):[];
           order.push(path);latest.presetOrder=order;
           delete latest.presetColorMeta
         });
         S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||S.presetOrder||[];
-        $('presetUploadName').value='';if($('presetUploadSeason'))$('presetUploadSeason').value='';if($('presetUploadNoEdit'))$('presetUploadNoEdit').checked=false;if($('presetUploadReservable'))$('presetUploadReservable').checked=false;fileInput.value='';status.textContent='프리셋이 등록되었습니다.';
+        $('presetUploadName').value='';if($('presetUploadNoEdit'))$('presetUploadNoEdit').checked=false;if($('presetUploadReservable'))$('presetUploadReservable').checked=false;fileInput.value='';status.textContent='프리셋이 등록되었습니다.';
         await loadPresetItemsOnly();showToast('프리셋이 등록되었습니다.');return
       }catch(e){
         await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{});
@@ -1658,6 +1547,24 @@ function ensureFixedCategories(){
  if(!Array.isArray(S.fixedCategories))S.fixedCategories=defaultFixedCategories();
  return S.fixedCategories
 }
+function fixedCategoryKind(c){
+ const id=String(c?.id||''),label=String(c?.label||'').replace(/\s/g,'');
+ if(/^profile(?:-|$)/.test(id)||label.includes('움짤프사'))return'profile';
+ if(id==='top-banner'||label.includes('상단배너'))return'top-banner';
+ if(id==='floating-banner'||label.includes('플로팅'))return'floating-banner';
+ if(id==='bottom-banner'||label.includes('하단배너일반'))return'bottom-banner';
+ if(id==='bottom-split'||label.includes('하단배너분할'))return'bottom-split';
+ if(/four-cut|4cut/.test(id)||label.includes('인생네컷'))return'four-cut';
+ return id
+}
+function portfolioCategoryForFixedAdmin(c){
+ const list=Array.isArray(S.portfolioCategories)?S.portfolioCategories:[],kind=fixedCategoryKind(c);
+ return list.find(x=>x.id===c.id)||list.find(x=>fixedCategoryKind(x)===kind)||null
+}
+function fixedInheritedColumns(c){
+ const p=portfolioCategoryForFixedAdmin(c);
+ return {pc:Math.max(1,Number(p?.pcColumns||4)),mobile:Math.max(1,Number(p?.mobileColumns||2))}
+}
 function syncFixedUploadCategories(target){
  const cats=Array.isArray(target.fixedCategories)?target.fixedCategories:[];
  if(!Array.isArray(target.presetCategories))target.presetCategories=[];
@@ -1671,11 +1578,9 @@ function syncFixedUploadCategories(target){
 function collectFixedAdmin(){
  if(!$('fixedEnabled'))return;
  S.fixedEnabled=$('fixedEnabled').checked;
- for(const key of ['fixedTitle','fixedHolidayNotice','fixedSalesNotice','fixedNoEditNotice']){
-  const el=$(key);if(el)S[key]=el.value
- }
- S.fixedPcColumns=Math.max(1,Math.min(8,Number($('fixedPcColumns')?.value||4)));
- S.fixedMobileColumns=Math.max(1,Math.min(4,Number($('fixedMobileColumns')?.value||2)));
+ const title=$('fixedTitle'),notice=$('fixedNotice');
+ if(title)S.fixedTitle=title.value;
+ if(notice)S.fixedNotice=notice.value;
  ensureFixedCategories().forEach((c,i)=>{
   const label=document.querySelector('[data-fixed-cat-name="'+i+'"]');
   const enabled=document.querySelector('[data-fixed-cat-enabled="'+i+'"]');
@@ -1687,13 +1592,17 @@ function collectFixedAdmin(){
 function renderFixedCats(){
  const cats=ensureFixedCategories();
  const root=$('fixedCats');if(!root)return;
- root.innerHTML=cats.map((c,i)=>'<div class="cat-row seasonal-fixed-cat-row">'+
- '<label>카테고리 이름<input data-fixed-cat-name="'+i+'" value="'+adminEsc(c.label)+'"></label>'+
- '<span class="muted">ID: '+adminEsc(c.id)+'</span>'+
- '<label class="mini-toggle"><input type="checkbox" data-fixed-cat-enabled="'+i+'" '+(c.enabled!==false?'checked':'')+'> 공개</label>'+
- '<button type="button" class="ghost cat-order-button" data-fixed-cat-move="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button>'+
- '<button type="button" class="ghost cat-order-button" data-fixed-cat-move="'+i+'" data-dir="1" '+(i===cats.length-1?'disabled':'')+'>↓</button>'+
- '<button type="button" class="danger admin-compact" data-fixed-cat-delete="'+i+'">삭제</button></div>').join('');
+ root.innerHTML=cats.map((c,i)=>{
+  const inherited=fixedInheritedColumns(c);
+  return '<div class="cat-row seasonal-fixed-cat-row">'+
+   '<label>카테고리 이름<input data-fixed-cat-name="'+i+'" value="'+adminEsc(c.label)+'"></label>'+
+   '<span class="muted">ID: '+adminEsc(c.id)+'</span>'+
+   '<span class="muted">포트폴리오 자동 · PC '+inherited.pc+'개 / 모바일 '+inherited.mobile+'개</span>'+
+   '<label class="mini-toggle"><input type="checkbox" data-fixed-cat-enabled="'+i+'" '+(c.enabled!==false?'checked':'')+'> 공개</label>'+
+   '<button type="button" class="ghost cat-order-button" data-fixed-cat-move="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button>'+
+   '<button type="button" class="ghost cat-order-button" data-fixed-cat-move="'+i+'" data-dir="1" '+(i===cats.length-1?'disabled':'')+'>↓</button>'+
+   '<button type="button" class="danger admin-compact" data-fixed-cat-delete="'+i+'">삭제</button></div>'
+ }).join('');
  root.querySelectorAll('[data-fixed-cat-move]').forEach(b=>b.onclick=()=>{
   collectFixedAdmin();const i=+b.dataset.fixedCatMove,j=i+Number(b.dataset.dir);if(j<0||j>=cats.length)return;
   [cats[i],cats[j]]=[cats[j],cats[i]];renderFixedCats()
@@ -1714,19 +1623,20 @@ function renderFixedUploadCategories(){
 function renderFixedAdmin(){
  if(!$('fixedEnabled'))return;
  $('fixedEnabled').checked=S.fixedEnabled!==false;
- $('fixedTitle').value=S.fixedTitle||'시즌 한정 고정틀';
- $('fixedHolidayNotice').value=S.fixedHolidayNotice||'할로윈 · 추석 · 설날 · 어린이날 · 크리스마스 등 특별한 날의 분위기를 담은 디자인입니다.';
- $('fixedSalesNotice').value=S.fixedSalesNotice||'시즌별 특별한 고정틀 디자인을 만나보세요.';
- $('fixedNoEditNotice').value=S.fixedNoEditNotice||'고정틀은 완성된 디자인 그대로 판매되며 색상 및 디자인 수정이 불가능합니다.';
- $('fixedPcColumns').value=Math.max(1,Math.min(8,Number(S.fixedPcColumns||4)));
- $('fixedMobileColumns').value=Math.max(1,Math.min(4,Number(S.fixedMobileColumns||2)));
+ $('fixedTitle').value=S.fixedTitle||'고정틀';
+ $('fixedNotice').value=S.fixedNotice||'완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다';
  renderFixedCats();renderFixedItems()
 }
 async function saveFixedSettings(){
  collectFixedAdmin();
- const keys=['fixedEnabled','fixedTitle','fixedHolidayNotice','fixedSalesNotice','fixedNoEditNotice','fixedPcColumns','fixedMobileColumns','fixedCategories'];
+ const keys=['fixedEnabled','fixedTitle','fixedNotice','fixedCategories'];
  const saved=await queueSettingsMutation(latest=>{
   for(const k of keys)latest[k]=JSON.parse(JSON.stringify(S[k]));
+  delete latest.fixedHolidayNotice;
+  delete latest.fixedSalesNotice;
+  delete latest.fixedNoEditNotice;
+  delete latest.fixedPcColumns;
+  delete latest.fixedMobileColumns;
   syncFixedUploadCategories(latest)
  });
  for(const k of keys)S[k]=saved[k];
@@ -1746,8 +1656,6 @@ function renderFixedItems(){
    '<div class="preset-admin-preview"><img src="'+API+'/media/'+x.file.split('/').map(encodeURIComponent).join('/')+'" loading="lazy" alt=""></div>'+
    '<div class="preset-admin-fields"><div class="muted preset-location">'+adminEsc(cat?.label||x.category)+'</div>'+
    '<label class="preset-name-field">디자인 이름<input data-fixed-name="'+i+'" value="'+adminEsc(m.name)+'"></label>'+
-   '<label>시즌 카테고리<select data-fixed-season="'+i+'">'+presetSeasonOptions(seasonIdForAdminMeta(S.presetMeta?.[x.file]||{}))+'</select></label>'+
-   '<label>디자인 소개<input data-fixed-description="'+i+'" value="'+adminEsc((S.presetMeta?.[x.file]||{}).fixedDescription||'')+'" placeholder="상품을 짧게 소개해 주세요"></label>'+
    '<label>판매가 (원)<input data-fixed-price="'+i+'" type="number" min="0" step="100" value="'+Math.max(0,Number((S.presetMeta?.[x.file]||{}).fixedPrice||0))+'"></label>'+
    '<label class="mini-toggle"><input data-fixed-enabled="'+i+'" type="checkbox" '+(m.enabled?'checked':'')+'> 공개</label></div>'+
    '<div class="preset-admin-actions"><div class="media-order-controls">'+
@@ -1757,10 +1665,10 @@ function renderFixedItems(){
    '<button class="ghost admin-compact" data-fixed-replace="'+i+'">파일 수정</button>'+
    '<button class="danger admin-compact" data-fixed-delete="'+encodeURIComponent(x.file)+'">삭제</button></div></div>'
  }).join('');
- root.innerHTML=rows||'<p class="muted">등록된 시즌 고정틀이 없습니다. 작품을 등록하면 프리셋 위에 별도 섹션으로 표시됩니다.</p>';
+ root.innerHTML=rows||'<p class="muted">등록된 고정틀이 없습니다. 작품을 등록하면 프리셋 위에 별도 섹션으로 표시됩니다.</p>';
  bindAdminPagination('fixedItemsPagination','fixed',fixedAdminPage,totalPages);
- root.querySelectorAll('[data-fixed-save]').forEach(b=>b.onclick=()=>saveFixedItem(+b.dataset.fixedSave).catch(e=>alert('저장에 실패했습니다.\\n'+e.message)));
- root.querySelectorAll('[data-fixed-enabled]').forEach(b=>b.onchange=()=>saveFixedItem(+b.dataset.fixedEnabled).catch(e=>alert('저장에 실패했습니다.\\n'+e.message)));
+ root.querySelectorAll('[data-fixed-save]').forEach(b=>b.onclick=()=>saveFixedItem(+b.dataset.fixedSave).catch(e=>alert('저장에 실패했습니다.\n'+e.message)));
+ root.querySelectorAll('[data-fixed-enabled]').forEach(b=>b.onchange=()=>saveFixedItem(+b.dataset.fixedEnabled).catch(e=>alert('저장에 실패했습니다.\n'+e.message)));
  root.querySelectorAll('[data-fixed-replace]').forEach(b=>b.onclick=()=>replaceMediaFile('fixed',+b.dataset.fixedReplace));
  root.querySelectorAll('[data-move-fixed]').forEach(b=>b.onclick=()=>moveFixedItem(+b.dataset.moveFixed,Number(b.dataset.dir)));
  root.querySelectorAll('[data-fixed-delete]').forEach(b=>b.onclick=async()=>{
@@ -1774,19 +1682,19 @@ function renderFixedItems(){
    });
    S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];
    await loadPresetItemsOnly();showToast('고정틀이 삭제되었습니다.')
-  }catch(e){alert('삭제에 실패했습니다.\\n'+e.message)}
+  }catch(e){alert('삭제에 실패했습니다.\n'+e.message)}
  })
 }
 async function saveFixedItem(i){
  const x=fixedItems[i];if(!x)return;
  const name=document.querySelector('[data-fixed-name="'+i+'"]')?.value.trim();
- const seasonCategoryId=String(document.querySelector('[data-fixed-season="'+i+'"]')?.value||'');
- const description=document.querySelector('[data-fixed-description="'+i+'"]')?.value.trim()||'';
  const price=Math.max(0,Number(document.querySelector('[data-fixed-price="'+i+'"]')?.value||0));
  const enabled=document.querySelector('[data-fixed-enabled="'+i+'"]')?.checked!==false;
  const saved=await queueSettingsMutation(latest=>{
   if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
-  latest.presetMeta[x.file]={...(latest.presetMeta[x.file]||{}),name,enabled,seasonCategoryId,fixedHoliday:'',fixedDescription:description,fixedPrice:price,showcaseKind:'fixed',colorChangeAvailable:false}
+  const meta={...(latest.presetMeta[x.file]||{}),name,enabled,fixedPrice:price,showcaseKind:'fixed',colorChangeAvailable:false};
+  delete meta.seasonCategoryId;delete meta.fixedHoliday;delete meta.fixedDescription;delete meta.isSold;
+  latest.presetMeta[x.file]=meta
  });
  S.presetMeta=saved.presetMeta||{};showToast('고정틀 상품 설정이 저장되었습니다.');renderFixedItems()
 }
@@ -1804,8 +1712,7 @@ async function moveFixedItem(i,dir){
 }
 async function uploadFixed(){
  const input=$('fixedFiles'),file=input?.files?.[0],name=$('fixedUploadName')?.value.trim();
- const cat=$('fixedUploadCat')?.value,seasonCategoryId=String($('fixedUploadSeason')?.value||''),description=$('fixedUploadDescription')?.value.trim()||'';
- const price=Number($('fixedUploadPrice')?.value||0),status=$('fixedUploadStatus');
+ const cat=$('fixedUploadCat')?.value,price=Number($('fixedUploadPrice')?.value||0),status=$('fixedUploadStatus');
  if(!file||!name||!cat){alert('카테고리, 디자인 이름, 파일을 입력해 주세요.');return}
  let path='',metadataSaved=false;
  try{
@@ -1817,11 +1724,12 @@ async function uploadFixed(){
   if(!path)throw new Error('업로드 경로가 반환되지 않았습니다.');
   const saved=await queueSettingsMutation(latest=>{
    if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
-   latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,showcaseKind:'fixed',seasonCategoryId,fixedHoliday:'',fixedDescription:description,fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
+   latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,showcaseKind:'fixed',fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
+   const meta=latest.presetMeta[path];delete meta.seasonCategoryId;delete meta.fixedHoliday;delete meta.fixedDescription;delete meta.isSold;
    latest.presetOrder=[path,...(latest.presetOrder||[]).filter(v=>v!==path)]
   });
   S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];metadataSaved=true;
-  input.value='';$('fixedUploadName').value='';if($('fixedUploadSeason'))$('fixedUploadSeason').value='';$('fixedUploadDescription').value='';$('fixedUploadPrice').value='';
+  input.value='';$('fixedUploadName').value='';$('fixedUploadPrice').value='';
   status.textContent='고정틀 등록이 완료되었습니다.';
   await loadPresetItemsOnly();showToast('고정틀이 등록되었습니다.')
  }catch(e){
@@ -1831,7 +1739,7 @@ async function uploadFixed(){
 }
 
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=d.settings;render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
-$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};if($('addPresetSeasonCat'))$('addPresetSeasonCat').onclick=()=>{const id='season-'+Date.now(),arr=ensureSeasonCategories();arr.push({id,label:'새 시즌',enabled:true,badgeColor:'#8FC9E8',textColor:'#FFFFFF',autoTextColor:false});S.presetSeasonCategories=arr;renderPresetSeasonCats()};if($('saveSeasonCategories'))$('saveSeasonCategories').onclick=()=>saveSeasonCategories().catch(e=>alert('시즌 카테고리 저장 실패: '+e.message));$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 고정틀 카테고리',enabled:true});renderFixedCats()};if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));if($('uploadFixed'))$('uploadFixed').onclick=uploadFixed;$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 고정틀 카테고리',enabled:true});renderFixedCats()};if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));if($('uploadFixed'))$('uploadFixed').onclick=uploadFixed;$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
