@@ -1481,9 +1481,11 @@ body.artmug-part-portfolio #inquirySection{
 .fixed-section-copy{
   max-width:850px;
   margin:0 auto 17px;
-  color:#526a79;
-  font-size:13px;
-  line-height:1.65;
+  font-size:var(--public-help-size)!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  color:#687685!important;
+  text-align:center!important;
   white-space:pre-line;
   overflow-wrap:anywhere;
 }
@@ -1512,7 +1514,7 @@ body.artmug-part-portfolio #inquirySection{
   display:grid;
   place-items:center;
   width:100%;
-  aspect-ratio:1/1;
+  aspect-ratio:var(--fixed-aspect,1/1);
   overflow:hidden;
   border-radius:12px;
   background:#f7fbfe;
@@ -1528,8 +1530,8 @@ body.artmug-part-portfolio #inquirySection{
 .seasonal-fixed-name{
   max-width:100%;
   color:#344651;
-  font-size:13px;
-  font-weight:700;
+  font-size:12.5px!important;
+  font-weight:600!important;
   overflow-wrap:anywhere;
   line-height:1.45;
 }
@@ -1543,11 +1545,12 @@ body.artmug-part-portfolio #inquirySection{
 @media(max-width:680px){
  .seasonal-fixed-section{padding:18px 12px;border-radius:22px}
  .seasonal-fixed-section>h2{font-size:20px}
- .fixed-section-copy{font-size:12px;margin-bottom:13px}
+ .fixed-section-copy{margin-bottom:13px}
  .seasonal-fixed-grid{gap:9px 7px}
  .seasonal-fixed-card{padding:6px 5px;gap:4px;border-radius:12px}
  .seasonal-fixed-thumb{border-radius:9px}
- .seasonal-fixed-name,.seasonal-fixed-price{font-size:11px}
+ .seasonal-fixed-name{font-size:10px!important;font-weight:600!important}
+ .seasonal-fixed-price{font-size:11px}
 }
 
 /* 2026-10-15 PRESET DESIGN FILTERS */
@@ -1741,19 +1744,14 @@ body.artmug-part-portfolio #inquirySection{
 
 
 /* 2026-10-15 FIXED TEMPLATE CATEGORY LAYOUT */
-.seasonal-fixed-card:not(.fixed-layout-profile) .seasonal-fixed-thumb{
-  aspect-ratio:auto;
-  overflow:visible;
-  background:transparent;
+.seasonal-fixed-card .seasonal-fixed-thumb{
+  aspect-ratio:var(--fixed-aspect,1/1);
 }
-.seasonal-fixed-card:not(.fixed-layout-profile) .seasonal-fixed-thumb img{
+.seasonal-fixed-card .seasonal-fixed-thumb img{
   width:100%;
-  height:auto;
+  height:100%;
   max-height:none;
   object-fit:contain;
-}
-.seasonal-fixed-card.fixed-layout-profile .seasonal-fixed-thumb{
-  aspect-ratio:1/1;
 }
 .seasonal-fixed-filters{
   margin-top:2px;

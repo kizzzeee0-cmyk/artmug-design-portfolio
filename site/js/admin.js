@@ -1726,7 +1726,7 @@ async function uploadFixed(){
    if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
    latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,showcaseKind:'fixed',fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
    const meta=latest.presetMeta[path];delete meta.seasonCategoryId;delete meta.fixedHoliday;delete meta.fixedDescription;delete meta.isSold;
-   latest.presetOrder=[path,...(latest.presetOrder||[]).filter(v=>v!==path)]
+   latest.presetOrder=[...(latest.presetOrder||[]).filter(v=>v!==path),path]
   });
   S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];metadataSaved=true;
   input.value='';$('fixedUploadName').value='';$('fixedUploadPrice').value='';
