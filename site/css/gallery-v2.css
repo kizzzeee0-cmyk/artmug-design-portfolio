@@ -1456,3 +1456,170 @@ body.artmug-part-portfolio #inquirySection{
     border-radius:50%!important;
   }
 }
+
+
+/* Seasonal fixed-template showcase: independent from the ordinary preset section. */
+.seasonal-fixed-section{
+  padding:clamp(20px,3vw,30px);
+  border:1px solid rgba(143,201,232,.22);
+  border-radius:26px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(70,126,158,.05);
+  text-align:center;
+}
+.seasonal-fixed-section[hidden],body.artmug-part-inquiry .seasonal-fixed-section{
+  display:none!important;
+}
+.seasonal-fixed-section>h2{
+  margin:0 0 9px;
+  color:#344651;
+  font-size:23px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:-.025em;
+}
+.seasonal-fixed-holiday-copy{
+  max-width:850px;
+  margin:0 auto 17px;
+  color:#526a79;
+  font-size:13px;
+  line-height:1.65;
+  white-space:pre-line;
+  overflow-wrap:anywhere;
+}
+.seasonal-fixed-policy{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+  margin:0 auto 19px;
+  max-width:980px;
+  text-align:left;
+}
+.seasonal-fixed-policy>div{
+  min-width:0;
+  border:1px solid #dcecf4;
+  border-radius:16px;
+  background:#f7fbfe;
+  padding:12px 15px;
+}
+.seasonal-fixed-policy-label{
+  display:inline-flex;
+  align-items:center;
+  min-height:25px;
+  padding:4px 12px;
+  margin-bottom:8px;
+  background:var(--primary-action,var(--accent,#8fc9e8));
+  border-radius:999px;
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+}
+.seasonal-fixed-policy p{
+  margin:0;
+  color:#526a79;
+  font-size:12.5px;
+  line-height:1.65;
+  white-space:pre-line;
+  overflow-wrap:anywhere;
+}
+.seasonal-fixed-tabs{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:17px;
+}
+.seasonal-fixed-tabs button{
+  min-height:32px;
+  border:1px solid #dcecf4;
+  border-radius:999px;
+  padding:6px 14px;
+  background:#f4faff;
+  color:#4f8fb3;
+  font:inherit;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.seasonal-fixed-tabs button.is-active{
+  background:var(--primary-action,var(--accent,#8fc9e8));
+  border-color:var(--primary-action,var(--accent,#8fc9e8));
+  color:#fff;
+}
+.seasonal-fixed-tabs button:focus-visible,.seasonal-fixed-pagination button:focus-visible{
+  outline:2px solid #69add2;
+  outline-offset:2px;
+}
+.seasonal-fixed-grid{
+  display:grid;
+  grid-template-columns:repeat(var(--fixed-columns,4),minmax(0,1fr));
+  gap:16px 13px;
+  align-items:start;
+}
+.seasonal-fixed-card{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  padding:9px;
+  border:1px solid #e3eef6;
+  border-radius:16px;
+  background:#fff;
+}
+.seasonal-fixed-thumb{
+  display:grid;
+  place-items:center;
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  border-radius:12px;
+  background:#f7fbfe;
+}
+.seasonal-fixed-thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  border:0;
+  box-shadow:none;
+}
+.seasonal-fixed-holiday{
+  color:#4f8fb3;
+  background:#edf8fd;
+  border-radius:999px;
+  padding:3px 9px;
+  font-size:10px;
+  font-weight:700;
+}
+.seasonal-fixed-name{
+  max-width:100%;
+  color:#344651;
+  font-size:13px;
+  font-weight:700;
+  overflow-wrap:anywhere;
+  line-height:1.45;
+}
+.seasonal-fixed-price{
+  color:#4f8fb3;
+  font-size:13px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.seasonal-fixed-pagination{margin-top:17px}
+@media(max-width:680px){
+ .seasonal-fixed-section{padding:18px 12px;border-radius:22px}
+ .seasonal-fixed-section>h2{font-size:20px}
+ .seasonal-fixed-holiday-copy{font-size:12px;margin-bottom:13px}
+ .seasonal-fixed-policy{grid-template-columns:1fr;gap:8px;margin-bottom:14px}
+ .seasonal-fixed-policy>div{padding:10px 12px}
+ .seasonal-fixed-policy p{font-size:11.5px}
+ .seasonal-fixed-policy-label{font-size:11px;min-height:23px;margin-bottom:5px}
+ .seasonal-fixed-tabs{gap:5px;margin-bottom:12px}
+ .seasonal-fixed-tabs button{font-size:11px;min-height:29px;padding:5px 10px}
+ .seasonal-fixed-grid{gap:9px 7px}
+ .seasonal-fixed-card{padding:6px 5px;gap:4px;border-radius:12px}
+ .seasonal-fixed-thumb{border-radius:9px}
+ .seasonal-fixed-name,.seasonal-fixed-price{font-size:11px}
+ .seasonal-fixed-holiday{font-size:9px}
+}
