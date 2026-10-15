@@ -111,11 +111,82 @@ function presetMetaFor(x){
     isNew:meta.isNew===true,
     isReserved:meta.isReserved===true,
     isSold:meta.isSold===true,
+    isReservable:meta.isReservable===true,
+    isNoEdit:meta.isNoEdit===true,
+    seasonCategoryId:String(meta.seasonCategoryId||''),
     colorChangeAvailable:meta.colorChangeAvailable===true,
     showcaseKind:['preset','fixed'].includes(meta.showcaseKind)?meta.showcaseKind:'preset',
     featured:meta.featured===true,
     pairChild:meta.pairChild===true
   }
+}
+function ensurePresetSeasonCategories(){
+  if(!Array.isArray(S.presetSeasonCategories))S.presetSeasonCategories=[];
+  return S.presetSeasonCategories
+}
+function presetSeasonById(id){
+  return ensurePresetSeasonCategories().find(x=>x.id===id)
+}
+function presetSeasonOptions(selected=''){
+  return '<option value="">시즌 지정 없음</option>'+ensurePresetSeasonCategories().map(x=>'<option value="'+adminEsc(x.id)+'" '+(x.id===selected?'selected':'')+'>'+adminEsc(x.label||x.id)+(x.enabled===false?' · 비공개':'')+'</option>').join('')
+}
+function autoContrastText(hex){
+  const v=normalizeHex6(hex)||'#8FC9E8',n=parseInt(v.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return (r*299+g*587+b*114)/1000>160?'#344651':'#FFFFFF'
+}
+function collectPresetSeasonCats(){
+  const arr=ensurePresetSeasonCategories();
+  arr.forEach((x,i)=>{
+    const label=document.querySelector('[data-season-label="'+i+'"]');
+    const id=document.querySelector('[data-season-id="'+i+'"]');
+    const bg=document.querySelector('[data-season-bg-hex="'+i+'"]');
+    const textInput=document.querySelector('[data-season-text-hex="'+i+'"]');
+    const enabled=document.querySelector('[data-season-enabled="'+i+'"]');
+    const auto=document.querySelector('[data-season-auto="'+i+'"]');
+    if(label)x.label=label.value.trim();
+    if(id)x.id=id.value.trim();
+    const bgHex=normalizeHex6(bg?.value);if(bgHex)x.badgeColor=bgHex;
+    const textHex=normalizeHex6(textInput?.value);if(textHex)x.textColor=textHex;
+    if(enabled)x.enabled=enabled.checked;
+    if(auto)x.autoTextColor=auto.checked
+  })
+}
+function renderPresetSeasonCats(){
+  const root=$('presetSeasonCats');if(!root)return;
+  const arr=ensurePresetSeasonCategories();
+  root.innerHTML=arr.map((x,i)=>{
+    const bg=normalizeHex6(x.badgeColor)||'#8FC9E8',textColor=normalizeHex6(x.textColor)||'#FFFFFF',actualText=x.autoTextColor?autoContrastText(bg):textColor;
+    return '<div class="preset-season-admin-row">'+
+      '<label>이름<input data-season-label="'+i+'" value="'+adminEsc(x.label||'')+'"></label>'+
+      '<label>ID<input data-season-id="'+i+'" value="'+adminEsc(x.id||'')+'"></label>'+
+      '<label class="season-color-field">뱃지 배경<div class="season-color-control"><input type="color" data-season-bg-picker="'+i+'" value="'+bg.toLowerCase()+'"><input data-season-bg-hex="'+i+'" value="'+bg+'" maxlength="7"><button type="button" class="ghost admin-compact" data-season-bg-eye="'+i+'" '+('EyeDropper' in window?'':'hidden')+'>스포이드</button></div></label>'+
+      '<label class="season-color-field">글자색<div class="season-color-control"><input type="color" data-season-text-picker="'+i+'" value="'+textColor.toLowerCase()+'"><input data-season-text-hex="'+i+'" value="'+textColor+'" maxlength="7"><button type="button" class="ghost admin-compact" data-season-text-eye="'+i+'" '+('EyeDropper' in window?'':'hidden')+'>스포이드</button></div></label>'+
+      '<div class="season-admin-options"><label class="mini-toggle"><input type="checkbox" data-season-auto="'+i+'" '+(x.autoTextColor?'checked':'')+'> 자동 대비</label><label class="mini-toggle"><input type="checkbox" data-season-enabled="'+i+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><span class="season-badge-preview" data-season-preview="'+i+'" style="background:'+bg+';color:'+actualText+'">'+adminEsc(x.label||'시즌')+'</span></div>'+
+      '<div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-season="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-move-season="'+i+'" data-dir="1" '+(i===arr.length-1?'disabled':'')+'>↓</button></div>'+
+      '<button type="button" class="danger admin-compact" data-del-season="'+i+'">삭제</button>'+
+    '</div>'
+  }).join('')||'<p class="muted">등록된 시즌 카테고리가 없습니다.</p>';
+  const upload=$('presetUploadSeason');if(upload)upload.innerHTML=presetSeasonOptions(upload.value||'');
+
+  const sync=(i,kind,value)=>{
+    const hex=normalizeHex6(value);if(!hex)return false;
+    const picker=document.querySelector('[data-season-'+kind+'-picker="'+i+'"]');
+    const input=document.querySelector('[data-season-'+kind+'-hex="'+i+'"]');
+    if(picker)picker.value=hex.toLowerCase();if(input)input.value=hex;
+    const row=arr[i];if(kind==='bg')row.badgeColor=hex;else row.textColor=hex;
+    const preview=document.querySelector('[data-season-preview="'+i+'"]');
+    if(preview){const bg=normalizeHex6(row.badgeColor)||'#8FC9E8';preview.style.background=bg;preview.style.color=row.autoTextColor?autoContrastText(bg):(normalizeHex6(row.textColor)||'#FFFFFF')}
+    return true
+  };
+  document.querySelectorAll('[data-season-bg-picker]').forEach(el=>el.oninput=()=>sync(+el.dataset.seasonBgPicker,'bg',el.value));
+  document.querySelectorAll('[data-season-text-picker]').forEach(el=>el.oninput=()=>sync(+el.dataset.seasonTextPicker,'text',el.value));
+  document.querySelectorAll('[data-season-bg-hex]').forEach(el=>el.onchange=()=>{if(!sync(+el.dataset.seasonBgHex,'bg',el.value))el.value=normalizeHex6(arr[+el.dataset.seasonBgHex].badgeColor)||'#8FC9E8'});
+  document.querySelectorAll('[data-season-text-hex]').forEach(el=>el.onchange=()=>{if(!sync(+el.dataset.seasonTextHex,'text',el.value))el.value=normalizeHex6(arr[+el.dataset.seasonTextHex].textColor)||'#FFFFFF'});
+  document.querySelectorAll('[data-season-auto]').forEach(el=>el.onchange=()=>{arr[+el.dataset.seasonAuto].autoTextColor=el.checked;renderPresetSeasonCats()});
+  document.querySelectorAll('[data-season-bg-eye]').forEach(b=>b.onclick=async()=>{try{const v=await new EyeDropper().open();sync(+b.dataset.seasonBgEye,'bg',v.sRGBHex)}catch{}});
+  document.querySelectorAll('[data-season-text-eye]').forEach(b=>b.onclick=async()=>{try{const v=await new EyeDropper().open();sync(+b.dataset.seasonTextEye,'text',v.sRGBHex)}catch{}});
+  document.querySelectorAll('[data-move-season]').forEach(b=>b.onclick=()=>{collectPresetSeasonCats();const i=+b.dataset.moveSeason,n=i+Number(b.dataset.dir);if(n<0||n>=arr.length)return;[arr[i],arr[n]]=[arr[n],arr[i]];renderPresetSeasonCats()});
+  document.querySelectorAll('[data-del-season]').forEach(b=>b.onclick=()=>{collectPresetSeasonCats();const i=+b.dataset.delSeason,id=arr[i]?.id;if(!id)return;arr.splice(i,1);Object.values(ensurePresetMeta()).forEach(m=>{if(m?.seasonCategoryId===id)m.seasonCategoryId=''});renderPresetSeasonCats();renderPresetItems()})
 }
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
 function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:'',bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:'B',enabled:meta.enabled!==false,featured:meta.featured===true,name:String(meta.name||''),description:String(meta.description||'')}}
@@ -595,7 +666,7 @@ $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+a
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('내용 입력 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderFixedAdmin();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
+renderNotices();renderTypes();renderCats();renderPresetCats();renderPresetSeasonCats();renderFixedAdmin();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
 const noticeSelectionRanges=new Map();
 const noticeColorTargets=new Map();
 function normalizeHex6(value){
@@ -1173,7 +1244,7 @@ async function saveSettings(){
   delete S.eventsBenefitLabel;delete S.eventsOldPrice;delete S.eventsNewPrice;
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
-  collectCats(S.presetCategories||[],'preset');collectPresetGroups();collectFixedAdmin();
+  collectCats(S.presetCategories||[],'preset');collectPresetSeasonCats();collectPresetGroups();collectFixedAdmin();
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
