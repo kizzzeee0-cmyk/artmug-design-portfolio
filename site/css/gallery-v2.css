@@ -1427,3 +1427,32 @@ body.artmug-part-portfolio #inquirySection{
     margin-bottom:6px!important;
   }
 }
+
+/* 2026-10-15 MOBILE PROFILE EXACT 1-TO-1 */
+@media(max-width:680px){
+  /* Common media has min-height:70px; on narrow 4-column profile grids that
+     can override the square ratio and make circles look vertically oval. */
+  .v2-work-card.is-profile .v2-media,
+  .v2-showcase-card.is-profile .v2-showcase-media,
+  .v2-preset-category.is-profile-category .v2-showcase-media{
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:1 / 1!important;
+    flex:none!important;
+  }
+
+  .v2-work-card.is-profile .v2-media img,
+  .v2-showcase-card.is-profile .v2-showcase-media img,
+  .v2-preset-category.is-profile-category .v2-showcase-media img{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    aspect-ratio:1 / 1!important;
+    object-fit:cover!important;
+    border-radius:50%!important;
+  }
+}
