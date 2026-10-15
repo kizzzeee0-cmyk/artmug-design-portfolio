@@ -110,7 +110,7 @@ async function publicPortfolio(u,env){
     return ai!==bi?ai-bi:String(b.createdAt||'').localeCompare(String(a.createdAt||''))
   });
   const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);
-  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=45'})
+  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'no-store'})
 }
 async function publicPresets(u,env){
   const token=env.GITHUB_TOKEN||'';
