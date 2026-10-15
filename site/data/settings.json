@@ -291,8 +291,8 @@
       "id": "4cutframe",
       "label": "인생 네컷",
       "enabled": true,
-      "displayWidth": 1200,
-      "displayHeight": 1600,
+      "displayWidth": 1800,
+      "displayHeight": 2400,
       "strictSize": false,
       "uploadWidth": 0,
       "uploadHeight": 0,
@@ -303,8 +303,8 @@
         "webp"
       ],
       "emptyText": "등록된 작업물이 아직 없습니다.",
-      "pcColumns": 5,
-      "pcPerPage": 15,
+      "pcColumns": 4,
+      "pcPerPage": 12,
       "mobileColumns": 3,
       "mobilePerPage": 9
     },
