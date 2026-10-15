@@ -7,7 +7,8 @@ const rawJson=path=>fetch(RAW+path,{cache:'no-cache'}).then(r=>{if(!r.ok)throw n
 const $=s=>document.querySelector(s);
 const $$=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/'):'';
+const MEDIA_VERSION='20261015-live-media-v1';
+const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
@@ -539,14 +540,11 @@ window.__ARTMUG_V2__={
 async function init(){
  initNav();
  const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/settings?fresh='+Date.now()));
- const [d,portfolioIndex]=await Promise.all([
-  settingsPromise,
-  rawJson('portfolio/index.json').catch(()=>null)
- ]);
+ const d=await settingsPromise;
  state.settings=d.settings||{};
- state.portfolioIndex=Array.isArray(portfolioIndex)?portfolioIndex:null;
- // Presets are managed through the Worker and can change without a Pages rebuild.
- // Always load them from the live public API so the showcase never uses a stale static presets.json.
+ // Portfolio and presets are both managed through the Worker and can change without a Pages rebuild.
+ // Always load live data from the public API; a static portfolio/index.json may be stale after [CF-Pages-Skip] admin updates.
+ state.portfolioIndex=null;
  state.presetIndex=null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
