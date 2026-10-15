@@ -297,7 +297,7 @@ async function renderPortfolio(){
 
 async function fetchSharedPresetItems(){
  if(!presetSourcePromise){
-  const cats=[...(state.settings?.presetCategories||[]),...(state.settings?.fixedCategories||[])];
+  const cats=[...(state.settings?.presetCategories||[]).filter(c=>c.enabled!==false),...(state.settings?.fixedCategories||[]).filter(c=>c.enabled!==false)];
   const ids=[...new Set(cats.map(c=>String(c.id||'')).filter(Boolean))];
   presetSourcePromise=Promise.all(ids.map(id=>fetchAll('preset',id).catch(()=>[]))).then(batches=>{
    const seen=new Set();return batches.flat().filter(x=>{
@@ -315,7 +315,8 @@ function fixedPublicCard(x){
  return '<article class="seasonal-fixed-card">'+
   '<div class="seasonal-fixed-thumb"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||cat?.label||'고정틀')+'" loading="lazy" decoding="async" draggable="false"></div>'+
   (holiday?'<span class="seasonal-fixed-holiday">'+esc(holiday)+'</span>':'')+
-  '<strong class="seasonal-fixed-name">'+esc(m.name||cat?.label||'고정틀 디자인')+'</strong>'+
+  '<strong class="seasonal-fixed-name">'+esc(m.name||cat?.label||'고정틀 디자인')+'</strong>'+ 
+  (m.fixedDescription?'<span class="seasonal-fixed-description">'+esc(m.fixedDescription)+'</span>':'')+
   '<span class="seasonal-fixed-price">'+esc(priceText)+'</span>'+
  '</article>'
 }
