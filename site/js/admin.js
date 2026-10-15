@@ -1678,7 +1678,7 @@ async function uploadFixed(){
  const cat=$('fixedUploadCat')?.value,holiday=$('fixedUploadHoliday')?.value.trim(),description=$('fixedUploadDescription')?.value.trim()||'';
  const price=Number($('fixedUploadPrice')?.value||0),status=$('fixedUploadStatus');
  if(!file||!name||!cat){alert('카테고리, 디자인 이름, 파일을 입력해 주세요.');return}
- let path='';
+ let path='',metadataSaved=false;
  try{
   validatePresetUploadFile(file);
   status.textContent='설정 저장 및 파일 업로드 중…';
@@ -1691,12 +1691,12 @@ async function uploadFixed(){
    latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,showcaseKind:'fixed',fixedHoliday:holiday,fixedDescription:description,fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
    latest.presetOrder=[path,...(latest.presetOrder||[]).filter(v=>v!==path)]
   });
-  S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];
+  S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];metadataSaved=true;
   input.value='';$('fixedUploadName').value='';$('fixedUploadHoliday').value='';$('fixedUploadDescription').value='';$('fixedUploadPrice').value='';
   status.textContent='고정틀 등록이 완료되었습니다.';
   await loadPresetItemsOnly();showToast('고정틀이 등록되었습니다.')
  }catch(e){
-  if(path)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{});
+  if(path&&!metadataSaved)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{});
   status.textContent=e.message;alert('등록에 실패했습니다.\\n'+e.message)
  }
 }
