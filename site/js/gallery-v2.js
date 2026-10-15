@@ -366,7 +366,7 @@ async function renderFixed(){
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false||state.settings?.showcasePresetEnabled===false){
-  root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return
+  root.hidden=true;root.innerHTML='';state.showcase.preset=[];return
  }
  const cats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false);
  const source=await fetchSharedPresetItems();
