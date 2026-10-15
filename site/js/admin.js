@@ -1344,15 +1344,15 @@ async function savePresetItem(i){
 }
 async function savePresetBadgeToggle(i,key,value){
   const x=presetItems[i];if(!x)return;
-  const otherKey=key==='isNew'?'isReserved':'isNew';
   const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
     const prev=latest.presetMeta[x.file]||{};
-    latest.presetMeta[x.file]={...prev,[key]:value,...(value?{[otherKey]:false,isSold:false}:{})}
+    const exclusive=key==='isReserved'&&value?{isSold:false}:key==='isSold'&&value?{isReserved:false}:{};
+    latest.presetMeta[x.file]={...prev,[key]:value,...exclusive}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
   renderPresetItems();
-  const label=key==='isNew'?'NEW':'예약';
+  const label=key==='isNew'?'NEW':key==='isSold'?'판매완료':'예약중';
   showToast(value?label+' 표시를 켰습니다.':label+' 표시를 껐습니다.')
 }
 async function savePresetToggle(i,key,value){
@@ -1453,6 +1453,7 @@ function renderPresetItems(){
           <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-sold="${i}" ${meta.isSold?'checked':''}> 판매완료</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reservable="${i}" ${meta.isReservable?'checked':''}> 예약가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-no-edit="${i}" ${meta.isNoEdit?'checked':''}> 수정불가</label>
@@ -1477,6 +1478,7 @@ function renderPresetItems(){
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetEnabled,'enabled',el.checked));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
+  document.querySelectorAll('[data-preset-sold]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetSold,'isSold',el.checked).catch(e=>{el.checked=!el.checked;alert('판매완료 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-season]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetSeason,'seasonCategoryId',el.value));
   document.querySelectorAll('[data-preset-reservable]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetReservable,'isReservable',el.checked));
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
