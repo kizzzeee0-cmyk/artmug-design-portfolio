@@ -670,9 +670,20 @@
       "fixedPrice": 0,
       "colorChangeAvailable": false,
       "featured": false
+    },
+    "preset/profile/20261015140959-1ovhuyj1elat8l-_______.png": {
+      "name": "2",
+      "enabled": true,
+      "isNew": false,
+      "isReserved": false,
+      "showcaseKind": "fixed",
+      "fixedPrice": 0,
+      "colorChangeAvailable": false,
+      "featured": false
     }
   },
   "presetOrder": [
+    "preset/profile/20261015140959-1ovhuyj1elat8l-_______.png",
     "preset/profile/20261015135046-1yhbs4n1y8b6u3-background__5_.png",
     "preset/profile/20261012063603-1v1n0h5j6wofo-background__1_.png",
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
