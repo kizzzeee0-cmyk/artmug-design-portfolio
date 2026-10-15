@@ -1492,6 +1492,9 @@ body.artmug-part-portfolio #inquirySection{
 .fixed-copy-line{
   display:inline;
 }
+.fixed-copy-mobile-break{
+  display:none!important;
+}
 .seasonal-fixed-pagination button:focus-visible{
   outline:2px solid #69add2;
   outline-offset:2px;
@@ -1548,8 +1551,17 @@ body.artmug-part-portfolio #inquirySection{
 @media(max-width:680px){
  .seasonal-fixed-section{padding:18px 12px;border-radius:22px}
  .seasonal-fixed-section>h2{font-size:20px}
- .fixed-section-copy{margin-bottom:13px;text-align:center!important}
- .fixed-copy-line{display:block}
+ .fixed-section-copy{
+   margin-bottom:13px;
+   font-size:12.5px!important;
+   font-weight:400!important;
+   line-height:1.5!important;
+   color:#687685!important;
+   text-align:center!important;
+   white-space:normal!important;
+ }
+ .fixed-copy-line{display:inline}
+ .fixed-copy-mobile-break{display:block!important}
  .seasonal-fixed-grid{gap:9px 7px}
  .seasonal-fixed-card{padding:6px 5px;gap:4px;border-radius:12px}
  .seasonal-fixed-thumb{border-radius:9px}
