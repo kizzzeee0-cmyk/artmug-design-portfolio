@@ -1600,6 +1600,13 @@ body.artmug-part-portfolio #inquirySection{
   overflow-wrap:anywhere;
   line-height:1.45;
 }
+.seasonal-fixed-description{
+  color:#71818c;
+  font-size:11px;
+  line-height:1.5;
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
 .seasonal-fixed-price{
   color:#4f8fb3;
   font-size:13px;
@@ -1621,5 +1628,6 @@ body.artmug-part-portfolio #inquirySection{
  .seasonal-fixed-card{padding:6px 5px;gap:4px;border-radius:12px}
  .seasonal-fixed-thumb{border-radius:9px}
  .seasonal-fixed-name,.seasonal-fixed-price{font-size:11px}
+ .seasonal-fixed-description{font-size:10px}
  .seasonal-fixed-holiday{font-size:9px}
 }
