@@ -12,6 +12,8 @@ const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURICompon
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
+let presetSourcePromise=null;
+let fixedSelectedCategory='ALL',fixedPage=1;
 const portfolioOrder=['profile','top-banner','floating-banner','bottom-banner','bottom-split','four-cut'];
 const bannerIds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
 const defaults={
@@ -292,20 +294,82 @@ async function renderPortfolio(){
  if(!shown){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
  sendDetailedSectionMap();requestHeight()
 }
+
+async function fetchSharedPresetItems(){
+ if(!presetSourcePromise){
+  const cats=[...(state.settings?.presetCategories||[]),...(state.settings?.fixedCategories||[])];
+  const ids=[...new Set(cats.map(c=>String(c.id||'')).filter(Boolean))];
+  presetSourcePromise=Promise.all(ids.map(id=>fetchAll('preset',id).catch(()=>[]))).then(batches=>{
+   const seen=new Set();return batches.flat().filter(x=>{
+    if(!x.file||seen.has(x.file))return false;seen.add(x.file);return true
+   })
+  }).catch(e=>{presetSourcePromise=null;throw e})
+ }
+ return presetSourcePromise
+}
+function fixedPublicCard(x){
+ const m=state.settings?.presetMeta?.[x.file]||{},cat=(state.settings?.fixedCategories||[]).find(c=>c.id===x.category);
+ const price=Math.max(0,Number(m.fixedPrice||0));
+ const priceText=price>0?price.toLocaleString('ko-KR')+'원':'가격 문의';
+ const holiday=String(m.fixedHoliday||'').trim();
+ return '<article class="seasonal-fixed-card">'+
+  '<div class="seasonal-fixed-thumb"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||cat?.label||'고정틀')+'" loading="lazy" decoding="async" draggable="false"></div>'+
+  (holiday?'<span class="seasonal-fixed-holiday">'+esc(holiday)+'</span>':'')+
+  '<strong class="seasonal-fixed-name">'+esc(m.name||cat?.label||'고정틀 디자인')+'</strong>'+
+  '<span class="seasonal-fixed-price">'+esc(priceText)+'</span>'+
+ '</article>'
+}
+async function renderFixed(){
+ const root=$('#seasonalFixedSection');if(!root)return;
+ const settings=state.settings||{};
+ if(settings.fixedEnabled===false){
+  root.hidden=true;root.innerHTML='';state.showcase.fixed=[];return
+ }
+ const categories=(settings.fixedCategories||[]).filter(c=>c.enabled!==false);
+ if(!categories.length){root.hidden=true;root.innerHTML='';state.showcase.fixed=[];return}
+ const source=await fetchSharedPresetItems();
+ const allowed=new Set(categories.map(c=>c.id));
+ const works=applyOrder(source,settings.presetOrder).filter(x=>{
+  if(!allowed.has(x.category)||!presetRegistered(x))return false;
+  const m=smeta(x);return m.enabled&&m.showcaseKind==='fixed'&&!m.pairChild
+ });
+ state.showcase.fixed=works;
+ if(!works.length){root.hidden=true;root.innerHTML='';return}
+ const activeCategories=categories.filter(c=>works.some(x=>x.category===c.id));
+ if(fixedSelectedCategory!=='ALL'&&!activeCategories.some(c=>c.id===fixedSelectedCategory)){
+  fixedSelectedCategory='ALL';fixedPage=1
+ }
+ const displayed=fixedSelectedCategory==='ALL'?works:works.filter(x=>x.category===fixedSelectedCategory);
+ const columns=state.mobile?Math.max(1,Math.min(4,Number(settings.fixedMobileColumns||2))):Math.max(1,Math.min(8,Number(settings.fixedPcColumns||4)));
+ const perPage=columns*3,pageCount=Math.max(1,Math.ceil(displayed.length/perPage));
+ fixedPage=Math.min(Math.max(1,fixedPage),pageCount);
+ const visible=displayed.slice((fixedPage-1)*perPage,fixedPage*perPage);
+ const tabs='<div class="seasonal-fixed-tabs" role="group" aria-label="고정틀 카테고리">'+
+  [{id:'ALL',label:'전체'},...activeCategories].map(c=>'<button type="button" data-fixed-filter="'+esc(c.id)+'" class="'+(fixedSelectedCategory===c.id?'is-active':'')+'">'+esc(c.label)+'</button>').join('')+'</div>';
+ const nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 페이지">'+
+  '<button type="button" class="v2-page-arrow" data-fixed-page="prev" '+(fixedPage===1?'disabled':'')+' aria-label="이전 페이지">‹</button>'+
+  '<div class="v2-page-dots">'+Array.from({length:pageCount},(_,i)=>'<button type="button" class="v2-page-dot '+(fixedPage===i+1?'is-active':'')+'" data-fixed-page="'+(i+1)+'" aria-label="'+(i+1)+'페이지"></button>').join('')+'</div>'+
+  '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
+  '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
+ root.hidden=false;
+ root.innerHTML='<h2>'+esc(settings.fixedTitle||'시즌 한정 고정틀')+'</h2>'+
+  '<p class="seasonal-fixed-holiday-copy">'+esc(settings.fixedHolidayNotice||'할로윈 · 추석 · 설날 · 어린이날 등 특별한 날의 테마 디자인을 만나보세요.')+'</p>'+
+  '<div class="seasonal-fixed-policy"><div><span class="seasonal-fixed-policy-label">고정틀 판매 안내</span><p>'+esc(settings.fixedSalesNotice||'시즌별 특별한 디자인을 정해진 가격에 판매합니다.')+'</p></div>'+
+  '<div><span class="seasonal-fixed-policy-label">디자인 안내</span><p>'+esc(settings.fixedNoEditNotice||'완성된 디자인 그대로 판매되며 색상과 디자인은 수정할 수 없습니다.')+'</p></div></div>'+
+  tabs+'<div class="seasonal-fixed-grid" style="--fixed-columns:'+columns+'">'+visible.map(fixedPublicCard).join('')+'</div>'+nav;
+ root.querySelectorAll('[data-fixed-filter]').forEach(b=>b.onclick=()=>{fixedSelectedCategory=b.dataset.fixedFilter;fixedPage=1;renderFixed();requestHeight()});
+ root.querySelectorAll('[data-fixed-page]').forEach(b=>b.onclick=()=>{const token=b.dataset.fixedPage;fixedPage=token==='prev'?fixedPage-1:token==='next'?fixedPage+1:Number(token);renderFixed();requestHeight()});
+ root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
+ requestHeight()
+}
+
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false||state.settings?.showcasePresetEnabled===false){
   root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return
  }
  const cats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false);
- const allowed=new Set(cats.map(c=>c.id));
- let source;
- if(Array.isArray(state.presetIndex)){
-  source=state.presetIndex.filter(x=>allowed.has(x.category))
- }else{
-  const batches=await Promise.all(cats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
-  source=batches.flat()
- }
+ const source=await fetchSharedPresetItems();
  const all=applyOrder(source,state.settings.presetOrder).filter(x=>{
   if(!presetRegistered(x))return false;
   const m=smeta(x);
@@ -367,6 +431,7 @@ function navigate(target){
  if(target==='notice')return scrollToElement($('.notice-card'));
  if(target==='inquiry')return scrollToElement($('#inquirySection')||$('.form-card'));
  if(target==='showcase'||target==='preset'||target==='showcase-preset')return scrollToElement($('#showcaseSectionV2'));
+ if(target==='fixed'||target==='seasonal-fixed')return scrollToElement($('#seasonalFixedSection'))
  if(target==='portfolio')return scrollToElement($('#portfolioAllSectionV2'));
  if(target==='banner:all'||(!bannerTypeEnabled()&&(target==='banner:A'||target==='banner:B'))){
   const entry=[...state.portfolio.entries()].find(([id,d])=>bannerIds.has(layoutKey(d.cat)));
@@ -402,6 +467,7 @@ function sendDetailedSectionMap(){
   sections.push({target,offset:Math.max(0,Math.round(el.getBoundingClientRect().top+window.scrollY))})
  };
  add('notice',$('.notice-card'));
+ add('fixed',$('#seasonalFixedSection'));
  add('showcase',$('#showcaseSectionV2'));
  state.portfolio.forEach((d,id)=>{
   const target='portfolio:'+id+(bannerTypeEnabled()&&['A','B'].includes(d.filter)?':'+d.filter:'');
@@ -418,7 +484,7 @@ function announceNavData(){
    hasA:filters?filters.includes('A'):(d.items||[]).some(x=>pmeta(x).bannerType==='A'),
    hasB:filters?filters.includes('B'):(d.items||[]).some(x=>pmeta(x).bannerType==='B')}
  });
- const payload={type:'nav-data',preset:state.showcase.preset.length>0,categories:cats};
+ const payload={type:'nav-data',preset:state.showcase.preset.length>0,fixed:state.showcase.fixed.length>0,categories:cats};
  try{window.__v2nav?.postMessage(payload)}catch{}
 }
 function initNav(){
@@ -550,8 +616,9 @@ async function init(){
  const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
  const portfolioPart=document.body.classList.contains('artmug-part-portfolio');
  const showcasePromise=renderShowcase();
+ const fixedPromise=renderFixed();
  const portfolioPromise=inquiryPart?Promise.resolve():renderPortfolio();
- await showcasePromise;
+ await Promise.all([showcasePromise,fixedPromise]);
  if(!portfolioPart)initInquiryObserver();
  await portfolioPromise;
  // Only the complete all-in-one page may announce a menu snapshot.
@@ -560,7 +627,7 @@ async function init(){
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
  const mq=matchMedia('(max-width:680px)');
- mq.addEventListener?.('change',e=>{state.mobile=e.matches;renderShowcase();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
+ mq.addEventListener?.('change',e=>{state.mobile=e.matches;renderShowcase();renderFixed();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
  requestHeight()
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init().catch(console.error),{once:true});else init().catch(console.error);
