@@ -397,8 +397,9 @@ async function renderFixed(){
   '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
 
  const fixedNotice=String(settings.fixedNotice||'완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다');
- const fixedNoticeHtml=fixedNotice==='완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다'
-  ? '<span class="fixed-copy-line">완성된 디자인 그대로 판매되며</span> <span class="fixed-copy-line">색상이나 디자인 수정이 불가능합니다</span>'
+ const normalizedFixedNotice=fixedNotice.replace(/\s+/g,' ').trim();
+ const fixedNoticeHtml=normalizedFixedNotice==='완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다'
+  ? '<span class="fixed-copy-line">완성된 디자인 그대로 판매되며</span> <br class="fixed-copy-mobile-break"><span class="fixed-copy-line">색상이나 디자인 수정이 불가능합니다</span>'
   : esc(fixedNotice);
  root.hidden=false;
  root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+
