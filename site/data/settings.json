@@ -766,5 +766,39 @@
   },
   "bannerTypeEnabled": false,
   "authorName": "CHILGONG DESIGN",
-  "scheduleDateColor": "#69ADD2"
+  "scheduleDateColor": "#69ADD2",
+  "presetSeasonCategories": [
+    {
+      "id": "halloween",
+      "label": "할로윈",
+      "enabled": true,
+      "badgeColor": "#A58BD5",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "chuseok",
+      "label": "추석",
+      "enabled": true,
+      "badgeColor": "#E9B76A",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "seollal",
+      "label": "설날",
+      "enabled": true,
+      "badgeColor": "#E98C8C",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "childrens-day",
+      "label": "어린이날",
+      "enabled": true,
+      "badgeColor": "#8FC9E8",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    }
+  ]
 }
