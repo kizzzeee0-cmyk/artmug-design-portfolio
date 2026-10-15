@@ -103,6 +103,15 @@
       "showBannerFields": true,
       "showReviewEvent": false,
       "showBannerTextField": true
+    },
+    {
+      "id": "type-1792042352882",
+      "label": "인생네컷",
+      "enabled": true,
+      "showFrameRetention": false,
+      "showSignatureFields": false,
+      "showBannerFields": false,
+      "showBannerTextField": true
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
