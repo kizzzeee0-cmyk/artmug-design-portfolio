@@ -1659,10 +1659,14 @@ body.artmug-part-portfolio #inquirySection{
   gap:7px;
 }
 .v2-preset-filter-group.is-design-only{
-  display:block;
+  display:flex!important;
+  grid-template-columns:1fr!important;
+  justify-content:center!important;
+  width:100%;
 }
 .v2-preset-filter-group.is-design-only .v2-preset-filter-buttons{
-  justify-content:center;
+  justify-content:center!important;
+  width:100%;
 }
 .v2-preset-filter-button{
   min-height:30px;
