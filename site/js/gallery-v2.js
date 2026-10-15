@@ -396,9 +396,13 @@ async function renderFixed(){
   '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
   '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
 
+ const fixedNotice=String(settings.fixedNotice||'완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다');
+ const fixedNoticeHtml=fixedNotice==='완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다'
+  ? '<span class="fixed-copy-line">완성된 디자인 그대로 판매되며</span> <span class="fixed-copy-line">색상이나 디자인 수정이 불가능합니다</span>'
+  : esc(fixedNotice);
  root.hidden=false;
  root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+
-  '<p class="fixed-section-copy">'+esc(settings.fixedNotice||'완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다')+'</p>'+
+  '<p class="fixed-section-copy">'+fixedNoticeHtml+'</p>'+
   filters+gallery+nav;
  root.querySelectorAll('[data-fixed-filter-id]').forEach(b=>b.onclick=()=>{
   state.fixedFilter={kind:'design',id:b.dataset.fixedFilterId||''};fixedPage=1;renderFixed();requestHeight()
