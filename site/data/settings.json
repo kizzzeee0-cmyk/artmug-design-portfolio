@@ -353,8 +353,16 @@
   "fixedPcColumns": 4,
   "fixedMobileColumns": 2,
   "fixedCategories": [
-    {"id":"profile","label":"움짤프사","enabled":true},
-    {"id":"fixed-four-cut","label":"인생네컷","enabled":true}
+    {
+      "id": "profile",
+      "label": "움짤프사",
+      "enabled": true
+    },
+    {
+      "id": "fixed-four-cut",
+      "label": "인생네컷",
+      "enabled": true
+    }
   ],
   "presetEnabled": true,
   "presetTitle": "프리셋",
@@ -616,17 +624,6 @@
       "isNew": true,
       "colorChangeAvailable": true,
       "description": ""
-    },
-    "preset/floating-banner/20261010020945-YPr0fitM-_____.png": {
-      "name": "플로팅배너 고정틀 A",
-      "enabled": true,
-      "isNew": false,
-      "isReserved": false,
-      "isSold": false,
-      "colorChangeAvailable": false,
-      "showcaseKind": "fixed",
-      "featured": false,
-      "bannerType": ""
     },
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif": {
       "name": "프리셋 01",
