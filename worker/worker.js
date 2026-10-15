@@ -115,7 +115,7 @@ async function publicPortfolio(u,env){
 async function publicPresets(u,env){
   const token=env.GITHUB_TOKEN||'';
   const s=token?await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);
-  if(!s.presetEnabled)return json({items:[],total:0,page:1,totalPages:1},200,{'Cache-Control':'no-store'});
+  if(s.presetEnabled===false&&s.fixedEnabled!==true)return json({items:[],total:0,page:1,totalPages:1},200,{'Cache-Control':'no-store'});
   let all=token?await ghJson(env,token,PRESETS).catch(()=>[]):await publicJson(env,PRESETS).catch(()=>[]);
   const cat=u.searchParams.get('category')||s.presetCategories?.find(x=>x.enabled!==false)?.id||'';
   all=(Array.isArray(all)?all:[]).filter(x=>x.enabled!==false&&(!cat||x.category===cat)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
@@ -158,9 +158,9 @@ async function publicNavSummary(env){
     const m=pm[x.file]||{};
     return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))!=='fixed'
   });
-  const hasFixed=s.presetEnabled!==false&&s.showcaseFixedEnabled!==false&&presetItems.some(x=>{
+  const hasFixed=s.fixedEnabled===true&&presetItems.some(x=>{
     const m=pm[x.file]||{};
-    return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))==='fixed'
+    return m.showcaseKind==='fixed'&&(s.fixedCategories||[]).some(c=>c.id===x.category&&c.enabled!==false)
   });
   const categories=cats
     .filter(c=>Number(categoryCounts[c.id]||0)>0)
