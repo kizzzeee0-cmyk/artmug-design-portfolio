@@ -111,7 +111,7 @@
       "showFrameRetention": false,
       "showSignatureFields": false,
       "showBannerFields": false,
-      "showBannerTextField": true
+      "showBannerTextField": false
     }
   ],
   "frameKeepLabel": "움짤프사 파일 보관 여부",
