@@ -670,24 +670,13 @@
       "fixedPrice": 0,
       "colorChangeAvailable": false,
       "featured": false
-    },
-    "preset/fixed-four-cut/20261015142045-2qe1011x6m2bv-_______.png": {
-      "name": "2",
-      "enabled": true,
-      "isNew": false,
-      "isReserved": false,
-      "showcaseKind": "fixed",
-      "fixedPrice": 0,
-      "colorChangeAvailable": false,
-      "featured": false
     }
   },
   "presetOrder": [
     "preset/profile/20261015135046-1yhbs4n1y8b6u3-background__5_.png",
     "preset/profile/20261012063603-1v1n0h5j6wofo-background__1_.png",
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
-    "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
-    "preset/fixed-four-cut/20261015142045-2qe1011x6m2bv-_______.png"
+    "preset/profile/20261012063507-1r4zeu53rj15r-background.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
