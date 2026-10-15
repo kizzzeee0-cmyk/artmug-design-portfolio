@@ -25,6 +25,7 @@ body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:gri
  function summarize(settings,index,presets){
   const meta=settings.portfolioMeta||{},pm=settings.presetMeta||{},cats=(settings.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy),catById=new Map(cats.map(c=>[c.id,c]));
   const works=(Array.isArray(index)?index:[]).filter(x=>x&&catById.has(x.category)&&(meta[x.file]||{}).enabled!==false),bannerKinds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']),bannerWorks=works.filter(x=>bannerKinds.has(layout(catById.get(x.category)))),presetItems=(Array.isArray(presets)?presets:[]).filter(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&((pm[x.file]||{}).showcaseKind||'preset')!=='fixed');
+  const fixedItems=(Array.isArray(presets)?presets:[]).filter(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&(pm[x.file]||{}).showcaseKind==='fixed'&&(settings.fixedCategories||[]).some(c=>c.id===x.category&&c.enabled!==false));
   const visibleNonBanner=cats.filter(c=>!bannerKinds.has(layout(c))&&works.some(x=>x.category===c.id));
   const profile=visibleNonBanner.find(c=>layout(c)==='profile');
   const fourCut=visibleNonBanner.find(c=>layout(c)==='four-cut');
@@ -33,6 +34,7 @@ body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:gri
    .map(c=>({id:c.id,label:String(c.label||c.id)}));
   return {
    hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.length>0,
+   hasFixed:settings.fixedEnabled!==false&&fixedItems.length>0,
    hasBanner:bannerWorks.length>0,
    profile:profile?{id:profile.id,label:'움짤프사'}:null,
    fourCut:fourCut?{id:fourCut.id,label:'인생네컷'}:null,
@@ -44,6 +46,7 @@ body{padding:2px}.wrap{width:100%}.mobile-nav{width:100%;height:52px;display:gri
  function send(target){if(ch)ch.postMessage({type:'navigate',target});try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{};close()}
  function html(d){
   let h='<button type="button" data-target="notice">공지사항</button>';
+  if(d.hasFixed)h+='<button type="button" data-target="fixed">고정틀</button>';
   if(d.hasPreset)h+='<button type="button" data-target="showcase">프리셋</button>';
   if(d.profile)h+='<button type="button" data-target="portfolio:'+d.profile.id+'">움짤프사</button>';
   if(d.hasBanner)h+='<button type="button" data-target="banner:all">SOOP 배너</button>';
