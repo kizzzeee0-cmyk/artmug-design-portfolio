@@ -292,6 +292,7 @@ function bindAdminPagination(rootId,type,page,totalPages){
   root.querySelectorAll('[data-admin-page]').forEach(b=>b.onclick=()=>{
     const token=b.dataset.adminPage,next=token==='prev'?page-1:token==='next'?page+1:Number(token);
     if(type==='portfolio'){portfolioAdminPage=Math.max(1,Math.min(totalPages,next));renderItems()}
+    else if(type==='fixed'){fixedAdminPage=Math.max(1,Math.min(totalPages,next));renderFixedItems()}
     else{presetAdminPage=Math.max(1,Math.min(totalPages,next));renderPresetItems()}
   })
 }
