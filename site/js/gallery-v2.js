@@ -297,7 +297,7 @@ async function renderPortfolio(){
 
 async function fetchSharedPresetItems(){
  if(!presetSourcePromise){
-  const cats=[...(state.settings?.presetCategories||[]).filter(c=>c.enabled!==false),...(state.settings?.fixedCategories||[]).filter(c=>c.enabled!==false)];
+  const cats=[...(state.settings?.presetCategories||[]).filter(c=>c.enabled!==false),...(state.settings?.fixedEnabled!==false?(state.settings?.fixedCategories||[]).filter(c=>c.enabled!==false):[])];
   const ids=[...new Set(cats.map(c=>String(c.id||'')).filter(Boolean))];
   presetSourcePromise=Promise.all(ids.map(id=>fetchAll('preset',id).catch(()=>[]))).then(batches=>{
    const seen=new Set();return batches.flat().filter(x=>{
