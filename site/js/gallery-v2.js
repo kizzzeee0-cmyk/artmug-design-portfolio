@@ -347,9 +347,12 @@ async function renderFixed(){
  const visible=displayed.slice((fixedPage-1)*perPage,fixedPage*perPage);
  const tabs='<div class="seasonal-fixed-tabs" role="group" aria-label="고정틀 카테고리">'+
   [{id:'ALL',label:'전체'},...activeCategories].map(c=>'<button type="button" data-fixed-filter="'+esc(c.id)+'" class="'+(fixedSelectedCategory===c.id?'is-active':'')+'">'+esc(c.label)+'</button>').join('')+'</div>';
+ const maxDots=state.mobile?9:26;
+ const startDot=Math.max(1,Math.min(Math.max(1,pageCount-maxDots+1),fixedPage-Math.floor(maxDots/2)));
+ const lastDot=Math.min(pageCount,startDot+maxDots-1);
  const nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 페이지">'+
   '<button type="button" class="v2-page-arrow" data-fixed-page="prev" '+(fixedPage===1?'disabled':'')+' aria-label="이전 페이지">‹</button>'+
-  '<div class="v2-page-dots">'+Array.from({length:pageCount},(_,i)=>'<button type="button" class="v2-page-dot '+(fixedPage===i+1?'is-active':'')+'" data-fixed-page="'+(i+1)+'" aria-label="'+(i+1)+'페이지"></button>').join('')+'</div>'+
+  '<div class="v2-page-dots">'+Array.from({length:lastDot-startDot+1},(_,i)=>{const p=startDot+i;return '<button type="button" class="v2-page-dot '+(fixedPage===p?'is-active':'')+'" data-fixed-page="'+p+'" aria-label="'+p+'페이지"></button>'}).join('')+'</div>'+
   '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
   '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
  root.hidden=false;
