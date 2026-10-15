@@ -398,17 +398,16 @@ async function renderFixed(){
  const designWithItems=categories.filter(cat=>works.some(x=>x.category===cat.id));
  const seasonWithItems=seasons.filter(season=>works.some(x=>sharedSeasonIdForMeta(settings.presetMeta?.[x.file]||{})===season.id));
  const filter=state.fixedFilter||{kind:'all',id:''};
- if(filter.kind==='design'&&!designWithItems.some(x=>x.id===filter.id))state.fixedFilter={kind:'all',id:''};
+ if(filter.kind==='design'&&(!designWithItems.some(x=>x.id===filter.id)||designWithItems.length<=1))state.fixedFilter={kind:'all',id:''};
  if(filter.kind==='season'&&!seasonWithItems.some(x=>x.id===filter.id))state.fixedFilter={kind:'all',id:''};
  const active=state.fixedFilter||{kind:'all',id:''};
 
  const filterButton=(kind,id,label)=>'<button type="button" class="v2-preset-filter-button '+(active.kind===kind&&active.id===id?'is-active':'')+'" data-fixed-filter-kind="'+kind+'" data-fixed-filter-id="'+esc(id)+'">'+esc(label)+'</button>';
- const filters='<div class="v2-preset-filters seasonal-fixed-filters">'+
-  '<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">디자인 종류</span><div class="v2-preset-filter-buttons">'+
+ const designFilters=designWithItems.length>1?'<div class="v2-preset-filter-group is-design-only"><div class="v2-preset-filter-buttons">'+
    filterButton('all','','전체')+designWithItems.map(cat=>filterButton('design',cat.id,cat.label||cat.id)).join('')+
-  '</div></div>'+
-  (seasonWithItems.length?'<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">시즌 · 공휴일</span><div class="v2-preset-filter-buttons">'+seasonWithItems.map(season=>filterButton('season',season.id,season.label||season.id)).join('')+'</div></div>':'')+
- '</div>';
+  '</div></div>':'';
+ const seasonFilters=seasonWithItems.length?'<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">시즌 · 공휴일</span><div class="v2-preset-filter-buttons">'+seasonWithItems.map(season=>filterButton('season',season.id,season.label||season.id)).join('')+'</div></div>':'';
+ const filters=designFilters||seasonFilters?'<div class="v2-preset-filters seasonal-fixed-filters">'+designFilters+seasonFilters+'</div>':'';
 
  let filtered=works;
  if(active.kind==='design')filtered=works.filter(x=>x.category===active.id);
@@ -492,17 +491,16 @@ async function renderShowcase(){
  const designWithItems=cats.filter(cat=>all.some(x=>x.category===cat.id));
  const seasonWithItems=seasons.filter(s=>all.some(x=>smeta(x).seasonCategoryId===s.id));
  const filter=state.presetFilter||{kind:'all',id:''};
- if(filter.kind==='design'&&!designWithItems.some(x=>x.id===filter.id))state.presetFilter={kind:'all',id:''};
+ if(filter.kind==='design'&&(!designWithItems.some(x=>x.id===filter.id)||designWithItems.length<=1))state.presetFilter={kind:'all',id:''};
  if(filter.kind==='season'&&!seasonWithItems.some(x=>x.id===filter.id))state.presetFilter={kind:'all',id:''};
  const active=state.presetFilter||{kind:'all',id:''};
 
  const filterButton=(kind,id,label)=>'<button type="button" class="v2-preset-filter-button '+(active.kind===kind&&active.id===id?'is-active':'')+'" data-preset-filter-kind="'+kind+'" data-preset-filter-id="'+esc(id)+'">'+esc(label)+'</button>';
- const filters='<div class="v2-preset-filters">'+
-  '<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">디자인 종류</span><div class="v2-preset-filter-buttons">'+
+ const designFilters=designWithItems.length>1?'<div class="v2-preset-filter-group is-design-only"><div class="v2-preset-filter-buttons">'+
    filterButton('all','','전체')+designWithItems.map(cat=>filterButton('design',cat.id,cat.label||cat.id)).join('')+
-  '</div></div>'+
-  (seasonWithItems.length?'<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">시즌 · 공휴일</span><div class="v2-preset-filter-buttons">'+seasonWithItems.map(s=>filterButton('season',s.id,s.label||s.id)).join('')+'</div></div>':'')+
- '</div>';
+  '</div></div>':'';
+ const seasonFilters=seasonWithItems.length?'<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">시즌 · 공휴일</span><div class="v2-preset-filter-buttons">'+seasonWithItems.map(s=>filterButton('season',s.id,s.label||s.id)).join('')+'</div></div>':'';
+ const filters=designFilters||seasonFilters?'<div class="v2-preset-filters">'+designFilters+seasonFilters+'</div>':'';
 
  let filtered=all;
  if(active.kind==='design')filtered=all.filter(x=>x.category===active.id);
