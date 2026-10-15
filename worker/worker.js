@@ -8,7 +8,7 @@ if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
 if(p==='/api/public/nav-summary')return cors(await publicNavSummary(env),req,env);
-if(p.startsWith('/media/'))return cors(await media(p.slice(7),env),req,env);
+if(p.startsWith('/media/'))return cors(await media(p.slice(7),env,req),req,env);
 if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors(json({error:'로그인이 필요합니다.'},401),req,env);
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
 if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
@@ -181,7 +181,24 @@ async function publicNavSummary(env){
   };
   return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts,categories,workStatus},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=60'})
 }
-async function media(path,env){const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`);if(!r.ok)return new Response('Not found',{status:404});const h=new Headers({'Cache-Control':'public,max-age=31536000,immutable'}),ct=r.headers.get('Content-Type');if(ct)h.set('Content-Type',ct);return new Response(r.body,{status:200,headers:h})}
+async function media(path,env,req){
+ const upstreamHeaders={};
+ const etag=req?.headers?.get('If-None-Match');
+ const modified=req?.headers?.get('If-Modified-Since');
+ if(etag)upstreamHeaders['If-None-Match']=etag;
+ if(modified)upstreamHeaders['If-Modified-Since']=modified;
+ const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`,{headers:upstreamHeaders});
+ const h=new Headers({'Cache-Control':'no-cache, max-age=0, must-revalidate'});
+ const upstreamEtag=r.headers.get('ETag');
+ const lastModified=r.headers.get('Last-Modified');
+ if(upstreamEtag)h.set('ETag',upstreamEtag);
+ if(lastModified)h.set('Last-Modified',lastModified);
+ if(r.status===304)return new Response(null,{status:304,headers:h});
+ if(!r.ok)return new Response('Not found',{status:404,headers:h});
+ const ct=r.headers.get('Content-Type');
+ if(ct)h.set('Content-Type',ct);
+ return new Response(r.body,{status:200,headers:h})
+}
 function b64(buf){const bytes=buf instanceof Uint8Array?buf:new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
 function decodeB64(s){return Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0))}
 function b64Ascii(bytes){
