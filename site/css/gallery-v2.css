@@ -1700,7 +1700,7 @@ body.artmug-part-portfolio #inquirySection{
   justify-content:center;
 }
 .v2-preset-category-layout.is-stacked .v2-preset-category.is-profile-category .v2-preset-category-grid{
-  grid-template-columns:repeat(min(var(--preset-cols),5),minmax(0,150px));
+  grid-template-columns:repeat(var(--preset-cols),minmax(0,150px));
 }
 .v2-preset-category-layout.is-stacked .v2-preset-category.is-media-category .v2-preset-category-grid{
   grid-template-columns:repeat(2,minmax(0,1fr));
