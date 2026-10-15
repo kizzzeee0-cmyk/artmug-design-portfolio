@@ -345,7 +345,7 @@
   "eventsText": "문의 시 참여 여부를 선택해 주세요",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
-  "fixedEnabled": false,
+  "fixedEnabled": true,
   "fixedTitle": "고정틀",
   "fixedHolidayNotice": "할로윈 · 추석 · 설날 · 어린이날 · 크리스마스 등 특별한 날의 분위기를 담은 디자인입니다.",
   "fixedSalesNotice": "기념일과 시즌에 어울리는 완성형 고정틀을 판매합니다. 각 작품의 가격을 확인해 주세요.",
@@ -477,6 +477,20 @@
         "webp"
       ],
       "emptyText": "등록된 하단 배너 분할 프리셋이 아직 없습니다."
+    },
+    {
+      "id": "fixed-four-cut",
+      "label": "인생네컷",
+      "enabled": false,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
