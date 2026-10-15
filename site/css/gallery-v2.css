@@ -1814,3 +1814,80 @@ body.artmug-part-portfolio #inquirySection{
     font-size:7.5px;
   }
 }
+
+
+/* 2026-10-15 PRESET + FIXED SHARED SEASON CATEGORIES */
+.seasonal-fixed-card:not(.fixed-layout-profile) .seasonal-fixed-thumb{
+  aspect-ratio:auto;
+  overflow:visible;
+  background:transparent;
+}
+.seasonal-fixed-card:not(.fixed-layout-profile) .seasonal-fixed-thumb img{
+  width:100%;
+  height:auto;
+  max-height:none;
+  object-fit:contain;
+}
+.seasonal-fixed-card.fixed-layout-profile .seasonal-fixed-thumb{
+  aspect-ratio:1/1;
+}
+.seasonal-fixed-filters{
+  margin-top:2px;
+}
+.fixed-season-category-layout{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+  margin-top:2px;
+}
+.fixed-season-category-layout.is-two{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+}
+.fixed-season-category{
+  min-width:0;
+}
+.fixed-season-category-layout.is-stacked .fixed-season-category + .fixed-season-category{
+  padding-top:18px;
+  border-top:1px solid var(--line);
+}
+.fixed-season-category-head{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  margin-bottom:9px;
+}
+.fixed-season-category-head h3{
+  margin:0;
+  color:#4f8fb3;
+  font-size:13px;
+  font-weight:750;
+}
+.fixed-season-category .v2-show-all{
+  display:block;
+  margin:12px auto 0;
+}
+.seasonal-fixed-card .v2-preset-badges{
+  margin-top:0;
+}
+@media(max-width:680px){
+  .fixed-season-category-layout.is-two{
+    grid-template-columns:1fr;
+  }
+  .fixed-season-category-layout{
+    gap:14px;
+  }
+  .fixed-season-category-layout.is-two .fixed-season-category + .fixed-season-category,
+  .fixed-season-category-layout.is-stacked .fixed-season-category + .fixed-season-category{
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .fixed-season-category-head{
+    min-height:25px;
+    margin-bottom:7px;
+  }
+  .fixed-season-category-head h3{
+    font-size:11.5px;
+  }
+}

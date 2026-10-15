@@ -10,10 +10,10 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const MEDIA_VERSION='20261015-live-media-v1';
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
+const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{kind:'all',id:''},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
 let presetSourcePromise=null;
-let fixedSelectedCategory='ALL',fixedPage=1;
+let fixedPage=1;
 const portfolioOrder=['profile','top-banner','floating-banner','bottom-banner','bottom-split','four-cut'];
 const bannerIds=new Set(['top-banner','floating-banner','bottom-banner','bottom-split']);
 const defaults={
@@ -95,6 +95,18 @@ function smeta(x){
   pairChild:m.pairChild===true
  }
 }
+function sharedSeasonCategories(){
+ const current=state.settings?.seasonCategories;
+ return Array.isArray(current)?current:(state.settings?.presetSeasonCategories||[])
+}
+function sharedSeasonIdForMeta(m){
+ const direct=String(m?.seasonCategoryId||'');
+ if(direct)return direct;
+ const legacy=String(m?.fixedHoliday||'').trim();
+ if(!legacy)return '';
+ const found=sharedSeasonCategories().find(x=>String(x.label||x.id||'').trim()===legacy);
+ return found?String(found.id||''):''
+}
 function normalizeHex(v,fallback){
  const s=String(v||'').trim();return /^#[0-9a-f]{6}$/i.test(s)?s.toUpperCase():fallback
 }
@@ -103,7 +115,7 @@ function contrastText(hex){
  return (r*299+g*587+b*114)/1000>160?'#344651':'#FFFFFF'
 }
 function seasonCategoryById(id,publicOnly=true){
- const x=(state.settings?.presetSeasonCategories||[]).find(v=>v.id===id);
+ const x=sharedSeasonCategories().find(v=>v.id===id);
  return x&&(!publicOnly||x.enabled!==false)?x:null
 }
 function presetBadges(m){
@@ -121,13 +133,15 @@ function presetBadges(m){
  if(m.isNoEdit)out.push({label:'수정불가',cls:'is-no-edit'});
  return out
 }
-function portfolioRankForPresetCategory(cat){
+function portfolioRankForSalesCategory(cat,ownCategories){
  const pc=state.settings?.portfolioCategories||[],key=layoutKey(cat);
  const exact=pc.findIndex(x=>x.id===cat.id);if(exact>=0)return exact;
  const logical=pc.findIndex(x=>layoutKey(x)===key);if(logical>=0)return logical;
- const own=(state.settings?.presetCategories||[]).findIndex(x=>x.id===cat.id);
+ const own=(ownCategories||[]).findIndex(x=>x.id===cat.id);
  return 1000+(own<0?999:own)
 }
+function portfolioRankForPresetCategory(cat){return portfolioRankForSalesCategory(cat,state.settings?.presetCategories||[])}
+function portfolioRankForFixedCategory(cat){return portfolioRankForSalesCategory(cat,state.settings?.fixedCategories||[])}
 function bannerTypeEnabled(){return state.settings?.bannerTypeEnabled!==false}
 function itemCard(x,c){
  const k=layoutKey(c),m=pmeta(x),type=bannerTypeEnabled()&&bannerIds.has(k)?(m.bannerType||'B'):'';
@@ -346,11 +360,19 @@ function fixedPublicCard(x){
  const m=state.settings?.presetMeta?.[x.file]||{},cat=(state.settings?.fixedCategories||[]).find(c=>c.id===x.category);
  const price=Math.max(0,Number(m.fixedPrice||0));
  const priceText=price>0?price.toLocaleString('ko-KR')+'원':'가격 문의';
- const holiday=String(m.fixedHoliday||'').trim();
- return '<article class="seasonal-fixed-card">'+
+ const season=seasonCategoryById(sharedSeasonIdForMeta(m),true);
+ const k=layoutKey(cat||{id:x.category,label:x.category});
+ let badge='';
+ if(season){
+  const bg=normalizeHex(season.badgeColor,'#8FC9E8');
+  const fg=season.autoTextColor?contrastText(bg):normalizeHex(season.textColor,'#FFFFFF');
+  const style='background:'+bg+';color:'+fg+';border-color:'+bg;
+  badge='<div class="v2-preset-badges"><span class="v2-preset-badge is-season" style="'+esc(style)+'"><span class="v2-badge-label">'+esc(season.label||season.id)+'</span></span></div>'
+ }
+ return '<article class="seasonal-fixed-card fixed-layout-'+esc(k)+'">'+
   '<div class="seasonal-fixed-thumb"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||cat?.label||'고정틀')+'" loading="lazy" decoding="async" draggable="false"></div>'+
-  (holiday?'<span class="seasonal-fixed-holiday">'+esc(holiday)+'</span>':'')+
-  '<strong class="seasonal-fixed-name">'+esc(m.name||cat?.label||'고정틀 디자인')+'</strong>'+ 
+  '<strong class="seasonal-fixed-name">'+esc(m.name||cat?.label||'고정틀 디자인')+'</strong>'+
+  badge+
   (m.fixedDescription?'<span class="seasonal-fixed-description">'+esc(m.fixedDescription)+'</span>':'')+
   '<span class="seasonal-fixed-price">'+esc(priceText)+'</span>'+
  '</article>'
@@ -371,33 +393,76 @@ async function renderFixed(){
  });
  state.showcase.fixed=works;
  if(!works.length){root.hidden=true;root.innerHTML='';return}
- const activeCategories=categories.filter(c=>works.some(x=>x.category===c.id));
- if(fixedSelectedCategory!=='ALL'&&!activeCategories.some(c=>c.id===fixedSelectedCategory)){
-  fixedSelectedCategory='ALL';fixedPage=1
- }
- const displayed=fixedSelectedCategory==='ALL'?works:works.filter(x=>x.category===fixedSelectedCategory);
+
+ const seasons=sharedSeasonCategories().filter(s=>s.enabled!==false);
+ const designWithItems=categories.filter(cat=>works.some(x=>x.category===cat.id));
+ const seasonWithItems=seasons.filter(season=>works.some(x=>sharedSeasonIdForMeta(settings.presetMeta?.[x.file]||{})===season.id));
+ const filter=state.fixedFilter||{kind:'all',id:''};
+ if(filter.kind==='design'&&!designWithItems.some(x=>x.id===filter.id))state.fixedFilter={kind:'all',id:''};
+ if(filter.kind==='season'&&!seasonWithItems.some(x=>x.id===filter.id))state.fixedFilter={kind:'all',id:''};
+ const active=state.fixedFilter||{kind:'all',id:''};
+
+ const filterButton=(kind,id,label)=>'<button type="button" class="v2-preset-filter-button '+(active.kind===kind&&active.id===id?'is-active':'')+'" data-fixed-filter-kind="'+kind+'" data-fixed-filter-id="'+esc(id)+'">'+esc(label)+'</button>';
+ const filters='<div class="v2-preset-filters seasonal-fixed-filters">'+
+  '<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">디자인 종류</span><div class="v2-preset-filter-buttons">'+
+   filterButton('all','','전체')+designWithItems.map(cat=>filterButton('design',cat.id,cat.label||cat.id)).join('')+
+  '</div></div>'+
+  (seasonWithItems.length?'<div class="v2-preset-filter-group"><span class="v2-preset-filter-label">시즌 · 공휴일</span><div class="v2-preset-filter-buttons">'+seasonWithItems.map(season=>filterButton('season',season.id,season.label||season.id)).join('')+'</div></div>':'')+
+ '</div>';
+
+ let filtered=works;
+ if(active.kind==='design')filtered=works.filter(x=>x.category===active.id);
+ else if(active.kind==='season')filtered=works.filter(x=>sharedSeasonIdForMeta(settings.presetMeta?.[x.file]||{})===active.id);
+
+ let groups=categories.map(cat=>({cat,items:filtered.filter(x=>x.category===cat.id)})).filter(group=>group.items.length);
+ if(active.kind==='season')groups=groups.sort((a,b)=>portfolioRankForFixedCategory(a.cat)-portfolioRankForFixedCategory(b.cat));
+ if(!groups.length){root.hidden=true;root.innerHTML='';return}
+
  const columns=state.mobile?Math.max(1,Math.min(4,Number(settings.fixedMobileColumns||2))):Math.max(1,Math.min(8,Number(settings.fixedPcColumns||4)));
- const perPage=columns*3,pageCount=Math.max(1,Math.ceil(displayed.length/perPage));
- fixedPage=Math.min(Math.max(1,fixedPage),pageCount);
- const visible=displayed.slice((fixedPage-1)*perPage,fixedPage*perPage);
- const tabs='<div class="seasonal-fixed-tabs" role="group" aria-label="고정틀 카테고리">'+
-  [{id:'ALL',label:'전체'},...activeCategories].map(c=>'<button type="button" data-fixed-filter="'+esc(c.id)+'" class="'+(fixedSelectedCategory===c.id?'is-active':'')+'">'+esc(c.label)+'</button>').join('')+'</div>';
- const maxDots=state.mobile?9:26;
- const startDot=Math.max(1,Math.min(Math.max(1,pageCount-maxDots+1),fixedPage-Math.floor(maxDots/2)));
- const lastDot=Math.min(pageCount,startDot+maxDots-1);
- const nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 페이지">'+
-  '<button type="button" class="v2-page-arrow" data-fixed-page="prev" '+(fixedPage===1?'disabled':'')+' aria-label="이전 페이지">‹</button>'+
-  '<div class="v2-page-dots">'+Array.from({length:lastDot-startDot+1},(_,i)=>{const p=startDot+i;return '<button type="button" class="v2-page-dot '+(fixedPage===p?'is-active':'')+'" data-fixed-page="'+p+'" aria-label="'+p+'페이지"></button>'}).join('')+'</div>'+
-  '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
-  '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
+ let gallery='',nav='';
+ if(active.kind==='season'){
+  fixedPage=1;
+  const layoutClass=groups.length===2?' is-two':groups.length>=3?' is-stacked':' is-single';
+  gallery='<div class="fixed-season-category-layout'+layoutClass+'">'+groups.map(({cat,items})=>{
+   const key='fixed-season:'+active.id+':'+cat.id,expanded=state.expanded[key]===true;
+   const groupCols=groups.length===2?Math.min(columns,2):columns;
+   const limit=Math.max(1,groupCols*3),shown=expanded?items:items.slice(0,limit);
+   return '<section class="fixed-season-category fixed-season-layout-'+esc(layoutKey(cat))+'">'+
+    '<div class="fixed-season-category-head"><h3>'+esc(cat.label||cat.id)+'</h3></div>'+
+    '<div class="seasonal-fixed-grid" style="--fixed-columns:'+groupCols+'">'+shown.map(fixedPublicCard).join('')+'</div>'+
+    (items.length>limit?'<button type="button" class="v2-show-all" data-show-fixed-season="'+esc(key)+'">'+(expanded?'접기':'전체보기')+'</button>':'')+
+   '</section>'
+  }).join('')+'</div>'
+ }else{
+  const perPage=columns*3,pageCount=Math.max(1,Math.ceil(filtered.length/perPage));
+  fixedPage=Math.min(Math.max(1,fixedPage),pageCount);
+  const visible=filtered.slice((fixedPage-1)*perPage,fixedPage*perPage);
+  gallery='<div class="seasonal-fixed-grid" style="--fixed-columns:'+columns+'">'+visible.map(fixedPublicCard).join('')+'</div>';
+  const maxDots=state.mobile?9:26;
+  const startDot=Math.max(1,Math.min(Math.max(1,pageCount-maxDots+1),fixedPage-Math.floor(maxDots/2)));
+  const lastDot=Math.min(pageCount,startDot+maxDots-1);
+  nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 페이지">'+
+   '<button type="button" class="v2-page-arrow" data-fixed-page="prev" '+(fixedPage===1?'disabled':'')+' aria-label="이전 페이지">‹</button>'+
+   '<div class="v2-page-dots">'+Array.from({length:lastDot-startDot+1},(_,i)=>{const p=startDot+i;return '<button type="button" class="v2-page-dot '+(fixedPage===p?'is-active':'')+'" data-fixed-page="'+p+'" aria-label="'+p+'페이지"></button>'}).join('')+'</div>'+
+   '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
+   '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':''
+ }
+
  root.hidden=false;
  root.innerHTML='<h2>'+esc(settings.fixedTitle||'시즌 한정 고정틀')+'</h2>'+
-  '<p class="seasonal-fixed-holiday-copy">'+esc(settings.fixedHolidayNotice||'할로윈 · 추석 · 설날 · 어린이날 등 특별한 날의 테마 디자인을 만나보세요.')+'</p>'+
+  '<p class="seasonal-fixed-holiday-copy">'+esc(settings.fixedHolidayNotice||'할로윈 · 추석 · 설날 · 어린이날 · 크리스마스 등 특별한 날의 테마 디자인을 만나보세요.')+'</p>'+
   '<div class="seasonal-fixed-policy"><div><span class="seasonal-fixed-policy-label">고정틀 판매 안내</span><p>'+esc(settings.fixedSalesNotice||'시즌별 특별한 디자인을 정해진 가격에 판매합니다.')+'</p></div>'+
   '<div><span class="seasonal-fixed-policy-label">디자인 안내</span><p>'+esc(settings.fixedNoEditNotice||'완성된 디자인 그대로 판매되며 색상과 디자인은 수정할 수 없습니다.')+'</p></div></div>'+
-  tabs+'<div class="seasonal-fixed-grid" style="--fixed-columns:'+columns+'">'+visible.map(fixedPublicCard).join('')+'</div>'+nav;
- root.querySelectorAll('[data-fixed-filter]').forEach(b=>b.onclick=()=>{fixedSelectedCategory=b.dataset.fixedFilter;fixedPage=1;renderFixed();requestHeight()});
- root.querySelectorAll('[data-fixed-page]').forEach(b=>b.onclick=()=>{const token=b.dataset.fixedPage;fixedPage=token==='prev'?fixedPage-1:token==='next'?fixedPage+1:Number(token);renderFixed();requestHeight()});
+  filters+gallery+nav;
+ root.querySelectorAll('[data-fixed-filter-kind]').forEach(b=>b.onclick=()=>{
+  state.fixedFilter={kind:b.dataset.fixedFilterKind,id:b.dataset.fixedFilterId||''};fixedPage=1;renderFixed();requestHeight()
+ });
+ root.querySelectorAll('[data-fixed-page]').forEach(b=>b.onclick=()=>{
+  const token=b.dataset.fixedPage;fixedPage=token==='prev'?fixedPage-1:token==='next'?fixedPage+1:Number(token);renderFixed();requestHeight()
+ });
+ root.querySelectorAll('[data-show-fixed-season]').forEach(b=>b.onclick=()=>{
+  const key=b.dataset.showFixedSeason;state.expanded[key]=!state.expanded[key];renderFixed();requestHeight()
+ });
  root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  requestHeight()
 }
@@ -405,7 +470,7 @@ async function renderFixed(){
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  if(state.settings?.presetEnabled===false||state.settings?.showcasePresetEnabled===false){
-  root.hidden=true;root.innerHTML='';state.showcase.preset=[];state.showcase.fixed=[];return
+  root.hidden=true;root.innerHTML='';state.showcase.preset=[];return
  }
  const cats=(state.settings.presetCategories||[]).filter(c=>c.enabled!==false);
  const allowed=new Set(cats.map(c=>c.id));
@@ -422,9 +487,8 @@ async function renderShowcase(){
   return m.enabled&&m.showcaseKind!=='fixed'&&!m.pairChild
  });
  state.showcase.preset=all;
- state.showcase.fixed=[];
 
- const seasons=(state.settings.presetSeasonCategories||[]).filter(s=>s.enabled!==false);
+ const seasons=sharedSeasonCategories().filter(s=>s.enabled!==false);
  const designWithItems=cats.filter(cat=>all.some(x=>x.category===cat.id));
  const seasonWithItems=seasons.filter(s=>all.some(x=>smeta(x).seasonCategoryId===s.id));
  const filter=state.presetFilter||{kind:'all',id:''};
