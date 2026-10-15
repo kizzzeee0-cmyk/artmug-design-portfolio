@@ -332,12 +332,38 @@ function collectEventItems(){
   });
   S.eventsItems=items
 }
+async function saveWorkStatusMode(mode,source){
+  mode=mode==='sleeping'?'sleeping':'working';
+  const previous=S.workStatusMode==='sleeping'?'sleeping':'working';
+  const radios=Array.from(document.querySelectorAll('input[name="workStatusMode"]'));
+  radios.forEach(r=>r.disabled=true);
+  try{
+    const saved=await queueSettingsMutation(latest=>{latest.workStatusMode=mode});
+    S.workStatusMode=saved.workStatusMode==='sleeping'?'sleeping':'working';
+    showToast(S.workStatusMode==='sleeping'?'취침중으로 저장되었습니다.':'작업중으로 저장되었습니다.')
+  }catch(e){
+    S.workStatusMode=previous;
+    const restore=document.querySelector('input[name="workStatusMode"][value="'+previous+'"]');
+    if(restore)restore.checked=true;
+    if(source)source.checked=false;
+    alert('현재 상태 저장에 실패했습니다.\n'+e.message)
+  }finally{
+    radios.forEach(r=>r.disabled=false)
+  }
+}
 function renderWorkStatusAdmin(){
   if(!$('workStatusEnabled'))return;
   $('workStatusEnabled').checked=S.workStatusEnabled===true;
   const mode=S.workStatusMode==='sleeping'?'sleeping':'working';
   const radio=document.querySelector('input[name="workStatusMode"][value="'+mode+'"]');
   if(radio)radio.checked=true;
+  document.querySelectorAll('input[name="workStatusMode"]').forEach(radio=>{
+    if(radio.dataset.autoSaveBound==='1')return;
+    radio.dataset.autoSaveBound='1';
+    radio.addEventListener('change',()=>{
+      if(radio.checked)saveWorkStatusMode(radio.value,radio)
+    })
+  });
   $('workStatusWorkingText').value=String(S.workStatusWorkingText??'');
   $('workStatusSleepingText').value=String(S.workStatusSleepingText??'현재 취침 중으로 문의 답변이 조금 늦을 수 있어요.');
 }
