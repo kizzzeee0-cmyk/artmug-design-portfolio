@@ -668,9 +668,24 @@
       "colorChangeAvailable": true,
       "showcaseKind": "preset",
       "featured": false
+    },
+    "preset/profile/20261015135046-1yhbs4n1y8b6u3-background__5_.png": {
+      "name": "01",
+      "enabled": true,
+      "isNew": false,
+      "isReserved": false,
+      "isSold": false,
+      "showcaseKind": "fixed",
+      "seasonCategoryId": "halloween",
+      "fixedHoliday": "",
+      "fixedDescription": "",
+      "fixedPrice": 0,
+      "colorChangeAvailable": false,
+      "featured": false
     }
   },
   "presetOrder": [
+    "preset/profile/20261015135046-1yhbs4n1y8b6u3-background__5_.png",
     "preset/profile/20261012063603-1v1n0h5j6wofo-background__1_.png",
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif"
