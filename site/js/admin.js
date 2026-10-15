@@ -144,7 +144,13 @@ function collectPresetSeasonCats(){
     const enabled=document.querySelector('[data-season-enabled="'+i+'"]');
     const auto=document.querySelector('[data-season-auto="'+i+'"]');
     if(label)x.label=label.value.trim();
-    if(id)x.id=id.value.trim();
+    if(id){
+      const oldId=String(x.id||''),newId=id.value.trim();
+      if(newId&&newId!==oldId){
+        Object.values(ensurePresetMeta()).forEach(m=>{if(m?.seasonCategoryId===oldId)m.seasonCategoryId=newId});
+        x.id=newId
+      }
+    }
     const bgHex=normalizeHex6(bg?.value);if(bgHex)x.badgeColor=bgHex;
     const textHex=normalizeHex6(textInput?.value);if(textHex)x.textColor=textHex;
     if(enabled)x.enabled=enabled.checked;
@@ -180,8 +186,8 @@ function renderPresetSeasonCats(){
   };
   document.querySelectorAll('[data-season-bg-picker]').forEach(el=>el.oninput=()=>sync(+el.dataset.seasonBgPicker,'bg',el.value));
   document.querySelectorAll('[data-season-text-picker]').forEach(el=>el.oninput=()=>sync(+el.dataset.seasonTextPicker,'text',el.value));
-  document.querySelectorAll('[data-season-bg-hex]').forEach(el=>el.onchange=()=>{if(!sync(+el.dataset.seasonBgHex,'bg',el.value))el.value=normalizeHex6(arr[+el.dataset.seasonBgHex].badgeColor)||'#8FC9E8'});
-  document.querySelectorAll('[data-season-text-hex]').forEach(el=>el.onchange=()=>{if(!sync(+el.dataset.seasonTextHex,'text',el.value))el.value=normalizeHex6(arr[+el.dataset.seasonTextHex].textColor)||'#FFFFFF'});
+  document.querySelectorAll('[data-season-bg-hex]').forEach(el=>{el.oninput=()=>{if(normalizeHex6(el.value))sync(+el.dataset.seasonBgHex,'bg',el.value)};el.onblur=()=>{if(!normalizeHex6(el.value))el.value=normalizeHex6(arr[+el.dataset.seasonBgHex].badgeColor)||'#8FC9E8'}});
+  document.querySelectorAll('[data-season-text-hex]').forEach(el=>{el.oninput=()=>{if(normalizeHex6(el.value))sync(+el.dataset.seasonTextHex,'text',el.value)};el.onblur=()=>{if(!normalizeHex6(el.value))el.value=normalizeHex6(arr[+el.dataset.seasonTextHex].textColor)||'#FFFFFF'}});
   document.querySelectorAll('[data-season-auto]').forEach(el=>el.onchange=()=>{arr[+el.dataset.seasonAuto].autoTextColor=el.checked;renderPresetSeasonCats()});
   document.querySelectorAll('[data-season-bg-eye]').forEach(b=>b.onclick=async()=>{try{const v=await new EyeDropper().open();sync(+b.dataset.seasonBgEye,'bg',v.sRGBHex)}catch{}});
   document.querySelectorAll('[data-season-text-eye]').forEach(b=>b.onclick=async()=>{try{const v=await new EyeDropper().open();sync(+b.dataset.seasonTextEye,'text',v.sRGBHex)}catch{}});
