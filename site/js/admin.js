@@ -1618,6 +1618,7 @@ function renderFixedItems(){
    '<div class="preset-admin-fields"><div class="muted preset-location">'+adminEsc(cat?.label||x.category)+'</div>'+
    '<label class="preset-name-field">디자인 이름<input data-fixed-name="'+i+'" value="'+adminEsc(m.name)+'"></label>'+
    '<label>시즌/공휴일<input data-fixed-holiday="'+i+'" value="'+adminEsc((S.presetMeta?.[x.file]||{}).fixedHoliday||'')+'" placeholder="예: 할로윈"></label>'+
+   '<label>디자인 소개<input data-fixed-description="'+i+'" value="'+adminEsc((S.presetMeta?.[x.file]||{}).fixedDescription||'')+'" placeholder="상품을 짧게 소개해 주세요"></label>'+
    '<label>판매가 (원)<input data-fixed-price="'+i+'" type="number" min="0" step="100" value="'+Math.max(0,Number((S.presetMeta?.[x.file]||{}).fixedPrice||0))+'"></label>'+
    '<label class="mini-toggle"><input data-fixed-enabled="'+i+'" type="checkbox" '+(m.enabled?'checked':'')+'> 공개</label></div>'+
    '<div class="preset-admin-actions"><div class="media-order-controls">'+
@@ -1651,11 +1652,12 @@ async function saveFixedItem(i){
  const x=fixedItems[i];if(!x)return;
  const name=document.querySelector('[data-fixed-name="'+i+'"]')?.value.trim();
  const holiday=document.querySelector('[data-fixed-holiday="'+i+'"]')?.value.trim();
+ const description=document.querySelector('[data-fixed-description="'+i+'"]')?.value.trim()||'';
  const price=Math.max(0,Number(document.querySelector('[data-fixed-price="'+i+'"]')?.value||0));
  const enabled=document.querySelector('[data-fixed-enabled="'+i+'"]')?.checked!==false;
  const saved=await queueSettingsMutation(latest=>{
   if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
-  latest.presetMeta[x.file]={...(latest.presetMeta[x.file]||{}),name,enabled,fixedHoliday:holiday,fixedPrice:price,showcaseKind:'fixed',colorChangeAvailable:false}
+  latest.presetMeta[x.file]={...(latest.presetMeta[x.file]||{}),name,enabled,fixedHoliday:holiday,fixedDescription:description,fixedPrice:price,showcaseKind:'fixed',colorChangeAvailable:false}
  });
  S.presetMeta=saved.presetMeta||{};showToast('고정틀 상품 설정이 저장되었습니다.');renderFixedItems()
 }
@@ -1673,7 +1675,7 @@ async function moveFixedItem(i,dir){
 }
 async function uploadFixed(){
  const input=$('fixedFiles'),file=input?.files?.[0],name=$('fixedUploadName')?.value.trim();
- const cat=$('fixedUploadCat')?.value,holiday=$('fixedUploadHoliday')?.value.trim();
+ const cat=$('fixedUploadCat')?.value,holiday=$('fixedUploadHoliday')?.value.trim(),description=$('fixedUploadDescription')?.value.trim()||'';
  const price=Number($('fixedUploadPrice')?.value||0),status=$('fixedUploadStatus');
  if(!file||!name||!cat){alert('카테고리, 디자인 이름, 파일을 입력해 주세요.');return}
  let path='';
@@ -1686,11 +1688,11 @@ async function uploadFixed(){
   if(!path)throw new Error('업로드 경로가 반환되지 않았습니다.');
   const saved=await queueSettingsMutation(latest=>{
    if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
-   latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,showcaseKind:'fixed',fixedHoliday:holiday,fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
+   latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isSold:false,showcaseKind:'fixed',fixedHoliday:holiday,fixedDescription:description,fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
    latest.presetOrder=[path,...(latest.presetOrder||[]).filter(v=>v!==path)]
   });
   S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];
-  input.value='';$('fixedUploadName').value='';$('fixedUploadHoliday').value='';$('fixedUploadPrice').value='';
+  input.value='';$('fixedUploadName').value='';$('fixedUploadHoliday').value='';$('fixedUploadDescription').value='';$('fixedUploadPrice').value='';
   status.textContent='고정틀 등록이 완료되었습니다.';
   await loadPresetItemsOnly();showToast('고정틀이 등록되었습니다.')
  }catch(e){
