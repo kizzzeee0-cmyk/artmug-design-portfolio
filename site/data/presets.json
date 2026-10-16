@@ -16,5 +16,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261012063511"
+  },
+  {
+    "id": "preset-8tf8szAWEXA",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
+    "originalName": "블루_.gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261016145315"
   }
 ]
