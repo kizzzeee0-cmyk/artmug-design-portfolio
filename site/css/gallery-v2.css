@@ -2847,3 +2847,38 @@ body.artmug-part-portfolio #inquirySection{
     flex-basis:86px!important;
   }
 }
+
+
+/* 2026-10-17 INQUIRY QUESTION GAP UNIFICATION V1 */
+/* All visible inquiry question blocks use the same 18px vertical rhythm.
+   The V2 enhancement wrapper must not add its own extra bottom margin. */
+.request-fields{
+  gap:18px!important;
+}
+.request-fields > .v2-inquiry-enhancements{
+  display:grid!important;
+  gap:18px!important;
+  margin:0!important;
+}
+.request-fields > .v2-inquiry-enhancements > *{
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+.v2-inquiry-enhancements > .v2-banner-type-fields{
+  gap:18px!important;
+  margin:0!important;
+}
+
+/* Keep the same spacing on mobile instead of introducing a second rhythm. */
+@media(max-width:680px){
+  .request-fields{
+    gap:18px!important;
+  }
+  .request-fields > .v2-inquiry-enhancements{
+    gap:18px!important;
+    margin:0!important;
+  }
+  .v2-inquiry-enhancements > .v2-banner-type-fields{
+    gap:18px!important;
+  }
+}
