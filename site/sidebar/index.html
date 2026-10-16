@@ -1616,6 +1616,222 @@ body{
   }
 }
 
+
+/* 2026-10-17 REFERENCE ICON-ON-LINE RESTORE V21 */
+:root{
+  --quick-reference-accent:#8fc8e8;
+  --quick-reference-text:#55758b;
+}
+
+/* Undo the V20 white-outline resting pills and the +5px pill shift. */
+.quick-nav-button{
+  transform:none!important;
+  display:grid!important;
+  grid-template-columns:46px minmax(0,1fr)!important;
+  align-items:center!important;
+  justify-content:stretch!important;
+  column-gap:5px!important;
+  width:164px!important;
+  min-height:48px!important;
+  padding:4px 9px 4px 0!important;
+  border:1px solid transparent!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  color:var(--quick-reference-text)!important;
+  box-shadow:none!important;
+  text-align:left!important;
+}
+
+/* Put the 46px icon column center exactly on the real connector center:
+   connector = left 8px + 1.5px/2 = 8.75px; column center = 23px. */
+.nav-list{
+  width:164px!important;
+  margin-left:-14.25px!important;
+}
+
+/* Restore visible circular icons; the white circle sits over the connector. */
+.quick-nav-icon{
+  position:relative!important;
+  z-index:6!important;
+  display:grid!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  place-items:center!important;
+  justify-self:center!important;
+  transform:none!important;
+  border:1px solid #dceaf2!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#5f96bc!important;
+  box-shadow:0 4px 11px rgba(75,130,165,.11)!important;
+}
+.quick-nav-icon svg{
+  width:19px!important;
+  height:19px!important;
+  display:block!important;
+  overflow:visible!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.75!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+
+/* Restore left-aligned labels beside the icon column. */
+.quick-nav-button .quick-nav-label,
+.quick-inquiry-button .quick-nav-label{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0 0 0 8px!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  text-align:left!important;
+  font-size:15px!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+}
+
+/* Normal items return to the original transparent resting state. */
+.quick-nav-button.is-active{
+  border-color:#79b9dd!important;
+  background:#82bddc!important;
+  color:#fff!important;
+  box-shadow:0 6px 14px rgba(76,145,187,.16)!important;
+}
+.quick-nav-button:hover,
+.quick-nav-button:focus-visible{
+  background:#f5fbfe!important;
+  border-color:transparent!important;
+  color:var(--quick-reference-text)!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+.quick-nav-button.is-active:hover,
+.quick-nav-button.is-active:focus-visible{
+  border-color:#79b9dd!important;
+  background:#82bddc!important;
+  color:#fff!important;
+  box-shadow:0 6px 14px rgba(76,145,187,.16)!important;
+}
+
+/* Active item icon remains a clean white circle on the line. */
+.quick-nav-button.is-active .quick-nav-icon{
+  border-color:rgba(255,255,255,.72)!important;
+  background:#fff!important;
+  color:#62a4ca!important;
+  box-shadow:0 2px 7px rgba(62,120,156,.08)!important;
+}
+.quick-nav-button.is-active .quick-nav-label{
+  color:#fff!important;
+  font-weight:600!important;
+}
+
+/* The icon circle itself is now the line marker; remove the separate active dot. */
+.quick-nav-button.is-active::before,
+.quick-inquiry-button.is-active::before{
+  content:none!important;
+  display:none!important;
+}
+
+/* Inquiry stays last in the existing data order and remains permanently emphasized. */
+.quick-inquiry-button,
+.quick-inquiry-button.is-active,
+.quick-inquiry-button:hover,
+.quick-inquiry-button:focus-visible,
+.quick-inquiry-button:active{
+  transform:none!important;
+  display:grid!important;
+  grid-template-columns:46px minmax(0,1fr)!important;
+  align-items:center!important;
+  justify-content:stretch!important;
+  column-gap:5px!important;
+  width:164px!important;
+  min-height:49px!important;
+  margin-top:4px!important;
+  padding:4px 9px 4px 0!important;
+  border:1px solid var(--quick-reference-accent)!important;
+  border-radius:999px!important;
+  background:var(--quick-reference-accent)!important;
+  color:#fff!important;
+  box-shadow:0 6px 15px rgba(75,157,208,.15)!important;
+  text-align:left!important;
+  outline:none!important;
+}
+.quick-inquiry-button .quick-nav-icon,
+.quick-inquiry-button.is-active .quick-nav-icon{
+  border-color:rgba(255,255,255,.72)!important;
+  background:#fff!important;
+  color:#5898c1!important;
+  box-shadow:0 2px 7px rgba(62,120,156,.08)!important;
+}
+.quick-inquiry-button .quick-nav-label,
+.quick-inquiry-button.is-active .quick-nav-label{
+  color:#fff!important;
+  font-weight:600!important;
+}
+
+/* Keep the connector and TOP geometry unchanged. */
+.quick-connector-line{
+  left:8px!important;
+  width:1.5px!important;
+  z-index:1!important;
+}
+
+/* Short screens: keep the SAME 46px icon column so every icon center
+   remains exactly on the connector; only circle/font sizes scale down. */
+@media(max-height:780px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    grid-template-columns:46px minmax(0,1fr)!important;
+    min-height:45px!important;
+  }
+  .quick-nav-icon{
+    width:37px!important;
+    height:37px!important;
+    min-width:37px!important;
+    min-height:37px!important;
+  }
+  .quick-nav-icon svg{
+    width:18px!important;
+    height:18px!important;
+  }
+  .quick-nav-button .quick-nav-label,
+  .quick-inquiry-button .quick-nav-label{
+    font-size:14.5px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    grid-template-columns:46px minmax(0,1fr)!important;
+    min-height:41px!important;
+  }
+  .quick-nav-icon{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+  }
+  .quick-nav-icon svg{
+    width:17px!important;
+    height:17px!important;
+  }
+  .quick-nav-button .quick-nav-label,
+  .quick-inquiry-button .quick-nav-label{
+    font-size:13.5px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1666,21 +1882,21 @@ const api=async p=>{
 
 function iconSvg(item){
  const t=String(item?.target||'');
- if(t==='notice')return '<svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M9.5 20v-5.5h5V20"/></svg>';
- if(t==='inquiry')return '<svg viewBox="0 0 24 24"><path d="M3.5 6.5h17v11h-17z"/><path d="m4 7 8 6 8-6"/></svg>';
+ if(t==='notice')return '<svg viewBox="0 0 24 24"><path d="M5 11.2 12 5l7 6.2"/><path d="M7.2 10.2v8.3h9.6v-8.3"/><path d="M10 18.5v-5h4v5"/></svg>';
+ if(t==='inquiry')return '<svg viewBox="0 0 24 24"><rect x="4.5" y="6.5" width="15" height="11" rx="1.8"/><path d="m5.2 7.3 6.8 5.2 6.8-5.2"/></svg>';
 
  /* 고정틀: frame / crop-frame style icon */
- if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M7 4H4v3M17 4h3v3M7 20H4v-3M17 20h3v-3"/><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>';
+ if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M7 4.5h7l3 3v12H7z"/><path d="M14 4.5v3.2h3"/><path d="M9.5 11h5M9.5 14h5M9.5 17h3.5"/></svg>';
 
  /* 프리셋: paint palette */
- if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="m12 5 7 3.8-7 3.8-7-3.8L12 5Z"/><path d="m5.5 12 6.5 3.5 6.5-3.5"/><path d="m5.5 15.5 6.5 3.5 6.5-3.5"/></svg>';
+ if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="M6 8h12M6 12h12M6 16h12"/><circle cx="10" cy="8" r="1.35"/><circle cx="15" cy="12" r="1.35"/><circle cx="9" cy="16" r="1.35"/></svg>';
 
  /* 움짤프사: default profile/avatar silhouette */
- if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3"/><path d="M7 18c.9-2.8 2.8-4.3 5-4.3s4.1 1.5 5 4.3"/></svg>';
+ if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><rect x="4.7" y="5.7" width="14.6" height="12.6" rx="2.6"/><path d="m10.2 9.2 4.8 2.8-4.8 2.8z"/></svg>';
 
  /* SOOP 배너: image/photo */
- if(t==='banner:all')return '<svg viewBox="0 0 24 24"><rect x="4.8" y="6.2" width="14.4" height="11.6" rx="2"/><circle cx="9" cy="10" r="1.05"/><path d="m7 15.5 3.1-2.9 2.4 2.1 2.3-2.4 2.2 2.2"/></svg>';
- if(t.startsWith('portfolio:')&&String(item?.label||'').includes('인생'))return '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>';
+ if(t==='banner:all')return '<svg viewBox="0 0 24 24"><rect x="4.7" y="5.8" width="14.6" height="12.4" rx="2"/><circle cx="9" cy="9.8" r="1.1"/><path d="m6.8 15.8 3.2-3 2.5 2.2 2.4-2.5 2.3 2.4"/></svg>';
+ if(t.startsWith('portfolio:')&&String(item?.label||'').includes('인생'))return '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="5.5" height="5.5" rx="1.1"/><rect x="13.5" y="5" width="5.5" height="5.5" rx="1.1"/><rect x="5" y="13.5" width="5.5" height="5.5" rx="1.1"/><rect x="13.5" y="13.5" width="5.5" height="5.5" rx="1.1"/></svg>';
  return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M9 12h6"/></svg>'
 }
 function send(target){
