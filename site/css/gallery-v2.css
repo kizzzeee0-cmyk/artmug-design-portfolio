@@ -2201,3 +2201,16 @@ body.artmug-part-portfolio #inquirySection{
     font-size:9.5px;
   }
 }
+
+.fixed-product-preview-grid[style*="--fixed-product-cols:1"]>.fixed-preview-layout-profile{
+  width:min(100%,280px);
+  justify-self:center;
+}
+@media(max-width:680px){
+  .fixed-product-preview-grid[style*="--fixed-product-cols:1"]>.fixed-preview-layout-profile{
+    width:min(100%,220px);
+  }
+  .fixed-product-preview-grid[style*="--fixed-product-cols:3"]:has(> .fixed-product-preview:last-child:nth-child(3n + 1))>.fixed-product-preview:last-child{
+    grid-column:2;
+  }
+}
