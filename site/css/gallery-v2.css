@@ -2708,3 +2708,22 @@ body.artmug-part-portfolio #inquirySection{
   }
 }
 
+
+
+/* =========================================================
+   2026-10-17 FIXED PRODUCT CHOICE TYPOGRAPHY — EXACT SHARED SIZE
+   ========================================================= */
+.v2-fixed-product-grid .v2-fixed-product-choice,
+.v2-fixed-product-grid .v2-fixed-product-choice>span{
+  font-size:var(--inquiry-choice-size,13.5px)!important;
+  font-weight:500!important;
+  line-height:1.35!important;
+}
+@media(max-width:680px){
+  .v2-fixed-product-grid .v2-fixed-product-choice,
+  .v2-fixed-product-grid .v2-fixed-product-choice>span{
+    font-size:var(--inquiry-choice-size,12.5px)!important;
+    font-weight:500!important;
+    line-height:1.35!important;
+  }
+}
