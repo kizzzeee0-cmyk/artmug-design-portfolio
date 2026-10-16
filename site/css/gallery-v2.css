@@ -1890,19 +1890,6 @@ body.artmug-part-portfolio #inquirySection{
   font-weight:400;
   line-height:1.55;
 }
-.fixed-product-season-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:22px;
-  padding:3px 9px;
-  border:1px solid transparent;
-  border-radius:999px;
-  font-size:9.5px;
-  font-weight:800;
-  line-height:1;
-  white-space:nowrap;
-}
 .fixed-product-preview-grid{
   display:grid;
   grid-template-columns:repeat(var(--fixed-product-cols,1),minmax(0,1fr));
@@ -2087,9 +2074,6 @@ body.artmug-part-portfolio #inquirySection{
   color:#71818c;
   font-size:12px;
   text-align:center;
-}
-.v2-preset-badge.is-season{
-  box-shadow:none!important;
 }
 
 @media(max-width:680px){
