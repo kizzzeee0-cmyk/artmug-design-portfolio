@@ -2727,3 +2727,40 @@ body.artmug-part-portfolio #inquirySection{
     line-height:1.35!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-17 FIXED OPTION SUMMARY — EXACT ONE-LINE ALIGNMENT
+   ========================================================= */
+.fixed-product-option-group{
+  align-items:center!important;
+}
+.fixed-product-option-summary{
+  min-height:22px!important;
+  padding-top:0!important;
+  align-items:center!important;
+  align-content:center!important;
+  line-height:1.2!important;
+}
+.fixed-product-option-summary>span,
+.fixed-product-option-summary>i{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  line-height:1.2!important;
+}
+@media(max-width:680px){
+  .fixed-product-option-group{
+    align-items:center!important;
+  }
+  .fixed-product-option-summary{
+    min-height:19px!important;
+    padding-top:0!important;
+    line-height:1.2!important;
+  }
+  .fixed-product-option-summary>span,
+  .fixed-product-option-summary>i{
+    min-height:19px;
+    line-height:1.2!important;
+  }
+}
