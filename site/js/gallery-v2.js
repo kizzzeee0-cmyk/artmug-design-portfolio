@@ -405,8 +405,10 @@ function fixedPreviewPublicHtml(v,p){
  '</figure>'
 }
 function fixedProductPublicCard(p){
- const previews=p.previews.filter(v=>v.enabled!==false),cols=Math.max(1,Math.min(state.mobile?p.mobileColumns:p.pcColumns,previews.length||1));
+ const allPreviews=p.previews.filter(v=>v.enabled!==false);
+ const previews=state.mobile?allPreviews.slice(0,4):allPreviews;
  const squareOnly=previews.length>0&&previews.every(v=>fixedPreviewDisplayConfig(v.category).key==='profile');
+ const cols=squareOnly&&state.mobile?4:Math.max(1,Math.min(state.mobile?p.mobileColumns:p.pcColumns,previews.length||1));
  const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
  const priceMeta=[p.priceScope,p.priceNote].map(v=>String(v||'').trim()).filter(Boolean);
  return '<article class="fixed-product-card">'+
