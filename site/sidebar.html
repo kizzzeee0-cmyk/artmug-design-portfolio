@@ -1437,6 +1437,33 @@ body{
   }
 }
 
+
+/* 2026-10-17 TOP EXACT CONNECTOR CENTER V15 */
+/* Center TOP by geometry, not breakpoint-specific margin guesses.
+   Connector left = 8px, width = 1.5px -> exact center x = 8.75px. */
+.quick-top-wrap{
+  margin-left:0!important;
+  left:8.75px!important;
+  transform:translateX(-50%)!important;
+  position:relative!important;
+}
+
+/* The same centering rule works regardless of 44/40/37px button size. */
+@media(max-height:780px){
+  .quick-top-wrap{
+    margin-left:0!important;
+    left:8.75px!important;
+    transform:translateX(-50%)!important;
+  }
+}
+@media(max-height:640px){
+  .quick-top-wrap{
+    margin-left:0!important;
+    left:8.75px!important;
+    transform:translateX(-50%)!important;
+  }
+}
+
 </style>
 </head>
 <body>
