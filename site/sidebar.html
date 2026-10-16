@@ -1509,6 +1509,113 @@ body{
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+/* 2026-10-17 QUICK PILL INTERACTION + INQUIRY LAST V20 */
+:root{
+  /* Exact current public-site NEW badge fill: site/css/style.css --accent */
+  --quick-new-badge:#8fc8e8;
+  --quick-pill-line:#cfe4f0;
+  --quick-pill-text:#5f96bc;
+}
+
+/* Move ONLY each pill button 5px right. The connector, TOP and shell stay fixed. */
+.quick-nav-button,
+.quick-inquiry-button{
+  transform:translateX(5px)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+
+/* Icons remain removed; eliminate their layout influence so the label can be truly centered. */
+.quick-nav-icon{
+  display:none!important;
+  visibility:hidden!important;
+}
+
+/* True horizontal + vertical label centering. Preserve existing font sizing/weight rules. */
+.quick-nav-button .quick-nav-label,
+.quick-inquiry-button .quick-nav-label{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  align-self:center!important;
+  justify-self:auto!important;
+  text-align:center!important;
+  color:inherit!important;
+}
+
+/* General pills: white + thin pastel sky-blue line at rest. */
+.quick-nav-button,
+.quick-nav-button.is-active{
+  background:#fff!important;
+  border-color:var(--quick-pill-line)!important;
+  color:var(--quick-pill-text)!important;
+  box-shadow:0 4px 11px rgba(75,130,165,.08)!important;
+}
+.quick-nav-button.is-active .quick-nav-label{
+  color:inherit!important;
+  font-weight:550!important;
+}
+
+/* General pills highlight ONLY while hovered/focused/pressed. */
+.quick-nav-button:hover,
+.quick-nav-button:focus-visible,
+.quick-nav-button.is-active:hover,
+.quick-nav-button.is-active:focus-visible,
+.quick-nav-button:active,
+.quick-nav-button.is-active:active{
+  background:var(--quick-new-badge)!important;
+  border-color:var(--quick-new-badge)!important;
+  color:#fff!important;
+  box-shadow:0 5px 13px rgba(75,157,208,.14)!important;
+  outline:none!important;
+}
+
+/* Inquiry is always last and always uses the exact NEW badge sky blue. */
+.quick-inquiry-button,
+.quick-inquiry-button.is-active,
+.quick-inquiry-button:hover,
+.quick-inquiry-button:focus-visible,
+.quick-inquiry-button:active{
+  margin-top:4px!important;
+  background:var(--quick-new-badge)!important;
+  border-color:var(--quick-new-badge)!important;
+  color:#fff!important;
+  box-shadow:0 6px 15px rgba(75,157,208,.15)!important;
+  outline:none!important;
+}
+.quick-inquiry-button .quick-nav-label,
+.quick-inquiry-button.is-active .quick-nav-label{
+  color:#fff!important;
+  font-weight:600!important;
+}
+
+/* The active-section dot remains on the unchanged connector despite the +5px pill shift. */
+.quick-nav-button.is-active::before,
+.quick-inquiry-button.is-active::before{
+  left:-23.5px!important;
+}
+@media(max-height:780px){
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-23px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-23px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1589,8 +1696,7 @@ function send(target){
 function listFrom(d){
  currentSummary=d||{};
  const list=[
-  {label:'공지사항',target:'notice'},
-  {label:'문의양식',target:'inquiry',inquiry:true}
+  {label:'공지사항',target:'notice'}
  ];
  if(d.hasFixed)list.push({label:'고정틀',target:'fixed'});
  if(d.hasPreset)list.push({label:'프리셋',target:'showcase'});
@@ -1600,6 +1706,7 @@ function listFrom(d){
  (Array.isArray(d.extraCategories)?d.extraCategories:[]).forEach(c=>{
   list.push({label:c.label,target:'portfolio:'+c.id})
  });
+ list.push({label:'문의양식',target:'inquiry',inquiry:true});
  return list
 }
 function normalizeActiveTarget(target){
