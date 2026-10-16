@@ -112,12 +112,115 @@ function presetMetaFor(x){
     isReserved:meta.isReserved===true,
     isReservable:meta.isReservable===true,
     isNoEdit:meta.isNoEdit===true,
+    seasonCategoryId:String(meta.seasonCategoryId||''),
     colorChangeAvailable:meta.colorChangeAvailable===true,
     showcaseKind:['preset','fixed'].includes(meta.showcaseKind)?meta.showcaseKind:'preset',
     featured:meta.featured===true,
     pairChild:meta.pairChild===true
   }
 }
+
+function defaultSeasonCategories(){
+  return [
+    {id:'halloween',label:'할로윈',enabled:true,badgeColor:'#A58BD5',textColor:'#FFFFFF',autoTextColor:false},
+    {id:'chuseok',label:'추석',enabled:true,badgeColor:'#E9B76A',textColor:'#FFFFFF',autoTextColor:false},
+    {id:'seollal',label:'설날',enabled:true,badgeColor:'#E98C8C',textColor:'#FFFFFF',autoTextColor:false},
+    {id:'childrens-day',label:'어린이날',enabled:true,badgeColor:'#8FC9E8',textColor:'#FFFFFF',autoTextColor:false},
+    {id:'christmas',label:'크리스마스',enabled:true,badgeColor:'#8DB99B',textColor:'#FFFFFF',autoTextColor:false}
+  ]
+}
+function ensureSeasonCategories(){
+  if(!Array.isArray(S.seasonCategories))S.seasonCategories=defaultSeasonCategories();
+  return S.seasonCategories
+}
+function seasonById(id){return ensureSeasonCategories().find(x=>x.id===id)}
+function presetSeasonOptions(selected=''){
+  return '<option value="">시즌 지정 없음</option>'+ensureSeasonCategories().map(x=>'<option value="'+adminEsc(x.id)+'" '+(x.id===selected?'selected':'')+'>'+adminEsc(x.label||x.id)+(x.enabled===false?' · 비공개':'')+'</option>').join('')
+}
+function autoContrastText(hex){
+  const v=normalizeHex6(hex)||'#8FC9E8',n=parseInt(v.slice(1),16),rr=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return (rr*299+g*587+b*114)/1000>160?'#344651':'#FFFFFF'
+}
+function collectPresetSeasonCats(){
+  const arr=ensureSeasonCategories();
+  arr.forEach((x,i)=>{
+    const oldId=String(x.id||'');
+    const label=document.querySelector('[data-season-label="'+i+'"]');
+    const id=document.querySelector('[data-season-id="'+i+'"]');
+    const bg=document.querySelector('[data-season-bg-hex="'+i+'"]');
+    const textInput=document.querySelector('[data-season-text-hex="'+i+'"]');
+    const enabled=document.querySelector('[data-season-enabled="'+i+'"]');
+    const auto=document.querySelector('[data-season-auto="'+i+'"]');
+    if(label)x.label=label.value.trim();
+    const nextId=id?.value.trim()||oldId;
+    if(nextId&&nextId!==oldId){
+      Object.values(ensurePresetMeta()).forEach(m=>{if(m?.seasonCategoryId===oldId)m.seasonCategoryId=nextId});
+      ensureFixedProducts().forEach(p=>{if(p.seasonCategoryId===oldId)p.seasonCategoryId=nextId});
+      x.id=nextId
+    }
+    const bgHex=normalizeHex6(bg?.value);if(bgHex)x.badgeColor=bgHex;
+    const textHex=normalizeHex6(textInput?.value);if(textHex)x.textColor=textHex;
+    if(enabled)x.enabled=enabled.checked;
+    if(auto)x.autoTextColor=auto.checked
+  })
+}
+function renderPresetSeasonCats(){
+  const root=$('presetSeasonCats');if(!root)return;
+  const arr=ensureSeasonCategories();
+  root.innerHTML=arr.map((x,i)=>{
+    const bg=normalizeHex6(x.badgeColor)||'#8FC9E8',textColor=normalizeHex6(x.textColor)||'#FFFFFF',actual=x.autoTextColor?autoContrastText(bg):textColor;
+    return '<div class="preset-season-admin-row">'+
+      '<label>이름<input data-season-label="'+i+'" value="'+adminEsc(x.label||'')+'"></label>'+
+      '<label>ID<input data-season-id="'+i+'" value="'+adminEsc(x.id||'')+'"></label>'+
+      '<label class="season-color-field">뱃지 배경<div class="season-color-control"><input type="color" data-season-bg-picker="'+i+'" value="'+bg.toLowerCase()+'"><input data-season-bg-hex="'+i+'" value="'+bg+'" maxlength="7"></div></label>'+
+      '<label class="season-color-field">글자색<div class="season-color-control"><input type="color" data-season-text-picker="'+i+'" value="'+textColor.toLowerCase()+'"><input data-season-text-hex="'+i+'" value="'+textColor+'" maxlength="7"></div></label>'+
+      '<div class="season-admin-options"><label class="mini-toggle"><input type="checkbox" data-season-auto="'+i+'" '+(x.autoTextColor?'checked':'')+'> 자동 대비</label><label class="mini-toggle"><input type="checkbox" data-season-enabled="'+i+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><span class="season-badge-preview" data-season-preview="'+i+'" style="background:'+bg+';color:'+actual+'">'+adminEsc(x.label||'시즌')+'</span></div>'+
+      '<div class="cat-order-controls"><button type="button" class="ghost cat-order-button" data-move-season="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-move-season="'+i+'" data-dir="1" '+(i===arr.length-1?'disabled':'')+'>↓</button></div>'+
+      '<button type="button" class="danger admin-compact" data-del-season="'+i+'">삭제</button>'+
+    '</div>'
+  }).join('')||'<p class="muted">등록된 시즌 카테고리가 없습니다.</p>';
+  const upload=$('presetUploadSeason');if(upload){const old=upload.value;upload.innerHTML=presetSeasonOptions(old);if([...upload.options].some(o=>o.value===old))upload.value=old}
+
+  const syncColor=(i,kind,value)=>{
+    const hex=normalizeHex6(value);if(!hex)return;
+    const picker=document.querySelector('[data-season-'+kind+'-picker="'+i+'"]');
+    const input=document.querySelector('[data-season-'+kind+'-hex="'+i+'"]');
+    if(picker)picker.value=hex.toLowerCase();if(input)input.value=hex;
+    const bg=normalizeHex6(document.querySelector('[data-season-bg-hex="'+i+'"]')?.value)||'#8FC9E8';
+    const tx=normalizeHex6(document.querySelector('[data-season-text-hex="'+i+'"]')?.value)||'#FFFFFF';
+    const auto=document.querySelector('[data-season-auto="'+i+'"]')?.checked;
+    const preview=document.querySelector('[data-season-preview="'+i+'"]');
+    if(preview){preview.style.background=bg;preview.style.color=auto?autoContrastText(bg):tx}
+  };
+  root.querySelectorAll('[data-season-bg-picker]').forEach(e=>e.oninput=()=>syncColor(+e.dataset.seasonBgPicker,'bg',e.value));
+  root.querySelectorAll('[data-season-text-picker]').forEach(e=>e.oninput=()=>syncColor(+e.dataset.seasonTextPicker,'text',e.value));
+  root.querySelectorAll('[data-season-bg-hex]').forEach(e=>e.oninput=()=>syncColor(+e.dataset.seasonBgHex,'bg',e.value));
+  root.querySelectorAll('[data-season-text-hex]').forEach(e=>e.oninput=()=>syncColor(+e.dataset.seasonTextHex,'text',e.value));
+  root.querySelectorAll('[data-season-auto]').forEach(e=>e.onchange=()=>syncColor(+e.dataset.seasonAuto,'bg',document.querySelector('[data-season-bg-hex="'+e.dataset.seasonAuto+'"]')?.value));
+  root.querySelectorAll('[data-season-label]').forEach(e=>e.oninput=()=>{const p=document.querySelector('[data-season-preview="'+e.dataset.seasonLabel+'"]');if(p)p.textContent=e.value||'시즌'});
+  root.querySelectorAll('[data-move-season]').forEach(b=>b.onclick=()=>{collectPresetSeasonCats();const i=+b.dataset.moveSeason,j=i+Number(b.dataset.dir);if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];renderPresetSeasonCats();renderFixedItems()});
+  root.querySelectorAll('[data-del-season]').forEach(b=>b.onclick=()=>{
+    collectPresetSeasonCats();const i=+b.dataset.delSeason,id=arr[i]?.id;if(!id)return;
+    if(!confirm('이 시즌 카테고리를 삭제할까요? 상품과 파일은 유지되고 시즌 지정만 해제됩니다.'))return;
+    Object.values(ensurePresetMeta()).forEach(m=>{if(m?.seasonCategoryId===id)m.seasonCategoryId=''});
+    ensureFixedProducts().forEach(p=>{if(p.seasonCategoryId===id)p.seasonCategoryId=''});
+    arr.splice(i,1);renderPresetSeasonCats();renderFixedItems();renderPresetItems()
+  })
+}
+async function saveSeasonCategoriesNow(){
+  collectPresetSeasonCats();
+  const saved=await queueSettingsMutation(latest=>{
+    latest.seasonCategories=JSON.parse(JSON.stringify(S.seasonCategories||[]));
+    latest.presetMeta=JSON.parse(JSON.stringify(S.presetMeta||{}));
+    latest.fixedProducts=JSON.parse(JSON.stringify(S.fixedProducts||[]));
+    delete latest.presetSeasonCategories
+  });
+  S.seasonCategories=saved.seasonCategories||[];
+  S.presetMeta=saved.presetMeta||{};
+  S.fixedProducts=saved.fixedProducts||[];
+  showToast('시즌 카테고리가 저장되었습니다.')
+}
+
 function ensurePortfolioMeta(){if(!S.portfolioMeta||typeof S.portfolioMeta!=='object'||Array.isArray(S.portfolioMeta))S.portfolioMeta={};return S.portfolioMeta}
 function portfolioMetaFor(x){const meta=ensurePortfolioMeta()[x.file]||{};return {profileType:['A','B'].includes(meta.profileType)?meta.profileType:'',bannerType:['A','B'].includes(meta.bannerType)?meta.bannerType:'B',enabled:meta.enabled!==false,featured:meta.featured===true,name:String(meta.name||''),description:String(meta.description||'')}}
 function isProfilePortfolioCategory(id){return /^profile(?:-|$)/.test(String(id||''))}
