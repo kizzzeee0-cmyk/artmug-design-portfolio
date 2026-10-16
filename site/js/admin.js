@@ -1062,7 +1062,7 @@ function catRow(c,i,prefix='cat'){
 function moveCategory(arr,prefix,index,dir){
   collectCats(arr,prefix);
   let next=index+dir;
-  if(prefix==='cat'){
+  if(prefix==='cat'||prefix==='preset'){
     const visible=arr.map((c,i)=>({c,i})).filter(x=>!x.c.hiddenLegacy).map(x=>x.i),pos=visible.indexOf(index);
     if(pos<0||pos+dir<0||pos+dir>=visible.length)return;
     next=visible[pos+dir]
@@ -1094,8 +1094,9 @@ function renderCats(){
   bindCategoryOrder(S.portfolioCategories||[],'cat')
 }
 function renderPresetCats(){
-  $('presetCats').innerHTML=(S.presetCategories||[]).map((c,i)=>catRow(c,i,'preset')).join('');
-  $('presetUploadCat').innerHTML=(S.presetCategories||[]).map(c=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
+  const cats=(S.presetCategories||[]).map((c,i)=>({c,i})).filter(x=>!x.c.hiddenLegacy);
+  $('presetCats').innerHTML=cats.map(({c,i})=>catRow(c,i,'preset')).join('');
+  $('presetUploadCat').innerHTML=cats.map(({c})=>`<option value="${adminEsc(c.id)}">${adminEsc(c.label)}</option>`).join('');
   document.querySelectorAll('[data-del-preset]').forEach(b=>b.onclick=()=>{collectCats(S.presetCategories||[],'preset');S.presetCategories.splice(+b.dataset.delPreset,1);renderPresetCats()});
   bindCategoryOrder(S.presetCategories||[],'preset');
   $('presetUploadCat').onchange=updatePresetUploadSelectors;
