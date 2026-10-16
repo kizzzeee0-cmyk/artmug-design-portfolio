@@ -945,18 +945,18 @@
       "priceScope": "",
       "previews": [
         {
-          "id": "preview-mvb380i3-d6hfkg",
-          "file": "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
-          "category": "profile",
-          "name": "",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvb38zjq-arckn5",
           "file": "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
           "category": "profile",
           "name": "디자인 03",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvb380i3-d6hfkg",
+          "file": "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
+          "category": "profile",
+          "name": "",
           "description": "",
           "enabled": true
         },
