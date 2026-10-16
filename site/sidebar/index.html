@@ -55,6 +55,61 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .quick-top-text{display:block;width:100%;font-size:7px;font-weight:800;line-height:1;text-align:center;letter-spacing:.01em}
 .loading{padding:10px 3px;text-align:center;color:#81909a;font-size:10px}
 @media(max-height:560px){body{align-items:flex-start;padding-top:12px;padding-bottom:12px}.quick-shell{top:12px;transform:none}}
+
+/* 2026-10-17 QUICK MENU CENTER + SAFE HEIGHT */
+body{
+  align-items:center!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  height:100vh!important;
+  height:100dvh!important;
+  padding-top:16px!important;
+  padding-bottom:16px!important;
+  overflow:hidden!important;
+}
+.quick-shell{
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  max-height:calc(100vh - 32px)!important;
+  max-height:calc(100dvh - 32px)!important;
+}
+.quick-menu-title,
+.quick-divider,
+.quick-inquiry-section,
+.quick-top-wrap{
+  flex:0 0 auto;
+}
+.nav-list{
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+}
+.nav-list::-webkit-scrollbar{display:none}
+@media(max-height:720px){
+  body{padding-top:14px!important;padding-bottom:14px!important}
+  .quick-shell{
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    max-height:calc(100vh - 28px)!important;
+    max-height:calc(100dvh - 28px)!important;
+    padding-top:12px!important;
+    padding-bottom:10px!important;
+  }
+  .quick-menu-title{margin-bottom:8px!important;font-size:12px!important}
+  .quick-divider.is-title{margin-bottom:8px!important}
+  .nav-list{gap:5px!important}
+  .quick-nav-button,
+  .quick-inquiry-button{min-height:32px!important;padding-top:5px!important;padding-bottom:5px!important;font-size:10.5px!important}
+  .quick-divider.is-action{margin:8px 0 7px!important}
+  .quick-inquiry-section + .quick-top-wrap{margin-top:4px!important}
+  .quick-top-wrap{min-height:34px!important}
+  .quick-top-button{width:34px!important;height:34px!important}
+  .quick-top-button::before{width:29px!important;height:29px!important}
+  .quick-top-content{width:29px!important;height:29px!important}
+}
 </style>
 </head>
 <body>
@@ -72,7 +127,7 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v11';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v12';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null;
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
@@ -102,6 +157,10 @@ function summarize(settings,index,presets){
   .map(c=>({id:c.id,label:String(c.label||c.id)}));
  return {
   hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.length>0,
+  hasFixed:settings.fixedEnabled!==false&&(
+   (Array.isArray(settings.fixedProducts)&&settings.fixedProducts.some(p=>p&&p.enabled!==false&&Array.isArray(p.previews)&&p.previews.some(v=>v&&v.file&&v.enabled!==false)))||
+   (Array.isArray(presets)&&presets.some(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&(pm[x.file]||{}).showcaseKind==='fixed'))
+  ),
   hasBanner:bannerWorks.length>0,
   bannerIds,
   profile:profile?{id:profile.id,label:'움짤프사'}:null,
@@ -118,7 +177,12 @@ function send(target){
 function listFrom(d){
  currentSummary=d||{};
  const list=[{label:'공지사항',target:'notice'}];
- if(d.hasPreset)list.push({label:'프리셋',target:'showcase'});
+ if(d.hasFixed||d.hasPreset){
+  list.push({
+   label:d.hasFixed&&d.hasPreset?'고정틀 · 프리셋':d.hasFixed?'고정틀':'프리셋',
+   target:d.hasFixed?'fixed':'showcase'
+  })
+ }
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
@@ -128,7 +192,8 @@ function listFrom(d){
 }
 function normalizeActiveTarget(target){
  target=String(target||'');
- if(target.startsWith('showcase-'))return'showcase';
+ if(target.startsWith('showcase-'))target='showcase';
+ if(currentSummary.hasFixed&&currentSummary.hasPreset&&(target==='fixed'||target==='showcase'))return'fixed';
  if(target==='banner:A'||target==='banner:B'||target==='banner:all')return'banner:all';
  if(target.startsWith('portfolio:')){
   const id=target.split(':')[1];
