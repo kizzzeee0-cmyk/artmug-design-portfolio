@@ -948,6 +948,52 @@ body{
   }
 }
 
+
+/* 2026-10-17 QUICK MENU LABEL COLUMN ALIGNMENT V4 */
+/* Center the icon+label group while keeping every label start point identical. */
+.quick-nav-button,
+.quick-inquiry-button{
+  grid-template-columns:46px 90px!important;
+  justify-content:center!important;
+  column-gap:5px!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+.quick-nav-label{
+  width:90px!important;
+  min-width:90px!important;
+  max-width:90px!important;
+  justify-self:start!important;
+  align-self:center!important;
+  padding-right:0!important;
+  margin:0!important;
+  text-align:left!important;
+}
+@media(max-height:780px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    grid-template-columns:43px 88px!important;
+    column-gap:5px!important;
+  }
+  .quick-nav-label{
+    width:88px!important;
+    min-width:88px!important;
+    max-width:88px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    grid-template-columns:40px 84px!important;
+    column-gap:4px!important;
+  }
+  .quick-nav-label{
+    width:84px!important;
+    min-width:84px!important;
+    max-width:84px!important;
+  }
+}
+
 </style>
 </head>
 <body>
