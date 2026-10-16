@@ -114,21 +114,10 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
   cursor:pointer;
   box-shadow:none
 }
-.quick-inquiry-button .quick-nav-icon{color:#fff}
 .quick-inquiry-button:hover,.quick-inquiry-button:focus-visible{background:#79badd;border-color:#79badd;color:#fff;outline:none}
 .quick-inquiry-button.is-active{background:#69add2;border-color:#69add2;color:#fff}
 .quick-inquiry-section + .quick-top-wrap{margin-top:11px}
 .quick-inquiry-section[hidden] + .quick-top-wrap{margin-top:0}
-.quick-nav-icon{
-  width:19px;
-  height:19px;
-  flex:0 0 19px;
-  display:grid;
-  place-items:center;
-  color:#8fc9e8
-}
-.quick-nav-icon svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.quick-nav-balance{width:19px;height:1px;justify-self:center}
 .quick-nav-label{grid-column:2;min-width:0;overflow-wrap:anywhere;text-align:center;justify-self:stretch}
 .quick-top-wrap{display:flex;justify-content:center;align-items:center;min-height:44px}
 .quick-top-button{
@@ -176,9 +165,7 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
   .quick-divider.is-title{margin-bottom:11px}
   .nav-list{gap:7px}
   .quick-nav-button{grid-template-columns:16px minmax(0,1fr) 16px;min-height:36px;padding:6px 10px;column-gap:7px;font-size:11px}
-  .quick-nav-icon{width:16px;height:16px;flex-basis:16px}
-  .quick-nav-balance{width:16px}
-  .quick-divider.is-action{margin:12px 0 10px}
+      .quick-divider.is-action{margin:12px 0 10px}
   .quick-inquiry-button{grid-template-columns:16px minmax(0,1fr) 16px;min-height:36px;padding:6px 10px;column-gap:7px;font-size:11px}
   .quick-inquiry-section + .quick-top-wrap{margin-top:9px}
   .quick-top-wrap{min-height:40px}
@@ -302,9 +289,6 @@ body{
   text-align:center!important;
 }
 .quick-nav-icon,
-.quick-nav-balance{
-  display:none!important;
-}
 .quick-nav-label{
   grid-column:auto!important;
   width:100%;
