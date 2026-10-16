@@ -2060,7 +2060,16 @@ async function replaceFixedProductPreview(i,j){
   try{
    await persistFixedProducts('');
   }catch(e){await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});v.file=oldPath;throw e}
-  try{await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})})}catch(e){showToast('새 파일은 반영됐지만 기존 파일 삭제에 실패했습니다.','error')}
+  try{
+   await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})})
+  }catch(e){
+   const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
+    latest.presetMeta[oldPath]={...(latest.presetMeta[oldPath]||{}),enabled:false,showcaseKind:'fixed',pairChild:true,fixedProductId:''}
+   }).catch(()=>null);
+   if(saved)S.presetMeta=saved.presetMeta||S.presetMeta||{};
+   showToast('새 파일은 반영됐지만 기존 파일 삭제에 실패해 숨김 처리했습니다.','error')
+  }
   fixedProductOpenIds.add(p.id);renderFixedItems();showToast('미리보기 파일을 교체했습니다.')
  }catch(e){alert('파일 교체에 실패했습니다.\n'+e.message)}
 }
