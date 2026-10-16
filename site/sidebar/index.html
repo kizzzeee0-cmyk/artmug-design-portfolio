@@ -205,6 +205,7 @@ function iconSvg(item){
  const target=String(item?.target||''),label=String(item?.label||'');
  const common='viewBox="0 0 24 24" aria-hidden="true"';
  if(target==='notice'||label.includes('공지'))return '<svg '+common+'><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
+ if(target==='fixed'||label.includes('고정틀'))return '<svg '+common+'><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>';
  if(target==='showcase'||label.includes('프리셋'))return '<svg '+common+'><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H10.4v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-3.2h-.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h3.2v.1A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.35.28.57.67.6 1.1v.3h.1V13.6H20a1.7 1.7 0 0 0-.6 1.4Z"/></svg>';
  if(target.startsWith('portfolio:')&&label.includes('움짤'))return '<svg '+common+'><circle cx="12" cy="8" r="3"/><path d="M5.5 19c.8-3.8 3.1-6 6.5-6s5.7 2.2 6.5 6"/></svg>';
  if(target==='banner:all'||label.includes('배너'))return '<svg '+common+'><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="m5.5 17 4.1-4 3.1 2.7 2.2-2.1 3.6 3.4"/></svg>';
