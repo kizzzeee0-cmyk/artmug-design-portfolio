@@ -2764,3 +2764,63 @@ body.artmug-part-portfolio #inquirySection{
     line-height:1.2!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-17 FIXED PATTERN "OTHER" INLINE INPUT
+   Keep 기타 and its short direct-input field together.
+   ========================================================= */
+.v2-fixed-pattern-choices{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+.v2-fixed-pattern-other-group{
+  display:inline-flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  gap:6px!important;
+  white-space:nowrap!important;
+}
+.v2-fixed-pattern-other{
+  display:inline-flex!important;
+  grid-template-columns:none!important;
+  align-items:center!important;
+  gap:6px!important;
+  width:auto!important;
+  margin:0!important;
+  color:#607684;
+  font-size:10.5px;
+  font-weight:600;
+  white-space:nowrap!important;
+}
+.v2-fixed-pattern-other>span{
+  flex:0 0 auto!important;
+}
+.v2-fixed-pattern-other input{
+  width:118px!important;
+  min-width:0!important;
+  max-width:118px!important;
+  min-height:36px!important;
+  flex:0 0 118px!important;
+  padding:7px 10px!important;
+}
+@media(max-width:680px){
+  .v2-fixed-pattern-other-group{
+    gap:4px!important;
+  }
+  .v2-fixed-pattern-other{
+    display:inline-flex!important;
+    grid-template-columns:none!important;
+    gap:4px!important;
+    font-size:9.5px!important;
+  }
+  .v2-fixed-pattern-other input{
+    width:92px!important;
+    max-width:92px!important;
+    flex-basis:92px!important;
+    min-height:34px!important;
+    padding:6px 8px!important;
+  }
+}

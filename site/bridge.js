@@ -7,6 +7,11 @@
   const sectionMaps=new Map();
   let activeRaf=0;
   const quickNavFrames=new WeakMap();
+  const QUICK_NAV_TOP=110;
+
+  function quickNavRightGap(){
+    return Math.max(80,Math.round(Math.max(0,(window.innerWidth-1500)/2)+60))
+  }
 
   function isDesktopQuickNavFrame(frame){
     try{
@@ -18,7 +23,7 @@
   function restoreQuickNavFrame(frame){
     const saved=quickNavFrames.get(frame);
     if(!saved)return;
-    ['position','top','right','left','z-index','width','max-width','margin'].forEach(function(prop){
+    ['position','top','right','left','transform','z-index','width','max-width','margin'].forEach(function(prop){
       const value=saved[prop];
       if(value)frame.style.setProperty(prop,value.value,value.priority||'');
       else frame.style.removeProperty(prop)
@@ -42,7 +47,7 @@
       const rect=frame.getBoundingClientRect();
       const style=frame.style;
       saved={};
-      ['position','top','right','left','z-index','width','max-width','margin'].forEach(function(prop){
+      ['position','top','right','left','transform','z-index','width','max-width','margin'].forEach(function(prop){
         const value=style.getPropertyValue(prop),priority=style.getPropertyPriority(prop);
         saved[prop]=value?{value,priority}:null
       });
@@ -53,11 +58,12 @@
       quickNavFrames.set(frame,saved)
     }
 
-    const followerRightGap=30;
+    const followerRightGap=quickNavRightGap();
     frame.style.setProperty('position','fixed','important');
-    frame.style.setProperty('top','clamp(210px,29vh,335px)','important');
+    frame.style.setProperty('top',QUICK_NAV_TOP+'px','important');
     frame.style.setProperty('right',followerRightGap+'px','important');
     frame.style.setProperty('left','auto','important');
+    frame.style.setProperty('transform','none','important');
     frame.style.setProperty('z-index','50','important');
     frame.style.setProperty('width',saved.width+'px','important');
     frame.style.setProperty('max-width','calc(100vw - 16px)','important');

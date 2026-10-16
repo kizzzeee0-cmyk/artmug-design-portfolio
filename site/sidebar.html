@@ -587,6 +587,107 @@ body{
     font-size:8.5px!important;
   }
 }
+
+/* 2026-10-17 QUICK MENU FINAL ALIGNMENT + CTA EMPHASIS */
+.quick-shell{
+  padding-top:48px!important;
+}
+.quick-shell::before{
+  top:49px!important;
+}
+.quick-work-status{
+  top:2px!important;
+  right:8px!important;
+}
+
+/* Slightly smaller, lighter menu typography. */
+.quick-nav-label{
+  font-size:14px!important;
+  font-weight:400!important;
+}
+.quick-inquiry-button .quick-nav-label{
+  font-size:14.5px!important;
+  font-weight:500!important;
+}
+
+/* Inquiry is emphasized without a pre-filled blue CTA. */
+.quick-inquiry-button{
+  border-color:#c7e2f1!important;
+  background:#fff!important;
+  color:#4f88a8!important;
+  box-shadow:0 4px 12px rgba(75,157,208,.07)!important;
+}
+.quick-inquiry-button:hover,
+.quick-inquiry-button:focus-visible,
+.quick-inquiry-button.is-active{
+  border-color:#9fd1ea!important;
+  background:#f2f9fd!important;
+  color:#3f7898!important;
+  box-shadow:0 4px 12px rgba(75,157,208,.09)!important;
+}
+.quick-inquiry-button .quick-nav-icon{
+  border-color:#d8eaf4!important;
+  background:#f8fcfe!important;
+  color:#5d9fc5!important;
+  box-shadow:none!important;
+}
+.quick-inquiry-button .quick-nav-label{
+  color:inherit!important;
+}
+
+/* TOP + arrow: remove every optical X-offset and center the group mathematically. */
+.quick-top-wrap{
+  padding-left:0!important;
+  justify-content:center!important;
+}
+.quick-top-button{
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+}
+.quick-top-content{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-rows:auto auto!important;
+  place-content:center!important;
+  justify-items:center!important;
+  align-items:center!important;
+  gap:3px!important;
+  margin:0!important;
+  transform:none!important;
+}
+.quick-top-arrow,
+.quick-top-arrow svg,
+.quick-top-text{
+  margin-left:auto!important;
+  margin-right:auto!important;
+  transform:none!important;
+}
+.quick-top-text{
+  padding:0!important;
+  text-align:center!important;
+  font-size:8.5px!important;
+  font-weight:400!important;
+}
+
+@media(max-height:780px){
+  .quick-shell{padding-top:46px!important}
+  .quick-shell::before{top:47px!important}
+  .quick-nav-label{font-size:13.5px!important}
+  .quick-inquiry-button .quick-nav-label{font-size:14px!important}
+  .quick-top-text{font-size:8px!important}
+}
+@media(max-height:640px){
+  .quick-shell{padding-top:46px!important}
+  .quick-shell::before{top:47px!important}
+  .quick-nav-label{font-size:12.5px!important}
+  .quick-inquiry-button .quick-nav-label{font-size:13px!important}
+  .quick-top-text{font-size:7.5px!important}
+}
+
 </style>
 </head>
 <body>
