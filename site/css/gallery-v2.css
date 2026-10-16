@@ -2540,3 +2540,102 @@ body.artmug-part-portfolio #inquirySection{
     margin:0 4px;
   }
 }
+
+
+/* =========================================================
+   2026-10-17 MOBILE FIXED PRODUCT: PORTFOLIO-SIZED 4-UP
+   ========================================================= */
+@media(max-width:680px){
+  /* Make the whole fixed-template section/card denser on mobile. */
+  .seasonal-fixed-section{
+    padding:14px 10px!important;
+    border-radius:19px!important;
+  }
+  .seasonal-fixed-section>h2{
+    font-size:18px!important;
+    margin-bottom:7px!important;
+  }
+  .fixed-section-copy{
+    margin-bottom:10px!important;
+  }
+  .fixed-product-list{
+    gap:10px!important;
+  }
+  .fixed-product-card{
+    padding:11px 1px 10px!important;
+    border-radius:15px!important;
+  }
+  .fixed-product-card-head{
+    gap:4px!important;
+    margin-bottom:10px!important;
+    padding-inline:9px;
+  }
+  .fixed-product-title-row h3{
+    font-size:14.5px!important;
+  }
+  .fixed-product-title-price{
+    font-size:12px!important;
+  }
+  .fixed-product-card-head p{
+    font-size:10px!important;
+    line-height:1.45!important;
+  }
+  .fixed-product-price-meta{
+    font-size:8.3px!important;
+  }
+
+  /* Portfolio profile category is 4 columns on mobile.
+     Use the same effective item width and center 1-3 previews. */
+  .fixed-product-preview-grid.is-square-only{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    justify-content:center!important;
+    align-items:flex-start!important;
+    width:100%!important;
+    max-width:none!important;
+    gap:8px!important;
+    padding:0!important;
+  }
+  .fixed-product-preview-grid.is-square-only>.fixed-product-preview{
+    flex:0 0 calc((100% - 24px) / 4)!important;
+    width:calc((100% - 24px) / 4)!important;
+    min-width:0!important;
+  }
+  .fixed-product-preview-grid.is-square-only .fixed-product-preview-media{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+  .fixed-product-preview-grid[style*="--fixed-product-cols:1"]>.fixed-preview-layout-profile{
+    width:auto!important;
+  }
+  .fixed-product-preview figcaption strong{
+    font-size:8.5px!important;
+    line-height:1.3!important;
+  }
+  .fixed-product-preview figcaption p{
+    font-size:7.8px!important;
+    line-height:1.35!important;
+  }
+
+  /* Keep compact option text aligned with the smaller card. */
+  .fixed-product-options{
+    margin:9px 8px 0!important;
+    padding-top:9px!important;
+    gap:4px!important;
+  }
+  .fixed-product-option-heading{
+    min-height:19px!important;
+    padding:2px 6px!important;
+    font-size:8.4px!important;
+  }
+  .fixed-product-option-summary{
+    font-size:8.8px!important;
+    line-height:1.4!important;
+  }
+  .fixed-product-note{
+    margin:8px 8px 0!important;
+    padding:7px 8px!important;
+    font-size:8.8px!important;
+  }
+}
