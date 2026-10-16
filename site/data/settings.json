@@ -780,15 +780,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif": {
-      "name": "그린 / 클로버",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif": {
       "name": "핑크 / 하트",
       "description": "",
@@ -815,6 +806,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261016161552-18h9sj79wvdx9-____________1_.gif": {
+      "name": "그린 / 클로버",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -822,7 +822,7 @@
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
     "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
-    "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
+    "preset/fixed-store-profile/20261016161552-18h9sj79wvdx9-____________1_.gif",
     "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
     "preset/fixed-store-profile/20261016155124-13wtazr1cm1n41-_______1_.gif",
     "preset/fixed-store-profile/20261016160300-1jywrrpi8i2l5-_______1_.gif"
@@ -994,7 +994,7 @@
         },
         {
           "id": "preview-mvb38mh3-o64jih",
-          "file": "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
+          "file": "preset/fixed-store-profile/20261016161552-18h9sj79wvdx9-____________1_.gif",
           "category": "profile",
           "name": "그린 / 클로버",
           "description": "",
