@@ -2284,6 +2284,79 @@ body{
   color:#fff!important;
 }
 
+
+/* 2026-10-17 EXACT CIRCLE AXIS + TOP UP V26 */
+:root{
+  --quick-circle-axis-x:9px;
+}
+
+/* Use one shared integer-pixel axis for the connector, every icon circle and TOP. */
+.quick-connector-line{
+  left:8.25px!important;
+  width:1.5px!important;
+}
+
+/* 46px icon column center = 23px, so -14px + 23px = shared 9px axis. */
+.nav-list{
+  margin-left:-14px!important;
+}
+.quick-nav-button,
+.quick-inquiry-button{
+  grid-template-columns:46px minmax(0,1fr)!important;
+}
+.quick-nav-icon,
+.quick-inquiry-button .quick-nav-icon{
+  justify-self:center!important;
+  align-self:center!important;
+  box-sizing:border-box!important;
+}
+
+/* TOP circle center uses the exact same 9px axis. */
+.quick-top-wrap{
+  left:var(--quick-circle-axis-x)!important;
+  margin-left:0!important;
+  transform:translateX(-50%)!important;
+  justify-content:center!important;
+}
+.quick-top-button{
+  align-self:center!important;
+  justify-self:center!important;
+  box-sizing:border-box!important;
+}
+
+/* Move arrow + TOP label upward together by exactly 1px. */
+.quick-top-content{
+  transform:translateY(-1px)!important;
+}
+
+/* Keep the same shared axis on shorter screens too. */
+@media(max-height:780px){
+  .quick-connector-line{
+    left:8.25px!important;
+    width:1.5px!important;
+  }
+  .nav-list{
+    margin-left:-14px!important;
+  }
+  .quick-top-wrap{
+    left:var(--quick-circle-axis-x)!important;
+    transform:translateX(-50%)!important;
+  }
+}
+@media(max-height:640px){
+  .quick-connector-line{
+    left:8.25px!important;
+    width:1.5px!important;
+  }
+  .nav-list{
+    margin-left:-14px!important;
+  }
+  .quick-top-wrap{
+    left:var(--quick-circle-axis-x)!important;
+    transform:translateX(-50%)!important;
+  }
+}
+
 </style>
 </head>
 <body>
