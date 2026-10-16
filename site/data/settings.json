@@ -953,18 +953,18 @@
           "enabled": true
         },
         {
-          "id": "preview-mvb38mh3-o64jih",
-          "file": "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
-          "category": "profile",
-          "name": "",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvb38zjq-arckn5",
           "file": "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
           "category": "profile",
           "name": "디자인 03",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvb38mh3-o64jih",
+          "file": "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
+          "category": "profile",
+          "name": "",
           "description": "",
           "enabled": true
         }
