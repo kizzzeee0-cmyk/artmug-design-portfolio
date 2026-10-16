@@ -1832,6 +1832,154 @@ body{
   }
 }
 
+
+/* 2026-10-17 ICON + TOP SIZE/AXIS POLISH V22 */
+/* One shared circle size: TOP becomes slightly smaller and every menu icon matches it. */
+.quick-nav-icon,
+.quick-top-button{
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+}
+
+/* Keep every menu-icon circle centered exactly on the connector axis (x = 8.75px). */
+.nav-list{
+  margin-left:-14.25px!important;
+}
+.quick-nav-button,
+.quick-inquiry-button{
+  grid-template-columns:46px minmax(0,1fr)!important;
+}
+
+/* Make the glyphs a little larger inside the newly unified circles. */
+.quick-nav-icon svg{
+  width:21px!important;
+  height:21px!important;
+  stroke-width:1.8!important;
+}
+
+/* TOP circle shares the exact same connector-axis center as the icon circles. */
+.quick-top-wrap{
+  width:40px!important;
+  min-width:40px!important;
+  margin-left:0!important;
+  left:8.75px!important;
+  transform:translateX(-50%)!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+}
+
+/* Treat arrow + TOP as one centered unit inside the circle. */
+.quick-top-button{
+  padding:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.quick-top-content{
+  position:static!important;
+  inset:auto!important;
+  width:auto!important;
+  height:auto!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+  transform:none!important;
+}
+.quick-top-arrow{
+  width:12px!important;
+  height:8px!important;
+  margin:0!important;
+  padding:0!important;
+  display:block!important;
+}
+.quick-top-arrow svg{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  margin:0!important;
+}
+.quick-top-text{
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+  text-align:center!important;
+  font-size:9.2px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  transform:none!important;
+}
+
+/* Move the work/sleep speech bubble left toward the notice pill's upper-right corner. */
+.quick-work-status{
+  right:34px!important;
+}
+
+/* Short screens: TOP and all icon circles always stay exactly the same size as each other. */
+@media(max-height:780px){
+  .quick-nav-icon,
+  .quick-top-button{
+    width:37px!important;
+    height:37px!important;
+    min-width:37px!important;
+    min-height:37px!important;
+  }
+  .quick-nav-icon svg{
+    width:20px!important;
+    height:20px!important;
+  }
+  .quick-top-wrap{
+    width:37px!important;
+    min-width:37px!important;
+    left:8.75px!important;
+    transform:translateX(-50%)!important;
+  }
+  .quick-top-arrow{
+    width:11px!important;
+    height:7px!important;
+  }
+  .quick-top-text{
+    font-size:8.8px!important;
+    font-weight:650!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-icon,
+  .quick-top-button{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+  }
+  .quick-nav-icon svg{
+    width:19px!important;
+    height:19px!important;
+  }
+  .quick-top-wrap{
+    width:34px!important;
+    min-width:34px!important;
+    left:8.75px!important;
+    transform:translateX(-50%)!important;
+  }
+  .quick-top-arrow{
+    width:10px!important;
+    height:7px!important;
+  }
+  .quick-top-text{
+    font-size:8.4px!important;
+    font-weight:650!important;
+  }
+}
+
 </style>
 </head>
 <body>
