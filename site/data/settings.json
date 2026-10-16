@@ -809,7 +809,7 @@
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedProductId": "legacy-mvb6nutx-x6qpws",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
@@ -818,7 +818,7 @@
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedProductId": "legacy-mvb6nutx-1ne9vx",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     }
@@ -1017,6 +1017,58 @@
         {
           "id": "preview-mvb5po2z-2xe0vs",
           "file": "preset/fixed-store-profile/20261016160300-1jywrrpi8i2l5-_______1_.gif",
+          "category": "profile",
+          "name": "브라운 / 도트",
+          "description": "",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "legacy-mvb6nutx-x6qpws",
+      "name": "옐로우 / 별",
+      "description": "",
+      "enabled": true,
+      "pcColumns": 5,
+      "mobileColumns": 2,
+      "showPreviewNames": true,
+      "changeableOptions": [],
+      "fixedOptions": [],
+      "note": "",
+      "price": 0,
+      "priceVisible": true,
+      "priceNote": "",
+      "priceScope": "",
+      "previews": [
+        {
+          "id": "preview-mvb6nutx-lrugul",
+          "file": "preset/fixed-store-profile/20261016162832-4iflho16n26g2-_________.gif",
+          "category": "profile",
+          "name": "옐로우 / 별",
+          "description": "",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "legacy-mvb6nutx-1ne9vx",
+      "name": "브라운 / 도트",
+      "description": "",
+      "enabled": true,
+      "pcColumns": 5,
+      "mobileColumns": 2,
+      "showPreviewNames": true,
+      "changeableOptions": [],
+      "fixedOptions": [],
+      "note": "",
+      "price": 0,
+      "priceVisible": true,
+      "priceNote": "",
+      "priceScope": "",
+      "previews": [
+        {
+          "id": "preview-mvb6nutx-3plq6d",
+          "file": "preset/fixed-store-profile/20261016162838-1onhusktqodwy-________1_.gif",
           "category": "profile",
           "name": "브라운 / 도트",
           "description": "",
