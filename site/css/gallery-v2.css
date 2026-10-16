@@ -2639,3 +2639,61 @@ body.artmug-part-portfolio #inquirySection{
     font-size:8.8px!important;
   }
 }
+
+
+/* =========================================================
+   2026-10-17 FIXED INQUIRY CHOICE STYLE ALIGNMENT
+   Match fixed-product selection to the standard inquiry choices.
+   ========================================================= */
+.contact-form .v2-fixed-product-select > legend + .v2-fixed-product-grid{
+  margin-top:8px!important;
+}
+.v2-fixed-product-grid{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+}
+.v2-fixed-product-grid button{
+  min-height:40px!important;
+  padding:8px 14px!important;
+  border:1px solid #dce5ee!important;
+  border-radius:12px!important;
+  background:#ffffff!important;
+  color:#687685!important;
+  font-family:inherit!important;
+  font-size:12.5px!important;
+  font-weight:500!important;
+  line-height:1.35!important;
+  box-shadow:none!important;
+}
+.v2-fixed-product-grid button span{
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  color:inherit!important;
+}
+.v2-fixed-product-grid button.is-selected{
+  background:#eaf4ff!important;
+  border-color:#8fc8e8!important;
+  color:#477d9d!important;
+  box-shadow:none!important;
+}
+@media(min-width:681px){
+  .v2-fixed-product-grid button,
+  .v2-fixed-product-grid button span{
+    font-size:15px!important;
+  }
+}
+@media(max-width:680px){
+  .v2-fixed-product-grid{
+    gap:8px!important;
+  }
+  .v2-fixed-product-grid button{
+    min-height:38px!important;
+    padding:8px 12px!important;
+    font-size:12.5px!important;
+  }
+  .v2-fixed-product-grid button span{
+    font-size:12.5px!important;
+  }
+}
