@@ -925,27 +925,20 @@
       "showPreviewNames": true,
       "changeableOptions": [
         {
-          "id": "opt-mvb31c5t-u5ffmg",
+          "id": "opt-mvb485a0-z6r1on",
           "label": "패턴 장식 변경",
           "detail": "",
-          "choices": [
-            "하트",
-            "클로버",
-            "별",
-            "네모",
-            "도트",
-            "etc"
-          ]
+          "choices": []
         },
         {
-          "id": "opt-mvb3ay0u-0385dl",
+          "id": "opt-mvb489jt-21jtph",
           "label": "원형 프레임",
           "detail": "",
           "choices": []
         },
         {
-          "id": "opt-mvb3b72v-how5p3",
-          "label": "전환효과 및 애니메이션",
+          "id": "opt-mvb48da4-9po3gc",
+          "label": "전환 효과 및 파티클",
           "detail": "",
           "choices": []
         }
