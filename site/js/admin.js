@@ -1889,6 +1889,7 @@ async function persistFixedProducts(message='고정틀 상품이 저장되었습
  const saved=await queueSettingsMutation(latest=>{
   stripSeasonData(latest);stripSeasonData(S);
   latest.fixedProducts=JSON.parse(JSON.stringify(S.fixedProducts||[]));
+  latest.fixedInquiryPatternProductId=String(S.fixedInquiryPatternProductId||'');
   latest.presetMeta=JSON.parse(JSON.stringify(S.presetMeta||{}));
   latest.presetOrder=JSON.parse(JSON.stringify(S.presetOrder||[]));
   latest.fixedCategories=JSON.parse(JSON.stringify(S.fixedCategories||[]));
@@ -2000,6 +2001,7 @@ async function deleteFixedProductPreview(i,j){
 }
 async function deleteFixedProduct(i){
  const p=collectFixedProductFromDom(i);if(!p||!confirm('"'+p.name+'" 상품과 등록된 미리보기 파일을 모두 삭제할까요?'))return;
+ if(String(S.fixedInquiryPatternProductId||'')===String(p.id||''))S.fixedInquiryPatternProductId='';
  const failed=[],deleted=[];
  for(const v of p.previews){
   try{await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:v.file})});deleted.push(v.file)}
