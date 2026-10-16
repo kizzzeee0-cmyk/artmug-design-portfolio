@@ -506,6 +506,96 @@
         "jpeg",
         "webp"
       ]
+    },
+    {
+      "id": "fixed-store-profile",
+      "label": "고정틀 저장 · 움짤프사",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
+    {
+      "id": "fixed-store-top-banner",
+      "label": "고정틀 저장 · 상단배너",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
+    {
+      "id": "fixed-store-floating-banner",
+      "label": "고정틀 저장 · 플로팅배너",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
+    {
+      "id": "fixed-store-bottom-banner",
+      "label": "고정틀 저장 · 하단배너 일반",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
+    {
+      "id": "fixed-store-bottom-split",
+      "label": "고정틀 저장 · 하단배너 분할",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
+    {
+      "id": "fixed-store-four-cut",
+      "label": "고정틀 저장 · 인생네컷",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
     }
   ],
   "footerText": "상업 작업 포트폴리오 · 무단 사용 및 재배포 금지",
@@ -794,5 +884,23 @@
   "authorName": "CHILGONG DESIGN",
   "scheduleDateColor": "#69ADD2",
   "fixedNotice": "",
-  "fixedProducts": []
+  "fixedProducts": [
+    {
+      "id": "product-mvb2jx7t-2gb2f6",
+      "name": "새 고정틀",
+      "description": "",
+      "enabled": true,
+      "pcColumns": 5,
+      "mobileColumns": 2,
+      "showPreviewNames": true,
+      "changeableOptions": [],
+      "fixedOptions": [],
+      "note": "",
+      "price": 0,
+      "priceVisible": true,
+      "priceNote": "",
+      "priceScope": "",
+      "previews": []
+    }
+  ]
 }
