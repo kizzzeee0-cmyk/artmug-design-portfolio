@@ -387,13 +387,12 @@ async function publicFixedProducts(){
  return [...configured,...legacy].filter(p=>p.enabled&&p.previews.length)
 }
 function fixedOptionPublicHtml(title,items,kind){
- if(!items.length)return'';
- return '<section class="fixed-product-option-group '+kind+'"><h4>'+esc(title)+'</h4><div class="fixed-product-option-list">'+items.map(o=>
-  '<div class="fixed-product-option-item"><span class="fixed-product-option-pill">'+esc(o.label)+'</span>'+
-  (o.detail?'<p>'+esc(o.detail)+'</p>':'')+
-  (o.choices.length?'<div class="fixed-product-choice-list">'+o.choices.map(c=>'<span>'+esc(c)+'</span>').join('')+'</div>':'')+
-  '</div>'
- ).join('')+'</div></section>'
+ const labels=(Array.isArray(items)?items:[]).map(o=>String(o?.label||'').trim()).filter(Boolean);
+ if(!labels.length)return'';
+ return '<section class="fixed-product-option-group '+kind+'">'+
+  '<span class="fixed-product-option-heading">'+esc(title)+'</span>'+
+  '<div class="fixed-product-option-summary">'+labels.map(label=>'<span>'+esc(label)+'</span>').join('<i aria-hidden="true">·</i>')+'</div>'+
+ '</section>'
 }
 function fixedPreviewPublicHtml(v,p){
  const cfg=fixedPreviewDisplayConfig(v.category),ratio=cfg.known?'aspect-ratio:'+cfg.width+'/'+cfg.height+';':'';
@@ -416,7 +415,7 @@ function fixedProductPublicCard(p){
    (p.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
   '</header>'+
   '<div class="fixed-product-preview-grid '+(squareOnly?'is-square-only':'')+'" style="--fixed-product-cols:'+cols+'">'+previews.map(v=>fixedPreviewPublicHtml(v,p)).join('')+'</div>'+
-  ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('변경 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('변경 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
+  ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('수정 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('수정 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
   (p.note?'<p class="fixed-product-note">'+esc(p.note)+'</p>':'')+
  '</article>'
 }
