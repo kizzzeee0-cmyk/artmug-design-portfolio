@@ -157,6 +157,61 @@ body{
     max-height:calc(100dvh - 36px)!important;
   }
 }
+
+/* 2026-10-17 QUICK MENU NO ICONS + NO INNER SCROLL */
+.quick-nav-button,
+.quick-inquiry-button{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  grid-template-columns:none!important;
+  column-gap:0!important;
+  text-align:center!important;
+}
+.quick-nav-icon,
+.quick-nav-balance{
+  display:none!important;
+}
+.quick-nav-label{
+  grid-column:auto!important;
+  width:100%;
+  min-width:0;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+}
+.nav-list{
+  overflow:visible!important;
+  min-height:auto!important;
+  scrollbar-width:auto!important;
+}
+.nav-list::-webkit-scrollbar{display:none}
+.quick-shell{
+  max-height:none!important;
+  overflow:visible!important;
+}
+@media(max-height:720px){
+  .quick-shell{
+    transform:translateY(-18px)!important;
+  }
+}
+@media(max-height:600px){
+  .quick-shell{
+    transform:translateY(-24px)!important;
+  }
+}
+@media(max-width:165px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  .quick-nav-label{
+    font-size:10.5px!important;
+    letter-spacing:-.02em;
+  }
+}
 </style>
 </head>
 <body>
@@ -172,14 +227,14 @@ body{
   </div>
   <div id="quickInquirySection" class="quick-inquiry-section" hidden>
     <div class="quick-divider is-action" aria-hidden="true"></div>
-    <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-icon"></span><span class="quick-nav-label">문의양식</span><span class="quick-nav-balance" aria-hidden="true"></span></button>
+    <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-label">문의양식</span></button>
   </div>
   <div class="quick-top-wrap"><button id="quickTopButton" type="button" class="quick-top-button" data-target="top" aria-label="페이지 상단으로 이동"><span class="quick-top-content"><span class="quick-top-arrow" aria-hidden="true"><svg viewBox="0 0 12 8"><path d="M1 6 6 1l5 5"/></svg></span><span class="quick-top-text">TOP</span></span></button></div>
 </nav>
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v13';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v14';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null,quickItems=[],quickPage=0,quickActiveTarget='';
 const QUICK_PAGE_SIZE=5;
@@ -259,7 +314,7 @@ function renderQuickPage(){
  quickPage=Math.max(0,Math.min(quickPage,pages-1));
  const start=quickPage*QUICK_PAGE_SIZE;
  const visible=quickItems.slice(start,start+QUICK_PAGE_SIZE);
- root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-icon">'+iconSvg(x)+'</span><span class="quick-nav-label">'+x.label+'</span><span class="quick-nav-balance" aria-hidden="true"></span></button>').join('');
+ root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-label">'+x.label+'</span></button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
  const pager=document.getElementById('quickPagination');
  const prev=document.getElementById('quickPagePrev');
@@ -306,7 +361,6 @@ function show(items){
  if(inquirySection&&inquiryButton){
   inquirySection.hidden=!inquiry;
   if(inquiry){
-   inquiryButton.querySelector('.quick-nav-icon').innerHTML=iconSvg(inquiry);
    inquiryButton.querySelector('.quick-nav-label').textContent=inquiry.label;
    if(!inquiryButton.dataset.bound){inquiryButton.dataset.bound='1';inquiryButton.addEventListener('click',()=>send('inquiry'))}
   }
