@@ -887,16 +887,29 @@
   "fixedProducts": [
     {
       "id": "product-mvb2jx7t-2gb2f6",
-      "name": "새 고정틀",
+      "name": "움짤프사 고정틀 A",
       "description": "",
       "enabled": true,
       "pcColumns": 5,
       "mobileColumns": 2,
       "showPreviewNames": true,
-      "changeableOptions": [],
+      "changeableOptions": [
+        {
+          "id": "opt-mvb31c5t-u5ffmg",
+          "label": "패턴 장식 변경",
+          "detail": "",
+          "choices": [
+            "하트",
+            "클로버",
+            "별",
+            "네모",
+            "도트 등"
+          ]
+        }
+      ],
       "fixedOptions": [],
       "note": "",
-      "price": 0,
+      "price": 15000,
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
