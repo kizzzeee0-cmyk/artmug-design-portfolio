@@ -2094,7 +2094,7 @@ async function migrateLegacyFixedProducts(){
   const p=normalizeFixedProduct({
    id:makeFixedId('legacy'),
    name:meta.name||'기존 고정틀',
-   seasonCategoryId:String(raw.seasonCategoryId||''),
+   seasonCategoryId:String(raw.seasonCategoryId||(ensureSeasonCategories().find(v=>String(v.label||v.id)===String(raw.fixedHoliday||''))?.id||'')),
    description:String(raw.fixedDescription||''),
    enabled:meta.enabled,
    pcColumns:5,mobileColumns:2,showPreviewNames:true,
