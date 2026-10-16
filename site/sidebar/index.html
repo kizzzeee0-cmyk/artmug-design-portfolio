@@ -2250,6 +2250,40 @@ body{
   left:0!important;
 }
 
+
+/* 2026-10-17 PRESET + TOP COLOR POLISH V25 */
+/* Preset icon remains on the same shared 25px icon grid. */
+.quick-nav-button[data-target="showcase"] .quick-nav-icon svg{
+  width:25px!important;
+  height:25px!important;
+  stroke-width:1.75!important;
+}
+
+/* TOP arrow + text use the same blue as the other circular menu icons. */
+.quick-top-button{
+  color:#5f96bc!important;
+}
+.quick-top-arrow,
+.quick-top-arrow svg,
+.quick-top-text{
+  color:#5f96bc!important;
+}
+
+/* Move the TOP arrow+label group exactly 1px left from the previous +1px optical offset. */
+.quick-top-content{
+  transform:translateX(0)!important;
+}
+
+/* Inquiry resting label uses the exact same text color as normal menu items. */
+.quick-inquiry-button:not(.is-active) .quick-nav-label{
+  color:#55758b!important;
+}
+
+/* Active inquiry still follows the common active treatment. */
+.quick-inquiry-button.is-active .quick-nav-label{
+  color:#fff!important;
+}
+
 </style>
 </head>
 <body>
@@ -2307,7 +2341,7 @@ function iconSvg(item){
  if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M8 5H5v3M16 5h3v3M8 19H5v-3M16 19h3v-3"/><rect x="8" y="8" width="8" height="8" rx="1.4"/></svg>';
 
  /* 프리셋: paint palette */
- if(t==='showcase')return '<svg viewBox="0 0 24 24"><rect x="7.2" y="5" width="10.8" height="10.8" rx="1.8"/><rect x="5.2" y="7.1" width="10.8" height="10.8" rx="1.8"/><rect x="7.4" y="9.1" width="10.8" height="10.8" rx="1.8"/></svg>';
+ if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="10.5" cy="17" r="1.7"/></svg>';
 
  /* 움짤프사: default profile/avatar silhouette */
  if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><rect x="4.7" y="5.7" width="14.6" height="12.6" rx="2.6"/><path d="m10.2 9.2 4.8 2.8-4.8 2.8z"/></svg>';
