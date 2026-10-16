@@ -1667,13 +1667,27 @@ async function uploadFiles(kind){
   }catch(e){status.textContent=e.message;alert('업로드에 실패했습니다.\n'+e.message)}
 }
 
-/* Seasonal fixed templates share the existing secure preset upload endpoint but have
-   independent admin controls, categories, metadata and public visibility. */
+
+/* Product-based fixed templates. Files continue to use the existing secure preset
+   upload API, while product grouping/options live in settings.fixedProducts. */
+const fixedProductOpenIds=new Set();
+function makeFixedId(prefix='fixed'){
+  return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)
+}
 function defaultFixedCategories(){
- return [{id:'profile',label:'움짤프사',enabled:true},{id:'fixed-four-cut',label:'인생네컷',enabled:true}]
+ return [
+  {id:'profile',label:'움짤프사',enabled:true},
+  {id:'top-banner',label:'상단배너',enabled:true},
+  {id:'floating-banner',label:'플로팅배너',enabled:true},
+  {id:'bottom-banner',label:'하단배너 일반',enabled:true},
+  {id:'bottom-split',label:'하단배너 분할',enabled:true},
+  {id:'fixed-four-cut',label:'인생네컷',enabled:true}
+ ]
 }
 function ensureFixedCategories(){
  if(!Array.isArray(S.fixedCategories))S.fixedCategories=defaultFixedCategories();
+ const defaults=defaultFixedCategories();
+ defaults.forEach(d=>{if(!S.fixedCategories.some(c=>c.id===d.id))S.fixedCategories.push({...d})});
  return S.fixedCategories
 }
 function fixedCategoryKind(c){
@@ -1684,7 +1698,19 @@ function fixedCategoryKind(c){
  if(id==='bottom-banner'||label.includes('하단배너일반'))return'bottom-banner';
  if(id==='bottom-split'||label.includes('하단배너분할'))return'bottom-split';
  if(/four-cut|4cut/.test(id)||label.includes('인생네컷'))return'four-cut';
- return id
+ return id||'custom'
+}
+function fixedCategoryById(id){return ensureFixedCategories().find(c=>c.id===id)}
+function fixedLogicalCategoryFromStorage(id){
+ const raw=String(id||'');
+ if(!raw.startsWith('fixed-store-'))return raw;
+ const kind=raw.slice('fixed-store-'.length);
+ const found=ensureFixedCategories().find(c=>fixedCategoryKind(c)===kind);
+ return found?.id||kind
+}
+function fixedStorageCategoryId(logicalId){
+ const cat=fixedCategoryById(logicalId)||{id:logicalId,label:logicalId},kind=fixedCategoryKind(cat);
+ return 'fixed-store-'+String(kind||logicalId||'custom').replace(/[^a-zA-Z0-9_-]/g,'-')
 }
 function portfolioCategoryForFixedAdmin(c){
  const list=Array.isArray(S.portfolioCategories)?S.portfolioCategories:[],kind=fixedCategoryKind(c);
@@ -1699,10 +1725,58 @@ function syncFixedUploadCategories(target){
  if(!Array.isArray(target.presetCategories))target.presetCategories=[];
  cats.forEach(c=>{
   if(!c?.id)return;
-  if(!target.presetCategories.some(p=>p.id===c.id)){
-   target.presetCategories.push({id:c.id,label:c.label,enabled:false,displayWidth:200,displayHeight:200,strictSize:false,formats:['gif','png','jpeg','webp']})
-  }
+  const storageId='fixed-store-'+String(fixedCategoryKind(c)||c.id).replace(/[^a-zA-Z0-9_-]/g,'-');
+  const found=target.presetCategories.find(p=>p.id===storageId);
+  const next={id:storageId,label:'고정틀 저장 · '+String(c.label||c.id),enabled:false,hiddenLegacy:true,displayWidth:200,displayHeight:200,strictSize:false,formats:['gif','png','jpeg','webp']};
+  if(found)Object.assign(found,next);else target.presetCategories.push(next)
  })
+}
+function normalizeFixedOption(x){
+ return {
+  id:String(x?.id||makeFixedId('opt')),
+  label:String(x?.label||''),
+  detail:String(x?.detail||''),
+  choices:Array.isArray(x?.choices)?x.choices.map(v=>String(v)).filter(Boolean):[]
+ }
+}
+function normalizeFixedPreview(x){
+ return {
+  id:String(x?.id||makeFixedId('preview')),
+  file:String(x?.file||''),
+  category:fixedLogicalCategoryFromStorage(String(x?.category||'profile')),
+  name:String(x?.name||''),
+  enabled:x?.enabled!==false
+ }
+}
+function normalizeFixedProduct(x){
+ return {
+  id:String(x?.id||makeFixedId('product')),
+  name:String(x?.name||'새 고정틀'),
+  seasonCategoryId:String(x?.seasonCategoryId||''),
+  description:String(x?.description||''),
+  enabled:x?.enabled!==false,
+  pcColumns:Math.max(1,Math.min(8,Number(x?.pcColumns||5))),
+  mobileColumns:Math.max(1,Math.min(4,Number(x?.mobileColumns||2))),
+  showPreviewNames:x?.showPreviewNames!==false,
+  changeableOptions:(Array.isArray(x?.changeableOptions)?x.changeableOptions:[]).map(normalizeFixedOption),
+  fixedOptions:(Array.isArray(x?.fixedOptions)?x.fixedOptions:[]).map(normalizeFixedOption),
+  note:String(x?.note||''),
+  price:Math.max(0,Number(x?.price||0)),
+  priceVisible:x?.priceVisible!==false,
+  priceNote:String(x?.priceNote||''),
+  priceScope:String(x?.priceScope||''),
+  previews:(Array.isArray(x?.previews)?x.previews:[]).map(normalizeFixedPreview).filter(v=>v.file)
+ }
+}
+function ensureFixedProducts(){
+ if(!Array.isArray(S.fixedProducts))S.fixedProducts=[];
+ S.fixedProducts=S.fixedProducts.map(normalizeFixedProduct);
+ return S.fixedProducts
+}
+function fixedProductById(id){return ensureFixedProducts().find(x=>x.id===id)}
+function fixedSeasonLabel(id){return seasonById(id)?.label||''}
+function fixedCategoryOptions(selected=''){
+ return ensureFixedCategories().filter(c=>c.enabled!==false).map(c=>'<option value="'+adminEsc(c.id)+'" '+(c.id===selected?'selected':'')+'>'+adminEsc(c.label||c.id)+'</option>').join('')
 }
 function collectFixedAdmin(){
  if(!$('fixedEnabled'))return;
@@ -1718,153 +1792,309 @@ function collectFixedAdmin(){
  });
  syncFixedUploadCategories(S)
 }
+function collectFixedProductFromDom(i){
+ const p=ensureFixedProducts()[i];if(!p)return null;
+ const q=sel=>document.querySelector(sel);
+ const val=(key,fallback='')=>q('[data-fp-'+key+'="'+i+'"]')?.value??fallback;
+ p.name=String(val('name',p.name)).trim()||'새 고정틀';
+ p.seasonCategoryId=String(val('season',p.seasonCategoryId));
+ p.description=String(val('description',p.description));
+ p.enabled=q('[data-fp-enabled="'+i+'"]')?.checked!==false;
+ p.pcColumns=Math.max(1,Math.min(8,Number(val('pc',p.pcColumns)||5)));
+ p.mobileColumns=Math.max(1,Math.min(4,Number(val('mobile',p.mobileColumns)||2)));
+ p.showPreviewNames=q('[data-fp-show-names="'+i+'"]')?.checked!==false;
+ p.note=String(val('note',p.note));
+ p.price=Math.max(0,Number(val('price',p.price)||0));
+ p.priceVisible=q('[data-fp-price-visible="'+i+'"]')?.checked!==false;
+ p.priceNote=String(val('price-note',p.priceNote));
+ p.priceScope=String(val('price-scope',p.priceScope));
+ p.previews.forEach((v,j)=>{
+   const name=q('[data-fp-preview-name="'+i+':'+j+'"]');
+   const cat=q('[data-fp-preview-cat="'+i+':'+j+'"]');
+   const enabled=q('[data-fp-preview-enabled="'+i+':'+j+'"]');
+   if(name)v.name=name.value;
+   if(cat)v.category=cat.value;
+   if(enabled)v.enabled=enabled.checked
+ });
+ const collectOptions=kind=>{
+   const list=kind==='change'?p.changeableOptions:p.fixedOptions;
+   list.forEach((o,j)=>{
+    const label=q('[data-fp-opt-label="'+kind+':'+i+':'+j+'"]');
+    const detail=q('[data-fp-opt-detail="'+kind+':'+i+':'+j+'"]');
+    const choices=q('[data-fp-opt-choices="'+kind+':'+i+':'+j+'"]');
+    if(label)o.label=label.value;
+    if(detail)o.detail=detail.value;
+    if(choices)o.choices=choices.value.split(/[,/\n]/).map(v=>v.trim()).filter(Boolean)
+   })
+ };
+ collectOptions('change');collectOptions('fixed');
+ return p
+}
 function renderFixedCats(){
  const cats=ensureFixedCategories();
  const root=$('fixedCats');if(!root)return;
  root.innerHTML=cats.map((c,i)=>{
   const inherited=fixedInheritedColumns(c);
   return '<div class="cat-row seasonal-fixed-cat-row">'+
-   '<label>카테고리 이름<input data-fixed-cat-name="'+i+'" value="'+adminEsc(c.label)+'"></label>'+
+   '<label>종류 이름<input data-fixed-cat-name="'+i+'" value="'+adminEsc(c.label)+'"></label>'+
    '<span class="muted">ID: '+adminEsc(c.id)+'</span>'+
-   '<span class="muted">포트폴리오 자동 · PC '+inherited.pc+'개 / 모바일 '+inherited.mobile+'개</span>'+
-   '<label class="mini-toggle"><input type="checkbox" data-fixed-cat-enabled="'+i+'" '+(c.enabled!==false?'checked':'')+'> 공개</label>'+
+   '<span class="muted">포트폴리오 기준 · PC '+inherited.pc+' / 모바일 '+inherited.mobile+'</span>'+
+   '<label class="mini-toggle"><input type="checkbox" data-fixed-cat-enabled="'+i+'" '+(c.enabled!==false?'checked':'')+'> 사용</label>'+
    '<button type="button" class="ghost cat-order-button" data-fixed-cat-move="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button>'+
    '<button type="button" class="ghost cat-order-button" data-fixed-cat-move="'+i+'" data-dir="1" '+(i===cats.length-1?'disabled':'')+'>↓</button>'+
    '<button type="button" class="danger admin-compact" data-fixed-cat-delete="'+i+'">삭제</button></div>'
  }).join('');
  root.querySelectorAll('[data-fixed-cat-move]').forEach(b=>b.onclick=()=>{
   collectFixedAdmin();const i=+b.dataset.fixedCatMove,j=i+Number(b.dataset.dir);if(j<0||j>=cats.length)return;
-  [cats[i],cats[j]]=[cats[j],cats[i]];renderFixedCats()
+  [cats[i],cats[j]]=[cats[j],cats[i]];renderFixedCats();renderFixedItems()
  });
  root.querySelectorAll('[data-fixed-cat-delete]').forEach(b=>b.onclick=()=>{
-  collectFixedAdmin();const i=+b.dataset.fixedCatDelete;
-  if(fixedItems.some(x=>x.category===cats[i]?.id)){alert('이 카테고리에 작품이 있습니다. 작품을 옮기거나 삭제한 뒤 카테고리를 삭제해 주세요.');return}
-  cats.splice(i,1);renderFixedCats()
- });
- renderFixedUploadCategories()
-}
-function renderFixedUploadCategories(){
- const el=$('fixedUploadCat');if(!el)return;
- const old=el.value;
- el.innerHTML=ensureFixedCategories().filter(c=>c.enabled!==false).map(c=>'<option value="'+adminEsc(c.id)+'">'+adminEsc(c.label)+'</option>').join('');
- if([...el.options].some(o=>o.value===old))el.value=old
+  collectFixedAdmin();const i=+b.dataset.fixedCatDelete,id=cats[i]?.id;
+  if(ensureFixedProducts().some(p=>p.previews.some(v=>v.category===id))){alert('이 디자인 종류를 사용하는 고정틀 미리보기가 있습니다. 먼저 다른 종류로 변경해 주세요.');return}
+  cats.splice(i,1);renderFixedCats();renderFixedItems()
+ })
 }
 function renderFixedAdmin(){
  if(!$('fixedEnabled'))return;
  $('fixedEnabled').checked=S.fixedEnabled!==false;
  $('fixedTitle').value=S.fixedTitle||'고정틀';
- $('fixedNotice').value=S.fixedNotice||'완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다';
+ $('fixedNotice').value=S.fixedNotice||'';
+ ensureFixedProducts();
  renderFixedCats();renderFixedItems()
 }
 async function saveFixedSettings(){
  collectFixedAdmin();
- const keys=['fixedEnabled','fixedTitle','fixedNotice','fixedCategories'];
  const saved=await queueSettingsMutation(latest=>{
-  for(const k of keys)latest[k]=JSON.parse(JSON.stringify(S[k]));
-  delete latest.fixedHolidayNotice;
-  delete latest.fixedSalesNotice;
-  delete latest.fixedNoEditNotice;
-  delete latest.fixedPcColumns;
-  delete latest.fixedMobileColumns;
-  syncFixedUploadCategories(latest)
+  latest.fixedEnabled=S.fixedEnabled;
+  latest.fixedTitle=S.fixedTitle;
+  latest.fixedNotice=S.fixedNotice;
+  latest.fixedCategories=JSON.parse(JSON.stringify(S.fixedCategories||[]));
+  syncFixedUploadCategories(latest);
+  delete latest.fixedHolidayNotice;delete latest.fixedSalesNotice;delete latest.fixedNoEditNotice;
+  delete latest.fixedPcColumns;delete latest.fixedMobileColumns
  });
- for(const k of keys)S[k]=saved[k];
- S.presetCategories=saved.presetCategories||S.presetCategories;
- showToast('고정틀 설정이 저장되었습니다.')
+ S.fixedEnabled=saved.fixedEnabled!==false;S.fixedTitle=saved.fixedTitle||'고정틀';S.fixedNotice=saved.fixedNotice||'';
+ S.fixedCategories=saved.fixedCategories||S.fixedCategories;S.presetCategories=saved.presetCategories||S.presetCategories;
+ renderFixedCats();showToast('고정틀 기본 설정이 저장되었습니다.')
+}
+function fixedOptionEditorHtml(kind,o,i,j){
+ const title=kind==='change'?'변경 가능 항목':'변경 불가 항목';
+ return '<div class="fixed-option-editor-row">'+
+  '<label>'+title+'<input data-fp-opt-label="'+kind+':'+i+':'+j+'" value="'+adminEsc(o.label)+'" placeholder="'+(kind==='change'?'예: 가운데 문양 변경':'예: 기본 레이아웃 변경')+'"></label>'+
+  '<label>상세 안내<input data-fp-opt-detail="'+kind+':'+i+':'+j+'" value="'+adminEsc(o.detail)+'" placeholder="선택사항"></label>'+
+  '<label class="wide">선택지 · 쉼표로 구분<input data-fp-opt-choices="'+kind+':'+i+':'+j+'" value="'+adminEsc((o.choices||[]).join(', '))+'" placeholder="예: 하트, 네모, 원, 클로버, 별, 꽃"></label>'+
+  '<button type="button" class="danger admin-compact" data-fp-opt-delete="'+kind+':'+i+':'+j+'">삭제</button>'+
+ '</div>'
+}
+function fixedPreviewAdminHtml(v,i,j){
+ const cat=fixedCategoryById(v.category),kind=fixedCategoryKind(cat||{id:v.category,label:v.category});
+ return '<div class="fixed-preview-admin-row">'+
+  '<div class="fixed-preview-admin-thumb fixed-preview-'+adminEsc(kind)+'"><img src="'+API+'/media/'+v.file.split('/').map(encodeURIComponent).join('/')+'" loading="lazy" decoding="async" alt=""></div>'+
+  '<div class="fixed-preview-admin-fields">'+
+   '<label>디자인 종류<select data-fp-preview-cat="'+i+':'+j+'">'+fixedCategoryOptions(v.category)+'</select></label>'+
+   '<label>미리보기 이름<input data-fp-preview-name="'+i+':'+j+'" value="'+adminEsc(v.name||'')+'" placeholder="예: 디자인 01"></label>'+
+   '<label class="mini-toggle"><input type="checkbox" data-fp-preview-enabled="'+i+':'+j+'" '+(v.enabled!==false?'checked':'')+'> 표시</label>'+
+  '</div>'+
+  '<div class="fixed-preview-admin-actions">'+
+   '<button type="button" class="ghost cat-order-button" data-fp-preview-move="'+i+':'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button>'+
+   '<button type="button" class="ghost cat-order-button" data-fp-preview-move="'+i+':'+j+'" data-dir="1" '+(j===ensureFixedProducts()[i].previews.length-1?'disabled':'')+'>↓</button>'+
+   '<button type="button" class="ghost admin-compact" data-fp-preview-replace="'+i+':'+j+'">교체</button>'+
+   '<button type="button" class="danger admin-compact" data-fp-preview-delete="'+i+':'+j+'">삭제</button>'+
+  '</div>'+
+ '</div>'
+}
+function fixedProductAdminCard(p,i){
+ const open=fixedProductOpenIds.has(p.id),first=p.previews.find(v=>v.enabled!==false)||p.previews[0],season=fixedSeasonLabel(p.seasonCategoryId);
+ const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
+ return '<article class="fixed-product-admin-card" data-fixed-product-id="'+adminEsc(p.id)+'">'+
+  '<div class="fixed-product-admin-summary">'+
+   '<div class="fixed-product-summary-thumb">'+(first?'<img src="'+API+'/media/'+first.file.split('/').map(encodeURIComponent).join('/')+'" loading="lazy" decoding="async" alt="">':'<span>미리보기 없음</span>')+'</div>'+
+   '<div class="fixed-product-summary-copy"><strong>'+adminEsc(p.name||'새 고정틀')+'</strong><span>미리보기 '+p.previews.length+'개'+(season?' · '+adminEsc(season):' · 일반')+' · '+(p.priceVisible?adminEsc(price):'가격 비공개')+'</span></div>'+
+   '<label class="mini-toggle fixed-product-summary-enabled"><input type="checkbox" data-fp-enabled-summary="'+i+'" '+(p.enabled!==false?'checked':'')+'> 공개</label>'+
+   '<div class="fixed-product-summary-actions"><button type="button" class="ghost cat-order-button" data-fp-product-move="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-fp-product-move="'+i+'" data-dir="1" '+(i===ensureFixedProducts().length-1?'disabled':'')+'>↓</button><button type="button" class="ghost admin-compact" data-fp-edit="'+i+'">'+(open?'닫기':'편집')+'</button><button type="button" class="danger admin-compact" data-fp-delete="'+i+'">삭제</button></div>'+
+  '</div>'+
+  '<div class="fixed-product-editor" '+(open?'':'hidden')+'>'+
+   '<div class="fields fixed-product-fields">'+
+    '<label>상품명<input data-fp-name="'+i+'" value="'+adminEsc(p.name)+'"></label>'+
+    '<label>시즌<select data-fp-season="'+i+'">'+presetSeasonOptions(p.seasonCategoryId)+'</select></label>'+
+    '<label class="wide">디자인 소개<textarea data-fp-description="'+i+'" rows="2" placeholder="짧은 한두 줄 소개">'+adminEsc(p.description)+'</textarea></label>'+
+    '<label>PC 한 줄 이미지 개수<input data-fp-pc="'+i+'" type="number" min="1" max="8" value="'+p.pcColumns+'"></label>'+
+    '<label>모바일 한 줄 이미지 개수<input data-fp-mobile="'+i+'" type="number" min="1" max="4" value="'+p.mobileColumns+'"></label>'+
+    '<label class="mini-toggle"><input type="checkbox" data-fp-show-names="'+i+'" '+(p.showPreviewNames?'checked':'')+'> 이미지별 이름 표시</label>'+
+   '</div>'+
+   '<div class="fixed-product-subsection"><div class="head"><div><h5>디자인 미리보기</h5><p class="muted">GIF·PNG·JPG·WEBP · 여러 파일을 한 번에 추가할 수 있습니다.</p></div></div>'+
+    '<div class="fixed-product-upload-row"><select data-fp-upload-cat="'+i+'">'+fixedCategoryOptions(p.previews[0]?.category||'profile')+'</select><input data-fp-files="'+i+'" type="file" multiple accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp"><button type="button" class="primary-button admin-compact" data-fp-upload="'+i+'">미리보기 추가</button></div>'+
+    '<p class="status" data-fp-upload-status="'+i+'"></p>'+
+    '<div class="fixed-preview-admin-list">'+(p.previews.length?p.previews.map((v,j)=>fixedPreviewAdminHtml(v,i,j)).join(''):'<p class="muted">등록된 미리보기가 없습니다.</p>')+'</div>'+
+   '</div>'+
+   '<div class="fixed-product-options-grid">'+
+    '<section class="fixed-product-subsection"><div class="head"><h5>변경 가능</h5><button type="button" class="ghost admin-compact" data-fp-opt-add="change:'+i+'">+ 항목 추가</button></div><div class="fixed-option-editor-list">'+(p.changeableOptions.length?p.changeableOptions.map((o,j)=>fixedOptionEditorHtml('change',o,i,j)).join(''):'<p class="muted">등록된 항목이 없습니다.</p>')+'</div></section>'+
+    '<section class="fixed-product-subsection"><div class="head"><h5>변경 불가</h5><button type="button" class="ghost admin-compact" data-fp-opt-add="fixed:'+i+'">+ 항목 추가</button></div><div class="fixed-option-editor-list">'+(p.fixedOptions.length?p.fixedOptions.map((o,j)=>fixedOptionEditorHtml('fixed',o,i,j)).join(''):'<p class="muted">등록된 항목이 없습니다.</p>')+'</div></section>'+
+   '</div>'+
+   '<div class="fields fixed-product-price-fields">'+
+    '<label>상품 가격<input data-fp-price="'+i+'" type="number" min="0" step="100" value="'+p.price+'"></label>'+
+    '<label class="mini-toggle"><input type="checkbox" data-fp-price-visible="'+i+'" '+(p.priceVisible?'checked':'')+'> 가격 공개</label>'+
+    '<label class="wide">가격 기준 안내<input data-fp-price-scope="'+i+'" value="'+adminEsc(p.priceScope)+'" placeholder="예: 미리보기 중 디자인 1개 선택 기준"></label>'+
+    '<label class="wide">가격 추가 안내<input data-fp-price-note="'+i+'" value="'+adminEsc(p.priceNote)+'" placeholder="선택사항"></label>'+
+    '<label class="wide">기타 안내<textarea data-fp-note="'+i+'" rows="2" placeholder="추가 안내가 있을 때만 입력">'+adminEsc(p.note)+'</textarea></label>'+
+   '</div>'+
+   '<div class="fixed-product-editor-actions"><button type="button" class="primary-button" data-fp-save="'+i+'">상품 저장</button></div>'+
+  '</div>'+
+ '</article>'
+}
+function bindFixedProductAdminEvents(){
+ const root=$('fixedItems');if(!root)return;
+ root.querySelectorAll('[data-fp-edit]').forEach(b=>b.onclick=()=>{const i=+b.dataset.fpEdit,p=ensureFixedProducts()[i];if(!p)return;collectFixedProductFromDom(i);if(fixedProductOpenIds.has(p.id))fixedProductOpenIds.delete(p.id);else fixedProductOpenIds.add(p.id);renderFixedItems()});
+ root.querySelectorAll('[data-fp-enabled-summary]').forEach(e=>e.onchange=async()=>{const i=+e.dataset.fpEnabledSummary,p=ensureFixedProducts()[i];if(!p)return;p.enabled=e.checked;await saveFixedProduct(i,true)});
+ root.querySelectorAll('[data-fp-product-move]').forEach(b=>b.onclick=()=>moveFixedProduct(+b.dataset.fpProductMove,Number(b.dataset.dir)));
+ root.querySelectorAll('[data-fp-delete]').forEach(b=>b.onclick=()=>deleteFixedProduct(+b.dataset.fpDelete));
+ root.querySelectorAll('[data-fp-save]').forEach(b=>b.onclick=()=>saveFixedProduct(+b.dataset.fpSave));
+ root.querySelectorAll('[data-fp-upload]').forEach(b=>b.onclick=()=>uploadFixedProductPreviews(+b.dataset.fpUpload));
+ root.querySelectorAll('[data-fp-preview-move]').forEach(b=>{const [i,j]=b.dataset.fpPreviewMove.split(':').map(Number);b.onclick=()=>moveFixedPreview(i,j,Number(b.dataset.dir))});
+ root.querySelectorAll('[data-fp-preview-replace]').forEach(b=>{const [i,j]=b.dataset.fpPreviewReplace.split(':').map(Number);b.onclick=()=>replaceFixedProductPreview(i,j)});
+ root.querySelectorAll('[data-fp-preview-delete]').forEach(b=>{const [i,j]=b.dataset.fpPreviewDelete.split(':').map(Number);b.onclick=()=>deleteFixedProductPreview(i,j)});
+ root.querySelectorAll('[data-fp-opt-add]').forEach(b=>b.onclick=()=>{const [kind,iRaw]=b.dataset.fpOptAdd.split(':'),i=+iRaw,p=collectFixedProductFromDom(i);if(!p)return;(kind==='change'?p.changeableOptions:p.fixedOptions).push(normalizeFixedOption({}));fixedProductOpenIds.add(p.id);renderFixedItems()});
+ root.querySelectorAll('[data-fp-opt-delete]').forEach(b=>b.onclick=()=>{const [kind,iRaw,jRaw]=b.dataset.fpOptDelete.split(':'),i=+iRaw,j=+jRaw,p=collectFixedProductFromDom(i);if(!p)return;(kind==='change'?p.changeableOptions:p.fixedOptions).splice(j,1);fixedProductOpenIds.add(p.id);renderFixedItems()})
 }
 function renderFixedItems(){
  const root=$('fixedItems');if(!root)return;
- const totalPages=Math.max(1,Math.ceil(fixedItems.length/ADMIN_PAGE_SIZE));
+ const products=ensureFixedProducts(),totalPages=Math.max(1,Math.ceil(products.length/ADMIN_PAGE_SIZE));
  fixedAdminPage=Math.max(1,Math.min(totalPages,fixedAdminPage));
  const start=(fixedAdminPage-1)*ADMIN_PAGE_SIZE;
- const rows=fixedItems.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>{
-  const i=start+local,m=presetMetaFor(x);
-  const cat=ensureFixedCategories().find(c=>c.id===x.category);
-  const same=fixedItems.filter(v=>v.category===x.category),pos=same.findIndex(v=>v.file===x.file);
-  return '<div class="preset-admin-item preset-admin-item-v2 fixed-admin-item">'+
-   '<div class="preset-admin-preview"><img src="'+API+'/media/'+x.file.split('/').map(encodeURIComponent).join('/')+'" loading="lazy" alt=""></div>'+
-   '<div class="preset-admin-fields"><div class="muted preset-location">'+adminEsc(cat?.label||x.category)+'</div>'+
-   '<label class="preset-name-field">디자인 이름<input data-fixed-name="'+i+'" value="'+adminEsc(m.name)+'"></label>'+
-   '<label>판매가 (원)<input data-fixed-price="'+i+'" type="number" min="0" step="100" value="'+Math.max(0,Number((S.presetMeta?.[x.file]||{}).fixedPrice||0))+'"></label>'+
-   '<label class="mini-toggle"><input data-fixed-enabled="'+i+'" type="checkbox" '+(m.enabled?'checked':'')+'> 공개</label></div>'+
-   '<div class="preset-admin-actions"><div class="media-order-controls">'+
-   '<button class="ghost cat-order-button" data-move-fixed="'+i+'" data-dir="-1" '+(pos<=0?'disabled':'')+'>↑</button>'+
-   '<button class="ghost cat-order-button" data-move-fixed="'+i+'" data-dir="1" '+(pos>=same.length-1?'disabled':'')+'>↓</button></div>'+
-   '<button class="ghost admin-compact" data-fixed-save="'+i+'">정보 저장</button>'+
-   '<button class="ghost admin-compact" data-fixed-replace="'+i+'">파일 수정</button>'+
-   '<button class="danger admin-compact" data-fixed-delete="'+encodeURIComponent(x.file)+'">삭제</button></div></div>'
- }).join('');
- root.innerHTML=rows||'<p class="muted">등록된 고정틀이 없습니다. 작품을 등록하면 프리셋 위에 별도 섹션으로 표시됩니다.</p>';
+ root.innerHTML=products.slice(start,start+ADMIN_PAGE_SIZE).map((p,local)=>fixedProductAdminCard(p,start+local)).join('')||'<p class="muted">등록된 고정틀 상품이 없습니다. + 고정틀 추가로 새 상품을 만들어 주세요.</p>';
  bindAdminPagination('fixedItemsPagination','fixed',fixedAdminPage,totalPages);
- root.querySelectorAll('[data-fixed-save]').forEach(b=>b.onclick=()=>saveFixedItem(+b.dataset.fixedSave).catch(e=>alert('저장에 실패했습니다.\n'+e.message)));
- root.querySelectorAll('[data-fixed-enabled]').forEach(b=>b.onchange=()=>saveFixedItem(+b.dataset.fixedEnabled).catch(e=>alert('저장에 실패했습니다.\n'+e.message)));
- root.querySelectorAll('[data-fixed-replace]').forEach(b=>b.onclick=()=>replaceMediaFile('fixed',+b.dataset.fixedReplace));
- root.querySelectorAll('[data-move-fixed]').forEach(b=>b.onclick=()=>moveFixedItem(+b.dataset.moveFixed,Number(b.dataset.dir)));
- root.querySelectorAll('[data-fixed-delete]').forEach(b=>b.onclick=async()=>{
-  if(!confirm('이 고정틀을 삭제할까요?'))return;
-  const file=decodeURIComponent(b.dataset.fixedDelete);
-  try{
-   await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});
-   const saved=await queueSettingsMutation(latest=>{
-    if(latest.presetMeta)delete latest.presetMeta[file];
-    latest.presetOrder=(latest.presetOrder||[]).filter(v=>v!==file)
-   });
-   S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];
-   await loadPresetItemsOnly();showToast('고정틀이 삭제되었습니다.')
-  }catch(e){alert('삭제에 실패했습니다.\n'+e.message)}
- })
+ bindFixedProductAdminEvents()
 }
-async function saveFixedItem(i){
- const x=fixedItems[i];if(!x)return;
- const name=document.querySelector('[data-fixed-name="'+i+'"]')?.value.trim();
- const price=Math.max(0,Number(document.querySelector('[data-fixed-price="'+i+'"]')?.value||0));
- const enabled=document.querySelector('[data-fixed-enabled="'+i+'"]')?.checked!==false;
+async function persistFixedProducts(message='고정틀 상품이 저장되었습니다.'){
  const saved=await queueSettingsMutation(latest=>{
-  if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
-  const meta={...(latest.presetMeta[x.file]||{}),name,enabled,fixedPrice:price,showcaseKind:'fixed',colorChangeAvailable:false};
-  delete meta.seasonCategoryId;delete meta.fixedHoliday;delete meta.fixedDescription;delete meta.isSold;
-  latest.presetMeta[x.file]=meta
+  latest.fixedProducts=JSON.parse(JSON.stringify(S.fixedProducts||[]));
+  latest.presetMeta=JSON.parse(JSON.stringify(S.presetMeta||{}));
+  latest.presetOrder=JSON.parse(JSON.stringify(S.presetOrder||[]));
+  latest.fixedCategories=JSON.parse(JSON.stringify(S.fixedCategories||[]));
+  syncFixedUploadCategories(latest)
  });
- S.presetMeta=saved.presetMeta||{};showToast('고정틀 상품 설정이 저장되었습니다.');renderFixedItems()
+ S.fixedProducts=saved.fixedProducts||[];S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];S.presetCategories=saved.presetCategories||S.presetCategories;
+ if(message)showToast(message)
 }
-async function moveFixedItem(i,dir){
- const x=fixedItems[i];if(!x)return;
- const idx=fixedItems.map((v,j)=>({v,j})).filter(o=>o.v.category===x.category);
- const pos=idx.findIndex(o=>o.j===i),dest=idx[pos+dir]?.j;
- if(dest==null)return;
- [fixedItems[i],fixedItems[dest]]=[fixedItems[dest],fixedItems[i]];
- const ordered=[...fixedItems.map(x=>x.file),...presetItems.map(x=>x.file)];
+async function saveFixedProduct(i,quiet=false){
+ const p=collectFixedProductFromDom(i);if(!p)return;
+ const summaryToggle=document.querySelector('[data-fp-enabled-summary="'+i+'"]');if(summaryToggle)p.enabled=summaryToggle.checked;
+ p.previews.forEach(v=>{
+  if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
+  S.presetMeta[v.file]={...(S.presetMeta[v.file]||{}),name:v.name,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category,colorChangeAvailable:false}
+ });
+ await persistFixedProducts(quiet?'':p.name+' 저장 완료');
+ renderFixedItems()
+}
+async function addFixedProduct(){
+ collectFixedAdmin();
+ const p=normalizeFixedProduct({name:'새 고정틀',enabled:true,pcColumns:5,mobileColumns:2,showPreviewNames:true,priceVisible:true});
+ ensureFixedProducts().push(p);fixedProductOpenIds.add(p.id);fixedAdminPage=Math.ceil(S.fixedProducts.length/ADMIN_PAGE_SIZE);
+ await persistFixedProducts('새 고정틀 상품을 추가했습니다.');renderFixedItems()
+}
+async function moveFixedProduct(i,dir){
+ const arr=ensureFixedProducts(),j=i+dir;if(j<0||j>=arr.length)return;
+ collectFixedProductFromDom(i);[arr[i],arr[j]]=[arr[j],arr[i]];
+ await persistFixedProducts('상품 순서가 저장되었습니다.');renderFixedItems()
+}
+async function ensureFixedUploadInfrastructure(){
+ collectFixedAdmin();
  const saved=await queueSettingsMutation(latest=>{
-  latest.presetOrder=[...ordered,...(latest.presetOrder||[]).filter(f=>!ordered.includes(f))]
+  latest.fixedCategories=JSON.parse(JSON.stringify(S.fixedCategories||[]));
+  syncFixedUploadCategories(latest)
  });
- S.presetOrder=saved.presetOrder||ordered;renderFixedItems();showToast('순서가 저장되었습니다.')
+ S.fixedCategories=saved.fixedCategories||S.fixedCategories;S.presetCategories=saved.presetCategories||S.presetCategories
 }
-async function uploadFixed(){
- const input=$('fixedFiles'),file=input?.files?.[0],name=$('fixedUploadName')?.value.trim();
- const cat=$('fixedUploadCat')?.value,price=Number($('fixedUploadPrice')?.value||0),status=$('fixedUploadStatus');
- if(!file||!name||!cat){alert('카테고리, 디자인 이름, 파일을 입력해 주세요.');return}
- let path='',metadataSaved=false;
+async function uploadFixedProductPreviews(i){
+ const p=collectFixedProductFromDom(i);if(!p)return;
+ const input=document.querySelector('[data-fp-files="'+i+'"]'),files=[...(input?.files||[])],cat=document.querySelector('[data-fp-upload-cat="'+i+'"]')?.value||'profile',status=document.querySelector('[data-fp-upload-status="'+i+'"]');
+ if(!files.length){alert('추가할 이미지 또는 GIF를 선택해 주세요.');return}
  try{
-  validatePresetUploadFile(file);
-  status.textContent='설정 저장 및 파일 업로드 중…';
-  await saveFixedSettings();
-  const d=await uploadMediaWithRetry('/api/admin/preset-upload',cat,file,status);
-  path=String(d.path||'');
-  if(!path)throw new Error('업로드 경로가 반환되지 않았습니다.');
-  const saved=await queueSettingsMutation(latest=>{
-   if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
-   latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,showcaseKind:'fixed',fixedPrice:Math.max(0,price),colorChangeAvailable:false,featured:false};
-   const meta=latest.presetMeta[path];delete meta.seasonCategoryId;delete meta.fixedHoliday;delete meta.fixedDescription;delete meta.isSold;
-   latest.presetOrder=[...(latest.presetOrder||[]).filter(v=>v!==path),path]
-  });
-  S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];metadataSaved=true;
-  input.value='';$('fixedUploadName').value='';$('fixedUploadPrice').value='';
-  status.textContent='고정틀 등록이 완료되었습니다.';
-  await loadPresetItemsOnly();showToast('고정틀이 등록되었습니다.')
- }catch(e){
-  if(path&&!metadataSaved)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{});
-  status.textContent=e.message;alert('등록에 실패했습니다.\n'+e.message)
+  await ensureFixedUploadInfrastructure();
+  const uploaded=[];
+  for(let n=0;n<files.length;n++){
+   validatePresetUploadFile(files[n]);
+   if(status)status.textContent=(n+1)+'/'+files.length+' 업로드 중…';
+   const storage=fixedStorageCategoryId(cat),d=await uploadMediaWithRetry('/api/admin/preset-upload',storage,files[n],status),path=String(d.path||'');
+   if(!path)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
+   uploaded.push(path);
+   p.previews.push(normalizeFixedPreview({file:path,category:cat,name:'디자인 '+String(p.previews.length+1).padStart(2,'0'),enabled:true}))
+  }
+  if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
+  p.previews.filter(v=>uploaded.includes(v.file)).forEach(v=>{S.presetMeta[v.file]={...(S.presetMeta[v.file]||{}),name:v.name,enabled:true,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category,colorChangeAvailable:false}});
+  const order=Array.isArray(S.presetOrder)?S.presetOrder:[];
+  uploaded.forEach(path=>{if(!order.includes(path))order.push(path)});S.presetOrder=order;
+  await persistFixedProducts('미리보기가 추가되었습니다.');
+  if(input)input.value='';if(status)status.textContent='업로드 완료';
+  fixedProductOpenIds.add(p.id);renderFixedItems()
+ }catch(e){if(status)status.textContent=e.message;alert('미리보기 업로드에 실패했습니다.\n'+e.message)}
+}
+async function moveFixedPreview(i,j,dir){
+ const p=collectFixedProductFromDom(i);if(!p)return;const k=j+dir;if(k<0||k>=p.previews.length)return;
+ [p.previews[j],p.previews[k]]=[p.previews[k],p.previews[j]];
+ await persistFixedProducts('미리보기 순서가 저장되었습니다.');fixedProductOpenIds.add(p.id);renderFixedItems()
+}
+async function replaceFixedProductPreview(i,j){
+ const p=collectFixedProductFromDom(i),v=p?.previews[j];if(!p||!v)return;
+ const file=await chooseReplacementFile();if(!file)return;
+ try{
+  validatePresetUploadFile(file);await ensureFixedUploadInfrastructure();
+  const storage=fixedStorageCategoryId(v.category),d=await uploadMediaWithRetry('/api/admin/preset-upload',storage,file),newPath=String(d.path||'');
+  if(!newPath)throw new Error('새 파일 경로를 확인하지 못했습니다.');
+  const oldPath=v.file;v.file=newPath;
+  if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
+  S.presetMeta[newPath]={...(S.presetMeta[oldPath]||{}),name:v.name,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category};
+  delete S.presetMeta[oldPath];S.presetOrder=replaceOrderPath(S.presetOrder,oldPath,newPath);
+  try{
+   await persistFixedProducts('');
+  }catch(e){await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});v.file=oldPath;throw e}
+  try{await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})})}catch(e){showToast('새 파일은 반영됐지만 기존 파일 삭제에 실패했습니다.','error')}
+  fixedProductOpenIds.add(p.id);renderFixedItems();showToast('미리보기 파일을 교체했습니다.')
+ }catch(e){alert('파일 교체에 실패했습니다.\n'+e.message)}
+}
+async function deleteFixedProductPreview(i,j){
+ const p=collectFixedProductFromDom(i),v=p?.previews[j];if(!p||!v||!confirm('이 미리보기 파일을 삭제할까요?'))return;
+ try{
+  await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:v.file})});
+  p.previews.splice(j,1);if(S.presetMeta)delete S.presetMeta[v.file];S.presetOrder=(S.presetOrder||[]).filter(x=>x!==v.file);
+  await persistFixedProducts('미리보기를 삭제했습니다.');fixedProductOpenIds.add(p.id);renderFixedItems()
+ }catch(e){alert('미리보기 삭제에 실패했습니다.\n'+e.message)}
+}
+async function deleteFixedProduct(i){
+ const p=collectFixedProductFromDom(i);if(!p||!confirm('"'+p.name+'" 상품과 등록된 미리보기 파일을 모두 삭제할까요?'))return;
+ const failed=[],deleted=[];
+ for(const v of p.previews){
+  try{await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:v.file})});deleted.push(v.file)}
+  catch(e){failed.push(v)}
  }
+ deleted.forEach(file=>{if(S.presetMeta)delete S.presetMeta[file]});S.presetOrder=(S.presetOrder||[]).filter(file=>!deleted.includes(file));
+ if(failed.length){
+  p.previews=failed;await persistFixedProducts('');
+  fixedProductOpenIds.add(p.id);renderFixedItems();alert('일부 파일 삭제에 실패해 상품을 유지했습니다. 실패한 미리보기만 남겨두었습니다.');return
+ }
+ ensureFixedProducts().splice(i,1);fixedProductOpenIds.delete(p.id);await persistFixedProducts('고정틀 상품을 삭제했습니다.');renderFixedItems()
+}
+async function migrateLegacyFixedProducts(){
+ const products=ensureFixedProducts(),used=new Set(products.flatMap(p=>p.previews.map(v=>v.file))),legacy=fixedItems.filter(x=>!used.has(x.file));
+ if(!legacy.length)return false;
+ legacy.forEach(x=>{
+  const meta=presetMetaFor(x),raw=S.presetMeta?.[x.file]||{},cat=String(raw.fixedPreviewCategory||x.category||'profile');
+  const p=normalizeFixedProduct({
+   id:makeFixedId('legacy'),
+   name:meta.name||'기존 고정틀',
+   seasonCategoryId:String(raw.seasonCategoryId||''),
+   description:String(raw.fixedDescription||''),
+   enabled:meta.enabled,
+   pcColumns:5,mobileColumns:2,showPreviewNames:true,
+   price:Number(raw.fixedPrice||0),priceVisible:true,
+   previews:[{file:x.file,category:fixedLogicalCategoryFromStorage(cat),name:meta.name||'디자인 01',enabled:meta.enabled}]
+  });
+  products.push(p);
+  if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
+  S.presetMeta[x.file]={...(S.presetMeta[x.file]||{}),showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:p.previews[0].category}
+ });
+ await persistFixedProducts('기존 고정틀을 새 상품 구조로 자동 변환했습니다.');
+ return true
 }
 
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=d.settings;render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
