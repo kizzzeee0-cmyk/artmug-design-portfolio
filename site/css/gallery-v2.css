@@ -2452,3 +2452,91 @@ body.artmug-part-portfolio #inquirySection{
     max-width:194px;
   }
 }
+
+
+/* =========================================================
+   2026-10-17 COMPACT FIXED EDIT SUMMARY
+   ========================================================= */
+.fixed-product-options{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:6px!important;
+  margin-top:13px!important;
+  padding-top:11px!important;
+  border-top:1px solid #e6eff4!important;
+}
+.fixed-product-option-group{
+  display:flex!important;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:5px 8px!important;
+  min-width:0;
+  padding:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.fixed-product-option-heading{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  min-height:22px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#eaf7fd;
+  color:#4f8fb3;
+  font-size:9.5px;
+  font-weight:800;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.fixed-product-option-group.is-fixed .fixed-product-option-heading{
+  background:#eff2f5;
+  color:#65737d;
+}
+.fixed-product-option-summary{
+  display:flex;
+  flex:1 1 240px;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:0;
+  min-width:0;
+  padding-top:2px;
+  color:#536a78;
+  font-size:10.5px;
+  font-weight:600;
+  line-height:1.5;
+}
+.fixed-product-option-summary span{
+  white-space:normal;
+}
+.fixed-product-option-summary i{
+  margin:0 5px;
+  color:#a7b5be;
+  font-style:normal;
+  font-weight:500;
+}
+@media(max-width:680px){
+  .fixed-product-options{
+    gap:5px!important;
+    margin-top:11px!important;
+    padding-top:10px!important;
+  }
+  .fixed-product-option-group{
+    gap:4px 7px!important;
+  }
+  .fixed-product-option-heading{
+    min-height:21px;
+    padding:3px 7px;
+    font-size:9px;
+  }
+  .fixed-product-option-summary{
+    flex-basis:190px;
+    padding-top:1px;
+    font-size:9.5px;
+    line-height:1.45;
+  }
+  .fixed-product-option-summary i{
+    margin:0 4px;
+  }
+}
