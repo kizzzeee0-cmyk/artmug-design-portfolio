@@ -158,10 +158,14 @@ async function publicNavSummary(env){
     const m=pm[x.file]||{};
     return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))!=='fixed'
   });
-  const hasFixed=s.fixedEnabled===true&&presetItems.some(x=>{
-    const m=pm[x.file]||{};
-    return m.showcaseKind==='fixed'&&(s.fixedCategories||[]).some(c=>c.id===x.category&&c.enabled!==false)
+  const fixedProductVisible=Array.isArray(s.fixedProducts)&&s.fixedProducts.some(p=>
+    p&&p.enabled!==false&&Array.isArray(p.previews)&&p.previews.some(v=>v&&v.file&&v.enabled!==false)
+  );
+  const legacyFixedVisible=presetItems.some(x=>{
+    const m=pm[x.file]||{},logical=String(m.fixedPreviewCategory||x.category||'');
+    return m.showcaseKind==='fixed'&&(s.fixedCategories||[]).some(c=>c.id===logical&&c.enabled!==false)
   });
+  const hasFixed=s.fixedEnabled===true&&(fixedProductVisible||legacyFixedVisible);
   const categories=cats
     .filter(c=>Number(categoryCounts[c.id]||0)>0)
     .map(c=>({
