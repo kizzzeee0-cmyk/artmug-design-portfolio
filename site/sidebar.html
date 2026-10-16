@@ -1980,6 +1980,220 @@ body{
   }
 }
 
+
+/* 2026-10-17 UNIFIED CIRCLES + ACTIVE ACCENT V23 */
+:root{
+  --quick-active-accent:#8fc8e8; /* exact current NEW badge color */
+  --quick-inquiry-line:#8fc8e8;
+  --quick-inquiry-text:#5f96bc;
+}
+
+/* Every menu icon circle and TOP circle: exact same size. */
+.quick-nav-icon,
+.quick-inquiry-button .quick-nav-icon,
+.quick-top-button{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  max-width:42px!important;
+  max-height:42px!important;
+  flex:0 0 42px!important;
+}
+
+/* Every glyph uses one exact visual box. */
+.quick-nav-icon svg,
+.quick-inquiry-button .quick-nav-icon svg{
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+
+/* Keep the common 46px icon column; its center remains exactly on connector x=8.75px. */
+.quick-nav-button,
+.quick-inquiry-button{
+  grid-template-columns:46px minmax(0,1fr)!important;
+}
+.nav-list{
+  margin-left:-14.25px!important;
+}
+.quick-connector-line{
+  left:8px!important;
+  width:1.5px!important;
+}
+
+/* TOP: same 42px circle, exact same connector-axis center. */
+.quick-top-wrap{
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  margin-left:0!important;
+  left:8.75px!important;
+  transform:translateX(-50%)!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+}
+.quick-top-button{
+  padding:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.quick-top-content{
+  width:auto!important;
+  height:auto!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  line-height:1!important;
+}
+.quick-top-arrow{
+  width:12px!important;
+  height:8px!important;
+  margin:0!important;
+  padding:0!important;
+}
+.quick-top-text{
+  margin:0!important;
+  padding:0!important;
+  font-size:9.4px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+
+/* General active pill: exact NEW badge blue. */
+.quick-nav-button.is-active{
+  border-color:var(--quick-active-accent)!important;
+  background:var(--quick-active-accent)!important;
+  color:#fff!important;
+  box-shadow:0 6px 14px rgba(76,145,187,.16)!important;
+}
+.quick-nav-button.is-active .quick-nav-label{
+  color:#fff!important;
+}
+
+/* Inquiry default: white fill + thin sky-blue line + sky-blue text. */
+.quick-inquiry-button{
+  border:1px solid var(--quick-inquiry-line)!important;
+  background:#fff!important;
+  color:var(--quick-inquiry-text)!important;
+  box-shadow:0 4px 11px rgba(75,130,165,.08)!important;
+}
+.quick-inquiry-button .quick-nav-label{
+  color:var(--quick-inquiry-text)!important;
+  font-weight:600!important;
+}
+.quick-inquiry-button .quick-nav-icon{
+  border-color:#dceaf2!important;
+  background:#fff!important;
+  color:#5f96bc!important;
+  box-shadow:0 4px 11px rgba(75,130,165,.11)!important;
+}
+
+/* Inquiry active: exactly the same active treatment as all other entries. */
+.quick-inquiry-button.is-active,
+.quick-inquiry-button.is-active:hover,
+.quick-inquiry-button.is-active:focus-visible,
+.quick-inquiry-button.is-active:active{
+  border-color:var(--quick-active-accent)!important;
+  background:var(--quick-active-accent)!important;
+  color:#fff!important;
+  box-shadow:0 6px 14px rgba(76,145,187,.16)!important;
+}
+.quick-inquiry-button.is-active .quick-nav-label{
+  color:#fff!important;
+}
+.quick-inquiry-button.is-active .quick-nav-icon{
+  border-color:rgba(255,255,255,.72)!important;
+  background:#fff!important;
+  color:#62a4ca!important;
+  box-shadow:0 2px 7px rgba(62,120,156,.08)!important;
+}
+
+/* Inquiry hover while NOT active stays emphasized but does not fill solid blue. */
+.quick-inquiry-button:not(.is-active):hover,
+.quick-inquiry-button:not(.is-active):focus-visible{
+  border-color:var(--quick-inquiry-line)!important;
+  background:#f7fbfe!important;
+  color:var(--quick-inquiry-text)!important;
+  outline:none!important;
+}
+
+/* Short screens: circles still remain exactly equal to each other. */
+@media(max-height:780px){
+  .quick-nav-icon,
+  .quick-inquiry-button .quick-nav-icon,
+  .quick-top-button{
+    width:39px!important;
+    height:39px!important;
+    min-width:39px!important;
+    min-height:39px!important;
+    max-width:39px!important;
+    max-height:39px!important;
+    flex-basis:39px!important;
+  }
+  .quick-nav-icon svg,
+  .quick-inquiry-button .quick-nav-icon svg{
+    width:21px!important;
+    height:21px!important;
+    min-width:21px!important;
+    min-height:21px!important;
+    max-width:21px!important;
+    max-height:21px!important;
+  }
+  .quick-top-wrap{
+    width:39px!important;
+    min-width:39px!important;
+    max-width:39px!important;
+    left:8.75px!important;
+    transform:translateX(-50%)!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-icon,
+  .quick-inquiry-button .quick-nav-icon,
+  .quick-top-button{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    min-height:36px!important;
+    max-width:36px!important;
+    max-height:36px!important;
+    flex-basis:36px!important;
+  }
+  .quick-nav-icon svg,
+  .quick-inquiry-button .quick-nav-icon svg{
+    width:20px!important;
+    height:20px!important;
+    min-width:20px!important;
+    min-height:20px!important;
+    max-width:20px!important;
+    max-height:20px!important;
+  }
+  .quick-top-wrap{
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    left:8.75px!important;
+    transform:translateX(-50%)!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2034,10 +2248,10 @@ function iconSvg(item){
  if(t==='inquiry')return '<svg viewBox="0 0 24 24"><rect x="4.5" y="6.5" width="15" height="11" rx="1.8"/><path d="m5.2 7.3 6.8 5.2 6.8-5.2"/></svg>';
 
  /* 고정틀: frame / crop-frame style icon */
- if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M7 4.5h7l3 3v12H7z"/><path d="M14 4.5v3.2h3"/><path d="M9.5 11h5M9.5 14h5M9.5 17h3.5"/></svg>';
+ if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M8 5H5v3M16 5h3v3M8 19H5v-3M16 19h3v-3"/><rect x="8" y="8" width="8" height="8" rx="1.4"/></svg>';
 
  /* 프리셋: paint palette */
- if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="M6 8h12M6 12h12M6 16h12"/><circle cx="10" cy="8" r="1.35"/><circle cx="15" cy="12" r="1.35"/><circle cx="9" cy="16" r="1.35"/></svg>';
+ if(t==='showcase')return '<svg viewBox="0 0 24 24"><rect x="5.5" y="6" width="13" height="3" rx="1.5"/><rect x="5.5" y="10.5" width="13" height="3" rx="1.5"/><rect x="5.5" y="15" width="13" height="3" rx="1.5"/></svg>';
 
  /* 움짤프사: default profile/avatar silhouette */
  if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><rect x="4.7" y="5.7" width="14.6" height="12.6" rx="2.6"/><path d="m10.2 9.2 4.8 2.8-4.8 2.8z"/></svg>';
