@@ -2439,3 +2439,16 @@ body.artmug-part-portfolio #inquirySection{
     font-size:9.5px;
   }
 }
+
+
+/* If a product mixes banners and profile previews, shrink only the profile preview. */
+.fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile .fixed-product-preview-media{
+  width:min(100%,158px);
+  margin-inline:auto;
+}
+@media(max-width:680px){
+  .fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile .fixed-product-preview-media{
+    width:88%;
+    max-width:194px;
+  }
+}
