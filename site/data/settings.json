@@ -772,7 +772,7 @@
       "featured": false
     },
     "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif": {
-      "name": "디자인 01",
+      "name": "블루 / 네모",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -781,7 +781,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif": {
-      "name": "디자인 02",
+      "name": "그린 / 클로버",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -790,7 +790,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif": {
-      "name": "디자인 03",
+      "name": "핑크 / 하트",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -948,7 +948,7 @@
           "id": "preview-mvb38zjq-arckn5",
           "file": "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
           "category": "profile",
-          "name": "디자인 03",
+          "name": "핑크 / 하트",
           "description": "",
           "enabled": true
         },
@@ -956,7 +956,7 @@
           "id": "preview-mvb380i3-d6hfkg",
           "file": "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
           "category": "profile",
-          "name": "",
+          "name": "블루 / 네모",
           "description": "",
           "enabled": true
         },
@@ -964,7 +964,7 @@
           "id": "preview-mvb38mh3-o64jih",
           "file": "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
           "category": "profile",
-          "name": "",
+          "name": "그린 / 클로버",
           "description": "",
           "enabled": true
         }
