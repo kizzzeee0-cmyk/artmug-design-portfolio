@@ -1072,6 +1072,66 @@ body{
   }
 }
 
+
+/* 2026-10-17 QUICK MENU LINE + ICON CLEAR GAP V8 */
+/* Keep the connector visible inside the iframe, then move menu items right to create a real gap. */
+.quick-shell{
+  width:194px!important;
+  max-width:194px!important;
+}
+.quick-shell::before{
+  left:8px!important;
+  width:1.5px!important;
+  background:#9fcfe9!important;
+}
+
+/* The line stays fixed; only the menu controls move right. */
+.nav-list,
+.quick-inquiry-section{
+  width:164px!important;
+  margin-left:26px!important;
+}
+.quick-nav-button,
+.quick-inquiry-button{
+  width:164px!important;
+}
+
+/* TOP follows the same icon column, so the vertical rhythm stays aligned. */
+.quick-top-wrap{
+  margin-left:26px!important;
+}
+
+/* Status badge remains at the upper-right of the shell. */
+.quick-work-status{
+  right:8px!important;
+}
+
+/* Override the previous negative line position on short screens too. */
+@media(max-height:780px){
+  .quick-shell::before{
+    left:8px!important;
+  }
+  .nav-list,
+  .quick-inquiry-section{
+    margin-left:26px!important;
+  }
+  .quick-top-wrap{
+    margin-left:26px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-shell::before{
+    left:8px!important;
+  }
+  .nav-list,
+  .quick-inquiry-section{
+    margin-left:26px!important;
+  }
+  .quick-top-wrap{
+    margin-left:26px!important;
+  }
+}
+
 </style>
 </head>
 <body>
