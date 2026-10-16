@@ -619,10 +619,10 @@ function fixedPatternSelectionHtml(card){
 function fixedSelectionHtml(selectedId){
  const arr=fixedInquiryProducts();
  const options=arr.map(p=>
-  '<button type="button" data-v2-select="fixed" data-product-id="'+esc(p.id)+'" class="'+(String(selectedId||'')===String(p.id)?'is-selected':'')+'"><span>'+esc(p.name||'이름 없음')+'</span></button>'
+  '<button type="button" data-v2-select="fixed" data-product-id="'+esc(p.id)+'" class="choice-pill v2-fixed-product-choice '+(String(selectedId||'')===String(p.id)?'is-selected':'')+'"><span>'+esc(p.name||'이름 없음')+'</span></button>'
  ).join('');
  return '<fieldset class="v2-mode-field v2-product-select v2-fixed-product-select choice-field inquiry-plain-choice" data-product-kind="fixed"><legend data-question-title>고정틀 선택</legend>'+
-  '<div class="v2-fixed-product-grid">'+(options||'<p class="v2-empty-products">현재 선택 가능한 움짤프사 고정틀이 없습니다.</p>')+'</div></fieldset>'
+  '<div class="choice-row v2-fixed-product-grid">'+(options||'<p class="v2-empty-products">현재 선택 가능한 움짤프사 고정틀이 없습니다.</p>')+'</div></fieldset>'
 }
 function injectInquiry(card){
  const fields=card.querySelector('.request-fields');if(!fields)return;
