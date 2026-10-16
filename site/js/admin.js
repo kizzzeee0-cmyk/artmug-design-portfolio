@@ -1802,7 +1802,8 @@ function collectFixedProductFromDom(i){
  p.name=String(val('name',p.name)).trim()||'새 고정틀';
  p.seasonCategoryId=String(val('season',p.seasonCategoryId));
  p.description=String(val('description',p.description));
- p.enabled=q('[data-fp-enabled="'+i+'"]')?.checked!==false;
+ const enabledInput=q('[data-fp-enabled-summary="'+i+'"]')||q('[data-fp-enabled="'+i+'"]');
+ if(enabledInput)p.enabled=enabledInput.checked;
  p.pcColumns=Math.max(1,Math.min(8,Number(val('pc',p.pcColumns)||5)));
  p.mobileColumns=Math.max(1,Math.min(4,Number(val('mobile',p.mobileColumns)||2)));
  p.showPreviewNames=q('[data-fp-show-names="'+i+'"]')?.checked!==false;
@@ -2012,9 +2013,9 @@ async function uploadFixedProductPreviews(i){
  const p=collectFixedProductFromDom(i);if(!p)return;
  const input=document.querySelector('[data-fp-files="'+i+'"]'),files=[...(input?.files||[])],cat=document.querySelector('[data-fp-upload-cat="'+i+'"]')?.value||'profile',status=document.querySelector('[data-fp-upload-status="'+i+'"]');
  if(!files.length){alert('추가할 이미지 또는 GIF를 선택해 주세요.');return}
+ const uploaded=[];
  try{
   await ensureFixedUploadInfrastructure();
-  const uploaded=[];
   for(let n=0;n<files.length;n++){
    validatePresetUploadFile(files[n]);
    if(status)status.textContent=(n+1)+'/'+files.length+' 업로드 중…';
@@ -2030,7 +2031,15 @@ async function uploadFixedProductPreviews(i){
   await persistFixedProducts('미리보기가 추가되었습니다.');
   if(input)input.value='';if(status)status.textContent='업로드 완료';
   fixedProductOpenIds.add(p.id);renderFixedItems()
- }catch(e){if(status)status.textContent=e.message;alert('미리보기 업로드에 실패했습니다.\n'+e.message)}
+ }catch(e){
+  for(const path of uploaded)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{});
+  if(uploaded.length){
+   p.previews=p.previews.filter(v=>!uploaded.includes(v.file));
+   uploaded.forEach(path=>{if(S.presetMeta)delete S.presetMeta[path]});
+   S.presetOrder=(S.presetOrder||[]).filter(path=>!uploaded.includes(path))
+  }
+  if(status)status.textContent=e.message;alert('미리보기 업로드에 실패했습니다.\n'+e.message)
+ }
 }
 async function moveFixedPreview(i,j,dir){
  const p=collectFixedProductFromDom(i);if(!p)return;const k=j+dir;if(k<0||k>=p.previews.length)return;
