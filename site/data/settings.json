@@ -933,11 +933,31 @@
             "클로버",
             "별",
             "네모",
-            "도트 등"
+            "도트",
+            "etc"
           ]
+        },
+        {
+          "id": "opt-mvb3ay0u-0385dl",
+          "label": "원형 프레임",
+          "detail": "",
+          "choices": []
+        },
+        {
+          "id": "opt-mvb3b72v-how5p3",
+          "label": "전환효과 및 애니메이션",
+          "detail": "",
+          "choices": []
         }
       ],
-      "fixedOptions": [],
+      "fixedOptions": [
+        {
+          "id": "opt-mvb3bdhx-7v0nz6",
+          "label": "배경 디자인",
+          "detail": "",
+          "choices": []
+        }
+      ],
       "note": "",
       "price": 15000,
       "priceVisible": true,
