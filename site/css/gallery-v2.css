@@ -2214,3 +2214,34 @@ body.artmug-part-portfolio #inquirySection{
     grid-column:2;
   }
 }
+
+.fixed-product-preview-grid.is-square-only{
+  max-width:min(100%,calc(var(--fixed-product-cols,1) * 180px + (var(--fixed-product-cols,1) - 1) * 12px));
+}
+.fixed-product-preview figcaption{
+  display:grid;
+  justify-items:center;
+}
+.fixed-product-preview-labels{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+.fixed-product-preview figcaption p{
+  margin:2px 0 0;
+  color:#71818c;
+  font-size:9.5px;
+  font-weight:400;
+  line-height:1.45;
+  text-align:center;
+}
+@media(max-width:680px){
+  .fixed-product-preview-grid.is-square-only{
+    max-width:100%;
+  }
+  .fixed-product-preview figcaption p{
+    font-size:8.5px;
+  }
+}
