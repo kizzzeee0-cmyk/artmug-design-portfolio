@@ -998,6 +998,59 @@ body{
   }
 }
 
+
+/* 2026-10-17 QUICK MENU LINE GAP + ACTIVE DOT V6 */
+/* Keep the connector line clearly separated from the icon circles. */
+.quick-shell::before{
+  left:13px!important;
+  width:1.5px!important;
+  background:#9fcfe9!important;
+}
+
+/* Active-page indicator dot on the right side of the pill. */
+.quick-nav-button,
+.quick-inquiry-button{
+  position:relative!important;
+}
+.quick-nav-button.is-active::after,
+.quick-inquiry-button.is-active::after{
+  content:""!important;
+  position:absolute!important;
+  right:12px!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  transform:translateY(-50%)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18)!important;
+  pointer-events:none!important;
+}
+
+/* Keep the line visible and avoid visual collisions on shorter screens. */
+@media(max-height:780px){
+  .quick-shell::before{
+    left:12px!important;
+  }
+  .quick-nav-button.is-active::after,
+  .quick-inquiry-button.is-active::after{
+    right:11px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-shell::before{
+    left:11px!important;
+  }
+  .quick-nav-button.is-active::after,
+  .quick-inquiry-button.is-active::after{
+    right:10px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+
 </style>
 </head>
 <body>
