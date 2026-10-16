@@ -721,7 +721,7 @@ function renderQuickPage(){
  quickPage=Math.max(0,Math.min(quickPage,pages-1));
  const start=quickPage*QUICK_PAGE_SIZE;
  const visible=quickItems.slice(start,start+QUICK_PAGE_SIZE);
- root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-label">'+x.label+'</span><span class="quick-button-arrow" aria-hidden="true">›</span></button>').join('');
+ root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-label">'+x.label+'</span></button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
  const pager=document.getElementById('quickPagination');
  const prev=document.getElementById('quickPagePrev');
