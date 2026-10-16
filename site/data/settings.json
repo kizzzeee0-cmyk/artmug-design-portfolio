@@ -797,6 +797,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261016155124-13wtazr1cm1n41-_______1_.gif": {
+      "name": "디자인 04",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -805,7 +814,8 @@
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
     "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
     "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
-    "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif"
+    "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
+    "preset/fixed-store-profile/20261016155124-13wtazr1cm1n41-_______1_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -977,6 +987,14 @@
           "file": "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
           "category": "profile",
           "name": "그린 / 클로버",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvb5arkc-tdfosv",
+          "file": "preset/fixed-store-profile/20261016155124-13wtazr1cm1n41-_______1_.gif",
+          "category": "profile",
+          "name": "디자인 04",
           "description": "",
           "enabled": true
         }
