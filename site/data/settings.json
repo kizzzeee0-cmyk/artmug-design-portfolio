@@ -941,6 +941,12 @@
           "label": "전환 효과 및 파티클",
           "detail": "",
           "choices": []
+        },
+        {
+          "id": "opt-mvb4c7c5-748xaj",
+          "label": "색상",
+          "detail": "",
+          "choices": []
         }
       ],
       "fixedOptions": [],
