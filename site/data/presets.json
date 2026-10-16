@@ -88,5 +88,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261016163232"
+  },
+  {
+    "id": "preset-C6v4GW-Lpos",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif",
+    "originalName": "옐로우최종본 수정띠_.gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261016163601"
   }
 ]
