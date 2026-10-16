@@ -2357,6 +2357,39 @@ body{
   }
 }
 
+
+/* 2026-10-17 TOP CIRCLE OPTICAL CENTER V27 */
+/* Nudge only the TOP circle slightly left so its visual center matches the icon column. */
+.quick-top-button{
+  transform:translateX(-1px)!important;
+}
+
+/* Make the TOP arrow exactly 1px smaller than before. */
+.quick-top-arrow{
+  width:11px!important;
+  height:7px!important;
+}
+
+/* Preserve the same optical correction on shorter screens. */
+@media(max-height:780px){
+  .quick-top-button{
+    transform:translateX(-1px)!important;
+  }
+  .quick-top-arrow{
+    width:10px!important;
+    height:6px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-top-button{
+    transform:translateX(-1px)!important;
+  }
+  .quick-top-arrow{
+    width:9px!important;
+    height:6px!important;
+  }
+}
+
 </style>
 </head>
 <body>
