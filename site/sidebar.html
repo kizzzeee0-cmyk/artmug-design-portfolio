@@ -1391,6 +1391,52 @@ body{
   }
 }
 
+
+/* 2026-10-17 TOP OVER CONNECTOR + DOT CENTER V14 */
+/* Keep the connector behind TOP so the circle stays visually clean. */
+.quick-connector-line{
+  z-index:1!important;
+}
+.quick-top-wrap{
+  position:relative!important;
+  z-index:10!important;
+}
+.quick-top-button{
+  position:relative!important;
+  z-index:11!important;
+  background:#fff!important;
+}
+
+/* Exact dot centering:
+   connector x = 8px, button x = 23px.
+   7px dot => left = 8 - 23 - 3.5 = -18.5px. */
+.quick-nav-button.is-active::before,
+.quick-inquiry-button.is-active::before{
+  left:-18.5px!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  transform:translateY(-50%)!important;
+}
+
+/* 6px dot => left = 8 - 23 - 3 = -18px. */
+@media(max-height:780px){
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-18px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-18px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+
 </style>
 </head>
 <body>
