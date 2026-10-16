@@ -10,7 +10,7 @@
   const QUICK_NAV_TOP=260;
 
   function quickNavRightGap(){
-    return Math.max(20,Math.round(Math.max(0,(window.innerWidth-1500)/2)-90))
+    return Math.max(42,Math.round(Math.max(0,(window.innerWidth-1500)/2)-68))
   }
 
   function isDesktopQuickNavFrame(frame){

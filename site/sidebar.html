@@ -1273,6 +1273,87 @@ html,body{
   }
 }
 
+
+/* 2026-10-17 STATUS + TOP ON CONNECTOR V12 */
+/* Create safe left space inside the iframe without changing the visible menu position. */
+body{
+  padding-left:22px!important;
+}
+
+/* Move the work/sleep speech bubble down by exactly 4px from the current 2px position. */
+.quick-work-status{
+  top:6px!important;
+}
+
+/* Keep the real connector line in the same visual screen position. */
+.quick-connector-line{
+  left:8px!important;
+}
+
+/* Menu items remain where they were visually. */
+.nav-list,
+.quick-inquiry-section{
+  margin-left:23px!important;
+}
+
+/* Place TOP at the very end of the thin connector:
+   the 44px circle is centered exactly on the connector x-axis. */
+.quick-top-wrap{
+  width:44px!important;
+  margin-left:-13.25px!important;
+  padding:0!important;
+  justify-content:center!important;
+}
+.quick-top-button{
+  width:44px!important;
+  height:44px!important;
+  margin:0!important;
+}
+
+/* The line endpoint and TOP circle center share the same vertical axis/end relationship. */
+.quick-connector-line{
+  bottom:26px!important;
+}
+
+@media(max-height:780px){
+  body{
+    padding-left:22px!important;
+  }
+  .quick-work-status{
+    top:6px!important;
+  }
+  .nav-list,
+  .quick-inquiry-section{
+    margin-left:23px!important;
+  }
+  .quick-top-wrap{
+    margin-left:-11.25px!important;
+  }
+  .quick-connector-line{
+    left:8px!important;
+    bottom:24px!important;
+  }
+}
+@media(max-height:640px){
+  body{
+    padding-left:22px!important;
+  }
+  .quick-work-status{
+    top:6px!important;
+  }
+  .nav-list,
+  .quick-inquiry-section{
+    margin-left:23px!important;
+  }
+  .quick-top-wrap{
+    margin-left:-9.25px!important;
+  }
+  .quick-connector-line{
+    left:8px!important;
+    bottom:22px!important;
+  }
+}
+
 </style>
 </head>
 <body>
