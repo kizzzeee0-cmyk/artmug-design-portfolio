@@ -299,6 +299,181 @@ body{
   .quick-nav-label{font-size:10px;letter-spacing:-.02em}
   .quick-top-wrap{padding-left:1px}
 }
+
+/* 2026-10-17 QUICK MENU REFERENCE SCALE + POSITION */
+body{
+  justify-content:flex-start!important;
+  padding-top:6px!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  padding-bottom:8px!important;
+}
+.quick-shell{
+  width:166px!important;
+  max-width:166px!important;
+  padding-top:28px!important;
+  margin:0!important;
+}
+.quick-shell::before{
+  left:20px!important;
+  top:31px!important;
+  bottom:22px!important;
+}
+.quick-work-status{
+  top:0!important;
+  right:4px!important;
+}
+.quick-work-status-badge{
+  min-height:25px!important;
+  padding:5px 9px!important;
+  font-size:10.5px!important;
+}
+.nav-list{
+  gap:6px!important;
+}
+.quick-nav-button,
+.quick-inquiry-button{
+  width:158px!important;
+  min-height:44px!important;
+  grid-template-columns:42px minmax(0,1fr)!important;
+  gap:4px!important;
+  padding:4px 8px 4px 0!important;
+}
+.quick-nav-icon{
+  width:35px!important;
+  height:35px!important;
+}
+.quick-nav-icon svg{
+  width:19px!important;
+  height:19px!important;
+}
+.quick-nav-label{
+  padding-right:3px!important;
+  font-size:13.5px!important;
+  font-weight:700!important;
+  line-height:1.2!important;
+}
+.quick-inquiry-section{
+  margin-top:7px!important;
+}
+.quick-inquiry-button{
+  min-height:46px!important;
+}
+.quick-inquiry-button .quick-nav-label{
+  font-size:14px!important;
+  font-weight:800!important;
+}
+.quick-top-wrap{
+  width:40px!important;
+  min-height:47px!important;
+  padding-left:0!important;
+  margin-top:5px!important;
+  justify-content:center!important;
+  align-items:flex-end!important;
+}
+.quick-top-button{
+  width:40px!important;
+  height:40px!important;
+  display:block!important;
+  position:relative!important;
+}
+.quick-top-content{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-rows:auto auto!important;
+  place-content:center!important;
+  justify-items:center!important;
+  align-items:center!important;
+  gap:3px!important;
+  transform:none!important;
+}
+.quick-top-arrow{
+  width:11px!important;
+  height:7px!important;
+  margin:0 auto!important;
+  transform:none!important;
+}
+.quick-top-arrow svg{
+  display:block!important;
+  margin:0 auto!important;
+  transform:none!important;
+}
+.quick-top-text{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  text-align:center!important;
+  font-size:8.5px!important;
+  line-height:1!important;
+}
+@media(max-height:780px){
+  body{
+    padding-top:4px!important;
+    padding-bottom:5px!important;
+  }
+  .quick-shell{
+    padding-top:26px!important;
+  }
+  .quick-shell::before{
+    top:29px!important;
+  }
+  .nav-list{gap:5px!important}
+  .quick-nav-button,
+  .quick-inquiry-button{
+    min-height:40px!important;
+  }
+  .quick-nav-icon{
+    width:33px!important;
+    height:33px!important;
+  }
+  .quick-nav-label{
+    font-size:13px!important;
+  }
+  .quick-inquiry-button .quick-nav-label{
+    font-size:13.5px!important;
+  }
+}
+@media(max-height:640px){
+  body{
+    padding-top:2px!important;
+    padding-bottom:3px!important;
+  }
+  .quick-shell{
+    padding-top:24px!important;
+  }
+  .quick-shell::before{
+    top:27px!important;
+  }
+  .nav-list{gap:3px!important}
+  .quick-nav-button,
+  .quick-inquiry-button{
+    min-height:36px!important;
+  }
+  .quick-nav-icon{
+    width:30px!important;
+    height:30px!important;
+  }
+  .quick-nav-icon svg{
+    width:16px!important;
+    height:16px!important;
+  }
+  .quick-nav-label{
+    font-size:12px!important;
+  }
+  .quick-inquiry-button .quick-nav-label{
+    font-size:12.5px!important;
+  }
+  .quick-top-wrap{
+    min-height:39px!important;
+  }
+  .quick-top-button{
+    width:35px!important;
+    height:35px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -336,7 +511,7 @@ body{
 (function(){
 const API=(window.ARTMUG_CONFIG||{}).API_BASE||'';
 const root=document.getElementById('navList');
-const CACHE_KEY='artmug-nav-summary-v19';
+const CACHE_KEY='artmug-nav-summary-v20';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null,activeTarget='';
 
