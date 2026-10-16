@@ -239,6 +239,7 @@ function summaryFromNav(d){
  const fourCut=nonBanner.find(c=>c.kind==='four-cut');
  return {
   hasPreset:!!d?.hasPreset,
+  hasFixed:!!d?.hasFixed,
   hasBanner:cats.some(c=>c.banner),
   bannerIds:cats.filter(c=>c.banner).map(c=>c.id),
   profile:profile?{id:profile.id,label:'움짤프사'}:null,
