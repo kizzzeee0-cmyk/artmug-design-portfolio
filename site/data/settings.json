@@ -821,6 +821,24 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261016155124-13wtazr1cm1n41-_______1_.gif": {
+      "name": "옐로우 / 별",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261016160300-1jywrrpi8i2l5-_______1_.gif": {
+      "name": "브라운 / 도트",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
