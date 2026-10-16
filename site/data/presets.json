@@ -52,5 +52,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261016155124"
+  },
+  {
+    "id": "preset-mGLmhRQSnhc",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261016160300-1jywrrpi8i2l5-_______1_.gif",
+    "originalName": "컴포지갈색션 1_.gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261016160300"
   }
 ]
