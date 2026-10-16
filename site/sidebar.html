@@ -1354,6 +1354,43 @@ body{
   }
 }
 
+
+/* 2026-10-17 ICON + LABEL INNER OFFSET V13 */
+/* Keep the pill geometry fixed; move only its inner icon and label. */
+.quick-nav-button .quick-nav-icon,
+.quick-inquiry-button .quick-nav-icon{
+  transform:translateX(2px)!important;
+}
+
+/* Shift only the text inside each pill to the right. */
+.quick-nav-button .quick-nav-label,
+.quick-inquiry-button .quick-nav-label{
+  position:relative!important;
+  left:10px!important;
+}
+
+/* Preserve the same inner offsets on shorter screens. */
+@media(max-height:780px){
+  .quick-nav-button .quick-nav-icon,
+  .quick-inquiry-button .quick-nav-icon{
+    transform:translateX(2px)!important;
+  }
+  .quick-nav-button .quick-nav-label,
+  .quick-inquiry-button .quick-nav-label{
+    left:10px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button .quick-nav-icon,
+  .quick-inquiry-button .quick-nav-icon{
+    transform:translateX(2px)!important;
+  }
+  .quick-nav-button .quick-nav-label,
+  .quick-inquiry-button .quick-nav-label{
+    left:10px!important;
+  }
+}
+
 </style>
 </head>
 <body>
