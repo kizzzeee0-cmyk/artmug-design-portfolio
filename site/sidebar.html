@@ -1168,6 +1168,58 @@ body{
   }
 }
 
+
+/* 2026-10-17 ACTIVE DOT ON CONNECTOR + NO CLIP V10 */
+/* Remove the previous right-side active dot completely. */
+.quick-nav-button.is-active::after,
+.quick-inquiry-button.is-active::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Put the active-page dot directly on the real vertical connector line. */
+.quick-nav-button.is-active::before,
+.quick-inquiry-button.is-active::before{
+  content:""!important;
+  position:absolute!important;
+  left:-21.5px!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  border-radius:50%!important;
+  background:#8fc9e8!important;
+  border:0!important;
+  transform:translateY(-50%)!important;
+  box-shadow:0 0 0 2px #fff!important;
+  z-index:8!important;
+  pointer-events:none!important;
+}
+
+/* Keep the pill/shadow inside the expanded iframe without changing its visual position. */
+.quick-shell{
+  overflow:visible!important;
+}
+html,body{
+  overflow:visible!important;
+}
+
+@media(max-height:780px){
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-21px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-20.5px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+
 </style>
 </head>
 <body>

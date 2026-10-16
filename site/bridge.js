@@ -65,7 +65,7 @@
     frame.style.setProperty('left','auto','important');
     frame.style.setProperty('transform','none','important');
     frame.style.setProperty('z-index','50','important');
-    frame.style.setProperty('width',saved.width+'px','important');
+    frame.style.setProperty('width',Math.max(saved.width,220)+'px','important');
     frame.style.setProperty('max-width','calc(100vw - 16px)','important');
     frame.style.setProperty('margin','0','important');
 
