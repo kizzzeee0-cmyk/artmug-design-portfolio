@@ -450,6 +450,175 @@ body{
   .quick-button-arrow{width:25px;height:25px;font-size:19px}
   .quick-nav-label{font-size:10.5px!important;letter-spacing:-.02em}
 }
+
+/* 2026-10-17 QUICK MENU COMPACT + NO PILL ARROWS */
+.quick-nav-button,
+.quick-inquiry-button{
+  min-height:36px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  grid-template-columns:none!important;
+  padding:4px 10px!important;
+  text-align:center!important;
+}
+.quick-nav-button::before,
+.quick-inquiry-button::before,
+.quick-button-arrow{
+  display:none!important;
+  content:none!important;
+}
+.quick-nav-label{
+  grid-column:auto!important;
+  width:auto!important;
+  flex:0 1 auto;
+  text-align:center!important;
+  font-size:11.5px!important;
+  line-height:1.2!important;
+}
+.nav-list{
+  gap:7px!important;
+  overflow:visible!important;
+}
+.quick-divider.is-title{
+  margin-bottom:11px!important;
+}
+.quick-divider.is-action{
+  margin:10px 0 9px!important;
+}
+.quick-shell{
+  padding-top:17px!important;
+  padding-bottom:11px!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+.quick-menu-title{
+  margin:1px 0 10px!important;
+  font-size:14px!important;
+}
+.quick-inquiry-section + .quick-top-wrap{
+  margin-top:5px!important;
+}
+.quick-top-wrap{
+  min-height:40px!important;
+  margin-top:5px!important;
+}
+.quick-top-button{
+  width:40px!important;
+  height:40px!important;
+}
+.quick-top-button::before{
+  width:32px!important;
+  height:32px!important;
+}
+.quick-top-content{
+  width:32px!important;
+  height:32px!important;
+}
+.quick-pagination{
+  min-height:24px!important;
+  margin-top:6px!important;
+}
+
+/* Small-height monitors: keep everything visible without internal scrolling. */
+@media(max-height:850px){
+  body{
+    align-items:flex-start!important;
+    padding-top:18px!important;
+    padding-bottom:10px!important;
+    overflow:visible!important;
+  }
+  .quick-shell{
+    padding-top:15px!important;
+    padding-bottom:9px!important;
+  }
+  .quick-work-status{
+    top:-10px!important;
+  }
+}
+@media(max-height:720px){
+  body{
+    padding-top:15px!important;
+    padding-bottom:8px!important;
+  }
+  .quick-shell{
+    padding-top:13px!important;
+    padding-bottom:8px!important;
+  }
+  .quick-menu-title{
+    margin-bottom:8px!important;
+    font-size:13px!important;
+  }
+  .quick-divider.is-title{
+    margin-bottom:9px!important;
+  }
+  .nav-list{
+    gap:6px!important;
+  }
+  .quick-nav-button,
+  .quick-inquiry-button{
+    min-height:33px!important;
+    padding-top:3px!important;
+    padding-bottom:3px!important;
+  }
+  .quick-divider.is-action{
+    margin:8px 0 7px!important;
+  }
+  .quick-top-wrap{
+    min-height:36px!important;
+    margin-top:3px!important;
+  }
+  .quick-top-button{
+    width:36px!important;
+    height:36px!important;
+  }
+  .quick-top-button::before{
+    width:29px!important;
+    height:29px!important;
+  }
+  .quick-top-content{
+    width:29px!important;
+    height:29px!important;
+  }
+}
+@media(max-height:600px){
+  body{
+    padding-top:13px!important;
+    padding-bottom:6px!important;
+  }
+  .quick-shell{
+    padding-top:12px!important;
+    padding-bottom:7px!important;
+  }
+  .nav-list{
+    gap:5px!important;
+  }
+  .quick-nav-button,
+  .quick-inquiry-button{
+    min-height:31px!important;
+  }
+  .quick-nav-label{
+    font-size:10.5px!important;
+  }
+  .quick-divider.is-action{
+    margin:7px 0 6px!important;
+  }
+  .quick-top-wrap{
+    min-height:33px!important;
+  }
+  .quick-top-button{
+    width:33px!important;
+    height:33px!important;
+  }
+  .quick-top-button::before{
+    width:27px!important;
+    height:27px!important;
+  }
+  .quick-top-content{
+    width:27px!important;
+    height:27px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -465,14 +634,14 @@ body{
   </div>
   <div id="quickInquirySection" class="quick-inquiry-section" hidden>
     <div class="quick-divider is-action" aria-hidden="true"></div>
-    <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-label">문의양식</span><span class="quick-button-arrow" aria-hidden="true">›</span></button>
+    <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-label">문의양식</span></button>
   </div>
   <div class="quick-top-wrap"><button id="quickTopButton" type="button" class="quick-top-button" data-target="top" aria-label="페이지 상단으로 이동"><span class="quick-top-content"><span class="quick-top-arrow" aria-hidden="true"><svg viewBox="0 0 12 8"><path d="M1 6 6 1l5 5"/></svg></span><span class="quick-top-text">TOP</span></span></button></div>
 </nav>
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v17';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v18';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null,quickItems=[],quickPage=0,quickActiveTarget='';
 const QUICK_PAGE_SIZE=5;
@@ -552,7 +721,7 @@ function renderQuickPage(){
  quickPage=Math.max(0,Math.min(quickPage,pages-1));
  const start=quickPage*QUICK_PAGE_SIZE;
  const visible=quickItems.slice(start,start+QUICK_PAGE_SIZE);
- root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-label">'+x.label+'</span><span class="quick-button-arrow" aria-hidden="true">›</span></button>').join('');
+ root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-label">'+x.label+'</span></button>').join('');
  root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
  const pager=document.getElementById('quickPagination');
  const prev=document.getElementById('quickPagePrev');
