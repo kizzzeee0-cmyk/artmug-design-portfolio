@@ -1051,6 +1051,27 @@ body{
   }
 }
 
+
+/* 2026-10-17 QUICK MENU LINE CLEARANCE V7 */
+/* Move the vertical connector fully left of the icon circles with visible breathing room. */
+.quick-shell::before{
+  left:-6px!important;
+  width:1.5px!important;
+  background:#9fcfe9!important;
+}
+
+/* Shorter screens keep the same visual separation; do not drift back toward icons. */
+@media(max-height:780px){
+  .quick-shell::before{
+    left:-6px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-shell::before{
+    left:-6px!important;
+  }
+}
+
 </style>
 </head>
 <body>

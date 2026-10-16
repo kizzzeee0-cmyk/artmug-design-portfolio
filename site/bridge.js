@@ -7,10 +7,10 @@
   const sectionMaps=new Map();
   let activeRaf=0;
   const quickNavFrames=new WeakMap();
-  const QUICK_NAV_TOP=280;
+  const QUICK_NAV_TOP=260;
 
   function quickNavRightGap(){
-    return Math.max(30,Math.round(Math.max(0,(window.innerWidth-1500)/2)-80))
+    return Math.max(20,Math.round(Math.max(0,(window.innerWidth-1500)/2)-90))
   }
 
   function isDesktopQuickNavFrame(frame){
