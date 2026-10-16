@@ -1488,6 +1488,7 @@ const api=async p=>{
 function iconSvg(item){
  const t=String(item?.target||'');
  if(t==='notice')return '<svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M9.5 20v-5.5h5V20"/></svg>';
+ if(t==='inquiry')return '<svg viewBox="0 0 24 24"><path d="M3.5 6.5h17v11h-17z"/><path d="m4 7 8 6 8-6"/></svg>';
  if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M6 3.5h9l3 3V20.5H6z"/><path d="M15 3.5v4h4"/><path d="M9 12h6M9 16h5"/></svg>';
  if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 17h14"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg>';
  if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>';
@@ -1507,7 +1508,10 @@ function send(target){
 }
 function listFrom(d){
  currentSummary=d||{};
- const list=[{label:'공지사항',target:'notice'}];
+ const list=[
+  {label:'공지사항',target:'notice'},
+  {label:'문의양식',target:'inquiry',inquiry:true}
+ ];
  if(d.hasFixed)list.push({label:'고정틀',target:'fixed'});
  if(d.hasPreset)list.push({label:'프리셋',target:'showcase'});
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
@@ -1538,14 +1542,14 @@ function setActiveTarget(target){
 function renderMenu(){
  const items=listFrom(currentSummary);
  root.innerHTML=items.map(item=>
-  '<button type="button" class="quick-nav-button '+(item.target===activeTarget?'is-active':'')+'" data-target="'+item.target+'">'+
+  '<button type="button" class="'+(item.inquiry?'quick-inquiry-button':'quick-nav-button')+' '+(item.target===activeTarget?'is-active':'')+'" data-target="'+item.target+'">'+
    '<span class="quick-nav-icon" aria-hidden="true">'+iconSvg(item)+'</span>'+
    '<span class="quick-nav-label">'+item.label+'</span>'+
   '</button>'
  ).join('');
- root.querySelectorAll('.quick-nav-button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
+ root.querySelectorAll('.quick-nav-button,.quick-inquiry-button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
  const inquiry=document.getElementById('quickInquirySection');
- if(inquiry)inquiry.hidden=false;
+ if(inquiry)inquiry.hidden=true;
  document.body.classList.add('menu-ready')
 }
 function summaryFromNav(d){
@@ -1635,7 +1639,6 @@ async function init(){
   })
  }
 }
-document.getElementById('quickInquiryButton')?.addEventListener('click',()=>send('inquiry'));
 document.getElementById('quickTopButton')?.addEventListener('click',()=>send('top'));
 
 if(ch)ch.addEventListener('message',e=>{
