@@ -1394,7 +1394,7 @@ async function savePresetItem(i){
     latest.presetMeta[x.file]={...prev,...patch}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
-  showToast('프리셋 이름이 저장되었습니다.');
+  showToast('프리셋 정보가 저장되었습니다.');
   renderPresetItems()
 }
 async function savePresetBadgeToggle(i,key,value){
@@ -1749,6 +1749,7 @@ function normalizeFixedPreview(x){
   file:String(x?.file||''),
   category:fixedLogicalCategoryFromStorage(String(x?.category||'profile')),
   name:String(x?.name||''),
+  description:String(x?.description||''),
   enabled:x?.enabled!==false
  }
 }
@@ -1816,9 +1817,11 @@ function collectFixedProductFromDom(i){
  p.previews.forEach((v,j)=>{
    const name=q('[data-fp-preview-name="'+i+':'+j+'"]');
    const cat=q('[data-fp-preview-cat="'+i+':'+j+'"]');
+   const description=q('[data-fp-preview-description="'+i+':'+j+'"]');
    const enabled=q('[data-fp-preview-enabled="'+i+':'+j+'"]');
    if(name)v.name=name.value;
    if(cat)v.category=cat.value;
+   if(description)v.description=description.value;
    if(enabled)v.enabled=enabled.checked
  });
  const collectOptions=kind=>{
@@ -1898,6 +1901,7 @@ function fixedPreviewAdminHtml(v,i,j){
   '<div class="fixed-preview-admin-fields">'+
    '<label>디자인 종류<select data-fp-preview-cat="'+i+':'+j+'">'+fixedCategoryOptions(v.category)+'</select></label>'+
    '<label>미리보기 이름<input data-fp-preview-name="'+i+':'+j+'" value="'+adminEsc(v.name||'')+'" placeholder="예: 디자인 01"></label>'+
+   '<label class="fixed-preview-description-field">짧은 설명<input data-fp-preview-description="'+i+':'+j+'" value="'+adminEsc(v.description||'')+'" placeholder="선택사항"></label>'+
    '<label class="mini-toggle"><input type="checkbox" data-fp-preview-enabled="'+i+':'+j+'" '+(v.enabled!==false?'checked':'')+'> 표시</label>'+
   '</div>'+
   '<div class="fixed-preview-admin-actions">'+
@@ -1986,7 +1990,7 @@ async function saveFixedProduct(i,quiet=false){
  const summaryToggle=document.querySelector('[data-fp-enabled-summary="'+i+'"]');if(summaryToggle)p.enabled=summaryToggle.checked;
  p.previews.forEach(v=>{
   if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
-  S.presetMeta[v.file]={...(S.presetMeta[v.file]||{}),name:v.name,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category,colorChangeAvailable:false}
+  S.presetMeta[v.file]={...(S.presetMeta[v.file]||{}),name:v.name,description:v.description,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category,colorChangeAvailable:false}
  });
  await persistFixedProducts(quiet?'':p.name+' 저장 완료');
  renderFixedItems()
@@ -2026,7 +2030,7 @@ async function uploadFixedProductPreviews(i){
    p.previews.push(normalizeFixedPreview({file:path,category:cat,name:'디자인 '+String(p.previews.length+1).padStart(2,'0'),enabled:true}))
   }
   if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
-  p.previews.filter(v=>uploaded.includes(v.file)).forEach(v=>{S.presetMeta[v.file]={...(S.presetMeta[v.file]||{}),name:v.name,enabled:true,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category,colorChangeAvailable:false}});
+  p.previews.filter(v=>uploaded.includes(v.file)).forEach(v=>{S.presetMeta[v.file]={...(S.presetMeta[v.file]||{}),name:v.name,description:v.description,enabled:true,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category,colorChangeAvailable:false}});
   const order=Array.isArray(S.presetOrder)?S.presetOrder:[];
   uploaded.forEach(path=>{if(!order.includes(path))order.push(path)});S.presetOrder=order;
   await persistFixedProducts('미리보기가 추가되었습니다.');
@@ -2056,7 +2060,7 @@ async function replaceFixedProductPreview(i,j){
   if(!newPath)throw new Error('새 파일 경로를 확인하지 못했습니다.');
   const oldPath=v.file;v.file=newPath;
   if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
-  S.presetMeta[newPath]={...(S.presetMeta[oldPath]||{}),name:v.name,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category};
+  S.presetMeta[newPath]={...(S.presetMeta[oldPath]||{}),name:v.name,description:v.description,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category};
   delete S.presetMeta[oldPath];S.presetOrder=replaceOrderPath(S.presetOrder,oldPath,newPath);
   try{
    await persistFixedProducts('');
@@ -2109,7 +2113,7 @@ async function migrateLegacyFixedProducts(){
    enabled:meta.enabled,
    pcColumns:5,mobileColumns:2,showPreviewNames:true,
    price:Number(raw.fixedPrice||0),priceVisible:true,
-   previews:[{file:x.file,category:fixedLogicalCategoryFromStorage(cat),name:meta.name||'디자인 01',enabled:meta.enabled}]
+   previews:[{file:x.file,category:fixedLogicalCategoryFromStorage(cat),name:meta.name||'디자인 01',description:String(raw.description||''),enabled:meta.enabled}]
   });
   products.push(p);
   if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
