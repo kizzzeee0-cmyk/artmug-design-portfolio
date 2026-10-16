@@ -354,6 +354,26 @@
       "enabled": true
     },
     {
+      "id": "top-banner",
+      "label": "상단배너",
+      "enabled": true
+    },
+    {
+      "id": "floating-banner",
+      "label": "플로팅배너",
+      "enabled": true
+    },
+    {
+      "id": "bottom-banner",
+      "label": "하단배너 일반",
+      "enabled": true
+    },
+    {
+      "id": "bottom-split",
+      "label": "하단배너 분할",
+      "enabled": true
+    },
+    {
       "id": "fixed-four-cut",
       "label": "인생네컷",
       "enabled": true
@@ -773,5 +793,48 @@
   "bannerTypeEnabled": false,
   "authorName": "CHILGONG DESIGN",
   "scheduleDateColor": "#69ADD2",
-  "fixedNotice": "완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다"
+  "fixedNotice": "",
+  "seasonCategories": [
+    {
+      "id": "halloween",
+      "label": "할로윈",
+      "enabled": true,
+      "badgeColor": "#A58BD5",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "chuseok",
+      "label": "추석",
+      "enabled": true,
+      "badgeColor": "#E9B76A",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "seollal",
+      "label": "설날",
+      "enabled": true,
+      "badgeColor": "#E98C8C",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "childrens-day",
+      "label": "어린이날",
+      "enabled": true,
+      "badgeColor": "#8FC9E8",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    },
+    {
+      "id": "christmas",
+      "label": "크리스마스",
+      "enabled": true,
+      "badgeColor": "#8DB99B",
+      "textColor": "#FFFFFF",
+      "autoTextColor": false
+    }
+  ],
+  "fixedProducts": []
 }
