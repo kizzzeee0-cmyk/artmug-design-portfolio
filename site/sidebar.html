@@ -474,6 +474,119 @@ body{
     height:35px!important;
   }
 }
+
+/* 2026-10-17 QUICK MENU OPTICAL POLISH */
+body{
+  padding-top:0!important;
+  padding-left:0!important;
+  justify-content:flex-start!important;
+}
+.quick-shell{
+  left:0!important;
+  margin-left:0!important;
+  padding-top:38px!important;
+}
+.quick-shell::before{
+  top:39px!important;
+}
+.quick-work-status{
+  top:2px!important;
+  right:8px!important;
+}
+.quick-work-status-badge{
+  position:relative!important;
+  min-height:28px!important;
+  padding:6px 11px!important;
+  border:1px solid #c9deeb!important;
+  border-radius:14px!important;
+  background:#ffffff!important;
+  color:#617988!important;
+  font-size:11.5px!important;
+  font-weight:500!important;
+  line-height:1!important;
+  box-shadow:0 5px 14px rgba(74,137,174,.10)!important;
+}
+.quick-work-status-badge::after{
+  content:""!important;
+  position:absolute!important;
+  left:18px!important;
+  bottom:-5px!important;
+  width:8px!important;
+  height:8px!important;
+  background:#ffffff!important;
+  border-right:1px solid #c9deeb!important;
+  border-bottom:1px solid #c9deeb!important;
+  transform:rotate(45deg)!important;
+  border-bottom-right-radius:2px!important;
+}
+.quick-work-status-dot{
+  width:7px!important;
+  height:7px!important;
+  flex-basis:7px!important;
+}
+.quick-nav-label{
+  font-size:15px!important;
+  font-weight:500!important;
+  line-height:1.22!important;
+  letter-spacing:-.01em!important;
+}
+.quick-inquiry-button .quick-nav-label{
+  font-size:15.5px!important;
+  font-weight:600!important;
+}
+.quick-top-text{
+  font-size:9.5px!important;
+  font-weight:600!important;
+}
+.quick-top-content{
+  transform:translateX(1.5px)!important;
+}
+.loading{
+  font-size:11.5px!important;
+  font-weight:400!important;
+}
+@media(max-height:780px){
+  .quick-shell{
+    padding-top:36px!important;
+  }
+  .quick-shell::before{
+    top:37px!important;
+  }
+  .quick-nav-label{
+    font-size:14.5px!important;
+    font-weight:500!important;
+  }
+  .quick-inquiry-button .quick-nav-label{
+    font-size:15px!important;
+    font-weight:600!important;
+  }
+  .quick-work-status-badge{
+    font-size:11px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-shell{
+    padding-top:34px!important;
+  }
+  .quick-shell::before{
+    top:35px!important;
+  }
+  .quick-nav-label{
+    font-size:13.5px!important;
+    font-weight:500!important;
+  }
+  .quick-inquiry-button .quick-nav-label{
+    font-size:14px!important;
+    font-weight:600!important;
+  }
+  .quick-work-status-badge{
+    font-size:10.5px!important;
+    font-weight:500!important;
+  }
+  .quick-top-text{
+    font-size:8.5px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -511,7 +624,7 @@ body{
 (function(){
 const API=(window.ARTMUG_CONFIG||{}).API_BASE||'';
 const root=document.getElementById('navList');
-const CACHE_KEY='artmug-nav-summary-v20';
+const CACHE_KEY='artmug-nav-summary-v21';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null,activeTarget='';
 
