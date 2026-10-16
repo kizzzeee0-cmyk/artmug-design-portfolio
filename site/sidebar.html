@@ -324,14 +324,19 @@ body{
   max-height:none!important;
   overflow:visible!important;
 }
+@media(max-height:850px){
+  .quick-shell{
+    transform:translateY(-30px)!important;
+  }
+}
 @media(max-height:720px){
   .quick-shell{
-    transform:translateY(-18px)!important;
+    transform:translateY(-42px)!important;
   }
 }
 @media(max-height:600px){
   .quick-shell{
-    transform:translateY(-24px)!important;
+    transform:translateY(-48px)!important;
   }
 }
 @media(max-width:165px){
@@ -366,7 +371,7 @@ body{
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v14';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v15';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null,quickItems=[],quickPage=0,quickActiveTarget='';
 const QUICK_PAGE_SIZE=5;
@@ -523,6 +528,30 @@ function summaryFromNav(d){
   }
  }
 }
+function mergeFrameNavData(d){
+ const cats=Array.isArray(d?.categories)?d.categories:[];
+ if(!cats.length)return null;
+ const frame=summaryFromNav({
+  hasPreset:d?.preset===true,
+  hasFixed:d?.fixed===true,
+  categories:cats,
+  workStatus:currentSummary?.workStatus
+ });
+ const extras=new Map();
+ (Array.isArray(currentSummary?.extraCategories)?currentSummary.extraCategories:[]).forEach(x=>extras.set(x.id,x));
+ (Array.isArray(frame.extraCategories)?frame.extraCategories:[]).forEach(x=>extras.set(x.id,x));
+ return {
+  ...currentSummary,
+  hasPreset:currentSummary?.hasPreset===true||frame.hasPreset===true,
+  hasFixed:currentSummary?.hasFixed===true||frame.hasFixed===true,
+  hasBanner:currentSummary?.hasBanner===true||frame.hasBanner===true,
+  bannerIds:[...new Set([...(currentSummary?.bannerIds||[]),...(frame.bannerIds||[])])],
+  profile:frame.profile||currentSummary?.profile||null,
+  fourCut:frame.fourCut||currentSummary?.fourCut||null,
+  extraCategories:[...extras.values()],
+  workStatus:currentSummary?.workStatus||frame.workStatus
+ }
+}
 function summaryKey(d){try{return JSON.stringify(d||{})}catch{return''}}
 function renderWorkStatus(status){
  const box=document.getElementById('quickWorkStatus');
@@ -565,11 +594,13 @@ if(ch)ch.addEventListener('message',e=>{
   return
  }
  if(d?.type==='nav-data'){
-  // Retain the stable nav-summary list, but include a newly available
-  // seasonal gallery when a completed public frame reports it.
-  if(currentSummary&&typeof d.fixed==='boolean'&&currentSummary.hasFixed!==d.fixed){
-   const updated={...currentSummary,hasFixed:d.fixed};
-   saveCache(updated);renderSummary(updated)
+  const updated=mergeFrameNavData(d);
+  if(updated){
+   saveCache(updated);
+   renderSummary(updated)
+  }else if(currentSummary&&typeof d.fixed==='boolean'&&d.fixed===true&&currentSummary.hasFixed!==true){
+   const fixedOnly={...currentSummary,hasFixed:true};
+   saveCache(fixedOnly);renderSummary(fixedOnly)
   }
   return
  }
