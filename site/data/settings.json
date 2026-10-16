@@ -815,6 +815,12 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif": {
+      "enabled": false,
+      "showcaseKind": "fixed",
+      "pairChild": true,
+      "fixedProductId": ""
     }
   },
   "presetOrder": [
