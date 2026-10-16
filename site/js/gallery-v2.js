@@ -396,31 +396,29 @@ function fixedOptionPublicHtml(title,items,kind){
  ).join('')+'</div></section>'
 }
 function fixedPreviewPublicHtml(v,p){
- const cfg=fixedPreviewDisplayConfig(v.category),cat=(state.settings?.fixedCategories||[]).find(c=>c.id===v.category),ratio=cfg.known?'aspect-ratio:'+cfg.width+'/'+cfg.height+';':'';
+ const cfg=fixedPreviewDisplayConfig(v.category),ratio=cfg.known?'aspect-ratio:'+cfg.width+'/'+cfg.height+';':'';
+ const caption=(p.showPreviewNames&&v.name)||v.description
+  ? '<figcaption>'+(p.showPreviewNames&&v.name?'<strong>'+esc(v.name)+'</strong>':'')+(v.description?'<p>'+esc(v.description)+'</p>':'')+'</figcaption>'
+  : '';
  return '<figure class="fixed-product-preview fixed-preview-layout-'+esc(cfg.key)+'">'+
   '<div class="fixed-product-preview-media" style="'+ratio+'"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" draggable="false"></div>'+
-  '<figcaption><div class="fixed-product-preview-labels"><span class="fixed-product-preview-type">'+esc(cat?.label||v.category)+'</span>'+(p.showPreviewNames&&v.name?'<strong>'+esc(v.name)+'</strong>':'')+'</div>'+(v.description?'<p>'+esc(v.description)+'</p>':'')+'</figcaption>'+
+  caption+
  '</figure>'
 }
 function fixedProductPublicCard(p){
  const previews=p.previews.filter(v=>v.enabled!==false),cols=Math.max(1,Math.min(state.mobile?p.mobileColumns:p.pcColumns,previews.length||1));
  const squareOnly=previews.length>0&&previews.every(v=>fixedPreviewDisplayConfig(v.category).key==='profile');
  const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
+ const priceMeta=[p.priceScope,p.priceNote].map(v=>String(v||'').trim()).filter(Boolean);
  return '<article class="fixed-product-card">'+
-  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3></div>'+
+  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3>'+(p.priceVisible?'<strong class="fixed-product-title-price">'+esc(price)+'</strong>':'')+'</div>'+
    (p.description?'<p>'+esc(p.description)+'</p>':'')+
+   (p.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
   '</header>'+
   '<div class="fixed-product-preview-grid '+(squareOnly?'is-square-only':'')+'" style="--fixed-product-cols:'+cols+'">'+previews.map(v=>fixedPreviewPublicHtml(v,p)).join('')+'</div>'+
   ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('변경 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('변경 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
   (p.note?'<p class="fixed-product-note">'+esc(p.note)+'</p>':'')+
-  (p.priceVisible?'<div class="fixed-product-price-box"><div><span>가격</span><strong>'+esc(price)+'</strong></div>'+
-    (p.priceScope?'<p class="fixed-product-price-scope">'+esc(p.priceScope)+'</p>':'')+
-    (p.priceNote?'<p>'+esc(p.priceNote)+'</p>':'')+
-   '</div>':'')+
  '</article>'
-}
-function fixedFilterButton(group,id,label,active){
- return '<button type="button" class="v2-preset-filter-button '+(active===id?'is-active':'')+'" data-fixed-filter-group="'+group+'" data-fixed-filter-id="'+esc(id)+'">'+esc(label)+'</button>'
 }
 async function renderFixed(){
  const root=$('#seasonalFixedSection');if(!root)return;
@@ -429,39 +427,17 @@ async function renderFixed(){
  const products=await publicFixedProducts();
  state.showcase.fixed=products;
  if(!products.length){root.hidden=true;root.innerHTML='';return}
-
- const categories=(settings.fixedCategories||[]).filter(c=>c.enabled!==false&&products.some(p=>p.previews.some(v=>v.category===c.id)));
- let filter=state.fixedFilter&&typeof state.fixedFilter==='object'?state.fixedFilter:{design:'all'};
- let design=String(filter.design||'all');
- if(design!=='all'&&!categories.some(c=>c.id===design))design='all';
- state.fixedFilter={design};
-
- const designButtons=fixedFilterButton('design','all','전체',design)+categories.map(c=>fixedFilterButton('design',c.id,c.label||c.id,design)).join('');
- const filters=categories.length?'<div class="fixed-product-filters"><div class="fixed-product-filter-row"><span>디자인 종류</span><div>'+designButtons+'</div></div></div>':'';
-
- const filtered=products.filter(p=>design==='all'||p.previews.some(v=>v.category===design));
- const perPage=state.mobile?4:6,pageCount=Math.max(1,Math.ceil(filtered.length/perPage));
- fixedPage=Math.min(Math.max(1,fixedPage),pageCount);
- const shown=filtered.slice((fixedPage-1)*perPage,fixedPage*perPage);
- const cards=shown.length?'<div class="fixed-product-list">'+shown.map(fixedProductPublicCard).join('')+'</div>':'<p class="fixed-product-empty">선택한 조건에 해당하는 고정틀 상품이 없습니다.</p>';
- const maxDots=state.mobile?7:12,startDot=Math.max(1,Math.min(Math.max(1,pageCount-maxDots+1),fixedPage-Math.floor(maxDots/2))),lastDot=Math.min(pageCount,startDot+maxDots-1);
- const nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 상품 페이지">'+
-  '<button type="button" class="v2-page-arrow" data-fixed-page="prev" '+(fixedPage===1?'disabled':'')+' aria-label="이전 페이지">‹</button>'+
-  '<div class="v2-page-dots">'+Array.from({length:lastDot-startDot+1},(_,i)=>{const p=startDot+i;return '<button type="button" class="v2-page-dot '+(fixedPage===p?'is-active':'')+'" data-fixed-page="'+p+'" aria-label="'+p+'페이지"></button>'}).join('')+'</div>'+
-  '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
-  '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
-
+ const cards='<div class="fixed-product-list">'+products.map(fixedProductPublicCard).join('')+'</div>';
  const notice=String(settings.fixedNotice||'').trim();
  root.hidden=false;
- root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+(notice?'<p class="fixed-section-copy">'+esc(notice)+'</p>':'')+filters+cards+nav;
- root.querySelectorAll('[data-fixed-filter-group]').forEach(b=>b.onclick=()=>{
-  const group=b.dataset.fixedFilterGroup,id=b.dataset.fixedFilterId||'all';
-  state.fixedFilter={...state.fixedFilter,[group]:id};fixedPage=1;renderFixed();requestHeight()
+ root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+(notice?'<p class="fixed-section-copy">'+esc(notice)+'</p>':'')+cards;
+ root.querySelectorAll('img').forEach(img=>{
+  img.draggable=false;
+  img.setAttribute('draggable','false');
+  img.oncontextmenu=e=>{e.preventDefault();return false};
+  img.ondragstart=e=>{e.preventDefault();return false};
+  if(!img.complete)img.addEventListener('load',requestHeight,{once:true})
  });
- root.querySelectorAll('[data-fixed-page]').forEach(b=>b.onclick=()=>{
-  const token=b.dataset.fixedPage;fixedPage=token==='prev'?fixedPage-1:token==='next'?fixedPage+1:Number(token);renderFixed();requestHeight()
- });
- root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  requestHeight()
 }
 
@@ -610,6 +586,43 @@ function initNav(){
 function selectedTypeInputs(card){
  return Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(i=>({id:i.value,label:i.parentElement?.innerText?.trim()||''}))
 }
+function fixedInquiryProducts(){
+ return (state.showcase.fixed||[]).filter(p=>
+  p&&p.enabled!==false&&Array.isArray(p.previews)&&p.previews.some(v=>{
+   const c=(state.settings?.fixedCategories||[]).find(x=>x.id===v.category)||{id:v.category,label:v.category};
+   return layoutKey(c)==='profile'
+  })
+ )
+}
+function selectedFixedProduct(card){
+ const id=String(card.dataset.selectedFixedProductId||'');
+ return fixedInquiryProducts().find(p=>String(p.id)===id)||null
+}
+function selectedFixedProductName(card){
+ return selectedFixedProduct(card)?.name||''
+}
+function fixedPatternProductSelected(card){
+ const target=String(state.settings?.fixedInquiryPatternProductId||'');
+ return !!target&&String(card.dataset.selectedFixedProductId||'')===target&&!!selectedFixedProduct(card)
+}
+function fixedPatternSelectionHtml(card){
+ if(!fixedPatternProductSelected(card))return'';
+ const selected=String(card.dataset.fixedPattern||'');
+ const other=String(card.dataset.fixedPatternOther||'');
+ const patterns=['하트','별','클로버','네모','도트','꽃','반짝별','기타'];
+ return '<fieldset class="v2-mode-field v2-fixed-pattern-field choice-field inquiry-plain-choice"><legend data-question-title>패턴 모양</legend>'+
+  '<div class="choice-row v2-fixed-pattern-choices">'+patterns.map(v=>'<label class="choice-pill"><input type="radio" data-v2-fixed-pattern name="v2-fixed-pattern-'+card.dataset.requestId+'" value="'+esc(v)+'" '+(selected===v?'checked':'')+'><span>'+esc(v)+'</span></label>').join('')+'</div>'+
+  (selected==='기타'?'<label class="v2-fixed-pattern-other"><span>직접 입력</span><input type="text" data-v2-fixed-pattern-other value="'+esc(other)+'" placeholder="예: 리본" aria-required="true"></label>':'')+
+ '</fieldset>'
+}
+function fixedSelectionHtml(selectedId){
+ const arr=fixedInquiryProducts();
+ const options=arr.map(p=>
+  '<button type="button" data-v2-select="fixed" data-product-id="'+esc(p.id)+'" class="'+(String(selectedId||'')===String(p.id)?'is-selected':'')+'"><span>'+esc(p.name||'이름 없음')+'</span></button>'
+ ).join('');
+ return '<fieldset class="v2-mode-field v2-product-select v2-fixed-product-select choice-field inquiry-plain-choice" data-product-kind="fixed"><legend data-question-title>고정틀 선택</legend>'+
+  '<div class="v2-fixed-product-grid">'+(options||'<p class="v2-empty-products">현재 선택 가능한 움짤프사 고정틀이 없습니다.</p>')+'</div></fieldset>'
+}
 function injectInquiry(card){
  const fields=card.querySelector('.request-fields');if(!fields)return;
  const types=selectedTypeInputs(card),hasProfile=types.some(x=>/움짤\s*프사/.test(x.label)||x.id==='profile-a');
@@ -621,8 +634,10 @@ function injectInquiry(card){
  if(hasProfile){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="custom" '+(profileMode==='custom'?'checked':'')+'><span>맞춤제작</span></label>'+
+   '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="fixed" '+(profileMode==='fixed'?'checked':'')+'><span>고정틀 구매</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="change" '+(profileMode==='change'?'checked':'')+'><span>이름/움짤 변경</span></label></div></fieldset>';
+  if(profileMode==='fixed')html+=fixedSelectionHtml(card.dataset.selectedFixedProductId)+fixedPatternSelectionHtml(card);
   if(profileMode==='preset')html+=selectionHtml(card.dataset.selectedPresetFile)
  }
  if(bannerTypeEnabled()&&banners.length){
@@ -636,8 +651,9 @@ function injectInquiry(card){
  if(box.dataset.renderSignature!==html){box.innerHTML=html;box.dataset.renderSignature=html}
  box.hidden=!String(html||'').trim();
  const profilePresetOnly=hasProfile&&types.length===1&&profileMode==='preset';
+ const profileFixedOnly=hasProfile&&types.length===1&&profileMode==='fixed';
  const profileChangeOnly=hasProfile&&types.length===1&&profileMode==='change';
- fields.querySelectorAll('.concept-request-field').forEach(el=>el.classList.toggle('v2-hidden-field',profilePresetOnly||profileChangeOnly));
+ fields.querySelectorAll('.concept-request-field').forEach(el=>el.classList.toggle('v2-hidden-field',profilePresetOnly||profileFixedOnly||profileChangeOnly));
  fields.querySelectorAll('.content-input-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileChangeOnly));
  box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
   card.dataset.profileMode=i.value;
@@ -650,6 +666,22 @@ function injectInquiry(card){
   card.dataset.selectedPresetFile=b.dataset.file;
   injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
  });
+ box.querySelectorAll('[data-v2-select="fixed"]').forEach(b=>b.onclick=()=>{
+  const next=String(b.dataset.productId||'');
+  if(String(card.dataset.selectedFixedProductId||'')!==next){
+   delete card.dataset.fixedPattern;
+   delete card.dataset.fixedPatternOther
+  }
+  card.dataset.selectedFixedProductId=next;
+  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+ });
+ box.querySelectorAll('[data-v2-fixed-pattern]').forEach(i=>i.onchange=()=>{
+  card.dataset.fixedPattern=i.value;
+  if(i.value!=='기타')delete card.dataset.fixedPatternOther;
+  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+ });
+ const other=box.querySelector('[data-v2-fixed-pattern-other]');
+ if(other)other.oninput=()=>{card.dataset.fixedPatternOther=other.value;window.clearRequiredMessageIfComplete?.()};
  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
 }
 function selectionHtml(selected){
@@ -689,25 +721,40 @@ function selectedProductStatus(card){
 window.__ARTMUG_V2__={
  inquiryData(card){
   const types=selectedTypeInputs(card),banners=types.filter(x=>/배너/.test(x.label));
+  const fixedProduct=selectedFixedProduct(card);
   return {
    profileMode:card.dataset.profileMode||'custom',
    selectedPresetFile:card.dataset.selectedPresetFile||'',
    selectedPresetName:selectedProductName(card),
    selectedPresetStatus:selectedProductStatus(card),
+   selectedFixedProductId:card.dataset.selectedFixedProductId||'',
+   selectedFixedProductName:fixedProduct?.name||'',
+   fixedPattern:String(card.dataset.fixedPattern||''),
+   fixedPatternOther:String(card.dataset.fixedPatternOther||'').trim(),
+   fixedPatternRequired:fixedPatternProductSelected(card),
    bannerTypes:bannerTypeEnabled()?banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})):[],
    profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||/움짤\s*프로필/.test(x.label)||x.id==='profile-a')
   }
  },
  validateCard(card){
   const d=this.inquiryData(card);
+  if(d.profileSelected&&d.profileMode==='fixed'&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
+  if(d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&!d.fixedPattern)return {ok:false,message:'패턴 모양을 선택해주세요.'};
+  if(d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&d.fixedPattern==='기타'&&!d.fixedPatternOther)return {ok:false,message:'기타 패턴 모양을 직접 입력해주세요.'};
   if(d.profileSelected&&d.profileMode==='preset'&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
   return {ok:true}
  },
  inquiryLines(card){
   const d=this.inquiryData(card),out=[];
   if(d.profileSelected){
-   const modeLabel=d.profileMode==='preset'?'프리셋 구매':d.profileMode==='change'?'이름/움짤 변경':'맞춤제작';
+   const modeLabel=d.profileMode==='fixed'?'고정틀 구매':d.profileMode==='preset'?'프리셋 구매':d.profileMode==='change'?'이름/움짤 변경':'맞춤제작';
    out.push('움짤프사 신청 방식: '+modeLabel);
+   if(d.profileMode==='fixed'&&d.selectedFixedProductName){
+    out.push('선택 고정틀: '+d.selectedFixedProductName);
+    if(d.fixedPatternRequired&&d.fixedPattern){
+     out.push('패턴 모양: '+(d.fixedPattern==='기타'?'기타 ('+d.fixedPatternOther+')':d.fixedPattern))
+    }
+   }
    if(d.profileMode==='preset'&&d.selectedPresetName){
     out.push('선택 프리셋: '+d.selectedPresetName)
    }
@@ -737,8 +784,8 @@ async function init(){
  // Only the complete all-in-one page may announce a menu snapshot.
  // Split inquiry/portfolio frames are intentionally excluded because each holds partial state.
  if(!inquiryPart&&!portfolioPart)announceNavData();
- document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
- document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid'))e.preventDefault()});
+ document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
+ document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
  const mq=matchMedia('(max-width:680px)');
  mq.addEventListener?.('change',e=>{state.mobile=e.matches;renderShowcase();renderFixed();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
  requestHeight()
