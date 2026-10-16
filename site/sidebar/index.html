@@ -56,27 +56,29 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .loading{padding:10px 3px;text-align:center;color:#81909a;font-size:10px}
 @media(max-height:560px){body{align-items:flex-start;padding-top:12px;padding-bottom:12px}.quick-shell{top:12px;transform:none}}
 
-/* 2026-10-17 QUICK MENU CENTER + SAFE HEIGHT */
+/* 2026-10-17 QUICK MENU PAGINATION + TRUE CENTER */
 body{
   align-items:center!important;
   min-height:100vh!important;
   min-height:100dvh!important;
   height:100vh!important;
   height:100dvh!important;
-  padding-top:16px!important;
-  padding-bottom:16px!important;
+  padding-top:22px!important;
+  padding-bottom:22px!important;
   overflow:hidden!important;
 }
 .quick-shell{
-  top:50%!important;
-  transform:translateY(-50%)!important;
+  position:relative!important;
+  top:auto!important;
+  transform:none!important;
   display:flex!important;
   flex-direction:column!important;
-  max-height:calc(100vh - 32px)!important;
-  max-height:calc(100dvh - 32px)!important;
+  max-height:calc(100vh - 44px)!important;
+  max-height:calc(100dvh - 44px)!important;
 }
 .quick-menu-title,
 .quick-divider,
+.quick-pagination,
 .quick-inquiry-section,
 .quick-top-wrap{
   flex:0 0 auto;
@@ -88,27 +90,72 @@ body{
   scrollbar-width:none;
 }
 .nav-list::-webkit-scrollbar{display:none}
-@media(max-height:720px){
-  body{padding-top:14px!important;padding-bottom:14px!important}
-  .quick-shell{
-    top:50%!important;
-    transform:translateY(-50%)!important;
-    max-height:calc(100vh - 28px)!important;
-    max-height:calc(100dvh - 28px)!important;
-    padding-top:12px!important;
-    padding-bottom:10px!important;
+.quick-pagination{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-height:28px;
+  margin:9px 0 0;
+  color:#7d8e99;
+  font-size:10px;
+  font-weight:700;
+  line-height:1;
+}
+.quick-pagination[hidden]{display:none!important}
+.quick-page-button{
+  width:25px;
+  height:25px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:#8fc9e8;
+  cursor:pointer;
+  transition:background .14s ease,color .14s ease;
+}
+.quick-page-button:hover,.quick-page-button:focus-visible{
+  background:#eef8fd;
+  color:#5ea6cd;
+  outline:none;
+}
+.quick-page-button:disabled{
+  color:#cbdce5;
+  cursor:default;
+  background:transparent;
+}
+.quick-page-button svg{
+  width:7px;
+  height:11px;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.quick-page-status{
+  min-width:35px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.quick-page-current{color:#5c7180;font-weight:800}
+.quick-page-separator{color:#b1c0c9;font-weight:500}
+@media(max-height:560px){
+  body{
+    padding-top:18px!important;
+    padding-bottom:18px!important;
   }
-  .quick-menu-title{margin-bottom:8px!important;font-size:12px!important}
-  .quick-divider.is-title{margin-bottom:8px!important}
-  .nav-list{gap:5px!important}
-  .quick-nav-button,
-  .quick-inquiry-button{min-height:32px!important;padding-top:5px!important;padding-bottom:5px!important;font-size:10.5px!important}
-  .quick-divider.is-action{margin:8px 0 7px!important}
-  .quick-inquiry-section + .quick-top-wrap{margin-top:4px!important}
-  .quick-top-wrap{min-height:34px!important}
-  .quick-top-button{width:34px!important;height:34px!important}
-  .quick-top-button::before{width:29px!important;height:29px!important}
-  .quick-top-content{width:29px!important;height:29px!important}
+  .quick-shell{
+    max-height:calc(100vh - 36px)!important;
+    max-height:calc(100dvh - 36px)!important;
+  }
 }
 </style>
 </head>
@@ -118,6 +165,11 @@ body{
   <div class="quick-menu-title">MENU</div>
   <div class="quick-divider is-title" aria-hidden="true"></div>
   <div id="navList" class="nav-list"><div class="loading">메뉴 불러오는 중…</div></div>
+  <div id="quickPagination" class="quick-pagination" hidden aria-label="퀵 메뉴 페이지">
+    <button id="quickPagePrev" type="button" class="quick-page-button" aria-label="이전 메뉴 페이지"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M6.5 1.5 2 6l4.5 4.5"/></svg></button>
+    <span class="quick-page-status"><strong id="quickPageCurrent" class="quick-page-current">1</strong><span class="quick-page-separator">/</span><span id="quickPageTotal">1</span></span>
+    <button id="quickPageNext" type="button" class="quick-page-button" aria-label="다음 메뉴 페이지"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M1.5 1.5 6 6l-4.5 4.5"/></svg></button>
+  </div>
   <div id="quickInquirySection" class="quick-inquiry-section" hidden>
     <div class="quick-divider is-action" aria-hidden="true"></div>
     <button id="quickInquiryButton" type="button" class="quick-inquiry-button" data-target="inquiry"><span class="quick-nav-icon"></span><span class="quick-nav-label">문의양식</span><span class="quick-nav-balance" aria-hidden="true"></span></button>
@@ -127,9 +179,10 @@ body{
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v12';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v13';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
-let currentSummary={},liveWorkStatus=null;
+let currentSummary={},liveWorkStatus=null,quickItems=[],quickPage=0,quickActiveTarget='';
+const QUICK_PAGE_SIZE=5;
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 function layout(c){
  const id=String(c?.id||''),label=String(c?.label||'').replace(/\s/g,'');
@@ -172,7 +225,7 @@ function send(target){
  if(ch)ch.postMessage({type:'navigate',target});
  try{for(let i=0;i<window.top.length;i++)try{window.top.frames[i].postMessage({type:'artmug-section-nav',target},'*')}catch{}}catch{}
  try{window.parent.postMessage({type:'artmug-section-nav',target},'*')}catch{}
- document.querySelectorAll('.quick-shell [data-target]').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))
+ setActiveTarget(target)
 }
 function listFrom(d){
  currentSummary=d||{};
@@ -201,6 +254,34 @@ function normalizeActiveTarget(target){
  }
  return target
 }
+function renderQuickPage(){
+ const pages=Math.max(1,Math.ceil(quickItems.length/QUICK_PAGE_SIZE));
+ quickPage=Math.max(0,Math.min(quickPage,pages-1));
+ const start=quickPage*QUICK_PAGE_SIZE;
+ const visible=quickItems.slice(start,start+QUICK_PAGE_SIZE);
+ root.innerHTML=visible.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+(x.target===quickActiveTarget?' is-active':'')+'" data-target="'+x.target+'"><span class="quick-nav-icon">'+iconSvg(x)+'</span><span class="quick-nav-label">'+x.label+'</span><span class="quick-nav-balance" aria-hidden="true"></span></button>').join('');
+ root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
+ const pager=document.getElementById('quickPagination');
+ const prev=document.getElementById('quickPagePrev');
+ const next=document.getElementById('quickPageNext');
+ const current=document.getElementById('quickPageCurrent');
+ const total=document.getElementById('quickPageTotal');
+ if(pager)pager.hidden=pages<=1;
+ if(current)current.textContent=String(quickPage+1);
+ if(total)total.textContent=String(pages);
+ if(prev){prev.disabled=quickPage<=0;prev.onclick=()=>{if(quickPage>0){quickPage--;renderQuickPage()}}}
+ if(next){next.disabled=quickPage>=pages-1;next.onclick=()=>{if(quickPage<pages-1){quickPage++;renderQuickPage()}}}
+}
+function setActiveTarget(target){
+ const normalized=normalizeActiveTarget(target);
+ quickActiveTarget=normalized;
+ const index=quickItems.findIndex(x=>x.target===normalized);
+ if(index>=0){
+  const page=Math.floor(index/QUICK_PAGE_SIZE);
+  if(page!==quickPage){quickPage=page;renderQuickPage();return}
+ }
+ document.querySelectorAll('.quick-shell [data-target]').forEach(b=>b.classList.toggle('is-active',b.dataset.target===normalized))
+}
 function iconSvg(item){
  const target=String(item?.target||''),label=String(item?.label||'');
  const common='viewBox="0 0 24 24" aria-hidden="true"';
@@ -216,8 +297,10 @@ function iconSvg(item){
 function show(items){
  const inquiry=items.find(x=>x.target==='inquiry');
  const categories=items.filter(x=>x.target!=='inquiry');
- root.innerHTML=categories.map(x=>'<button type="button" class="quick-nav-button '+(x.cls||'')+'" data-target="'+x.target+'"><span class="quick-nav-icon">'+iconSvg(x)+'</span><span class="quick-nav-label">'+x.label+'</span><span class="quick-nav-balance" aria-hidden="true"></span></button>').join('');
- root.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
+ quickItems=categories;
+ const pages=Math.max(1,Math.ceil(quickItems.length/QUICK_PAGE_SIZE));
+ quickPage=Math.max(0,Math.min(quickPage,pages-1));
+ renderQuickPage();
  const inquirySection=document.getElementById('quickInquirySection');
  const inquiryButton=document.getElementById('quickInquiryButton');
  if(inquirySection&&inquiryButton){
@@ -302,14 +385,14 @@ if(ch)ch.addEventListener('message',e=>{
  }
  if(d?.type==='active'){
   const target=normalizeActiveTarget(d.target);
-  document.querySelectorAll('.quick-shell [data-target]').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))
+  setActiveTarget(target)
  }
 });
 window.addEventListener('message',e=>{
  const d=e.data;
  if(d&&d.type==='artmug-active-section'&&d.target){
   const target=normalizeActiveTarget(d.target);
-  document.querySelectorAll('.quick-shell [data-target]').forEach(b=>b.classList.toggle('is-active',b.dataset.target===target))
+  setActiveTarget(target)
  }
 });
 init()
