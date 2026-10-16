@@ -688,6 +688,152 @@ body{
   .quick-top-text{font-size:7.5px!important}
 }
 
+
+/* 2026-10-17 QUICK MENU FINAL TUNING V2 */
+/* Slightly enlarge icon circles and pill hit areas. */
+.quick-nav-button,
+.quick-inquiry-button{
+  width:162px!important;
+  min-height:47px!important;
+  grid-template-columns:45px minmax(0,1fr)!important;
+  gap:5px!important;
+  padding:4px 9px 4px 0!important;
+}
+.quick-nav-icon{
+  width:38px!important;
+  height:38px!important;
+}
+.quick-nav-icon svg{
+  width:20px!important;
+  height:20px!important;
+}
+.quick-nav-label{
+  font-size:14.5px!important;
+  font-weight:500!important;
+  line-height:1.22!important;
+}
+.quick-inquiry-button{
+  min-height:48px!important;
+}
+.quick-inquiry-button .quick-nav-label{
+  font-size:15px!important;
+  font-weight:600!important;
+}
+
+/* TOP: treat arrow + text as one centered group inside the circle. */
+.quick-top-wrap{
+  width:43px!important;
+  min-height:50px!important;
+  padding:0!important;
+  margin-top:6px!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+}
+.quick-top-button{
+  width:43px!important;
+  height:43px!important;
+  padding:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  position:relative!important;
+}
+.quick-top-content{
+  position:static!important;
+  inset:auto!important;
+  width:auto!important;
+  height:auto!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  line-height:1!important;
+}
+.quick-top-arrow{
+  width:11px!important;
+  height:7px!important;
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+}
+.quick-top-arrow svg{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  margin:0!important;
+  transform:none!important;
+}
+.quick-top-text{
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+  text-align:center!important;
+  font-size:9px!important;
+  font-weight:500!important;
+  line-height:1!important;
+  transform:none!important;
+}
+
+@media(max-height:780px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    min-height:43px!important;
+  }
+  .quick-nav-icon{
+    width:35px!important;
+    height:35px!important;
+  }
+  .quick-nav-label{
+    font-size:14px!important;
+    font-weight:500!important;
+  }
+  .quick-inquiry-button .quick-nav-label{
+    font-size:14.5px!important;
+    font-weight:600!important;
+  }
+  .quick-top-button{
+    width:40px!important;
+    height:40px!important;
+  }
+  .quick-top-text{
+    font-size:8.5px!important;
+    font-weight:500!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-button,
+  .quick-inquiry-button{
+    min-height:39px!important;
+  }
+  .quick-nav-icon{
+    width:32px!important;
+    height:32px!important;
+  }
+  .quick-nav-label{
+    font-size:13px!important;
+    font-weight:500!important;
+  }
+  .quick-inquiry-button .quick-nav-label{
+    font-size:13.5px!important;
+    font-weight:600!important;
+  }
+  .quick-top-button{
+    width:37px!important;
+    height:37px!important;
+  }
+  .quick-top-text{
+    font-size:8px!important;
+    font-weight:500!important;
+  }
+}
+
 </style>
 </head>
 <body>

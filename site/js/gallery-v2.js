@@ -615,7 +615,7 @@ function fixedPatternSelectionHtml(card){
   const pill='<label class="choice-pill"><input type="radio" data-v2-fixed-pattern name="v2-fixed-pattern-'+card.dataset.requestId+'" value="'+esc(v)+'" '+(selected===v?'checked':'')+'><span>'+esc(v)+'</span></label>';
   if(v!=='기타')return pill;
   const direct=selected==='기타'
-   ?'<label class="v2-fixed-pattern-other"><span>직접 입력</span><input type="text" data-v2-fixed-pattern-other value="'+esc(other)+'" placeholder="예: 리본" aria-required="true"></label>'
+   ?'<label class="v2-fixed-pattern-other"><input type="text" data-v2-fixed-pattern-other value="'+esc(other)+'" placeholder="예: 리본" aria-required="true" aria-label="패턴 모양 직접 입력"></label>'
    :'';
   return '<span class="v2-fixed-pattern-other-group">'+pill+direct+'</span>'
  }).join('');

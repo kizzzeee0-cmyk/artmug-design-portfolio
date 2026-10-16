@@ -2824,3 +2824,26 @@ body.artmug-part-portfolio #inquirySection{
     padding:6px 8px!important;
   }
 }
+
+
+/* 2026-10-17 FIXED PATTERN OTHER INPUT ONLY */
+.v2-fixed-pattern-other{
+  gap:0!important;
+  width:auto!important;
+  margin:0!important;
+}
+.v2-fixed-pattern-other>span{
+  display:none!important;
+}
+.v2-fixed-pattern-other input{
+  width:108px!important;
+  max-width:108px!important;
+  flex:0 0 108px!important;
+}
+@media(max-width:680px){
+  .v2-fixed-pattern-other input{
+    width:86px!important;
+    max-width:86px!important;
+    flex-basis:86px!important;
+  }
+}
