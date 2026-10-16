@@ -950,14 +950,7 @@
           "choices": []
         }
       ],
-      "fixedOptions": [
-        {
-          "id": "opt-mvb3bdhx-7v0nz6",
-          "label": "배경 디자인",
-          "detail": "",
-          "choices": []
-        }
-      ],
+      "fixedOptions": [],
       "note": "",
       "price": 15000,
       "priceVisible": true,
