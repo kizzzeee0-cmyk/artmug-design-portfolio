@@ -10,7 +10,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const MEDIA_VERSION='20261015-live-media-v1';
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{kind:'all',id:''},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
+const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all',season:'all'},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
 let presetSourcePromise=null;
 let fixedPage=1;
@@ -89,17 +89,43 @@ function smeta(x){
   isReserved:m.isReserved===true,
   isReservable:m.isReservable===true,
   isNoEdit:m.isNoEdit===true,
+  seasonCategoryId:String(m.seasonCategoryId||''),
   colorChangeAvailable:m.colorChangeAvailable===true,
   showcaseKind:['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:'preset',
   featured:m.featured===true,
   pairChild:m.pairChild===true
  }
 }
+function sharedSeasonCategories(){
+ const list=state.settings?.seasonCategories;
+ return Array.isArray(list)?list:[]
+}
+function normalizePublicHex(v,fallback){
+ const x=String(v||'').trim();return /^#[0-9a-f]{6}$/i.test(x)?x.toUpperCase():fallback
+}
+function publicContrastText(hex){
+ const v=normalizePublicHex(hex,'#8FC9E8'),n=parseInt(v.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ return (r*299+g*587+b*114)/1000>160?'#344651':'#FFFFFF'
+}
+function seasonCategoryById(id,publicOnly=true){
+ const x=sharedSeasonCategories().find(v=>v.id===id);
+ return x&&(!publicOnly||x.enabled!==false)?x:null
+}
+function seasonBadgeHtml(id,cls='fixed-product-season-badge'){
+ const s=seasonCategoryById(id,true);if(!s)return'';
+ const bg=normalizePublicHex(s.badgeColor,'#8FC9E8'),fg=s.autoTextColor?publicContrastText(bg):normalizePublicHex(s.textColor,'#FFFFFF');
+ return '<span class="'+cls+'" style="background:'+bg+';color:'+fg+';border-color:'+bg+'">'+esc(s.label||s.id)+'</span>'
+}
 function presetBadges(m){
  const out=[];
  if(m.isNew)out.push({label:'NEW',cls:'is-new'});
  if(m.isReserved)out.push({label:'예약중',cls:'is-reserved'});
  else if(m.isReservable)out.push({label:'예약가능',cls:'is-reservable'});
+ const season=seasonCategoryById(m.seasonCategoryId,true);
+ if(season){
+  const bg=normalizePublicHex(season.badgeColor,'#8FC9E8'),fg=season.autoTextColor?publicContrastText(bg):normalizePublicHex(season.textColor,'#FFFFFF');
+  out.push({label:String(season.label||season.id),cls:'is-season',style:'background:'+bg+';color:'+fg+';border-color:'+bg})
+ }
  if(m.isNoEdit)out.push({label:'수정불가',cls:'is-no-edit'});
  return out
 }
@@ -330,83 +356,145 @@ function portfolioCategoryForFixed(cat){
  const list=state.settings?.portfolioCategories||[],key=layoutKey(cat);
  return list.find(x=>x.id===cat.id)||list.find(x=>layoutKey(x)===key)||null
 }
-function fixedDisplayConfigForCategory(cat){
- const source=portfolioCategoryForFixed(cat),key=layoutKey(cat),fallback=defaults[key]||{pcColumns:4,mobileColumns:2};
- const columnsRaw=state.mobile?(source?.mobileColumns??fallback.mobileColumns):(source?.pcColumns??fallback.pcColumns);
- const ratioFallback={
-  profile:[1,1],
-  'top-banner':[2320,338],
-  'floating-banner':[160,418],
-  'bottom-banner':[720,150],
-  'bottom-split':[1440,450],
-  'four-cut':[3,4]
- }[key]||[1,1];
- const width=Math.max(1,Number(source?.displayWidth||source?.uploadWidth||ratioFallback[0]||1));
- const height=Math.max(1,Number(source?.displayHeight||source?.uploadHeight||ratioFallback[1]||1));
- return {columns:Math.max(1,Math.min(8,Number(columnsRaw||1))),width,height}
+function fixedPreviewDisplayConfig(categoryId){
+ const cat=(state.settings?.fixedCategories||[]).find(c=>c.id===categoryId)||{id:categoryId,label:categoryId};
+ const source=portfolioCategoryForFixed(cat),key=layoutKey(cat);
+ const fallback={profile:[1,1],'top-banner':[2320,338],'floating-banner':[80,209],'bottom-banner':[720,150],'bottom-split':[1440,450],'four-cut':[1200,1600]}[key]||null;
+ const width=Math.max(1,Number(source?.displayWidth||source?.uploadWidth||fallback?.[0]||1));
+ const height=Math.max(1,Number(source?.displayHeight||source?.uploadHeight||fallback?.[1]||1));
+ return {key,width,height,known:!!source||!!fallback}
 }
-function fixedPublicCard(x,catOverride){
- const m=state.settings?.presetMeta?.[x.file]||{},cat=catOverride||(state.settings?.fixedCategories||[]).find(c=>c.id===x.category);
- const price=Math.max(0,Number(m.fixedPrice||0));
- const priceText=price>0?price.toLocaleString('ko-KR')+'원':'가격 문의';
- const k=layoutKey(cat||{id:x.category,label:x.category}),display=fixedDisplayConfigForCategory(cat||{id:x.category,label:x.category});
- return '<article class="seasonal-fixed-card fixed-layout-'+esc(k)+'">'+
-  '<div class="seasonal-fixed-thumb" style="--fixed-aspect:'+display.width+'/'+display.height+'"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||cat?.label||'고정틀')+'" loading="lazy" decoding="async" draggable="false"></div>'+
-  '<strong class="seasonal-fixed-name">'+esc(m.name||cat?.label||'고정틀 디자인')+'</strong>'+
-  '<span class="seasonal-fixed-price">'+esc(priceText)+'</span>'+
+function normalizePublicFixedOption(x){
+ return {label:String(x?.label||''),detail:String(x?.detail||''),choices:Array.isArray(x?.choices)?x.choices.map(v=>String(v)).filter(Boolean):[]}
+}
+function normalizePublicFixedPreview(x){
+ return {file:String(x?.file||''),category:String(x?.category||'profile'),name:String(x?.name||''),description:String(x?.description||''),enabled:x?.enabled!==false}
+}
+function normalizePublicFixedProduct(x){
+ return {
+  id:String(x?.id||''),
+  name:String(x?.name||'고정틀'),
+  seasonCategoryId:String(x?.seasonCategoryId||''),
+  description:String(x?.description||''),
+  enabled:x?.enabled!==false,
+  pcColumns:Math.max(1,Math.min(8,Number(x?.pcColumns||5))),
+  mobileColumns:Math.max(1,Math.min(4,Number(x?.mobileColumns||2))),
+  showPreviewNames:x?.showPreviewNames!==false,
+  changeableOptions:(Array.isArray(x?.changeableOptions)?x.changeableOptions:[]).map(normalizePublicFixedOption).filter(o=>o.label),
+  fixedOptions:(Array.isArray(x?.fixedOptions)?x.fixedOptions:[]).map(normalizePublicFixedOption).filter(o=>o.label),
+  note:String(x?.note||''),
+  price:Math.max(0,Number(x?.price||0)),
+  priceVisible:x?.priceVisible!==false,
+  priceNote:String(x?.priceNote||''),
+  priceScope:String(x?.priceScope||''),
+  previews:(Array.isArray(x?.previews)?x.previews:[]).map(normalizePublicFixedPreview).filter(v=>v.file&&v.enabled!==false)
+ }
+}
+async function publicFixedProducts(){
+ const configured=(Array.isArray(state.settings?.fixedProducts)?state.settings.fixedProducts:[]).map(normalizePublicFixedProduct);
+ const used=new Set(configured.flatMap(p=>p.previews.map(v=>v.file)));
+ let legacy=[];
+ try{
+  const source=await fetchSharedPresetItems();
+  legacy=applyOrder(source,state.settings?.presetOrder).filter(x=>{
+   const m=smeta(x);return presetRegistered(x)&&m.enabled&&m.showcaseKind==='fixed'&&!m.pairChild&&!used.has(x.file)
+  }).map(x=>{
+   const raw=state.settings?.presetMeta?.[x.file]||{};
+   return normalizePublicFixedProduct({
+    id:'legacy:'+x.file,
+    name:smeta(x).name||'기존 고정틀',
+    seasonCategoryId:String(raw.seasonCategoryId||(sharedSeasonCategories().find(v=>String(v.label||v.id)===String(raw.fixedHoliday||''))?.id||'')),
+    description:String(raw.fixedDescription||''),
+    enabled:smeta(x).enabled,
+    pcColumns:5,mobileColumns:2,showPreviewNames:true,
+    price:Number(raw.fixedPrice||0),priceVisible:true,
+    previews:[{file:x.file,category:String(raw.fixedPreviewCategory||x.category||'profile'),name:smeta(x).name||'디자인 01',description:String(raw.description||''),enabled:true}]
+   })
+  })
+ }catch{}
+ return [...configured,...legacy].filter(p=>p.enabled&&p.previews.length)
+}
+function fixedOptionPublicHtml(title,items,kind){
+ if(!items.length)return'';
+ return '<section class="fixed-product-option-group '+kind+'"><h4>'+esc(title)+'</h4><div class="fixed-product-option-list">'+items.map(o=>
+  '<div class="fixed-product-option-item"><span class="fixed-product-option-pill">'+esc(o.label)+'</span>'+
+  (o.detail?'<p>'+esc(o.detail)+'</p>':'')+
+  (o.choices.length?'<div class="fixed-product-choice-list">'+o.choices.map(c=>'<span>'+esc(c)+'</span>').join('')+'</div>':'')+
+  '</div>'
+ ).join('')+'</div></section>'
+}
+function fixedPreviewPublicHtml(v,p){
+ const cfg=fixedPreviewDisplayConfig(v.category),cat=(state.settings?.fixedCategories||[]).find(c=>c.id===v.category),ratio=cfg.known?'aspect-ratio:'+cfg.width+'/'+cfg.height+';':'';
+ return '<figure class="fixed-product-preview fixed-preview-layout-'+esc(cfg.key)+'">'+
+  '<div class="fixed-product-preview-media" style="'+ratio+'"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" draggable="false"></div>'+
+  '<figcaption><div class="fixed-product-preview-labels"><span class="fixed-product-preview-type">'+esc(cat?.label||v.category)+'</span>'+(p.showPreviewNames&&v.name?'<strong>'+esc(v.name)+'</strong>':'')+'</div>'+(v.description?'<p>'+esc(v.description)+'</p>':'')+'</figcaption>'+
+ '</figure>'
+}
+function fixedProductPublicCard(p){
+ const previews=p.previews.filter(v=>v.enabled!==false),cols=Math.max(1,Math.min(state.mobile?p.mobileColumns:p.pcColumns,previews.length||1));
+ const squareOnly=previews.length>0&&previews.every(v=>fixedPreviewDisplayConfig(v.category).key==='profile');
+ const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
+ return '<article class="fixed-product-card">'+
+  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3>'+seasonBadgeHtml(p.seasonCategoryId)+'</div>'+
+   (p.description?'<p>'+esc(p.description)+'</p>':'')+
+  '</header>'+
+  '<div class="fixed-product-preview-grid '+(squareOnly?'is-square-only':'')+'" style="--fixed-product-cols:'+cols+'">'+previews.map(v=>fixedPreviewPublicHtml(v,p)).join('')+'</div>'+
+  ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('변경 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('변경 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
+  (p.note?'<p class="fixed-product-note">'+esc(p.note)+'</p>':'')+
+  (p.priceVisible?'<div class="fixed-product-price-box"><div><span>가격</span><strong>'+esc(price)+'</strong></div>'+
+    (p.priceScope?'<p class="fixed-product-price-scope">'+esc(p.priceScope)+'</p>':'')+
+    (p.priceNote?'<p>'+esc(p.priceNote)+'</p>':'')+
+   '</div>':'')+
  '</article>'
+}
+function fixedFilterButton(group,id,label,active){
+ return '<button type="button" class="v2-preset-filter-button '+(active===id?'is-active':'')+'" data-fixed-filter-group="'+group+'" data-fixed-filter-id="'+esc(id)+'">'+esc(label)+'</button>'
 }
 async function renderFixed(){
  const root=$('#seasonalFixedSection');if(!root)return;
  const settings=state.settings||{};
- if(settings.fixedEnabled===false){
-  root.hidden=true;root.innerHTML='';state.showcase.fixed=[];return
- }
- const categories=(settings.fixedCategories||[]).filter(c=>c.enabled!==false);
- if(!categories.length){root.hidden=true;root.innerHTML='';state.showcase.fixed=[];return}
- const source=await fetchSharedPresetItems();
- const allowed=new Set(categories.map(c=>c.id));
- const works=applyOrder(source,settings.presetOrder).filter(x=>{
-  if(!allowed.has(x.category)||!presetRegistered(x))return false;
-  const m=smeta(x);return m.enabled&&m.showcaseKind==='fixed'&&!m.pairChild
+ if(settings.fixedEnabled===false){root.hidden=true;root.innerHTML='';state.showcase.fixed=[];return}
+ const products=await publicFixedProducts();
+ state.showcase.fixed=products;
+ if(!products.length){root.hidden=true;root.innerHTML='';return}
+
+ const categories=(settings.fixedCategories||[]).filter(c=>c.enabled!==false&&products.some(p=>p.previews.some(v=>v.category===c.id)));
+ const seasons=sharedSeasonCategories().filter(s=>s.enabled!==false&&products.some(p=>p.seasonCategoryId===s.id));
+ let filter=state.fixedFilter&&typeof state.fixedFilter==='object'?state.fixedFilter:{design:'all',season:'all'};
+ let design=String(filter.design||'all'),season=String(filter.season||'all');
+ if(design!=='all'&&!categories.some(c=>c.id===design))design='all';
+ if(season!=='all'&&!seasons.some(c=>c.id===season))season='all';
+ state.fixedFilter={design,season};
+
+ const designButtons=fixedFilterButton('design','all','전체',design)+categories.map(c=>fixedFilterButton('design',c.id,c.label||c.id,design)).join('');
+ const seasonButtons=fixedFilterButton('season','all','전체',season)+seasons.map(c=>fixedFilterButton('season',c.id,c.label||c.id,season)).join('');
+ const filters='<div class="fixed-product-filters">'+
+  (categories.length?'<div class="fixed-product-filter-row"><span>디자인 종류</span><div>'+designButtons+'</div></div>':'')+
+  (seasons.length?'<div class="fixed-product-filter-row"><span>시즌 · 공휴일</span><div>'+seasonButtons+'</div></div>':'')+
+ '</div>';
+
+ const filtered=products.filter(p=>{
+  const designOk=design==='all'||p.previews.some(v=>v.category===design);
+  const seasonOk=season==='all'||p.seasonCategoryId===season;
+  return designOk&&seasonOk
  });
- state.showcase.fixed=works;
- if(!works.length){root.hidden=true;root.innerHTML='';return}
-
- const designWithItems=categories.filter(cat=>works.some(x=>x.category===cat.id));
- if(!designWithItems.length){root.hidden=true;root.innerHTML='';return}
- let activeId=state.fixedFilter?.kind==='design'&&designWithItems.some(x=>x.id===state.fixedFilter.id)?state.fixedFilter.id:designWithItems[0].id;
- state.fixedFilter={kind:'design',id:activeId};
- const activeCat=designWithItems.find(x=>x.id===activeId)||designWithItems[0];
- const filtered=works.filter(x=>x.category===activeCat.id);
- const filterButton=cat=>'<button type="button" class="v2-preset-filter-button '+(activeCat.id===cat.id?'is-active':'')+'" data-fixed-filter-id="'+esc(cat.id)+'">'+esc(cat.label||cat.id)+'</button>';
- const filters=designWithItems.length>1?'<div class="v2-preset-filters seasonal-fixed-filters"><div class="v2-preset-filter-group is-design-only"><div class="v2-preset-filter-buttons">'+designWithItems.map(filterButton).join('')+'</div></div></div>':'';
-
- const display=fixedDisplayConfigForCategory(activeCat),columns=display.columns,perPage=Math.max(1,columns*3);
- const pageCount=Math.max(1,Math.ceil(filtered.length/perPage));
+ const perPage=state.mobile?4:6,pageCount=Math.max(1,Math.ceil(filtered.length/perPage));
  fixedPage=Math.min(Math.max(1,fixedPage),pageCount);
- const visible=filtered.slice((fixedPage-1)*perPage,fixedPage*perPage);
- const gallery='<div class="seasonal-fixed-grid" style="--fixed-columns:'+columns+'">'+visible.map(x=>fixedPublicCard(x,activeCat)).join('')+'</div>';
- const maxDots=state.mobile?9:26;
- const startDot=Math.max(1,Math.min(Math.max(1,pageCount-maxDots+1),fixedPage-Math.floor(maxDots/2)));
- const lastDot=Math.min(pageCount,startDot+maxDots-1);
- const nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 페이지">'+
+ const shown=filtered.slice((fixedPage-1)*perPage,fixedPage*perPage);
+ const cards=shown.length?'<div class="fixed-product-list">'+shown.map(fixedProductPublicCard).join('')+'</div>':'<p class="fixed-product-empty">선택한 조건에 해당하는 고정틀 상품이 없습니다.</p>';
+ const maxDots=state.mobile?7:12,startDot=Math.max(1,Math.min(Math.max(1,pageCount-maxDots+1),fixedPage-Math.floor(maxDots/2))),lastDot=Math.min(pageCount,startDot+maxDots-1);
+ const nav=pageCount>1?'<nav class="v2-pagination seasonal-fixed-pagination" aria-label="고정틀 상품 페이지">'+
   '<button type="button" class="v2-page-arrow" data-fixed-page="prev" '+(fixedPage===1?'disabled':'')+' aria-label="이전 페이지">‹</button>'+
   '<div class="v2-page-dots">'+Array.from({length:lastDot-startDot+1},(_,i)=>{const p=startDot+i;return '<button type="button" class="v2-page-dot '+(fixedPage===p?'is-active':'')+'" data-fixed-page="'+p+'" aria-label="'+p+'페이지"></button>'}).join('')+'</div>'+
   '<span class="v2-page-counter">'+fixedPage+' / '+pageCount+'</span>'+
   '<button type="button" class="v2-page-arrow" data-fixed-page="next" '+(fixedPage===pageCount?'disabled':'')+' aria-label="다음 페이지">›</button></nav>':'';
 
- const fixedNotice=String(settings.fixedNotice||'완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다');
- const normalizedFixedNotice=fixedNotice.replace(/\s+/g,' ').trim();
- const fixedNoticeHtml=normalizedFixedNotice==='완성된 디자인 그대로 판매되며 색상이나 디자인 수정이 불가능합니다'
-  ? '<span class="fixed-copy-line">완성된 디자인 그대로 판매되며</span> <br class="fixed-copy-mobile-break"><span class="fixed-copy-line">색상이나 디자인 수정이 불가능합니다</span>'
-  : esc(fixedNotice);
+ const notice=String(settings.fixedNotice||'').trim();
  root.hidden=false;
- root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+
-  '<p class="fixed-section-copy">'+fixedNoticeHtml+'</p>'+
-  filters+gallery+nav;
- root.querySelectorAll('[data-fixed-filter-id]').forEach(b=>b.onclick=()=>{
-  state.fixedFilter={kind:'design',id:b.dataset.fixedFilterId||''};fixedPage=1;renderFixed();requestHeight()
+ root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+(notice?'<p class="fixed-section-copy">'+esc(notice)+'</p>':'')+filters+cards+nav;
+ root.querySelectorAll('[data-fixed-filter-group]').forEach(b=>b.onclick=()=>{
+  const group=b.dataset.fixedFilterGroup,id=b.dataset.fixedFilterId||'all';
+  state.fixedFilter={...state.fixedFilter,[group]:id};fixedPage=1;renderFixed();requestHeight()
  });
  root.querySelectorAll('[data-fixed-page]').forEach(b=>b.onclick=()=>{
   const token=b.dataset.fixedPage;fixedPage=token==='prev'?fixedPage-1:token==='next'?fixedPage+1:Number(token);renderFixed();requestHeight()
