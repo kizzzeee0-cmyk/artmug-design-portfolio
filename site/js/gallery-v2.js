@@ -738,9 +738,15 @@ window.__ARTMUG_V2__={
  },
  validateCard(card){
   const d=this.inquiryData(card);
+  const patternField=card.querySelector('.v2-fixed-pattern-field');
+  const otherField=card.querySelector('.v2-fixed-pattern-other');
+  const patternMissing=d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&!d.fixedPattern;
+  const otherMissing=d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&d.fixedPattern==='기타'&&!d.fixedPatternOther;
+  patternField?.classList.toggle('is-required-missing',patternMissing);
+  otherField?.classList.toggle('is-required-missing',otherMissing);
   if(d.profileSelected&&d.profileMode==='fixed'&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
-  if(d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&!d.fixedPattern)return {ok:false,message:'패턴 모양을 선택해주세요.'};
-  if(d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&d.fixedPattern==='기타'&&!d.fixedPatternOther)return {ok:false,message:'기타 패턴 모양을 직접 입력해주세요.'};
+  if(patternMissing)return {ok:false,message:'패턴 모양을 선택해주세요.'};
+  if(otherMissing)return {ok:false,message:'기타 패턴 모양을 직접 입력해주세요.'};
   if(d.profileSelected&&d.profileMode==='preset'&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
   return {ok:true}
  },
