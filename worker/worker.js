@@ -80,7 +80,7 @@ async function publicPortfolio(u,env){
   const token=env.GITHUB_TOKEN||'';
   const [s,idx]=await Promise.all([
     token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
-    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[])
+    token?ghJson(env,token,INDEX).catch(()=>publicJson(env,INDEX).catch(()=>[])):publicJson(env,INDEX).catch(()=>[])
   ]);
   const c=(s.portfolioCategories||[]).find(x=>x.id===cat)||{};
   const pmeta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
@@ -116,7 +116,7 @@ async function publicPresets(u,env){
   const token=env.GITHUB_TOKEN||'';
   const s=token?await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);
   if(s.presetEnabled===false&&s.fixedEnabled!==true)return json({items:[],total:0,page:1,totalPages:1},200,{'Cache-Control':'no-store'});
-  let all=token?await ghJson(env,token,PRESETS).catch(()=>[]):await publicJson(env,PRESETS).catch(()=>[]);
+  let all=token?await ghJson(env,token,PRESETS).catch(()=>publicJson(env,PRESETS).catch(()=>[])):await publicJson(env,PRESETS).catch(()=>[]);
   const cat=u.searchParams.get('category')||s.presetCategories?.find(x=>x.enabled!==false)?.id||'';
   all=(Array.isArray(all)?all:[]).filter(x=>x.enabled!==false&&(!cat||x.category===cat)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
   const per=Math.min(60,Math.max(1,Number(u.searchParams.get('perPage')||30))),page=Math.max(1,Number(u.searchParams.get('page')||1)),tp=Math.max(1,Math.ceil(all.length/per)),pg=Math.min(page,tp);
@@ -135,8 +135,8 @@ async function publicNavSummary(env){
   const token=env.GITHUB_TOKEN||'';
   const [s,idx,presets]=await Promise.all([
     token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
-    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[]),
-    token?ghJson(env,token,PRESETS).catch(()=>[]):publicJson(env,PRESETS).catch(()=>[])
+    token?ghJson(env,token,INDEX).catch(()=>publicJson(env,INDEX).catch(()=>[])):publicJson(env,INDEX).catch(()=>[]),
+    token?ghJson(env,token,PRESETS).catch(()=>publicJson(env,PRESETS).catch(()=>[])):publicJson(env,PRESETS).catch(()=>[])
   ]);
   const meta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
   const pm=s.presetMeta&&typeof s.presetMeta==='object'?s.presetMeta:{};
