@@ -1220,6 +1220,59 @@ html,body{
   }
 }
 
+
+/* 2026-10-17 QUICK MENU MICRO ALIGNMENT V11 */
+/* Move the menu controls only 3px left; keep the connector itself fixed. */
+.nav-list,
+.quick-inquiry-section{
+  margin-left:23px!important;
+}
+.quick-top-wrap{
+  margin-left:23px!important;
+}
+
+/* Center the active dot exactly on the 1.5px connector line at x=8px. */
+.quick-nav-button.is-active::before,
+.quick-inquiry-button.is-active::before{
+  left:-17.75px!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  transform:translateY(-50%)!important;
+}
+
+/* Shorter screens use a 6px dot, so recalculate its x offset as well. */
+@media(max-height:780px){
+  .nav-list,
+  .quick-inquiry-section{
+    margin-left:23px!important;
+  }
+  .quick-top-wrap{
+    margin-left:23px!important;
+  }
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-17.25px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+@media(max-height:640px){
+  .nav-list,
+  .quick-inquiry-section{
+    margin-left:23px!important;
+  }
+  .quick-top-wrap{
+    margin-left:23px!important;
+  }
+  .quick-nav-button.is-active::before,
+  .quick-inquiry-button.is-active::before{
+    left:-17.25px!important;
+    width:6px!important;
+    height:6px!important;
+  }
+}
+
 </style>
 </head>
 <body>
