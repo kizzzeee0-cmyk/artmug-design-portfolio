@@ -25,5 +25,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261016145315"
+  },
+  {
+    "id": "preset-Ll8C2dIqZYg",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif",
+    "originalName": "chfhr_.gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261016145345"
   }
 ]
