@@ -55,6 +55,61 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 .quick-top-text{display:block;width:100%;font-size:7px;font-weight:800;line-height:1;text-align:center;letter-spacing:.01em}
 .loading{padding:10px 3px;text-align:center;color:#81909a;font-size:10px}
 @media(max-height:560px){body{align-items:flex-start;padding-top:12px;padding-bottom:12px}.quick-shell{top:12px;transform:none}}
+
+/* 2026-10-17 QUICK MENU CENTER + SAFE HEIGHT */
+body{
+  align-items:center!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  height:100vh!important;
+  height:100dvh!important;
+  padding-top:16px!important;
+  padding-bottom:16px!important;
+  overflow:hidden!important;
+}
+.quick-shell{
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  max-height:calc(100vh - 32px)!important;
+  max-height:calc(100dvh - 32px)!important;
+}
+.quick-menu-title,
+.quick-divider,
+.quick-inquiry-section,
+.quick-top-wrap{
+  flex:0 0 auto;
+}
+.nav-list{
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+}
+.nav-list::-webkit-scrollbar{display:none}
+@media(max-height:720px){
+  body{padding-top:14px!important;padding-bottom:14px!important}
+  .quick-shell{
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    max-height:calc(100vh - 28px)!important;
+    max-height:calc(100dvh - 28px)!important;
+    padding-top:12px!important;
+    padding-bottom:10px!important;
+  }
+  .quick-menu-title{margin-bottom:8px!important;font-size:12px!important}
+  .quick-divider.is-title{margin-bottom:8px!important}
+  .nav-list{gap:5px!important}
+  .quick-nav-button,
+  .quick-inquiry-button{min-height:32px!important;padding-top:5px!important;padding-bottom:5px!important;font-size:10.5px!important}
+  .quick-divider.is-action{margin:8px 0 7px!important}
+  .quick-inquiry-section + .quick-top-wrap{margin-top:4px!important}
+  .quick-top-wrap{min-height:34px!important}
+  .quick-top-button{width:34px!important;height:34px!important}
+  .quick-top-button::before{width:29px!important;height:29px!important}
+  .quick-top-content{width:29px!important;height:29px!important}
+}
 </style>
 </head>
 <body>
@@ -72,7 +127,7 @@ body:not(.menu-ready) .quick-shell{visibility:hidden}
 <script src="/js/config.js"></script>
 <script>
 (function(){
-const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v11';
+const API=(window.ARTMUG_CONFIG||{}).API_BASE||'',root=document.getElementById('navList'),CACHE_KEY='artmug-nav-summary-v12';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null;
 const api=async p=>{const r=await fetch(API+p,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
@@ -102,6 +157,10 @@ function summarize(settings,index,presets){
   .map(c=>({id:c.id,label:String(c.label||c.id)}));
  return {
   hasPreset:settings.presetEnabled!==false&&settings.showcasePresetEnabled!==false&&presetItems.length>0,
+  hasFixed:settings.fixedEnabled!==false&&(
+   (Array.isArray(settings.fixedProducts)&&settings.fixedProducts.some(p=>p&&p.enabled!==false&&Array.isArray(p.previews)&&p.previews.some(v=>v&&v.file&&v.enabled!==false)))||
+   (Array.isArray(presets)&&presets.some(x=>x&&x.enabled!==false&&(pm[x.file]||{}).enabled!==false&&(pm[x.file]||{}).showcaseKind==='fixed'))
+  ),
   hasBanner:bannerWorks.length>0,
   bannerIds,
   profile:profile?{id:profile.id,label:'움짤프사'}:null,
@@ -118,7 +177,12 @@ function send(target){
 function listFrom(d){
  currentSummary=d||{};
  const list=[{label:'공지사항',target:'notice'}];
- if(d.hasPreset)list.push({label:'프리셋',target:'showcase'});
+ if(d.hasFixed||d.hasPreset){
+  list.push({
+   label:d.hasFixed&&d.hasPreset?'고정틀 · 프리셋':d.hasFixed?'고정틀':'프리셋',
+   target:d.hasFixed?'fixed':'showcase'
+  })
+ }
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
@@ -128,7 +192,8 @@ function listFrom(d){
 }
 function normalizeActiveTarget(target){
  target=String(target||'');
- if(target.startsWith('showcase-'))return'showcase';
+ if(target.startsWith('showcase-'))target='showcase';
+ if(currentSummary.hasFixed&&currentSummary.hasPreset&&(target==='fixed'||target==='showcase'))return'fixed';
  if(target==='banner:A'||target==='banner:B'||target==='banner:all')return'banner:all';
  if(target.startsWith('portfolio:')){
   const id=target.split(':')[1];
@@ -140,6 +205,7 @@ function iconSvg(item){
  const target=String(item?.target||''),label=String(item?.label||'');
  const common='viewBox="0 0 24 24" aria-hidden="true"';
  if(target==='notice'||label.includes('공지'))return '<svg '+common+'><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
+ if(target==='fixed'||label.includes('고정틀'))return '<svg '+common+'><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>';
  if(target==='showcase'||label.includes('프리셋'))return '<svg '+common+'><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H10.4v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-3.2h-.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h3.2v.1A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.35.28.57.67.6 1.1v.3h.1V13.6H20a1.7 1.7 0 0 0-.6 1.4Z"/></svg>';
  if(target.startsWith('portfolio:')&&label.includes('움짤'))return '<svg '+common+'><circle cx="12" cy="8" r="3"/><path d="M5.5 19c.8-3.8 3.1-6 6.5-6s5.7 2.2 6.5 6"/></svg>';
  if(target==='banner:all'||label.includes('배너'))return '<svg '+common+'><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="m5.5 17 4.1-4 3.1 2.7 2.2-2.1 3.6 3.4"/></svg>';
