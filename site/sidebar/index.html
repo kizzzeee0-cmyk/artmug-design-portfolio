@@ -2194,6 +2194,62 @@ body{
   }
 }
 
+
+/* 2026-10-17 ICON 25 + MENU OFFSET + TOP OPTICAL V24 */
+/* All quick-menu inner glyphs use one exact 25px box, including inquiry. */
+.quick-nav-icon svg,
+.quick-inquiry-button .quick-nav-icon svg{
+  width:25px!important;
+  height:25px!important;
+  min-width:25px!important;
+  min-height:25px!important;
+  max-width:25px!important;
+  max-height:25px!important;
+  stroke-width:1.75!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+
+/* Keep 25px glyph size at every height breakpoint. */
+@media(max-height:780px){
+  .quick-nav-icon svg,
+  .quick-inquiry-button .quick-nav-icon svg{
+    width:25px!important;
+    height:25px!important;
+    min-width:25px!important;
+    min-height:25px!important;
+    max-width:25px!important;
+    max-height:25px!important;
+  }
+}
+@media(max-height:640px){
+  .quick-nav-icon svg,
+  .quick-inquiry-button .quick-nav-icon svg{
+    width:25px!important;
+    height:25px!important;
+    min-width:25px!important;
+    min-height:25px!important;
+    max-width:25px!important;
+    max-height:25px!important;
+  }
+}
+
+/* Nudge the work/sleep speech bubble a little farther left. */
+.quick-work-status{
+  right:39px!important;
+}
+
+/* Shift arrow + TOP together by 1px so the arrow remains exactly above the text
+   while the TOP label moves 1px right optically. */
+.quick-top-content{
+  transform:translateX(1px)!important;
+}
+.quick-top-arrow,
+.quick-top-text{
+  position:relative!important;
+  left:0!important;
+}
+
 </style>
 </head>
 <body>
@@ -2251,7 +2307,7 @@ function iconSvg(item){
  if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M8 5H5v3M16 5h3v3M8 19H5v-3M16 19h3v-3"/><rect x="8" y="8" width="8" height="8" rx="1.4"/></svg>';
 
  /* 프리셋: paint palette */
- if(t==='showcase')return '<svg viewBox="0 0 24 24"><rect x="5.5" y="6" width="13" height="3" rx="1.5"/><rect x="5.5" y="10.5" width="13" height="3" rx="1.5"/><rect x="5.5" y="15" width="13" height="3" rx="1.5"/></svg>';
+ if(t==='showcase')return '<svg viewBox="0 0 24 24"><rect x="7.2" y="5" width="10.8" height="10.8" rx="1.8"/><rect x="5.2" y="7.1" width="10.8" height="10.8" rx="1.8"/><rect x="7.4" y="9.1" width="10.8" height="10.8" rx="1.8"/></svg>';
 
  /* 움짤프사: default profile/avatar silhouette */
  if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><rect x="4.7" y="5.7" width="14.6" height="12.6" rx="2.6"/><path d="m10.2 9.2 4.8 2.8-4.8 2.8z"/></svg>';
