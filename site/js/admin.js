@@ -1303,7 +1303,7 @@ async function saveSettings(){
   delete S.eventsBenefitLabel;delete S.eventsOldPrice;delete S.eventsNewPrice;
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
-  collectCats(S.presetCategories||[],'preset');collectPresetSeasonCats();collectPresetGroups();collectFixedAdmin();
+  collectCats(S.presetCategories||[],'preset');collectPresetSeasonCats();collectPresetGroups();collectFixedAdmin();ensureFixedProducts().forEach((_,i)=>collectFixedProductFromDom(i));
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
