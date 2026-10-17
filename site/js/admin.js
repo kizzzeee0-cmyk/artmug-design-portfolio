@@ -1425,7 +1425,7 @@ function renderPresetItems(){
           <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reservable="${i}" ${meta.isReservable?'checked':''}> 예약가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능</label>
-          <label class="mini-toggle"><input type="checkbox" data-preset-color-only-change="${i}" ${meta.colorOnlyChangeAvailable?'checked':''}> 색상만 수정가능</label>
+          <label class="mini-toggle preset-color-only-toggle"><input type="checkbox" data-preset-color-only-change="${i}" ${meta.colorOnlyChangeAvailable?'checked':''}> 색상만 수정가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-no-edit="${i}" ${meta.isNoEdit?'checked':''}> 수정불가</label>
         </div>
       </div>
