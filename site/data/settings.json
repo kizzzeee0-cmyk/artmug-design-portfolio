@@ -884,6 +884,15 @@
       "fixedProductId": "product-mvcg7b6a-uw7qe9",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261017154054-zsggtxy57gz9-background__3_.png": {
+      "name": "디자인 04",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvcg7b6a-uw7qe9",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -893,7 +902,8 @@
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
     "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif",
     "preset/fixed-store-profile/20261017154010-bc9n5c1dftinu-background__4_.png",
-    "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png"
+    "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png",
+    "preset/fixed-store-profile/20261017154054-zsggtxy57gz9-background__3_.png"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1129,6 +1139,14 @@
           "file": "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png",
           "category": "profile",
           "name": "디자인 03",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvckd3uz-wgiv9o",
+          "file": "preset/fixed-store-profile/20261017154054-zsggtxy57gz9-background__3_.png",
+          "category": "profile",
+          "name": "디자인 04",
           "description": "",
           "enabled": true
         }
