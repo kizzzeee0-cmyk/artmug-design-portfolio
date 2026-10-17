@@ -12,6 +12,7 @@ const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURICompon
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
 const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all'},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
+let portfolioHydrationObserver=null;
 let presetSourcePromise=null;
 let fixedPage=1;
 const portfolioOrder=['profile','top-banner','floating-banner','bottom-banner','bottom-split','four-cut'];
@@ -118,7 +119,7 @@ function itemCard(x,c){
  const k=layoutKey(c),m=pmeta(x),type=bannerTypeEnabled()&&bannerIds.has(k)?(m.bannerType||'B'):'';
  const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">TYPE '+type+'</span></span>':'';
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
-   '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" draggable="false"></div>'+
+   '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
    (badge?'<div class="v2-work-tags">'+badge+'</div>':'')+
   '</article>'
 }
@@ -126,7 +127,7 @@ function presetCard(x){
  const m=smeta(x),c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},profile=layoutKey(c)==='profile';
  const badges=presetBadges(m).map(b=>'<span class="v2-preset-badge '+b.cls+'"'+(b.style?' style="'+esc(b.style)+'"':'')+'><span class="v2-badge-label">'+esc(b.label)+'</span></span>').join('');
  return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'">'+
-   '<div class="v2-showcase-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" draggable="false"></div>'+
+   '<div class="v2-showcase-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
    '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong></div>'+
    (badges?'<div class="v2-preset-badges">'+badges+'</div>':'')+
    (m.colorChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">수정가능</span>':'')+
@@ -227,6 +228,9 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  const data=state.portfolio.get(id);if(!data)return;
  const {cat}=data,k=layoutKey(cat),cfg=catConfig(cat);
  const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');if(!sec)return;
+ sec.dataset.v2Hydrated='1';
+ sec.classList.remove('is-pending');
+ portfolioHydrationObserver?.unobserve?.(sec);
  const typeOn=bannerTypeEnabled()&&bannerIds.has(k);
  if(!typeOn&&data.filter!=='ALL'){data.filter='ALL';data.page=1}
  if(data.remote&&loadRemote){
@@ -273,49 +277,107 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
 async function renderPortfolio(){
  const root=$('#portfolioAllSections');if(!root)return;
  state.portfolio.clear();
+ portfolioHydrationObserver?.disconnect?.();
+ portfolioHydrationObserver=null;
+
  let cats=visibleCats();
  const meta=state.settings?.portfolioMeta||{};
- if(Array.isArray(state.portfolioIndex)){
+ const indexed=Array.isArray(state.portfolioIndex);
+
+ if(indexed){
   const counts={};
-  state.portfolioIndex.forEach(x=>{if(x&&x.category&&(meta[x.file]||{}).enabled!==false)counts[x.category]=(counts[x.category]||0)+1});
+  state.portfolioIndex.forEach(x=>{
+   if(x&&x.category&&(meta[x.file]||{}).enabled!==false)counts[x.category]=(counts[x.category]||0)+1
+  });
   cats=cats.filter(cat=>{
    if(layoutKey(cat)==='profile'){
-    return (state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).some(c=>Number(counts[c.id]||0)>0)
+    return (state.settings.portfolioCategories||[])
+     .filter(c=>/^profile(?:-|$)/.test(String(c.id||'')))
+     .some(c=>Number(counts[c.id]||0)>0)
    }
    return Number(counts[cat.id]||0)>0
   })
  }
- if(!cats.length){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
+
+ if(!cats.length){
+  root.innerHTML='';
+  $('#portfolioAllSectionV2').hidden=true;
+  return
+ }
+
  $('#portfolioAllSectionV2').hidden=false;
- root.innerHTML=cats.map(cat=>'<section class="v2-portfolio-category" data-v2-cat="'+esc(cat.id)+'" id="portfolio-'+esc(cat.id)+'"><p class="v2-loading">작품을 불러오는 중…</p></section>').join('');
- let shown=0;
- const tasks=cats.map(async cat=>{
+ root.innerHTML=cats.map(cat=>
+  '<section class="v2-portfolio-category is-pending" data-v2-cat="'+esc(cat.id)+'" id="portfolio-'+esc(cat.id)+'">'+
+   '<p class="v2-loading">작품을 불러오는 중…</p>'+
+  '</section>'
+ ).join('');
+
+ const readyIds=[];
+ for(const cat of cats){
   const k=layoutKey(cat),sec=document.querySelector('[data-v2-cat="'+CSS.escape(cat.id)+'"]');
   try{
-   let items=[];
-   if(Array.isArray(state.portfolioIndex)){
+   if(indexed){
+    let items;
     if(k==='profile'){
-     const physical=new Set((state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).map(c=>c.id));
+     const physical=new Set((state.settings.portfolioCategories||[])
+      .filter(c=>/^profile(?:-|$)/.test(String(c.id||'')))
+      .map(c=>c.id));
      items=state.portfolioIndex.filter(x=>physical.has(x.category))
-    }else items=state.portfolioIndex.filter(x=>x.category===cat.id)
+    }else{
+     items=state.portfolioIndex.filter(x=>x.category===cat.id)
+    }
+    items=applyOrder(items,state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+    if(!items.length){if(sec)sec.hidden=true;continue}
+    state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});
    }else{
-    if(k==='profile'){
-     const physical=(state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||'')));
-     const batches=await Promise.all(physical.map(p=>fetchAll('portfolio',p.id).catch(()=>[])));
-     items=batches.flat()
-    }else items=await fetchAll('portfolio',cat.id).catch(()=>[])
+    state.portfolio.set(cat.id,{cat,items:[],page:1,filter:'ALL',remote:true,availableFilters:[]})
    }
-   items=applyOrder(items,state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
-   if(!items.length){sec.hidden=true;return}
-   state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});
-   shown++;await renderPortfolioCategory(cat.id,false,false)
-  }catch(e){if(sec)sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'}
- });
- await Promise.all(tasks);
- if(!shown){root.innerHTML='';$('#portfolioAllSectionV2').hidden=true;return}
- sendDetailedSectionMap();requestHeight()
-}
+   readyIds.push(cat.id)
+  }catch(e){
+   if(sec)sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'
+  }
+ }
 
+ if(!readyIds.length){
+  root.innerHTML='';
+  $('#portfolioAllSectionV2').hidden=true;
+  return
+ }
+
+ const hydrate=id=>{
+  const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');
+  if(!sec||sec.hidden||sec.dataset.v2Hydrated==='1')return;
+  renderPortfolioCategory(id,false,!indexed).catch(()=>{
+   sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'
+  })
+ };
+
+ // Render only the first category immediately. Remaining categories hydrate near the viewport.
+ hydrate(readyIds[0]);
+ const pending=readyIds.slice(1);
+ if('IntersectionObserver' in window&&pending.length){
+  portfolioHydrationObserver=new IntersectionObserver(entries=>{
+   entries.forEach(entry=>{
+    if(!entry.isIntersecting)return;
+    const id=entry.target.getAttribute('data-v2-cat');
+    if(id)hydrate(id)
+   })
+  },{root:null,rootMargin:'650px 0px',threshold:0});
+  pending.forEach(id=>{
+   const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');
+   if(sec)portfolioHydrationObserver.observe(sec)
+  })
+ }else{
+  pending.forEach((id,i)=>{
+   const run=()=>hydrate(id);
+   if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:1200+i*150});
+   else setTimeout(run,120+i*80)
+  })
+ }
+
+ sendDetailedSectionMap();
+ requestHeight()
+}
 async function fetchSharedPresetItems(){
  if(!presetSourcePromise){
   const cats=[...(state.settings?.presetCategories||[]).filter(c=>c.enabled!==false),...(state.settings?.fixedEnabled!==false?(state.settings?.fixedCategories||[]).filter(c=>c.enabled!==false):[])];
@@ -390,30 +452,6 @@ async function publicFixedProducts(){
  }catch{}
  return [...configured,...legacy].filter(p=>p.enabled&&p.previews.length)
 }
-function fixedProductGroupBaseName(name){
- const raw=String(name||'고정틀').trim();
- const withoutVariant=raw
-  .replace(/\s+(?:TYPE\s*)?[A-Z]\s*$/i,'')
-  .replace(/\s+\d{1,2}\s*$/,'')
-  .trim();
- return withoutVariant||raw
-}
-function fixedProductGroupKey(name){
- return fixedProductGroupBaseName(name).replace(/\s+/g,' ').toLowerCase()
-}
-function groupFixedProducts(products){
- const groups=[],byKey=new Map();
- (Array.isArray(products)?products:[]).forEach(p=>{
-  const key=fixedProductGroupKey(p.name);
-  let group=byKey.get(key);
-  if(!group){
-   group={key,baseName:fixedProductGroupBaseName(p.name),products:[]};
-   byKey.set(key,group);groups.push(group)
-  }
-  group.products.push(p)
- });
- return groups
-}
 function fixedOptionPublicHtml(title,items,kind){
  const labels=(Array.isArray(items)?items:[]).map(o=>String(o?.label||'').trim()).filter(Boolean);
  if(!labels.length)return'';
@@ -428,33 +466,25 @@ function fixedPreviewPublicHtml(v,p){
   ? '<figcaption>'+(p.showPreviewNames&&v.name?'<strong>'+esc(v.name)+'</strong>':'')+(v.description?'<p>'+esc(v.description)+'</p>':'')+'</figcaption>'
   : '';
  return '<figure class="fixed-product-preview fixed-preview-layout-'+esc(cfg.key)+'">'+
-  '<div class="fixed-product-preview-media"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" draggable="false"></div>'+
+  '<div class="fixed-product-preview-media"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
   caption+
  '</figure>'
 }
-function fixedProductVariantPublicHtml(p,showPrice,priceSource){
+function fixedProductPublicCard(p){
  const allPreviews=p.previews.filter(v=>v.enabled!==false);
  const previews=state.mobile?allPreviews.slice(0,4):allPreviews;
  const squareOnly=previews.length>0&&previews.every(v=>fixedPreviewDisplayConfig(v.category).key==='profile');
  const cols=squareOnly&&state.mobile?4:Math.max(1,Math.min(state.mobile?p.mobileColumns:p.pcColumns,previews.length||1));
- const priceBase=priceSource||p;
- const price=priceBase.price>0?priceBase.price.toLocaleString('ko-KR')+'원':'가격 문의';
- const priceMeta=[priceBase.priceScope,priceBase.priceNote].map(v=>String(v||'').trim()).filter(Boolean);
- return '<section class="fixed-product-variant">'+
-  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3>'+(showPrice&&priceBase.priceVisible?'<strong class="fixed-product-title-price">'+esc(price)+'</strong>':'')+'</div>'+
+ const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
+ const priceMeta=[p.priceScope,p.priceNote].map(v=>String(v||'').trim()).filter(Boolean);
+ return '<article class="fixed-product-card">'+
+  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3>'+(p.priceVisible?'<strong class="fixed-product-title-price">'+esc(price)+'</strong>':'')+'</div>'+
    (p.description?'<p>'+esc(p.description)+'</p>':'')+
-   (showPrice&&priceBase.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
+   (p.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
   '</header>'+
   '<div class="fixed-product-preview-grid '+(squareOnly?'is-square-only':'')+'" style="--fixed-product-cols:'+cols+'">'+previews.map(v=>fixedPreviewPublicHtml(v,p)).join('')+'</div>'+
   ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('수정 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('수정 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
   (p.note?'<p class="fixed-product-note">'+esc(p.note)+'</p>':'')+
- '</section>'
-}
-function fixedProductPublicCard(group){
- const products=Array.isArray(group?.products)?group.products:[group];
- const priceSource=products[0]||{};
- return '<article class="fixed-product-card fixed-product-group-card '+(products.length>1?'is-grouped':'is-single')+'">'+
-  products.map((p,i)=>(i?'<div class="fixed-product-variant-separator" aria-hidden="true"></div>':'')+fixedProductVariantPublicHtml(p,i===0,priceSource)).join('')+
  '</article>'
 }
 async function renderFixed(){
@@ -464,8 +494,7 @@ async function renderFixed(){
  const products=await publicFixedProducts();
  state.showcase.fixed=products;
  if(!products.length){root.hidden=true;root.innerHTML='';return}
- const groups=groupFixedProducts(products);
- const cards='<div class="fixed-product-list">'+groups.map(fixedProductPublicCard).join('')+'</div>';
+ const cards='<div class="fixed-product-list">'+products.map(fixedProductPublicCard).join('')+'</div>';
  const notice=String(settings.fixedNotice||'').trim();
  root.hidden=false;
  root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+(notice?'<p class="fixed-section-copy">'+esc(notice)+'</p>':'')+cards;
