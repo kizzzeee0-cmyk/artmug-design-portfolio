@@ -893,15 +893,6 @@
       "fixedProductId": "product-mvcg7b6a-uw7qe9",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
-    },
-    "preset/fixed-store-profile/20261017154010-bc9n5c1dftinu-background__4_.png": {
-      "name": "",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvcg7b6a-uw7qe9",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -1130,14 +1121,6 @@
         {
           "id": "preview-mvcgbd33-jyfyfk",
           "file": "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif",
-          "category": "profile",
-          "name": "",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mvckc5d0-iwhf4t",
-          "file": "preset/fixed-store-profile/20261017154010-bc9n5c1dftinu-background__4_.png",
           "category": "profile",
           "name": "",
           "description": "",
