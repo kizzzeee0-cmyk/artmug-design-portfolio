@@ -859,7 +859,7 @@
       "colorOnlyChangeAvailable": true
     },
     "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif": {
-      "name": "디자인 01",
+      "name": "",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -868,7 +868,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261017154010-bc9n5c1dftinu-background__4_.png": {
-      "name": "디자인 02",
+      "name": "",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -877,7 +877,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png": {
-      "name": "디자인 03",
+      "name": "",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -886,7 +886,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261017154054-zsggtxy57gz9-background__3_.png": {
-      "name": "디자인 04",
+      "name": "",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -1130,7 +1130,7 @@
           "id": "preview-mvckc5d0-iwhf4t",
           "file": "preset/fixed-store-profile/20261017154010-bc9n5c1dftinu-background__4_.png",
           "category": "profile",
-          "name": "디자인 02",
+          "name": "",
           "description": "",
           "enabled": true
         },
@@ -1138,7 +1138,7 @@
           "id": "preview-mvckcj9f-o34zv7",
           "file": "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png",
           "category": "profile",
-          "name": "디자인 03",
+          "name": "",
           "description": "",
           "enabled": true
         },
@@ -1146,7 +1146,7 @@
           "id": "preview-mvckd3uz-wgiv9o",
           "file": "preset/fixed-store-profile/20261017154054-zsggtxy57gz9-background__3_.png",
           "category": "profile",
-          "name": "디자인 04",
+          "name": "",
           "description": "",
           "enabled": true
         }
