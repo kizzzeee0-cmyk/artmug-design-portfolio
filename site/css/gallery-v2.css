@@ -3293,3 +3293,26 @@ body.artmug-part-portfolio #inquirySection{
     font-size:var(--inquiry-choice-size,12.5px)!important;
   }
 }
+
+/* 2026-10-18 FIXED CHOICE GEOMETRY EXACT V3 */
+/* Exact geometry match with the inquiry choice pills above. */
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+  min-height:40px!important;
+  height:auto!important;
+  padding:8px 14px!important;
+  border-radius:12px!important;
+  justify-content:center!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice>span{
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  justify-content:center!important;
+}
+@media(max-width:680px){
+  .contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+    min-height:40px!important;
+    padding:8px 14px!important;
+    border-radius:12px!important;
+  }
+}
