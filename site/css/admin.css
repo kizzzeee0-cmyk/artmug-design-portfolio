@@ -1712,3 +1712,15 @@
     grid-column:auto;
   }
 }
+
+/* 2026-10-17 PRESET COLOR-ONLY TOGGLE WRAP V1 */
+@media(min-width:721px){
+  .preset-admin-toggle-grid .preset-color-only-toggle{
+    grid-column:1!important;
+  }
+}
+.preset-admin-toggle-grid .preset-color-only-toggle{
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+}
