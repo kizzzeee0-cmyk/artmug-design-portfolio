@@ -3162,3 +3162,68 @@ body.artmug-part-portfolio #inquirySection{
     min-height:180px!important;
   }
 }
+
+/* 2026-10-18 FIXED INQUIRY SHARED CHOICE STYLE V1 */
+.contact-form .v2-fixed-product-grid{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+  position:relative!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  min-height:0!important;
+  padding:8px 13px!important;
+  border:1px solid var(--line)!important;
+  border-radius:999px!important;
+  background:var(--surface,#fff)!important;
+  color:#6f7f89!important;
+  box-shadow:none!important;
+  font-family:inherit!important;
+  font-size:var(--inquiry-choice-size,13.5px)!important;
+  font-weight:500!important;
+  line-height:1.35!important;
+  cursor:pointer!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice>span{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  color:inherit!important;
+  font:inherit!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:checked){
+  background:#327CAA!important;
+  border-color:#327CAA!important;
+  color:#fff!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:checked)>span{
+  color:#fff!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice:not(:has(input:checked)):hover{
+  background:#F2F8FC!important;
+  border-color:#8FC8E8!important;
+  color:#365F78!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:focus-visible){
+  outline:3px solid rgba(50,124,170,.22)!important;
+  outline-offset:2px!important;
+}
+
+/* Pattern selection was removed from fixed-template inquiry. */
+.contact-form .v2-fixed-pattern-field,
+.contact-form .v2-fixed-pattern-choices,
+.contact-form .v2-fixed-pattern-other,
+.contact-form .v2-fixed-pattern-other-group{
+  display:none!important;
+}
+
+@media(max-width:680px){
+  .contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+    padding:8px 13px!important;
+    font-size:var(--inquiry-choice-size,12.5px)!important;
+  }
+}
