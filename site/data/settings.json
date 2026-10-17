@@ -854,7 +854,8 @@
       "isNoEdit": false,
       "colorChangeAvailable": false,
       "showcaseKind": "preset",
-      "featured": false
+      "featured": false,
+      "colorOnlyChangeAvailable": true
     }
   },
   "presetOrder": [
