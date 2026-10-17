@@ -1061,6 +1061,23 @@
           "enabled": true
         }
       ]
+    },
+    {
+      "id": "product-mvcg7b6a-uw7qe9",
+      "name": "새 고정틀",
+      "description": "",
+      "enabled": true,
+      "pcColumns": 5,
+      "mobileColumns": 2,
+      "showPreviewNames": true,
+      "changeableOptions": [],
+      "fixedOptions": [],
+      "note": "",
+      "price": 0,
+      "priceVisible": true,
+      "priceNote": "",
+      "priceScope": "",
+      "previews": []
     }
   ],
   "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6"
