@@ -2939,3 +2939,80 @@ body.artmug-part-portfolio #inquirySection{
     height:auto!important;
   }
 }
+
+/* 2026-10-18 FIXED PREVIEW NO BOX V2 */
+/* Remove the preview card itself, not just the inner media frame. */
+.fixed-product-preview{
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.fixed-product-preview-media{
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:0!important;
+  aspect-ratio:auto!important;
+  overflow:visible!important;
+}
+.fixed-product-preview-media::before,
+.fixed-product-preview-media::after,
+.fixed-product-preview::before,
+.fixed-product-preview::after{
+  content:none!important;
+  display:none!important;
+}
+.fixed-product-preview-media img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+}
+
+/* Old square/profile layout rules may size the column, but may never draw a card. */
+.fixed-product-preview-grid.is-square-only>.fixed-product-preview,
+.fixed-product-preview-grid.is-square-only .fixed-product-preview-media,
+.fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile,
+.fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile .fixed-product-preview-media{
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  aspect-ratio:auto!important;
+}
+@media(max-width:680px){
+  .fixed-product-preview,
+  .fixed-product-preview-media,
+  .fixed-product-preview-media img,
+  .fixed-product-preview-grid.is-square-only>.fixed-product-preview,
+  .fixed-product-preview-grid.is-square-only .fixed-product-preview-media{
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    outline:0!important;
+  }
+}
