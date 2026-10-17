@@ -90,6 +90,7 @@ function smeta(x){
   isReservable:m.isReservable===true,
   isNoEdit:m.isNoEdit===true,
   colorChangeAvailable:m.colorChangeAvailable===true,
+  colorOnlyChangeAvailable:m.colorOnlyChangeAvailable===true,
   showcaseKind:['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:'preset',
   featured:m.featured===true,
   pairChild:m.pairChild===true
@@ -129,6 +130,7 @@ function presetCard(x){
    '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong></div>'+
    (badges?'<div class="v2-preset-badges">'+badges+'</div>':'')+
    (m.colorChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">수정가능</span>':'')+
+   (m.colorOnlyChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">색상만 수정가능</span>':'')+
   '</article>'
 }
 function pagination(catId,total,page){
