@@ -399,12 +399,12 @@ function fixedOptionPublicHtml(title,items,kind){
  '</section>'
 }
 function fixedPreviewPublicHtml(v,p){
- const cfg=fixedPreviewDisplayConfig(v.category),ratio=cfg.known?'aspect-ratio:'+cfg.width+'/'+cfg.height+';':'';
+ const cfg=fixedPreviewDisplayConfig(v.category);
  const caption=(p.showPreviewNames&&v.name)||v.description
   ? '<figcaption>'+(p.showPreviewNames&&v.name?'<strong>'+esc(v.name)+'</strong>':'')+(v.description?'<p>'+esc(v.description)+'</p>':'')+'</figcaption>'
   : '';
  return '<figure class="fixed-product-preview fixed-preview-layout-'+esc(cfg.key)+'">'+
-  '<div class="fixed-product-preview-media" style="'+ratio+'"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" draggable="false"></div>'+
+  '<div class="fixed-product-preview-media"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" draggable="false"></div>'+
   caption+
  '</figure>'
 }
