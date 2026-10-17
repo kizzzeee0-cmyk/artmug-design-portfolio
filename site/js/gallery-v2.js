@@ -678,31 +678,14 @@ function selectedFixedProduct(card){
 function selectedFixedProductName(card){
  return selectedFixedProduct(card)?.name||''
 }
-function fixedPatternProductSelected(card){
- const target=String(state.settings?.fixedInquiryPatternProductId||'');
- return !!target&&String(card.dataset.selectedFixedProductId||'')===target&&!!selectedFixedProduct(card)
-}
-function fixedPatternSelectionHtml(card){
- if(!fixedPatternProductSelected(card))return'';
- const selected=String(card.dataset.fixedPattern||'');
- const other=String(card.dataset.fixedPatternOther||'');
- const patterns=['하트','별','클로버','네모','도트','꽃','반짝별','기타'];
- const choices=patterns.map(v=>{
-  const pill='<label class="choice-pill"><input type="radio" data-v2-fixed-pattern name="v2-fixed-pattern-'+card.dataset.requestId+'" value="'+esc(v)+'" '+(selected===v?'checked':'')+'><span>'+esc(v)+'</span></label>';
-  if(v!=='기타')return pill;
-  const direct=selected==='기타'
-   ?'<label class="v2-fixed-pattern-other"><input type="text" data-v2-fixed-pattern-other value="'+esc(other)+'" placeholder="예: 리본" aria-required="true" aria-label="패턴 모양 직접 입력"></label>'
-   :'';
-  return '<span class="v2-fixed-pattern-other-group">'+pill+direct+'</span>'
- }).join('');
- return '<fieldset class="v2-mode-field v2-fixed-pattern-field choice-field inquiry-plain-choice"><legend data-question-title>패턴 모양</legend>'+
-  '<div class="choice-row v2-fixed-pattern-choices">'+choices+'</div>'+
- '</fieldset>'
-}
-function fixedSelectionHtml(selectedId){
+function fixedSelectionHtml(card){
+ const selectedId=String(card.dataset.selectedFixedProductId||'');
  const arr=fixedInquiryProducts();
  const options=arr.map(p=>
-  '<button type="button" data-v2-select="fixed" data-product-id="'+esc(p.id)+'" class="choice-pill v2-fixed-product-choice '+(String(selectedId||'')===String(p.id)?'is-selected':'')+'"><span>'+esc(p.name||'이름 없음')+'</span></button>'
+  '<label class="choice-pill v2-fixed-product-choice">'+
+   '<input type="radio" data-v2-select="fixed" data-product-id="'+esc(p.id)+'" name="v2-fixed-product-'+esc(card.dataset.requestId||'0')+'" value="'+esc(p.id)+'" '+(selectedId===String(p.id)?'checked':'')+'>'+
+   '<span>'+esc(p.name||'이름 없음')+'</span>'+
+  '</label>'
  ).join('');
  return '<fieldset class="v2-mode-field v2-product-select v2-fixed-product-select choice-field inquiry-plain-choice" data-product-kind="fixed"><legend data-question-title>고정틀 선택</legend>'+
   '<div class="choice-row v2-fixed-product-grid">'+(options||'<p class="v2-empty-products">현재 선택 가능한 움짤프사 고정틀이 없습니다.</p>')+'</div></fieldset>'
@@ -721,7 +704,7 @@ function injectInquiry(card){
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="fixed" '+(profileMode==='fixed'?'checked':'')+'><span>고정틀 구매</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="change" '+(profileMode==='change'?'checked':'')+'><span>이름/움짤 변경</span></label></div></fieldset>';
-  if(profileMode==='fixed')html+=fixedSelectionHtml(card.dataset.selectedFixedProductId)+fixedPatternSelectionHtml(card);
+  if(profileMode==='fixed')html+=fixedSelectionHtml(card);
   if(profileMode==='preset')html+=selectionHtml(card.dataset.selectedPresetFile)
  }
  if(bannerTypeEnabled()&&banners.length){
@@ -750,22 +733,13 @@ function injectInquiry(card){
   card.dataset.selectedPresetFile=b.dataset.file;
   injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
  });
- box.querySelectorAll('[data-v2-select="fixed"]').forEach(b=>b.onclick=()=>{
-  const next=String(b.dataset.productId||'');
-  if(String(card.dataset.selectedFixedProductId||'')!==next){
-   delete card.dataset.fixedPattern;
-   delete card.dataset.fixedPatternOther
-  }
-  card.dataset.selectedFixedProductId=next;
-  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+ box.querySelectorAll('[data-v2-select="fixed"]').forEach(i=>i.onchange=()=>{
+  card.dataset.selectedFixedProductId=String(i.dataset.productId||i.value||'');
+  delete card.dataset.fixedPattern;
+  delete card.dataset.fixedPatternOther;
+  injectInquiry(card);
+  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
  });
- box.querySelectorAll('[data-v2-fixed-pattern]').forEach(i=>i.onchange=()=>{
-  card.dataset.fixedPattern=i.value;
-  if(i.value!=='기타')delete card.dataset.fixedPatternOther;
-  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
- });
- const other=box.querySelector('[data-v2-fixed-pattern-other]');
- if(other)other.oninput=()=>{card.dataset.fixedPatternOther=other.value;window.clearRequiredMessageIfComplete?.()};
  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
 }
 function selectionHtml(selected){
@@ -813,24 +787,13 @@ window.__ARTMUG_V2__={
    selectedPresetStatus:selectedProductStatus(card),
    selectedFixedProductId:card.dataset.selectedFixedProductId||'',
    selectedFixedProductName:fixedProduct?.name||'',
-   fixedPattern:String(card.dataset.fixedPattern||''),
-   fixedPatternOther:String(card.dataset.fixedPatternOther||'').trim(),
-   fixedPatternRequired:fixedPatternProductSelected(card),
    bannerTypes:bannerTypeEnabled()?banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})):[],
    profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||/움짤\s*프로필/.test(x.label)||x.id==='profile-a')
   }
  },
  validateCard(card){
   const d=this.inquiryData(card);
-  const patternField=card.querySelector('.v2-fixed-pattern-field');
-  const otherField=card.querySelector('.v2-fixed-pattern-other');
-  const patternMissing=d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&!d.fixedPattern;
-  const otherMissing=d.profileSelected&&d.profileMode==='fixed'&&d.fixedPatternRequired&&d.fixedPattern==='기타'&&!d.fixedPatternOther;
-  patternField?.classList.toggle('is-required-missing',patternMissing);
-  otherField?.classList.toggle('is-required-missing',otherMissing);
   if(d.profileSelected&&d.profileMode==='fixed'&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
-  if(patternMissing)return {ok:false,message:'패턴 모양을 선택해주세요.'};
-  if(otherMissing)return {ok:false,message:'기타 패턴 모양을 직접 입력해주세요.'};
   if(d.profileSelected&&d.profileMode==='preset'&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
   return {ok:true}
  },
@@ -840,10 +803,7 @@ window.__ARTMUG_V2__={
    const modeLabel=d.profileMode==='fixed'?'고정틀 구매':d.profileMode==='preset'?'프리셋 구매':d.profileMode==='change'?'이름/움짤 변경':'맞춤제작';
    out.push('움짤프사 신청 방식: '+modeLabel);
    if(d.profileMode==='fixed'&&d.selectedFixedProductName){
-    out.push('선택 고정틀: '+d.selectedFixedProductName);
-    if(d.fixedPatternRequired&&d.fixedPattern){
-     out.push('패턴 모양: '+(d.fixedPattern==='기타'?'기타 ('+d.fixedPatternOther+')':d.fixedPattern))
-    }
+    out.push('선택 고정틀: '+d.selectedFixedProductName)
    }
    if(d.profileMode==='preset'&&d.selectedPresetName){
     out.push('선택 프리셋: '+d.selectedPresetName)
