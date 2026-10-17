@@ -1283,7 +1283,7 @@ async function loadPresetItemsOnly(){
     .filter(x=>!pairedChildren.has(x.file)&&!(meta[x.file]||{}).pairChild&&presetMetaFor(x).showcaseKind!=='fixed')
     .sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
   presetItems=applyAdminOrder(presetBase,S?.presetOrder);
-  await migrateLegacyFixedProducts();
+  // Product-based fixed templates are canonical; do not auto-convert leftover legacy files.
   renderPresetItems();renderFixedItems()
 }
 async function loadItems(){
