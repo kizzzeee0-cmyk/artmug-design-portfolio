@@ -795,15 +795,6 @@
       "pairChild": true,
       "fixedProductId": ""
     },
-    "preset/fixed-store-profile/20261016162832-4iflho16n26g2-_________.gif": {
-      "name": "옐로우 / 별",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "legacy-mvc04p2k-snylku",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261016162838-1onhusktqodwy-________1_.gif": {
       "name": "브라운 / 도트",
       "description": "",
@@ -860,7 +851,6 @@
     "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
     "preset/fixed-store-profile/20261016163159-15fhhfljn8tkn-_________1_.gif",
     "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
-    "preset/fixed-store-profile/20261016162832-4iflho16n26g2-_________.gif",
     "preset/fixed-store-profile/20261016162838-1onhusktqodwy-________1_.gif",
     "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
     "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif"
@@ -1051,32 +1041,6 @@
           "file": "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
           "category": "profile",
           "name": "브라운 / 도트",
-          "description": "",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": "legacy-mvc04p2k-snylku",
-      "name": "옐로우 / 별",
-      "description": "",
-      "enabled": true,
-      "pcColumns": 5,
-      "mobileColumns": 2,
-      "showPreviewNames": true,
-      "changeableOptions": [],
-      "fixedOptions": [],
-      "note": "",
-      "price": 0,
-      "priceVisible": true,
-      "priceNote": "",
-      "priceScope": "",
-      "previews": [
-        {
-          "id": "preview-mvc04p2k-jy7plf",
-          "file": "preset/fixed-store-profile/20261016162832-4iflho16n26g2-_________.gif",
-          "category": "profile",
-          "name": "옐로우 / 별",
           "description": "",
           "enabled": true
         }
