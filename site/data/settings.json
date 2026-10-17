@@ -844,6 +844,17 @@
       "colorChangeAvailable": false,
       "showcaseKind": "preset",
       "featured": false
+    },
+    "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif": {
+      "name": "프리셋 03",
+      "enabled": true,
+      "isNew": false,
+      "isReserved": false,
+      "isReservable": false,
+      "isNoEdit": false,
+      "colorChangeAvailable": false,
+      "showcaseKind": "preset",
+      "featured": false
     }
   },
   "presetOrder": [
@@ -855,7 +866,8 @@
     "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
     "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
     "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif",
-    "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif"
+    "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
+    "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
