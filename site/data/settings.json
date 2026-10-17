@@ -867,15 +867,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png": {
-      "name": "",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvcg7b6a-uw7qe9",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261017155009-12okvnn1atr36c-background__2_.gif": {
       "name": "",
       "description": "",
@@ -902,6 +893,15 @@
       "fixedProductId": "product-mvcg7b6a-uw7qe9",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261017161908-1nj767v176l3e2-background__4_.gif": {
+      "name": "",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvcg7b6a-uw7qe9",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -911,7 +911,7 @@
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
     "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif",
     "preset/fixed-store-profile/20261017155009-12okvnn1atr36c-background__2_.gif",
-    "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png",
+    "preset/fixed-store-profile/20261017161908-1nj767v176l3e2-background__4_.gif",
     "preset/fixed-store-profile/20261017160334-ne8anoligbmc-background__3_.gif",
     "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif"
   ],
@@ -1146,7 +1146,7 @@
         },
         {
           "id": "preview-mvckcj9f-o34zv7",
-          "file": "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png",
+          "file": "preset/fixed-store-profile/20261017161908-1nj767v176l3e2-background__4_.gif",
           "category": "profile",
           "name": "",
           "description": "",
