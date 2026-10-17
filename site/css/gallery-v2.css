@@ -3016,3 +3016,40 @@ body.artmug-part-portfolio #inquirySection{
     outline:0!important;
   }
 }
+
+/* 2026-10-18 FIXED TITLE GROUPS V1 */
+/* Products with the same automatic title group share one outer card.
+   Each A/B variant keeps its own copy, previews and edit-policy summary. */
+.fixed-product-group-card{
+  overflow:hidden;
+}
+.fixed-product-variant{
+  min-width:0;
+}
+.fixed-product-variant-separator{
+  width:100%;
+  height:1px;
+  margin:22px 0;
+  background:#dcecf4;
+}
+.fixed-product-group-card.is-grouped .fixed-product-card-head{
+  margin-bottom:16px;
+}
+.fixed-product-group-card.is-grouped .fixed-product-options{
+  margin-bottom:0!important;
+}
+@media(max-width:680px){
+  .fixed-product-variant-separator{
+    margin:16px 0;
+  }
+  .fixed-product-group-card.is-grouped .fixed-product-card-head{
+    margin-bottom:11px!important;
+  }
+}
+
+/* Keep large media-heavy sections cheap to style/recalculate without changing layout. */
+.fixed-product-card,
+.v2-preset-category,
+.v2-portfolio-category{
+  contain:style;
+}
