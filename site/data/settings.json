@@ -891,7 +891,7 @@
       "pairChild": true,
       "fixedProductId": ""
     },
-    "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif": {
+    "preset/fixed-store-profile/20261017192712-uwekiv9vsm6q-background__10_.gif": {
       "name": "블루 / 네모",
       "description": "",
       "enabled": true,
@@ -911,7 +911,8 @@
     "preset/fixed-store-profile/20261017162243-hmm28omqay4n-background__6_.png",
     "preset/fixed-store-profile/20261017172346-vfdl1hhdopm2-background__6_.gif",
     "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif",
-    "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif"
+    "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif",
+    "preset/fixed-store-profile/20261017192712-uwekiv9vsm6q-background__10_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1078,7 +1079,7 @@
         },
         {
           "id": "preview-mvb380i3-d6hfkg",
-          "file": "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
+          "file": "preset/fixed-store-profile/20261017192712-uwekiv9vsm6q-background__10_.gif",
           "category": "profile",
           "name": "블루 / 네모",
           "description": "",
