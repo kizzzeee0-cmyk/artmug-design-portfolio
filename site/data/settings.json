@@ -843,7 +843,8 @@
       "isNoEdit": false,
       "colorChangeAvailable": false,
       "showcaseKind": "preset",
-      "featured": false
+      "featured": false,
+      "colorOnlyChangeAvailable": true
     },
     "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif": {
       "name": "프리셋 03",
