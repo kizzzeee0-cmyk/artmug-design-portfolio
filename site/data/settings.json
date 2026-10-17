@@ -1110,7 +1110,32 @@
       "pcColumns": 5,
       "mobileColumns": 2,
       "showPreviewNames": true,
-      "changeableOptions": [],
+      "changeableOptions": [
+        {
+          "id": "opt-mvcqs8dl-c9qck3",
+          "label": "원형 프레임",
+          "detail": "",
+          "choices": []
+        },
+        {
+          "id": "opt-mvcqt5ut-u1sbay",
+          "label": "전환 효과 및 애니메이션",
+          "detail": "",
+          "choices": []
+        },
+        {
+          "id": "opt-mvcqtas1-4xgg13",
+          "label": "색상",
+          "detail": "",
+          "choices": []
+        },
+        {
+          "id": "opt-mvcqtghg-y490xs",
+          "label": "폰트 디자인",
+          "detail": "",
+          "choices": []
+        }
+      ],
       "fixedOptions": [],
       "note": "",
       "price": 15000,
