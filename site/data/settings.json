@@ -890,6 +890,15 @@
       "showcaseKind": "fixed",
       "pairChild": true,
       "fixedProductId": ""
+    },
+    "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif": {
+      "name": "블루 / 네모",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -1022,12 +1031,6 @@
       "showPreviewNames": true,
       "changeableOptions": [
         {
-          "id": "opt-mvb485a0-z6r1on",
-          "label": "패턴 장식",
-          "detail": "",
-          "choices": []
-        },
-        {
           "id": "opt-mvb489jt-21jtph",
           "label": "원형 프레임",
           "detail": "",
@@ -1035,7 +1038,7 @@
         },
         {
           "id": "opt-mvb48da4-9po3gc",
-          "label": "전환 효과 및 파티클",
+          "label": "전환 효과 및 애니메이션",
           "detail": "",
           "choices": []
         },
@@ -1048,6 +1051,12 @@
         {
           "id": "opt-mvc65axf-hjezdh",
           "label": "폰트 디자인",
+          "detail": "",
+          "choices": []
+        },
+        {
+          "id": "opt-mvcqr3ra-srtr5e",
+          "label": "레이스 여부 선택",
           "detail": "",
           "choices": []
         }
