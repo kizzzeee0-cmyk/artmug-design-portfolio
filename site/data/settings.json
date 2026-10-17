@@ -893,6 +893,15 @@
       "fixedProductId": "product-mvcg7b6a-uw7qe9",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261017154010-bc9n5c1dftinu-background__4_.png": {
+      "name": "",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvcg7b6a-uw7qe9",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
