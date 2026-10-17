@@ -795,15 +795,6 @@
       "pairChild": true,
       "fixedProductId": ""
     },
-    "preset/fixed-store-profile/20261016163159-15fhhfljn8tkn-_________1_.gif": {
-      "name": "그린 / 클로버",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif": {
       "name": "브라운 / 도트",
       "description": "",
@@ -1083,14 +1074,6 @@
           "file": "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
           "category": "profile",
           "name": "블루 / 네모",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mvb38mh3-o64jih",
-          "file": "preset/fixed-store-profile/20261016163159-15fhhfljn8tkn-_________1_.gif",
-          "category": "profile",
-          "name": "그린 / 클로버",
           "description": "",
           "enabled": true
         },
