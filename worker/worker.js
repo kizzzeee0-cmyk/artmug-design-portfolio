@@ -5,6 +5,7 @@ export default {async fetch(req,env){try{if(req.method==='OPTIONS')return cors(n
 if(p==='/health')return cors(json({ok:true,version:'1.1.0',vars:{owner:!!env.GITHUB_OWNER,repo:!!env.GITHUB_REPO,branch:!!env.GITHUB_BRANCH,password:!!env.ADMIN_PASSWORD,session:!!env.SESSION_SECRET,token:!!env.GITHUB_TOKEN}}),req,env);
 if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='/auth/logout'&&req.method==='POST')return logout(req,env);
 if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings},200,{'Cache-Control':'no-store'}),req,env);}
+if(p==='/api/public/catalog')return cors(await publicCatalog(env),req,env);
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
 if(p==='/api/public/nav-summary')return cors(await publicNavSummary(env),req,env);
@@ -72,6 +73,19 @@ function ext(p){return (p.split('.').pop()||'').toLowerCase()}
 function item(file,cat,c={}){const name=file.split('/').pop();const m=name.match(/^(\d{14})-/);return{id:`file-${encodeURIComponent(file)}`,category:cat,file,originalName:name,alt:name.replace(/\.[^.]+$/,''),createdAt:m?m[1]:'',width:Number(c.displayWidth||0),height:Number(c.displayHeight||0)}}
 async function listItems(env,token,cat){const s=await publicJson(env,SETTINGS),cats=s.portfolioCategories||[];const use=cat?[...cats.filter(c=>c.id===cat)]:cats;const out=[];for(const c of use){const fs=await publicList(env,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path)))out.push(item(f.path,c.id,c))}}return out.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))}
 async function adminPortfolio(env,token){return listItems(env,token,'')}
+async function publicCatalog(env){
+  const token=env.GITHUB_TOKEN||'';
+  const [settings,portfolioIndex,presetIndex]=await Promise.all([
+    token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
+    token?ghJson(env,token,INDEX).catch(()=>publicJson(env,INDEX).catch(()=>[])):publicJson(env,INDEX).catch(()=>[]),
+    token?ghJson(env,token,PRESETS).catch(()=>publicJson(env,PRESETS).catch(()=>[])):publicJson(env,PRESETS).catch(()=>[])
+  ]);
+  return json({
+    settings:settings||{},
+    portfolioIndex:Array.isArray(portfolioIndex)?portfolioIndex:[],
+    presetIndex:Array.isArray(presetIndex)?presetIndex:[]
+  },200,{'Cache-Control':'no-store'})
+}
 async function publicPortfolio(u,env){
   const cat=u.searchParams.get('category')||'profile';
   const page=Math.max(1,Number(u.searchParams.get('page')||1));
@@ -192,7 +206,7 @@ async function media(path,env,req){
  if(etag)upstreamHeaders['If-None-Match']=etag;
  if(modified)upstreamHeaders['If-Modified-Since']=modified;
  const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`,{headers:upstreamHeaders});
- const h=new Headers({'Cache-Control':'no-cache, max-age=0, must-revalidate'});
+ const h=new Headers({'Cache-Control':'public, max-age=31536000, immutable'});
  const upstreamEtag=r.headers.get('ETag');
  const lastModified=r.headers.get('Last-Modified');
  if(upstreamEtag)h.set('ETag',upstreamEtag);
