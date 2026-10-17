@@ -985,6 +985,12 @@
           "label": "색상",
           "detail": "",
           "choices": []
+        },
+        {
+          "id": "opt-mvc65axf-hjezdh",
+          "label": "폰트 디자인",
+          "detail": "",
+          "choices": []
         }
       ],
       "fixedOptions": [],
