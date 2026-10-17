@@ -857,13 +857,23 @@
       "showcaseKind": "preset",
       "featured": false,
       "colorOnlyChangeAvailable": true
+    },
+    "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif": {
+      "name": "디자인 01",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvcg7b6a-uw7qe9",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
     "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
-    "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif"
+    "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
+    "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1064,8 +1074,8 @@
     },
     {
       "id": "product-mvcg7b6a-uw7qe9",
-      "name": "새 고정틀",
-      "description": "",
+      "name": "움짤프사 고정틀 B",
+      "description": "별도의 추가 장식 없이 깔끔한 체크 패턴, 다이아 패턴, 격자 패턴, 미니 도트 등이 포함됩니다",
       "enabled": true,
       "pcColumns": 5,
       "mobileColumns": 2,
@@ -1073,11 +1083,20 @@
       "changeableOptions": [],
       "fixedOptions": [],
       "note": "",
-      "price": 0,
+      "price": 15000,
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
-      "previews": []
+      "previews": [
+        {
+          "id": "preview-mvcgbd33-jyfyfk",
+          "file": "preset/fixed-store-profile/20261017134730-1iv5z2hbufzqk-background.gif",
+          "category": "profile",
+          "name": "디자인 01",
+          "description": "",
+          "enabled": true
+        }
+      ]
     }
   ],
   "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6"
