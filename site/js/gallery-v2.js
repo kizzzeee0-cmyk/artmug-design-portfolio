@@ -390,6 +390,30 @@ async function publicFixedProducts(){
  }catch{}
  return [...configured,...legacy].filter(p=>p.enabled&&p.previews.length)
 }
+function fixedProductGroupBaseName(name){
+ const raw=String(name||'고정틀').trim();
+ const withoutVariant=raw
+  .replace(/\s+(?:TYPE\s*)?[A-Z]\s*$/i,'')
+  .replace(/\s+\d{1,2}\s*$/,'')
+  .trim();
+ return withoutVariant||raw
+}
+function fixedProductGroupKey(name){
+ return fixedProductGroupBaseName(name).replace(/\s+/g,' ').toLowerCase()
+}
+function groupFixedProducts(products){
+ const groups=[],byKey=new Map();
+ (Array.isArray(products)?products:[]).forEach(p=>{
+  const key=fixedProductGroupKey(p.name);
+  let group=byKey.get(key);
+  if(!group){
+   group={key,baseName:fixedProductGroupBaseName(p.name),products:[]};
+   byKey.set(key,group);groups.push(group)
+  }
+  group.products.push(p)
+ });
+ return groups
+}
 function fixedOptionPublicHtml(title,items,kind){
  const labels=(Array.isArray(items)?items:[]).map(o=>String(o?.label||'').trim()).filter(Boolean);
  if(!labels.length)return'';
@@ -408,21 +432,29 @@ function fixedPreviewPublicHtml(v,p){
   caption+
  '</figure>'
 }
-function fixedProductPublicCard(p){
+function fixedProductVariantPublicHtml(p,showPrice,priceSource){
  const allPreviews=p.previews.filter(v=>v.enabled!==false);
  const previews=state.mobile?allPreviews.slice(0,4):allPreviews;
  const squareOnly=previews.length>0&&previews.every(v=>fixedPreviewDisplayConfig(v.category).key==='profile');
  const cols=squareOnly&&state.mobile?4:Math.max(1,Math.min(state.mobile?p.mobileColumns:p.pcColumns,previews.length||1));
- const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
- const priceMeta=[p.priceScope,p.priceNote].map(v=>String(v||'').trim()).filter(Boolean);
- return '<article class="fixed-product-card">'+
-  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3>'+(p.priceVisible?'<strong class="fixed-product-title-price">'+esc(price)+'</strong>':'')+'</div>'+
+ const priceBase=priceSource||p;
+ const price=priceBase.price>0?priceBase.price.toLocaleString('ko-KR')+'원':'가격 문의';
+ const priceMeta=[priceBase.priceScope,priceBase.priceNote].map(v=>String(v||'').trim()).filter(Boolean);
+ return '<section class="fixed-product-variant">'+
+  '<header class="fixed-product-card-head"><div class="fixed-product-title-row"><h3>'+esc(p.name)+'</h3>'+(showPrice&&priceBase.priceVisible?'<strong class="fixed-product-title-price">'+esc(price)+'</strong>':'')+'</div>'+
    (p.description?'<p>'+esc(p.description)+'</p>':'')+
-   (p.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
+   (showPrice&&priceBase.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
   '</header>'+
   '<div class="fixed-product-preview-grid '+(squareOnly?'is-square-only':'')+'" style="--fixed-product-cols:'+cols+'">'+previews.map(v=>fixedPreviewPublicHtml(v,p)).join('')+'</div>'+
   ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('수정 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('수정 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
   (p.note?'<p class="fixed-product-note">'+esc(p.note)+'</p>':'')+
+ '</section>'
+}
+function fixedProductPublicCard(group){
+ const products=Array.isArray(group?.products)?group.products:[group];
+ const priceSource=products[0]||{};
+ return '<article class="fixed-product-card fixed-product-group-card '+(products.length>1?'is-grouped':'is-single')+'">'+
+  products.map((p,i)=>(i?'<div class="fixed-product-variant-separator" aria-hidden="true"></div>':'')+fixedProductVariantPublicHtml(p,i===0,priceSource)).join('')+
  '</article>'
 }
 async function renderFixed(){
@@ -432,7 +464,8 @@ async function renderFixed(){
  const products=await publicFixedProducts();
  state.showcase.fixed=products;
  if(!products.length){root.hidden=true;root.innerHTML='';return}
- const cards='<div class="fixed-product-list">'+products.map(fixedProductPublicCard).join('')+'</div>';
+ const groups=groupFixedProducts(products);
+ const cards='<div class="fixed-product-list">'+groups.map(fixedProductPublicCard).join('')+'</div>';
  const notice=String(settings.fixedNotice||'').trim();
  root.hidden=false;
  root.innerHTML='<h2>'+esc(settings.fixedTitle||'고정틀')+'</h2>'+(notice?'<p class="fixed-section-copy">'+esc(notice)+'</p>':'')+cards;
@@ -506,10 +539,20 @@ async function renderShowcase(){
  requestHeight()
 }
 
+let heightRaf=0,heightTimer=0;
 function requestHeight(){
- window.dispatchEvent(new Event('artmug-sections-changed'));
- requestAnimationFrame(sendDetailedSectionMap);
- setTimeout(()=>{window.dispatchEvent(new Event('artmug-sections-changed'));sendDetailedSectionMap()},80)
+ if(!heightRaf){
+  heightRaf=requestAnimationFrame(()=>{
+   heightRaf=0;
+   window.dispatchEvent(new Event('artmug-sections-changed'));
+   sendDetailedSectionMap()
+  })
+ }
+ clearTimeout(heightTimer);
+ heightTimer=setTimeout(()=>{
+  window.dispatchEvent(new Event('artmug-sections-changed'));
+  sendDetailedSectionMap()
+ },100)
 }
 function scrollToElement(el){
  if(!el)return;
@@ -783,13 +826,13 @@ window.__ARTMUG_V2__={
 };
 async function init(){
  initNav();
- const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/settings?fresh='+Date.now()));
+ const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/catalog?fresh='+Date.now()));
  const d=await settingsPromise;
  state.settings=d.settings||{};
- // Portfolio and presets are both managed through the Worker and can change without a Pages rebuild.
- // Always load live data from the public API; a static portfolio/index.json may be stale after [CF-Pages-Skip] admin updates.
- state.portfolioIndex=null;
- state.presetIndex=null;
+ // One catalog request carries the live settings and lightweight media indexes.
+ // This avoids fetching every category separately as the library grows.
+ state.portfolioIndex=Array.isArray(d.portfolioIndex)?d.portfolioIndex:null;
+ state.presetIndex=Array.isArray(d.presetIndex)?d.presetIndex:null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
  const portfolioPart=document.body.classList.contains('artmug-part-portfolio');
