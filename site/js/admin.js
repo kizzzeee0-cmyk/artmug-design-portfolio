@@ -113,6 +113,7 @@ function presetMetaFor(x){
     isReservable:meta.isReservable===true,
     isNoEdit:meta.isNoEdit===true,
     colorChangeAvailable:meta.colorChangeAvailable===true,
+    colorOnlyChangeAvailable:meta.colorOnlyChangeAvailable===true,
     showcaseKind:['preset','fixed'].includes(meta.showcaseKind)?meta.showcaseKind:'preset',
     featured:meta.featured===true,
     pairChild:meta.pairChild===true
@@ -1424,6 +1425,7 @@ function renderPresetItems(){
           <label class="mini-toggle"><input type="checkbox" data-preset-reserved="${i}" ${meta.isReserved?'checked':''}> 예약중</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-reservable="${i}" ${meta.isReservable?'checked':''}> 예약가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-color-change="${i}" ${meta.colorChangeAvailable?'checked':''}> 수정가능</label>
+          <label class="mini-toggle"><input type="checkbox" data-preset-color-only-change="${i}" ${meta.colorOnlyChangeAvailable?'checked':''}> 색상만 수정가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-no-edit="${i}" ${meta.isNoEdit?'checked':''}> 수정불가</label>
         </div>
       </div>
@@ -1448,6 +1450,7 @@ function renderPresetItems(){
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reservable]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetReservable,'isReservable',el.checked));
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
+  document.querySelectorAll('[data-preset-color-only-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorOnlyChange,'colorOnlyChangeAvailable',el.checked));
   document.querySelectorAll('[data-preset-no-edit]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetNoEdit,'isNoEdit',el.checked));
   document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
     if(!confirm('이 프리셋을 삭제할까요?'))return;
@@ -1464,11 +1467,12 @@ function renderPresetItems(){
 }
 async function savePresetEditPolicy(i,key,value){
   const x=presetItems[i];if(!x)return;
-  const other=key==='isNoEdit'?'colorChangeAvailable':'isNoEdit';
+  const policyKeys=['colorChangeAvailable','colorOnlyChangeAvailable','isNoEdit'];
   const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
     const prev=latest.presetMeta[x.file]||{};
-    latest.presetMeta[x.file]={...prev,[key]:value,...(value?{[other]:false}:{})}
+    const exclusive=value?Object.fromEntries(policyKeys.filter(k=>k!==key).map(k=>[k,false])):{};
+    latest.presetMeta[x.file]={...prev,[key]:value,...exclusive}
   });
   S.presetMeta=saved.presetMeta||{};
   renderPresetItems();
