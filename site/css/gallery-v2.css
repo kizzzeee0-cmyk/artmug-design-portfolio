@@ -2882,3 +2882,60 @@ body.artmug-part-portfolio #inquirySection{
     gap:18px!important;
   }
 }
+
+/* 2026-10-18 FIXED PREVIEW NATURAL MEDIA V1 */
+/* Show fixed-template previews like normal portfolio/preset media:
+   no artificial frame, no forced square, preserve the uploaded file's own aspect ratio. */
+.fixed-product-preview-media{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.fixed-product-preview-media img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* Historical profile-preview sizing may control width, but never recreate a frame/ratio. */
+.fixed-product-preview-grid.is-square-only .fixed-product-preview-media,
+.fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile .fixed-product-preview-media{
+  height:auto!important;
+  aspect-ratio:auto!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+@media(max-width:680px){
+  .fixed-product-preview-media,
+  .fixed-product-preview-grid.is-square-only .fixed-product-preview-media,
+  .fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile .fixed-product-preview-media{
+    height:auto!important;
+    aspect-ratio:auto!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    overflow:visible!important;
+  }
+  .fixed-product-preview-media img{
+    width:100%!important;
+    height:auto!important;
+  }
+}
