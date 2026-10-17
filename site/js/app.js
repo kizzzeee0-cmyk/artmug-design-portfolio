@@ -921,6 +921,10 @@ function presetMetaForItem(x){
 }
 function renderPreset(s){
   const on=!!s.presetEnabled,sec=$('presetSection');
+  if(document.getElementById('showcaseSectionV2')){
+    if(sec)sec.hidden=true;
+    return
+  }
   sec.hidden=!on;
   set('presetTitle',s.presetTitle||'프리셋');
   const notice=$('presetNotice'),noticeText=String(s.presetNotice||'').trim();
@@ -1166,5 +1170,16 @@ $('copyButton').onclick=async()=>{
   if(ok){$('copyStatus').textContent='';showCopied(btn)}
   else{$('copyStatus').textContent='복사에 실패했습니다.'}
 };
-const publicSettingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/settings?fresh='+Date.now()));
-(async()=>{try{const d=await publicSettingsPromise;renderSettings(d.settings);const cats=visiblePortfolioCats(S.portfolioCategories||[]);renderPortfolioTabs(cats);loadPortfolio();prefetchPortfolioCategories(cats)}catch(e){$('portfolioStatus').textContent='설정을 불러오지 못했습니다.'}})();
+const publicSettingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/catalog?fresh='+Date.now()));
+(async()=>{try{
+  const d=await publicSettingsPromise;
+  renderSettings(d.settings);
+  const legacyPortfolio=$('portfolioSection');
+  if(document.getElementById('portfolioAllSectionV2')){
+    if(legacyPortfolio)legacyPortfolio.hidden=true;
+    return
+  }
+  const cats=visiblePortfolioCats(S.portfolioCategories||[]);
+  renderPortfolioTabs(cats);
+  loadPortfolio()
+ }catch(e){$('portfolioStatus').textContent='설정을 불러오지 못했습니다.'}})();
