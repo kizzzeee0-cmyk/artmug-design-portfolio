@@ -77,7 +77,7 @@
   <div class="head"><div><h4>새 프리셋 등록</h4><p class="muted">프리셋 관리 영역을 접어도 이 등록 영역은 항상 열려 있습니다.</p></div></div>
   <div class="upload-row preset-upload-row preset-upload-row-v2">
     <select id="presetUploadCat" aria-label="프리셋 디자인 종류"></select>
-    <input id="presetUploadName" type="text" placeholder="상품 이름">
+    <input id="presetUploadName" type="text" value="프리셋 01" readonly aria-readonly="true" aria-label="자동 프리셋 이름">
     <div class="preset-upload-flags">
       <label class="mini-toggle"><input id="presetUploadNoEdit" type="checkbox"> 수정불가</label>
       <label class="mini-toggle"><input id="presetUploadReservable" type="checkbox"> 예약가능</label>
@@ -112,4 +112,4 @@
 </section>
 
 <section class="card admin-section" data-section="status" hidden><span class="section-kicker">CONNECTION</span><h2>연결 상태</h2><dl><div><dt>API</dt><dd id="api"></dd></div><div><dt>GitHub 관리자</dt><dd id="githubUser"></dd></div><div><dt>Worker</dt><dd id="health">확인 중…</dd></div></dl></section>
-</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261017-color-only-wrap-v1"></script></body></html>
+</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261017-auto-preset-number-v1"></script></body></html>
