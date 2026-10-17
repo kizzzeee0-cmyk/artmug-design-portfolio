@@ -771,15 +771,6 @@
       "showcaseKind": "preset",
       "featured": false
     },
-    "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif": {
-      "name": "블루 / 네모",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif": {
       "enabled": false,
       "showcaseKind": "fixed",
