@@ -892,7 +892,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif": {
-      "name": "옐로우 / 별",
+      "name": "블랙&보라 / 하트",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -904,7 +904,7 @@
       "name": "프리셋 01"
     },
     "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif": {
-      "name": "디자인 05",
+      "name": "옐로우 / 별",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -1103,7 +1103,7 @@
           "id": "preview-mvb5arkc-tdfosv",
           "file": "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif",
           "category": "profile",
-          "name": "옐로우 / 별",
+          "name": "블랙&보라 / 하트",
           "description": "",
           "enabled": true
         },
@@ -1119,7 +1119,7 @@
           "id": "preview-mvctdh5y-4dnr3i",
           "file": "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
           "category": "profile",
-          "name": "디자인 05",
+          "name": "옐로우 / 별",
           "description": "",
           "enabled": true
         }
