@@ -1756,6 +1756,28 @@ function ensureFixedProducts(){
  return S.fixedProducts
 }
 function fixedProductById(id){return ensureFixedProducts().find(x=>x.id===id)}
+function fixedProductGroupBaseName(name){
+ const raw=String(name||'고정틀').trim();
+ const withoutVariant=raw
+  .replace(/\s+(?:TYPE\s*)?[A-Z]\s*$/i,'')
+  .replace(/\s+\d{1,2}\s*$/,'')
+  .trim();
+ return withoutVariant||raw
+}
+function fixedProductGroupKey(name){
+ return fixedProductGroupBaseName(name).replace(/\s+/g,' ').toLowerCase()
+}
+function syncFixedGroupPriceFromProduct(source){
+ if(!source)return;
+ const key=fixedProductGroupKey(source.name);
+ (Array.isArray(S.fixedProducts)?S.fixedProducts:[]).forEach(target=>{
+  if(!target||fixedProductGroupKey(target.name)!==key)return;
+  target.price=Math.max(0,Number(source.price||0));
+  target.priceVisible=source.priceVisible!==false;
+  target.priceNote=String(source.priceNote||'');
+  target.priceScope=String(source.priceScope||'')
+ })
+}
 function fixedCategoryOptions(selected=''){
  return ensureFixedCategories().filter(c=>c.enabled!==false).map(c=>'<option value="'+adminEsc(c.id)+'" '+(c.id===selected?'selected':'')+'>'+adminEsc(c.label||c.id)+'</option>').join('')
 }
@@ -1811,6 +1833,7 @@ function collectFixedProductFromDom(i){
    })
  };
  collectOptions('change');collectOptions('fixed');
+ syncFixedGroupPriceFromProduct(p);
  return p
 }
 function renderFixedCats(){
