@@ -837,7 +837,7 @@
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif": {
       "name": "프리셋 04",
       "enabled": true,
-      "isNew": false,
+      "isNew": true,
       "isReserved": false,
       "isReservable": false,
       "isNoEdit": false,
