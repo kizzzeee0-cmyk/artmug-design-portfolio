@@ -124,5 +124,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261017155749"
+  },
+  {
+    "id": "preset-nsnFa16Y3nA",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261017160334-ne8anoligbmc-background__3_.gif",
+    "originalName": "background (3).gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261017160334"
   }
 ]
