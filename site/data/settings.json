@@ -798,15 +798,6 @@
       "pairChild": true,
       "fixedProductId": ""
     },
-    "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif": {
-      "name": "옐로우 / 별",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif": {
       "name": "프리셋 04",
       "enabled": true,
@@ -899,6 +890,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif": {
+      "name": "옐로우 / 별",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -912,7 +912,8 @@
     "preset/fixed-store-profile/20261017172346-vfdl1hhdopm2-background__6_.gif",
     "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif",
     "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif",
-    "preset/fixed-store-profile/20261017192712-uwekiv9vsm6q-background__10_.gif"
+    "preset/fixed-store-profile/20261017192712-uwekiv9vsm6q-background__10_.gif",
+    "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1087,7 +1088,7 @@
         },
         {
           "id": "preview-mvb5arkc-tdfosv",
-          "file": "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif",
+          "file": "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif",
           "category": "profile",
           "name": "옐로우 / 별",
           "description": "",
