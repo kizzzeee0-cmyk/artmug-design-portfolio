@@ -915,7 +915,8 @@ function presetMetaForItem(x){
     enabled:registered&&saved.enabled!==false,
     isNew:saved.isNew===true,
     isReserved:saved.isReserved===true,
-    colorChangeAvailable:saved.colorChangeAvailable===true
+    colorChangeAvailable:saved.colorChangeAvailable===true,
+    colorOnlyChangeAvailable:saved.colorOnlyChangeAvailable===true
   }
 }
 function renderPreset(s){
@@ -1024,7 +1025,7 @@ function presetGrid(items,cat){
   g.innerHTML=items.length?items.map(x=>{
     const meta=presetMetaForItem(x),rep=x.demoSrc||media(x.file);
     const name=meta.name.trim()?`<strong class="preset-card-name">${esc(meta.name.trim())}</strong>`:'';
-    const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">수정가능</span>':'';
+    const colorNote=meta.colorChangeAvailable?'<span class="preset-color-change-note">수정가능</span>':meta.colorOnlyChangeAvailable?'<span class="preset-color-change-note">색상만 수정가능</span>':'';
     const badgeType=meta.isReserved?'reserved':meta.isNew?'new':'';
     const badgeText=badgeType==='reserved'?'예약중':badgeType==='new'?'NEW':'';
     const mobileBadge=badgeType?`<span class="preset-status-badge preset-${badgeType}-badge">${badgeText}</span>`:'';
