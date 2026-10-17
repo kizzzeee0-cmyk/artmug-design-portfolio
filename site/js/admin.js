@@ -2031,29 +2031,101 @@ async function moveFixedPreview(i,j,dir){
 async function replaceFixedProductPreview(i,j){
  const p=collectFixedProductFromDom(i),v=p?.previews[j];if(!p||!v)return;
  const file=await chooseReplacementFile();if(!file)return;
+ const productId=String(p.id||''),previewId=String(v.id||''),oldPath=String(v.file||'');
+ let newPath='';
  try{
-  validatePresetUploadFile(file);await ensureFixedUploadInfrastructure();
-  const storage=fixedStorageCategoryId(v.category),d=await uploadMediaWithRetry('/api/admin/preset-upload',storage,file),newPath=String(d.path||'');
-  if(!newPath)throw new Error('새 파일 경로를 확인하지 못했습니다.');
-  const oldPath=v.file;v.file=newPath;
-  if(!S.presetMeta||typeof S.presetMeta!=='object')S.presetMeta={};
-  S.presetMeta[newPath]={...(S.presetMeta[oldPath]||{}),name:v.name,description:v.description,enabled:v.enabled!==false,showcaseKind:'fixed',fixedProductId:p.id,fixedPreviewCategory:v.category};
-  delete S.presetMeta[oldPath];S.presetOrder=replaceOrderPath(S.presetOrder,oldPath,newPath);
+  validatePresetUploadFile(file);
+  await ensureFixedUploadInfrastructure();
+  showToast('미리보기 파일을 교체하고 있습니다.');
+  const storage=fixedStorageCategoryId(v.category),d=await uploadMediaWithRetry('/api/admin/preset-upload',storage,file),uploaded=String(d.path||'');
+  if(!uploaded)throw new Error('새 파일 경로를 확인하지 못했습니다.');
+  newPath=uploaded;
+
+  // Update the collected product first, then persist only this product against the freshest settings.
+  v.file=newPath;
+  const productSnapshot=JSON.parse(JSON.stringify(p));
+  const nextMeta={
+   ...(S?.presetMeta?.[oldPath]||{}),
+   name:v.name,
+   description:v.description,
+   enabled:v.enabled!==false,
+   showcaseKind:'fixed',
+   fixedProductId:productId,
+   fixedPreviewCategory:v.category,
+   colorChangeAvailable:false
+  };
+
+  let saved;
   try{
-   await persistFixedProducts('');
-  }catch(e){await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});v.file=oldPath;throw e}
+   saved=await queueSettingsMutation(latest=>{
+    if(!Array.isArray(latest.fixedProducts))latest.fixedProducts=[];
+    const pi=latest.fixedProducts.findIndex(x=>String(x?.id||'')===productId);
+    if(pi<0)throw new Error('저장할 고정틀 상품을 최신 설정에서 찾지 못했습니다.');
+    latest.fixedProducts[pi]=productSnapshot;
+
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    latest.presetMeta[newPath]={...(latest.presetMeta[oldPath]||{}),...nextMeta};
+    delete latest.presetMeta[oldPath];
+    latest.presetOrder=replaceOrderPath(latest.presetOrder,oldPath,newPath);
+   });
+  }catch(e){
+   v.file=oldPath;
+   await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+   throw e
+  }
+
+  const savedProduct=(saved.fixedProducts||[]).find(x=>String(x?.id||'')===productId);
+  const savedPreview=savedProduct?.previews?.find(x=>
+   (previewId&&String(x?.id||'')===previewId)||String(x?.file||'')===newPath
+  );
+  if(!savedPreview||String(savedPreview.file||'')!==newPath){
+   v.file=oldPath;
+   await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+   throw new Error('새 미리보기 경로가 설정에 저장되지 않았습니다.')
+  }
+
+  // Read once more from the public settings endpoint to verify the committed value, not only the PUT response.
+  const fresh=await fetchFreshSettings();
+  const freshProduct=(fresh.fixedProducts||[]).find(x=>String(x?.id||'')===productId);
+  const freshPreview=freshProduct?.previews?.find(x=>
+   (previewId&&String(x?.id||'')===previewId)||String(x?.file||'')===newPath
+  );
+  if(!freshPreview||String(freshPreview.file||'')!==newPath){
+   v.file=oldPath;
+   await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+   throw new Error('저장 확인 과정에서 새 미리보기 경로를 찾지 못했습니다.')
+  }
+
+  // Adopt the verified settings before removing the old file.
+  S.fixedProducts=fresh.fixedProducts||saved.fixedProducts||S.fixedProducts||[];
+  S.presetMeta=fresh.presetMeta||saved.presetMeta||S.presetMeta||{};
+  S.presetOrder=fresh.presetOrder||saved.presetOrder||S.presetOrder||[];
+
   try{
    await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})})
   }catch(e){
-   const saved=await queueSettingsMutation(latest=>{
-    if(!latest.presetMeta||typeof latest.presetMeta!=='object')latest.presetMeta={};
+   const hidden=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
     latest.presetMeta[oldPath]={...(latest.presetMeta[oldPath]||{}),enabled:false,showcaseKind:'fixed',pairChild:true,fixedProductId:''}
    }).catch(()=>null);
-   if(saved)S.presetMeta=saved.presetMeta||S.presetMeta||{};
-   showToast('새 파일은 반영됐지만 기존 파일 삭제에 실패해 숨김 처리했습니다.','error')
+   if(hidden)S.presetMeta=hidden.presetMeta||S.presetMeta||{};
+   showToast('새 파일은 저장됐지만 기존 파일 삭제에 실패해 숨김 처리했습니다.','error')
   }
-  fixedProductOpenIds.add(p.id);renderFixedItems();showToast('미리보기 파일을 교체했습니다.')
- }catch(e){alert('파일 교체에 실패했습니다.\n'+e.message)}
+
+  fixedProductOpenIds.add(productId);
+  renderFixedItems();
+  showToast('미리보기 파일이 저장되었습니다.');
+ }catch(e){
+  if(newPath){
+   // Best-effort cleanup only when the new path was not verified into the current product.
+   const current=(S.fixedProducts||[]).find(x=>String(x?.id||'')===productId);
+   const linked=current?.previews?.some(x=>String(x?.file||'')===newPath);
+   if(!linked)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{})
+  }
+  fixedProductOpenIds.add(productId);
+  renderFixedItems();
+  alert('파일 교체에 실패했습니다.\n'+e.message)
+ }
 }
 async function deleteFixedProductPreview(i,j){
  const p=collectFixedProductFromDom(i),v=p?.previews[j];if(!p||!v||!confirm('이 미리보기 파일을 삭제할까요?'))return;
