@@ -364,7 +364,9 @@ function normalizePublicFixedProduct(x){
  }
 }
 async function publicFixedProducts(){
- const configured=(Array.isArray(state.settings?.fixedProducts)?state.settings.fixedProducts:[]).map(normalizePublicFixedProduct);
+ const hasProductSchema=Array.isArray(state.settings?.fixedProducts);
+ const configured=(hasProductSchema?state.settings.fixedProducts:[]).map(normalizePublicFixedProduct);
+ if(hasProductSchema)return configured.filter(p=>p.enabled&&p.previews.length);
  const used=new Set(configured.flatMap(p=>p.previews.map(v=>v.file)));
  let legacy=[];
  try{
