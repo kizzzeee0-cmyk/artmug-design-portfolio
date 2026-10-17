@@ -891,8 +891,11 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif": {
-      "name": "블랙&보라 / 하트",
+    "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif": {
+      "name": "프리셋 01"
+    },
+    "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif": {
+      "name": "옐로우 / 별",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -900,11 +903,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif": {
-      "name": "프리셋 01"
-    },
-    "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif": {
-      "name": "옐로우 / 별",
+    "preset/fixed-store-profile/20261017200732-1koilemmhshw-background__13_.gif": {
+      "name": "블랙&보라 / 하트",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -925,7 +925,7 @@
     "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif",
     "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif",
     "preset/fixed-store-profile/20261017192712-uwekiv9vsm6q-background__10_.gif",
-    "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif",
+    "preset/fixed-store-profile/20261017200732-1koilemmhshw-background__13_.gif",
     "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif"
   ],
   "portfolioOrder": [
@@ -1101,7 +1101,7 @@
         },
         {
           "id": "preview-mvb5arkc-tdfosv",
-          "file": "preset/fixed-store-profile/20261017195210-1pucezl19hgpa3-background__11_.gif",
+          "file": "preset/fixed-store-profile/20261017200732-1koilemmhshw-background__13_.gif",
           "category": "profile",
           "name": "블랙&보라 / 하트",
           "description": "",
