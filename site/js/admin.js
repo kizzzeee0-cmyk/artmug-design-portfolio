@@ -1024,7 +1024,8 @@ function collectPresetGroups(){}
 function updatePresetUploadSelectors(){
   const file=$('presetFiles'),hint=$('presetFilesHint');
   if(file)file.multiple=false;
-  if(hint)hint.textContent='프리셋은 이미지 1장을 선택해 주세요.'
+  if(hint)hint.textContent='프리셋은 이미지 1장을 선택해 주세요.';
+  updatePresetUploadAutoName()
 }
 
 function ensureQuoteConfig(){
@@ -1244,12 +1245,71 @@ function applyAdminOrder(list,order){
     return ai-bi
   })
 }
+function presetAutoName(number){
+  return '프리셋 '+String(Math.max(1,Number(number)||1)).padStart(2,'0')
+}
+function presetAutoNameMap(list=presetItems){
+  const counts=new Map(),names=new Map();
+  (Array.isArray(list)?list:[]).forEach(x=>{
+    const category=String(x?.category||'');
+    const next=(counts.get(category)||0)+1;
+    counts.set(category,next);
+    names.set(x.file,presetAutoName(next))
+  });
+  return names
+}
+function applyPresetAutoNamesLocal(list=presetItems){
+  const names=presetAutoNameMap(list);
+  if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};
+  names.forEach((name,file)=>{
+    S.presetMeta[file]={...(S.presetMeta[file]||{}),name}
+  });
+  return names
+}
+function nextPresetAutoName(category){
+  const count=(Array.isArray(presetItems)?presetItems:[]).filter(x=>String(x?.category||'')===String(category||'')).length;
+  return presetAutoName(count+1)
+}
+function updatePresetUploadAutoName(){
+  const input=$('presetUploadName'),category=$('presetUploadCat')?.value||'';
+  if(!input)return;
+  input.value=nextPresetAutoName(category);
+  input.readOnly=true;
+  input.setAttribute('aria-readonly','true')
+}
+async function syncPresetAutoNames(){
+  const names=presetAutoNameMap(presetItems);
+  let changed=false;
+  names.forEach((name,file)=>{
+    if(String(S?.presetMeta?.[file]?.name||'')!==name)changed=true
+  });
+  applyPresetAutoNamesLocal(presetItems);
+  if(!changed)return;
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    names.forEach((name,file)=>{
+      latest.presetMeta[file]={...(latest.presetMeta[file]||{}),name}
+    })
+  });
+  S.presetMeta=saved.presetMeta||S.presetMeta||{}
+}
 function capturePresetEditorValues(){}
 async function saveMediaOrder(kind){
   const key=kind==='preset'?'presetOrder':'portfolioOrder',list=kind==='preset'?presetItems:items,order=list.map(x=>x.file);
   S[key]=order;
-  const saved=await queueSettingsMutation(latest=>{latest[key]=order});
+  if(kind==='preset')applyPresetAutoNamesLocal(list);
+  const names=kind==='preset'?presetAutoNameMap(list):null;
+  const saved=await queueSettingsMutation(latest=>{
+    latest[key]=order;
+    if(kind==='preset'){
+      if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+      names.forEach((name,file)=>{
+        latest.presetMeta[file]={...(latest.presetMeta[file]||{}),name}
+      })
+    }
+  });
   S[key]=saved[key]||order;
+  if(kind==='preset')S.presetMeta=saved.presetMeta||S.presetMeta||{};
   showToast('순서가 저장되었습니다.')
 }
 async function moveMediaItem(kind,index,dir){
@@ -1258,7 +1318,7 @@ async function moveMediaItem(kind,index,dir){
   if(next<0||next>=same.length)return;
   const target=same[next].i;
   [list[index],list[target]]=[list[target],list[index]];
-  if(kind==='preset')renderPresetItems();else renderItems();
+  if(kind==='preset'){applyPresetAutoNamesLocal(list);renderPresetItems()}else renderItems();
   try{await saveMediaOrder(kind)}catch(e){alert('순서 저장에 실패했습니다.\n'+e.message)}
 }
 async function savePortfolioTag(i,type,checked){
@@ -1285,7 +1345,8 @@ async function loadPresetItemsOnly(){
     .sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
   presetItems=applyAdminOrder(presetBase,S?.presetOrder);
   // Product-based fixed templates are canonical; do not auto-convert leftover legacy files.
-  renderPresetItems();renderFixedItems()
+  await syncPresetAutoNames();
+  renderPresetItems();renderFixedItems();updatePresetUploadAutoName()
 }
 async function loadItems(){
   try{
@@ -1302,8 +1363,8 @@ function presetLocationText(x){
 }
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
-  const meta=presetMetaFor(x),name=document.querySelector(`[data-preset-name="${i}"]`);
-  const patch={name:name?name.value.trim():meta.name};
+  const same=presetItems.filter(v=>v.category===x.category),position=same.findIndex(v=>v.file===x.file);
+  const patch={name:presetAutoName(position+1)};
 
   const saved=await queueSettingsMutation(latest=>{
     if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
@@ -1311,7 +1372,7 @@ async function savePresetItem(i){
     latest.presetMeta[x.file]={...prev,...patch}
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{};
-  showToast('프리셋 정보가 저장되었습니다.');
+  showToast('프리셋 이름이 자동 번호로 저장되었습니다.');
   renderPresetItems()
 }
 async function savePresetBadgeToggle(i,key,value){
@@ -1413,12 +1474,12 @@ function renderPresetItems(){
   const start=(presetAdminPage-1)*ADMIN_PAGE_SIZE;
   const pageItems=presetItems.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>({x,i:start+local}));
   $('presetItems').innerHTML=pageItems.map(({x,i})=>{
-    const meta=presetMetaFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file);
+    const meta=presetMetaFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file),autoName=presetAutoName(samePos+1);
     return `<div class="preset-admin-item preset-admin-item-v2">
       <div class="preset-admin-preview"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" decoding="async" draggable="false"></div>
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
-        <label class="preset-name-field">상품 이름<input data-preset-name="${i}" value="${adminEsc(meta.name)}" placeholder="예: 라벤더 체크"></label>
+        <label class="preset-name-field">상품 이름<input data-preset-name="${i}" value="${adminEsc(autoName)}" readonly aria-readonly="true"></label>
         <div class="preset-admin-toggle-grid">
           <label class="mini-toggle"><input type="checkbox" data-preset-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-new="${i}" ${meta.isNew?'checked':''}> NEW</label>
@@ -1538,8 +1599,7 @@ async function uploadFiles(kind){
   if(!files.length)return;
   try{
     if(isPreset){
-      const name=String($('presetUploadName')?.value||'').trim();
-      if(!name)throw new Error('프리셋 이름을 입력해주세요.');
+      const name=nextPresetAutoName(cat);
       if(files.length>1)throw new Error('프리셋은 이미지 1장만 선택해 주세요.');
       const isNoEdit=!!$('presetUploadNoEdit')?.checked;
       const isReservable=!!$('presetUploadReservable')?.checked;
@@ -1551,13 +1611,13 @@ async function uploadFiles(kind){
       try{
         const saved=await queueSettingsMutation(latest=>{
           if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-          latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isReservable,isNoEdit,colorChangeAvailable:false,showcaseKind:'preset',featured:false};
+          latest.presetMeta[path]={...(latest.presetMeta[path]||{}),name,enabled:true,isNew:false,isReserved:false,isReservable,isNoEdit,colorChangeAvailable:false,colorOnlyChangeAvailable:false,showcaseKind:'preset',featured:false};
           const order=Array.isArray(latest.presetOrder)?latest.presetOrder.filter(v=>v!==path):[];
           order.push(path);latest.presetOrder=order;
           delete latest.presetColorMeta
         });
         S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||S.presetOrder||[];
-        $('presetUploadName').value='';if($('presetUploadNoEdit'))$('presetUploadNoEdit').checked=false;if($('presetUploadReservable'))$('presetUploadReservable').checked=false;fileInput.value='';status.textContent='프리셋이 등록되었습니다.';
+        if($('presetUploadNoEdit'))$('presetUploadNoEdit').checked=false;if($('presetUploadReservable'))$('presetUploadReservable').checked=false;fileInput.value='';status.textContent='프리셋이 등록되었습니다.';
         await loadPresetItemsOnly();showToast('프리셋이 등록되었습니다.');return
       }catch(e){
         await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:path})}).catch(()=>{});
