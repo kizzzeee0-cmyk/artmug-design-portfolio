@@ -97,5 +97,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261017154009"
+  },
+  {
+    "id": "preset-ULMOKooQp4g",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261017154028-jlc0g64ggdu2-background__1_.png",
+    "originalName": "background (1).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261017154027"
   }
 ]
