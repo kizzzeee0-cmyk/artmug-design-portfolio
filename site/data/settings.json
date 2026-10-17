@@ -1100,18 +1100,18 @@
           "enabled": true
         },
         {
-          "id": "preview-mvb5po2z-2xe0vs",
-          "file": "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
-          "category": "profile",
-          "name": "브라운 / 도트",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvctdh5y-4dnr3i",
           "file": "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
           "category": "profile",
           "name": "옐로우 / 별",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvb5po2z-2xe0vs",
+          "file": "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
+          "category": "profile",
+          "name": "브라운 / 도트",
           "description": "",
           "enabled": true
         },
