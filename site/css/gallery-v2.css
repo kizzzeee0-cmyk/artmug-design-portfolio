@@ -3053,3 +3053,112 @@ body.artmug-part-portfolio #inquirySection{
 .v2-portfolio-category{
   contain:style;
 }
+
+/* 2026-10-18 SHARED MEDIA SCALE + DEFERRED PORTFOLIO V2 */
+:root{
+  --shared-profile-preview-size:150px;
+}
+
+/* One visual size for profile media across fixed / preset / portfolio. */
+.v2-cat-grid.v2-layout-profile{
+  grid-template-columns:repeat(var(--v2-cols),minmax(0,var(--shared-profile-preview-size)))!important;
+  justify-content:center!important;
+}
+.v2-work-card.is-profile{
+  width:var(--shared-profile-preview-size)!important;
+  max-width:100%!important;
+  justify-self:center!important;
+}
+.v2-work-card.is-profile .v2-media,
+.v2-preset-category.is-profile-category .v2-showcase-media,
+.fixed-preview-layout-profile .fixed-product-preview-media{
+  width:var(--shared-profile-preview-size)!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.v2-work-card.is-profile .v2-media,
+.v2-preset-category.is-profile-category .v2-showcase-media{
+  aspect-ratio:1!important;
+}
+.fixed-product-preview-grid.is-square-only{
+  display:grid!important;
+  grid-template-columns:repeat(var(--fixed-product-cols,1),minmax(0,var(--shared-profile-preview-size)))!important;
+  justify-content:center!important;
+  max-width:none!important;
+  gap:12px!important;
+}
+.fixed-product-preview-grid.is-square-only>.fixed-product-preview{
+  width:var(--shared-profile-preview-size)!important;
+  max-width:100%!important;
+  min-width:0!important;
+  justify-self:center!important;
+}
+
+/* Do not let historical fixed-profile rules enlarge the media again. */
+.fixed-product-preview-grid[style*="--fixed-product-cols:1"]>.fixed-preview-layout-profile,
+.fixed-product-preview-grid:not(.is-square-only) .fixed-preview-layout-profile .fixed-product-preview-media,
+.fixed-product-preview-grid.is-square-only .fixed-product-preview-media{
+  width:var(--shared-profile-preview-size)!important;
+  max-width:100%!important;
+}
+
+/* Portfolio categories below the viewport are real placeholders only until hydrated. */
+.v2-portfolio-category.is-pending{
+  min-height:220px!important;
+  display:block!important;
+}
+.v2-portfolio-category.is-pending .v2-loading{
+  padding-top:22px;
+}
+
+/* Reduce layout/paint cost for long media-heavy pages. */
+.fixed-product-card,
+.v2-preset-category,
+.v2-portfolio-category{
+  content-visibility:auto;
+  contain:layout style paint;
+  contain-intrinsic-size:auto 320px;
+}
+.v2-work-card,
+.v2-showcase-card,
+.fixed-product-preview{
+  contain:layout style paint;
+}
+
+@media(max-width:680px){
+  :root{
+    --shared-profile-preview-size:132px;
+  }
+
+  /* Same 2-column profile scale everywhere on mobile. */
+  .v2-cat-grid.v2-layout-profile{
+    grid-template-columns:repeat(2,minmax(0,var(--shared-profile-preview-size)))!important;
+    justify-content:center!important;
+    gap:8px!important;
+  }
+  .v2-preset-category-layout.is-single .v2-preset-category.is-profile-category .v2-preset-category-grid,
+  .v2-preset-category-layout.is-multi .v2-preset-category.is-profile-category .v2-preset-category-grid{
+    grid-template-columns:repeat(2,minmax(0,var(--shared-profile-preview-size)))!important;
+    justify-content:center!important;
+    gap:8px!important;
+  }
+  .fixed-product-preview-grid.is-square-only{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,var(--shared-profile-preview-size)))!important;
+    justify-content:center!important;
+    max-width:none!important;
+    gap:8px!important;
+  }
+  .fixed-product-preview-grid.is-square-only>.fixed-product-preview,
+  .v2-work-card.is-profile,
+  .v2-work-card.is-profile .v2-media,
+  .v2-preset-category.is-profile-category .v2-showcase-media,
+  .fixed-preview-layout-profile .fixed-product-preview-media{
+    width:var(--shared-profile-preview-size)!important;
+    max-width:100%!important;
+  }
+  .v2-portfolio-category.is-pending{
+    min-height:180px!important;
+  }
+}
