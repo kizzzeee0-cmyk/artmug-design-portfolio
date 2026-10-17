@@ -858,16 +858,10 @@
     }
   },
   "presetOrder": [
-    "preset/profile/20261012063603-1v1n0h5j6wofo-background__1_.png",
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
     "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
-    "preset/fixed-store-profile/20261016145315-tfo3p8o97ps0-___.gif",
-    "preset/fixed-store-profile/20261016163159-15fhhfljn8tkn-_________1_.gif",
-    "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
-    "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
-    "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif",
-    "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
-    "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif"
+    "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
+    "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
