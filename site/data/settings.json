@@ -780,15 +780,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif": {
-      "name": "핑크 / 하트",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261016145344-4zg6om5zjbp5-chfhr_.gif": {
       "enabled": false,
       "showcaseKind": "fixed",
@@ -893,6 +884,15 @@
       "fixedProductId": "product-mvcg7b6a-uw7qe9",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif": {
+      "name": "핑크 / 하트",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -904,7 +904,8 @@
     "preset/fixed-store-profile/20261017155009-12okvnn1atr36c-background__2_.gif",
     "preset/fixed-store-profile/20261017162243-hmm28omqay4n-background__6_.png",
     "preset/fixed-store-profile/20261017172346-vfdl1hhdopm2-background__6_.gif",
-    "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif"
+    "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif",
+    "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1063,7 +1064,7 @@
       "previews": [
         {
           "id": "preview-mvb38zjq-arckn5",
-          "file": "preset/fixed-store-profile/20261016145402-z3exl1nf6w2w-___.gif",
+          "file": "preset/fixed-store-profile/20261017183746-1jmpxxi56x8y1-background__9_.gif",
           "category": "profile",
           "name": "핑크 / 하트",
           "description": "",
