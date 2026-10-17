@@ -142,5 +142,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261017200732"
+  },
+  {
+    "id": "preset-dR8UzCt3cRg",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
+    "originalName": "background (14).gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261017202223"
   }
 ]
