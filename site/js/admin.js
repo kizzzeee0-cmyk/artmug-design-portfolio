@@ -1376,8 +1376,7 @@ async function persistPresetColorGroups(message='색상 설정이 저장되었�
   const groups=JSON.parse(JSON.stringify(ensurePresetColorGroups()));
   const saved=await queueSettingsMutation(latest=>{
     latest.presetColorGroups=groups;
-    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
-    Object.assign(latest.presetMeta,JSON.parse(JSON.stringify(S.presetMeta||{})));
+    latest.presetMeta=JSON.parse(JSON.stringify(S.presetMeta||{}));
     latest.presetOrder=JSON.parse(JSON.stringify(S.presetOrder||[]))
   });
   S.presetColorGroups=saved.presetColorGroups||[];
@@ -1857,6 +1856,7 @@ async function ungroupPresetColors(i){
 async function deletePresetProduct(i){
   const x=presetItems[i];if(!x)return;
   const group=presetColorGroupForPrimary(x.file);
+  const productMeta=JSON.parse(JSON.stringify(S?.presetMeta?.[x.file]||{}));
   const files=group?group.variants.map(v=>v.file):[x.file];
   if(!confirm('"'+(presetMetaFor(x).name||'프리셋')+'" 상품'+(files.length>1?'과 색상 '+files.length+'개':'')+'를 삭제할까요?'))return;
   const failed=[],deleted=[];
@@ -1870,8 +1870,9 @@ async function deletePresetProduct(i){
     if(failed.length){
       group.variants=group.variants.filter(v=>failed.includes(v.file));
       if(!failed.includes(group.primaryFile)){
-        const old=group.primaryFile;group.primaryFile=failed[0];
-        copyPresetProductMeta(S,old,group.primaryFile)
+        group.primaryFile=failed[0];
+        if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};
+        S.presetMeta[group.primaryFile]={...(S.presetMeta[group.primaryFile]||{}),...productMeta}
       }
     }else{
       S.presetColorGroups=ensurePresetColorGroups().filter(g=>g.id!==group.id)
