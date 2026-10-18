@@ -1331,8 +1331,7 @@ function ensurePresetColorGroups(target=S){
   target.presetColorGroups=target.presetColorGroups.map((g,gi)=>{
     const variants=(Array.isArray(g?.variants)?g.variants:[]).map((v,vi)=>({
       file:String(v?.file||''),
-      name:String(v?.name||('색상 '+String(vi+1).padStart(2,'0'))),
-      enabled:v?.enabled!==false
+      name:String(v?.name||('색상 '+String(vi+1).padStart(2,'0')))
     })).filter(v=>v.file);
     const primaryFile=String(g?.primaryFile||variants[0]?.file||'');
     return {id:String(g?.id||('pcg-'+gi)),category:String(g?.category||''),primaryFile,variants}
@@ -1355,7 +1354,7 @@ function presetProductItems(list=presetItems,target=S){
 function presetColorVariantsForProduct(x,target=S){
   if(!x)return[];
   const group=presetColorGroupForPrimary(x.file,target);
-  return group?group.variants:[{file:x.file,name:'기본 색상',enabled:true}]
+  return group?group.variants:[{file:x.file,name:'기본 색상'}]
 }
 function presetColorManagerKey(x){
   const group=presetColorGroupForPrimary(x?.file);
@@ -1640,7 +1639,6 @@ function presetColorManagerHtml(x,i){
       '<div class="preset-color-row-body">'+
         '<input class="preset-color-name-input" data-preset-color-name="'+i+':'+j+'" value="'+adminEsc(v.name||'')+'" placeholder="색상 이름">'+
         '<div class="preset-color-row-actions">'+
-          '<label class="mini-toggle"><input type="checkbox" data-preset-color-enabled="'+i+':'+j+'" '+(v.enabled!==false?'checked':'')+'> 공개</label>'+
           '<label class="mini-toggle"><input type="radio" name="preset-color-primary-'+adminEsc(key)+'" data-preset-color-primary="'+i+':'+j+'" '+(v.file===primary?'checked':'')+'> 대표</label>'+
           '<div class="preset-color-order"><button type="button" class="ghost cat-order-button" data-preset-color-move="'+i+':'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-preset-color-move="'+i+':'+j+'" data-dir="1" '+(j===variants.length-1?'disabled':'')+'>↓</button></div>'+
           '<button type="button" class="ghost admin-compact" data-preset-color-replace="'+i+':'+j+'">교체</button>'+
@@ -1711,7 +1709,6 @@ function renderPresetItems(){
     renderPresetItems()
   });
   document.querySelectorAll('[data-preset-color-name]').forEach(el=>el.onchange=()=>{const [i,j]=el.dataset.presetColorName.split(':').map(Number);updatePresetColorVariant(i,j,{name:el.value.trim()||('색상 '+String(j+1).padStart(2,'0'))})});
-  document.querySelectorAll('[data-preset-color-enabled]').forEach(el=>el.onchange=()=>{const [i,j]=el.dataset.presetColorEnabled.split(':').map(Number);updatePresetColorVariant(i,j,{enabled:el.checked})});
   document.querySelectorAll('[data-preset-color-primary]').forEach(el=>el.onchange=()=>{if(!el.checked)return;const [i,j]=el.dataset.presetColorPrimary.split(':').map(Number);setPresetColorPrimary(i,j)});
   document.querySelectorAll('[data-preset-color-move]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.presetColorMove.split(':').map(Number);movePresetColorVariant(i,j,Number(b.dataset.dir))});
   document.querySelectorAll('[data-preset-color-replace]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.presetColorReplace.split(':').map(Number);replacePresetColorVariant(i,j)});
@@ -1728,7 +1725,7 @@ function ensurePresetColorGroupForProduct(x){
   if(!x)return null;
   let group=presetColorGroupForPrimary(x.file);
   if(group)return group;
-  group={id:makePresetColorGroupId(),category:x.category,primaryFile:x.file,variants:[{file:x.file,name:'기본 색상',enabled:true}]};
+  group={id:makePresetColorGroupId(),category:x.category,primaryFile:x.file,variants:[{file:x.file,name:'기본 색상'}]};
   ensurePresetColorGroups().push(group);
   presetColorOpenIds.delete('solo:'+x.file);presetColorOpenIds.add(group.id);
   return group
@@ -1744,11 +1741,11 @@ async function groupSelectedPresetProducts(){
   const variants=[],seen=new Set();
   selected.forEach(file=>{
     const group=presetColorGroupForPrimary(file);
-    const source=group?group.variants:[{file,name:'',enabled:true}];
+    const source=group?group.variants:[{file,name:''}];
     source.forEach(v=>{
       if(seen.has(v.file))return;
       seen.add(v.file);
-      variants.push({...v,name:String(v.name||('색상 '+String(variants.length+1).padStart(2,'0'))),enabled:v.enabled!==false})
+      variants.push({file:v.file,name:String(v.name||('색상 '+String(variants.length+1).padStart(2,'0')))})
     })
   });
   const removeIds=new Set(oldGroups.map(g=>g.id));
@@ -1804,7 +1801,7 @@ async function addPresetColorVariant(i){
     const d=await uploadMediaWithRetry('/api/admin/preset-upload',x.category,file);
     newPath=String(d.path||'');if(!newPath)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
     const group=ensurePresetColorGroupForProduct(x);
-    group.variants.push({file:newPath,name:colorName,enabled:true});
+    group.variants.push({file:newPath,name:colorName});
     if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};
     S.presetMeta[newPath]={...(S.presetMeta[newPath]||{}),enabled:true,showcaseKind:'preset',pairChild:false};
     const order=Array.isArray(S.presetOrder)?[...S.presetOrder]:[];
