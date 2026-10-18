@@ -3563,3 +3563,27 @@ body.artmug-part-portfolio #inquirySection{
     min-height:25px!important;
   }
 }
+
+/* 2026-10-18 PRESET COLOR BUTTON SIZE POSITION V4 */
+.v2-showcase-media-wrap>.v2-preset-color-button{
+  right:11px!important;
+  bottom:5px!important;
+  width:29px!important;
+  height:29px!important;
+  min-width:29px!important;
+  min-height:29px!important;
+}
+.v2-showcase-media-wrap>.v2-preset-color-button svg{
+  width:11px!important;
+  height:7.5px!important;
+}
+@media(max-width:680px){
+  .v2-showcase-media-wrap>.v2-preset-color-button{
+    right:10px!important;
+    bottom:4px!important;
+    width:29px!important;
+    height:29px!important;
+    min-width:29px!important;
+    min-height:29px!important;
+  }
+}
