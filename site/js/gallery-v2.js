@@ -643,11 +643,18 @@ async function publicFixedProducts(){
  return [...configured,...legacy].filter(p=>p.enabled&&p.previews.length)
 }
 function fixedOptionPublicHtml(title,items,kind){
- const labels=(Array.isArray(items)?items:[]).map(o=>String(o?.label||'').trim()).filter(Boolean);
- if(!labels.length)return'';
+ const rows=(Array.isArray(items)?items:[]).map(o=>({
+  label:String(o?.label||'').trim(),
+  detail:String(o?.detail||'').trim()
+ })).filter(o=>o.label);
+ if(!rows.length)return'';
  return '<section class="fixed-product-option-group '+kind+'">'+
   '<span class="fixed-product-option-heading">'+esc(title)+'</span>'+
-  '<div class="fixed-product-option-summary">'+labels.map(label=>'<span>'+esc(label)+'</span>').join('<i aria-hidden="true">·</i>')+'</div>'+
+  '<div class="fixed-product-option-summary">'+rows.map(o=>
+   '<span class="fixed-product-option-summary-item"><span class="fixed-product-option-label">'+esc(o.label)+'</span>'+
+   (o.detail?'<span class="fixed-product-option-detail"><i aria-hidden="true">│</i>'+esc(o.detail)+'</span>':'')+
+   '</span>'
+  ).join('<i class="fixed-product-option-separator" aria-hidden="true">·</i>')+'</div>'+
  '</section>'
 }
 function fixedPreviewPublicHtml(v,p){
