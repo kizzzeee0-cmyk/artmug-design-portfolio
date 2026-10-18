@@ -939,15 +939,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png": {
-      "name": "",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mve3thwn-ti6e2f",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png": {
       "name": "",
       "description": "",
@@ -984,7 +975,6 @@
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
     "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png",
     "preset/fixed-store-profile/20261018174151-eacsnoc5ylwd-background__35_.png",
-    "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png",
     "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png",
     "preset/fixed-store-profile/20261018174209-oz17pm96mvym-background__31_.png"
   ],
@@ -1262,7 +1252,7 @@
     },
     {
       "id": "product-mve3thwn-ti6e2f",
-      "name": "새 고정틀",
+      "name": "움짤프사 할로윈 고정",
       "description": "",
       "enabled": true,
       "pcColumns": 6,
@@ -1300,14 +1290,6 @@
         {
           "id": "preview-mve44ddt-h2imz2",
           "file": "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png",
-          "category": "profile",
-          "name": "",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mve44mxx-d1trem",
-          "file": "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png",
           "category": "profile",
           "name": "",
           "description": "",
