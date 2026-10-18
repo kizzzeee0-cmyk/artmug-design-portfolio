@@ -2225,3 +2225,52 @@
     min-width:0!important;
   }
 }
+
+/* 2026-10-18 PRESET COLOR ROW TWO LINES V5 */
+.preset-color-row-body{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:auto auto!important;
+  align-items:start!important;
+  gap:5px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.preset-color-name-input{
+  grid-row:1!important;
+  justify-self:start!important;
+  flex:none!important;
+  width:76px!important;
+  min-width:76px!important;
+  max-width:76px!important;
+  height:27px!important;
+  min-height:27px!important;
+}
+.preset-color-row-actions{
+  grid-row:2!important;
+  width:100%!important;
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  flex-wrap:nowrap!important;
+  gap:4px!important;
+  white-space:nowrap!important;
+}
+.preset-color-row-actions .mini-toggle,
+.preset-color-order,
+.preset-color-row-actions>.ghost,
+.preset-color-row-actions>.danger{
+  flex:0 0 auto!important;
+}
+@media(max-width:760px){
+  .preset-color-row-body{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto auto!important;
+  }
+  .preset-color-row-actions{
+    flex-wrap:nowrap!important;
+    gap:3px!important;
+  }
+}
