@@ -2274,3 +2274,17 @@
     gap:3px!important;
   }
 }
+
+/* 2026-10-19 FIXED BOTTOM COPY ADMIN V1 */
+.fixed-product-bottom-copy-admin{
+  display:grid!important;
+  gap:7px!important;
+}
+.fixed-product-bottom-copy-admin>.head{
+  margin:0!important;
+}
+.fixed-product-bottom-copy-admin input[data-fp-note]{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
