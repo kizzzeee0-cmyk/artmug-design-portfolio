@@ -1268,8 +1268,10 @@
         {
           "id": "opt-mve3w9bz-91ymx1",
           "label": "색상",
-          "detail": "미리보기에 없는 색상도 가능합니다",
-          "choices": []
+          "detail": "",
+          "choices": [
+            "미리보기에 없는 색상도 가능합니다"
+          ]
         }
       ],
       "fixedOptions": [],
