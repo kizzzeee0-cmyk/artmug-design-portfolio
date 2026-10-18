@@ -1219,6 +1219,23 @@
           "enabled": true
         }
       ]
+    },
+    {
+      "id": "pcg-mvdjcab6-hyxajq",
+      "category": "profile",
+      "primaryFile": "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
+      "variants": [
+        {
+          "file": "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
+          "name": "색상 01",
+          "enabled": true
+        },
+        {
+          "file": "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
+          "name": "색상 02",
+          "enabled": true
+        }
+      ]
     }
   ]
 }
