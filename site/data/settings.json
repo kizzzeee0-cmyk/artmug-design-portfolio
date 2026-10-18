@@ -1210,13 +1210,11 @@
       "variants": [
         {
           "file": "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
-          "name": "스카이블루",
-          "enabled": true
+          "name": "스카이블루"
         },
         {
           "file": "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
-          "name": "핑크",
-          "enabled": true
+          "name": "핑크"
         }
       ]
     },
@@ -1227,13 +1225,11 @@
       "variants": [
         {
           "file": "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
-          "name": "블루",
-          "enabled": true
+          "name": "블루"
         },
         {
           "file": "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
-          "name": "핑크",
-          "enabled": true
+          "name": "핑크"
         }
       ]
     }
