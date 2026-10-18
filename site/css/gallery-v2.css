@@ -3587,3 +3587,93 @@ body.artmug-part-portfolio #inquirySection{
     min-height:29px!important;
   }
 }
+
+/* 2026-10-18 MOBILE WIDTH OVERFLOW FIX V1 */
+@media(max-width:680px){
+  html.public-page,
+  body.public-page{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow-x:hidden!important;
+  }
+
+  .site-shell,
+  .showcase-section-v2,
+  .portfolio-all-section-v2,
+  .v2-preset-category-layout,
+  .v2-preset-category,
+  .v2-preset-category-grid,
+  .v2-portfolio-category,
+  .v2-cat-grid,
+  .fixed-product-card,
+  .fixed-product-preview-grid{
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+
+  /* 132px is a maximum visual size, never a forced mobile column width. */
+  .v2-cat-grid.v2-layout-profile{
+    width:min(100%,272px)!important;
+    max-width:100%!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    justify-content:center!important;
+    gap:8px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+
+  .v2-preset-category-layout.is-single .v2-preset-category.is-profile-category .v2-preset-category-grid{
+    width:min(100%,272px)!important;
+    max-width:100%!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    justify-content:center!important;
+    gap:8px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+
+  /* Multi-category preset layout is much narrower, so each inner grid must be fully fluid. */
+  .v2-preset-category-layout.is-multi .v2-preset-category,
+  .v2-preset-category-layout.is-multi .v2-preset-category.is-profile-category .v2-preset-category-grid{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+  .v2-preset-category-layout.is-multi .v2-preset-category.is-profile-category .v2-preset-category-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    justify-content:center!important;
+    gap:5px!important;
+  }
+
+  .fixed-product-preview-grid.is-square-only{
+    width:min(100%,272px)!important;
+    max-width:100%!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    justify-content:center!important;
+    gap:8px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+
+  .v2-work-card.is-profile,
+  .v2-work-card.is-profile .v2-media,
+  .v2-preset-category.is-profile-category .v2-showcase-card,
+  .v2-preset-category.is-profile-category .v2-showcase-media-wrap,
+  .v2-preset-category.is-profile-category .v2-showcase-media,
+  .fixed-product-preview-grid.is-square-only>.fixed-product-preview,
+  .fixed-preview-layout-profile .fixed-product-preview-media{
+    width:100%!important;
+    max-width:var(--shared-profile-preview-size)!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+
+  .v2-showcase-media-wrap,
+  .v2-showcase-media{
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+}
