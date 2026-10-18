@@ -1474,18 +1474,34 @@ async function savePortfolioTag(i,type,checked){
   renderItems();
   showToast(value?`움짤프사 ${value} 태그를 켰습니다.`:'태그를 껐습니다.')
 }
+function isPresetStorageOnlyItem(x){
+  const category=String(x?.category||'');
+  if(category.startsWith('fixed-store-'))return true;
+  const cat=(Array.isArray(S?.presetCategories)?S.presetCategories:[]).find(c=>String(c?.id||'')===category);
+  return cat?.hiddenLegacy===true
+}
+function isLegacyFixedPresetItem(x){
+  if(!x)return false;
+  return presetMetaFor(x).showcaseKind==='fixed'
+}
 async function loadPresetItemsOnly(){
   const q=await api('/api/admin/presets').catch(()=>({items:[]}));
   const meta=S?.presetMeta||{},pairedChildren=new Set(Object.values(meta).map(m=>m&&m.secondaryFile).filter(Boolean));
-  const fixedBase=[...(q.items||[])]
-    .filter(x=>!pairedChildren.has(x.file)&&!(meta[x.file]||{}).pairChild&&presetMetaFor(x).showcaseKind==='fixed')
+  const source=[...(q.items||[])].filter(x=>!pairedChildren.has(x.file)&&!(meta[x.file]||{}).pairChild);
+
+  // Storage-only fixed-template files must never leak into the normal preset manager.
+  // Their metadata can be incomplete after an interrupted upload/replace, so category is authoritative.
+  const fixedBase=source
+    .filter(x=>isLegacyFixedPresetItem(x)&&!isPresetStorageOnlyItem(x))
     .sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
   fixedItems=applyAdminOrder(fixedBase,S?.presetOrder);
-  const presetBase=[...(q.items||[])]
-    .filter(x=>!pairedChildren.has(x.file)&&!(meta[x.file]||{}).pairChild&&presetMetaFor(x).showcaseKind!=='fixed')
+
+  const presetBase=source
+    .filter(x=>!isPresetStorageOnlyItem(x)&&!isLegacyFixedPresetItem(x))
     .sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
   presetItems=applyAdminOrder(presetBase,S?.presetOrder);
-  // Product-based fixed templates are canonical; do not auto-convert leftover legacy files.
+
+  // Product-based fixed templates are canonical; storage-only files stay managed by fixedProducts.
   await syncPresetAutoNames();
   renderPresetItems();renderFixedItems();updatePresetUploadAutoName()
 }
