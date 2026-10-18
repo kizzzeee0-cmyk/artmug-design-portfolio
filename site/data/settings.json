@@ -911,6 +911,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif": {
+      "name": "디자인 01",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mve3thwn-ti6e2f",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -926,7 +935,8 @@
     "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif",
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
-    "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif"
+    "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
+    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1041,7 +1051,7 @@
       "name": "움짤프사 고정틀 A",
       "description": "",
       "enabled": true,
-      "pcColumns": 5,
+      "pcColumns": 6,
       "mobileColumns": 2,
       "showPreviewNames": true,
       "changeableOptions": [
@@ -1130,7 +1140,7 @@
       "name": "움짤프사 고정틀 B",
       "description": "별도의 추가 장식 없이 아래 예시와 같은 기본 체크 패턴 디자인만 해당됩니다",
       "enabled": true,
-      "pcColumns": 5,
+      "pcColumns": 6,
       "mobileColumns": 2,
       "showPreviewNames": true,
       "changeableOptions": [
@@ -1205,7 +1215,7 @@
       "name": "새 고정틀",
       "description": "",
       "enabled": true,
-      "pcColumns": 5,
+      "pcColumns": 6,
       "mobileColumns": 2,
       "showPreviewNames": true,
       "changeableOptions": [],
@@ -1215,7 +1225,16 @@
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
-      "previews": []
+      "previews": [
+        {
+          "id": "preview-mve3uuw2-o8cp3r",
+          "file": "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
+          "category": "profile",
+          "name": "디자인 01",
+          "description": "",
+          "enabled": true
+        }
+      ]
     }
   ],
   "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6",
