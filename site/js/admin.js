@@ -2116,7 +2116,7 @@ function normalizeFixedProduct(x){
   showPreviewNames:x?.showPreviewNames!==false,
   changeableOptions:(Array.isArray(x?.changeableOptions)?x.changeableOptions:[]).map(normalizeFixedOption),
   fixedOptions:(Array.isArray(x?.fixedOptions)?x.fixedOptions:[]).map(normalizeFixedOption),
-  note:String(x?.note||''),
+  note:String(x?.note||x?.changeableOptions?.[0]?.label||x?.fixedOptions?.[0]?.label||''),
   price:Math.max(0,Number(x?.price||0)),
   priceVisible:x?.priceVisible!==false,
   priceNote:String(x?.priceNote||''),
@@ -2158,7 +2158,7 @@ function collectFixedProductFromDom(i){
  p.pcColumns=Math.max(1,Math.min(8,Number(val('pc',p.pcColumns)||5)));
  p.mobileColumns=Math.max(1,Math.min(4,Number(val('mobile',p.mobileColumns)||2)));
  p.showPreviewNames=q('[data-fp-show-names="'+i+'"]')?.checked!==false;
- p.note=String(val('note',p.note));
+ p.note=String(val('note',p.note)).trim();
  p.price=Math.max(0,Number(val('price',p.price)||0));
  p.priceVisible=q('[data-fp-price-visible="'+i+'"]')?.checked!==false;
  p.priceNote=String(val('price-note',p.priceNote));
@@ -2173,18 +2173,6 @@ function collectFixedProductFromDom(i){
    if(description)v.description=description.value;
    if(enabled)v.enabled=enabled.checked
  });
- const collectOptions=kind=>{
-   const list=kind==='change'?p.changeableOptions:p.fixedOptions;
-   list.forEach((o,j)=>{
-    const label=q('[data-fp-opt-label="'+kind+':'+i+':'+j+'"]');
-    const detail=q('[data-fp-opt-detail="'+kind+':'+i+':'+j+'"]');
-    const choices=q('[data-fp-opt-choices="'+kind+':'+i+':'+j+'"]');
-    if(label)o.label=label.value;
-    if(detail)o.detail=detail.value;
-    if(choices)o.choices=choices.value.split(/[,/\n]/).map(v=>v.trim()).filter(Boolean)
-   })
- };
- collectOptions('change');collectOptions('fixed');
  return p
 }
 function renderFixedCats(){
@@ -2285,16 +2273,13 @@ function fixedProductAdminCard(p,i){
     '<p class="status" data-fp-upload-status="'+i+'"></p>'+
     '<div class="fixed-preview-admin-list">'+(p.previews.length?p.previews.map((v,j)=>fixedPreviewAdminHtml(v,i,j)).join(''):'<p class="muted">등록된 미리보기가 없습니다.</p>')+'</div>'+
    '</div>'+
-   '<div class="fixed-product-options-grid">'+
-    '<section class="fixed-product-subsection"><div class="head"><h5>변경 가능</h5><button type="button" class="ghost admin-compact" data-fp-opt-add="change:'+i+'">+ 항목 추가</button></div><div class="fixed-option-editor-list">'+(p.changeableOptions.length?p.changeableOptions.map((o,j)=>fixedOptionEditorHtml('change',o,i,j)).join(''):'<p class="muted">등록된 항목이 없습니다.</p>')+'</div></section>'+
-    '<section class="fixed-product-subsection"><div class="head"><h5>변경 불가</h5><button type="button" class="ghost admin-compact" data-fp-opt-add="fixed:'+i+'">+ 항목 추가</button></div><div class="fixed-option-editor-list">'+(p.fixedOptions.length?p.fixedOptions.map((o,j)=>fixedOptionEditorHtml('fixed',o,i,j)).join(''):'<p class="muted">등록된 항목이 없습니다.</p>')+'</div></section>'+
-   '</div>'+
+   '<div class="fixed-product-subsection fixed-product-bottom-copy-admin"><div class="head"><div><h5>하단 안내 문구</h5><p class="muted">고정틀 카드 하단 중앙에 한 문장으로 표시됩니다.</p></div></div><input data-fp-note="'+i+'" value="'+adminEsc(p.note)+'" placeholder="예: 배경 디자인 외의 모든 부분은 자유롭게 변경하실 수 있습니다"></div>'+
    '<div class="fields fixed-product-price-fields">'+
     '<label>상품 가격<input data-fp-price="'+i+'" type="number" min="0" step="100" value="'+p.price+'"></label>'+
     '<label class="mini-toggle"><input type="checkbox" data-fp-price-visible="'+i+'" '+(p.priceVisible?'checked':'')+'> 가격 공개</label>'+
     '<label class="wide">가격 기준 안내<input data-fp-price-scope="'+i+'" value="'+adminEsc(p.priceScope)+'" placeholder="예: 미리보기 중 디자인 1개 선택 기준"></label>'+
     '<label class="wide">가격 추가 안내<input data-fp-price-note="'+i+'" value="'+adminEsc(p.priceNote)+'" placeholder="선택사항"></label>'+
-    '<label class="wide">기타 안내<textarea data-fp-note="'+i+'" rows="2" placeholder="추가 안내가 있을 때만 입력">'+adminEsc(p.note)+'</textarea></label>'+
+
    '</div>'+
    '<div class="fixed-product-editor-actions"><button type="button" class="primary-button" data-fp-save="'+i+'">상품 저장</button></div>'+
   '</div>'+
@@ -2311,8 +2296,6 @@ function bindFixedProductAdminEvents(){
  root.querySelectorAll('[data-fp-preview-move]').forEach(b=>{const [i,j]=b.dataset.fpPreviewMove.split(':').map(Number);b.onclick=()=>moveFixedPreview(i,j,Number(b.dataset.dir))});
  root.querySelectorAll('[data-fp-preview-replace]').forEach(b=>{const [i,j]=b.dataset.fpPreviewReplace.split(':').map(Number);b.onclick=()=>replaceFixedProductPreview(i,j)});
  root.querySelectorAll('[data-fp-preview-delete]').forEach(b=>{const [i,j]=b.dataset.fpPreviewDelete.split(':').map(Number);b.onclick=()=>deleteFixedProductPreview(i,j)});
- root.querySelectorAll('[data-fp-opt-add]').forEach(b=>b.onclick=()=>{const [kind,iRaw]=b.dataset.fpOptAdd.split(':'),i=+iRaw,p=collectFixedProductFromDom(i);if(!p)return;(kind==='change'?p.changeableOptions:p.fixedOptions).push(normalizeFixedOption({}));fixedProductOpenIds.add(p.id);renderFixedItems()});
- root.querySelectorAll('[data-fp-opt-delete]').forEach(b=>b.onclick=()=>{const [kind,iRaw,jRaw]=b.dataset.fpOptDelete.split(':'),i=+iRaw,j=+jRaw,p=collectFixedProductFromDom(i);if(!p)return;(kind==='change'?p.changeableOptions:p.fixedOptions).splice(j,1);fixedProductOpenIds.add(p.id);renderFixedItems()})
 }
 function renderFixedItems(){
  const root=$('fixedItems');if(!root)return;
