@@ -1583,7 +1583,11 @@ async function replaceMediaFile(kind,index){
         const secondary=latest.presetMeta[newPath].secondaryFile;
         if(secondary&&latest.presetMeta[secondary])latest.presetMeta[secondary]={...latest.presetMeta[secondary],pairParent:newPath};
         delete latest.presetMeta[x.file];
-        latest.presetOrder=replaceOrderPath(latest.presetOrder,x.file,newPath)
+        latest.presetOrder=replaceOrderPath(latest.presetOrder,x.file,newPath);
+        if(Array.isArray(latest.presetColorGroups))latest.presetColorGroups.forEach(g=>{
+          if(g.primaryFile===x.file)g.primaryFile=newPath;
+          if(Array.isArray(g.variants))g.variants.forEach(v=>{if(v.file===x.file)v.file=newPath})
+        })
       }else{
         if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
         latest.portfolioMeta[newPath]={...(latest.portfolioMeta[x.file]||{})};
@@ -1592,7 +1596,7 @@ async function replaceMediaFile(kind,index){
       }
     });
     metadataMoved=true;
-    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
+    if(isPreset){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[];S.presetColorGroups=saved.presetColorGroups||S.presetColorGroups||[]}
     else{S.portfolioMeta=saved.portfolioMeta||{};S.portfolioOrder=saved.portfolioOrder||[]}
 
     try{
@@ -1701,6 +1705,182 @@ function renderPresetItems(){
   manageAdminGifs($('presetItems'))
 }
 
+function ensurePresetColorGroupForProduct(x){
+  if(!x)return null;
+  let group=presetColorGroupForPrimary(x.file);
+  if(group)return group;
+  group={id:makePresetColorGroupId(),category:x.category,primaryFile:x.file,variants:[{file:x.file,name:'기본 색상',enabled:true}]};
+  ensurePresetColorGroups().push(group);
+  presetColorOpenIds.delete('solo:'+x.file);presetColorOpenIds.add(group.id);
+  return group
+}
+async function groupSelectedPresetProducts(){
+  const selected=[...document.querySelectorAll('[data-preset-group-select]:checked')].map(x=>x.dataset.presetGroupSelect).filter(Boolean);
+  if(selected.length<2){alert('같은 디자인으로 묶을 프리셋을 2개 이상 선택해 주세요.');return}
+  const roots=selected.map(file=>presetItemByFile(file)).filter(Boolean);
+  if(roots.length!==selected.length){alert('선택한 프리셋 정보를 다시 불러온 뒤 시도해 주세요.');return}
+  const categories=[...new Set(roots.map(x=>x.category))];
+  if(categories.length!==1){alert('같은 디자인 종류의 프리셋끼리만 색상으로 묶을 수 있습니다.');return}
+  const oldGroups=selected.map(file=>presetColorGroupForPrimary(file)).filter(Boolean);
+  const variants=[],seen=new Set();
+  selected.forEach(file=>{
+    const group=presetColorGroupForPrimary(file);
+    const source=group?group.variants:[{file,name:'',enabled:true}];
+    source.forEach(v=>{
+      if(seen.has(v.file))return;
+      seen.add(v.file);
+      variants.push({...v,name:String(v.name||('색상 '+String(variants.length+1).padStart(2,'0'))),enabled:v.enabled!==false})
+    })
+  });
+  const removeIds=new Set(oldGroups.map(g=>g.id));
+  S.presetColorGroups=ensurePresetColorGroups().filter(g=>!removeIds.has(g.id));
+  const group={id:oldGroups[0]?.id||makePresetColorGroupId(),category:categories[0],primaryFile:selected[0],variants};
+  S.presetColorGroups.push(group);
+  presetColorOpenIds.add(group.id);
+  await persistPresetColorGroups('선택한 프리셋을 하나의 다중 색상 상품으로 묶었습니다.');
+  await syncPresetAutoNames();
+  renderPresetItems();updatePresetUploadAutoName()
+}
+async function updatePresetColorVariant(i,j,patch){
+  const x=presetItems[i];if(!x)return;
+  const group=ensurePresetColorGroupForProduct(x),variant=group?.variants?.[j];if(!variant)return;
+  Object.assign(variant,patch||{});
+  if(!String(variant.name||'').trim())variant.name='색상 '+String(j+1).padStart(2,'0');
+  await persistPresetColorGroups('색상 정보가 저장되었습니다.');
+  presetColorOpenIds.add(group.id);renderPresetItems()
+}
+async function setPresetColorPrimary(i,j){
+  const x=presetItems[i];if(!x)return;
+  const group=ensurePresetColorGroupForProduct(x),variant=group?.variants?.[j];if(!group||!variant||variant.file===group.primaryFile)return;
+  const oldPrimary=group.primaryFile,newPrimary=variant.file;
+  copyPresetProductMeta(S,oldPrimary,newPrimary);
+  const order=Array.isArray(S.presetOrder)?[...S.presetOrder]:[];
+  const a=order.indexOf(oldPrimary),b=order.indexOf(newPrimary);
+  if(a>=0&&b>=0)[order[a],order[b]]=[order[b],order[a]];
+  else if(a>=0)order[a]=newPrimary;
+  S.presetOrder=order;
+  group.primaryFile=newPrimary;
+  await persistPresetColorGroups('대표 이미지가 변경되었습니다.');
+  await syncPresetAutoNames();
+  presetColorOpenIds.add(group.id);
+  renderPresetItems()
+}
+async function movePresetColorVariant(i,j,dir){
+  const x=presetItems[i],group=x&&presetColorGroupForPrimary(x.file);if(!group)return;
+  const k=j+dir;if(k<0||k>=group.variants.length)return;
+  [group.variants[j],group.variants[k]]=[group.variants[k],group.variants[j]];
+  await persistPresetColorGroups('색상 순서가 저장되었습니다.');
+  presetColorOpenIds.add(group.id);renderPresetItems()
+}
+async function addPresetColorVariant(i){
+  const x=presetItems[i];if(!x)return;
+  const nameInput=document.querySelector('[data-preset-color-new-name="'+i+'"]');
+  const fileInput=document.querySelector('[data-preset-color-new-file="'+i+'"]');
+  const file=fileInput?.files?.[0];if(!file){alert('추가할 색상 이미지 또는 GIF를 선택해 주세요.');return}
+  validatePresetUploadFile(file);
+  const colorName=String(nameInput?.value||'').trim()||('색상 '+String(presetColorVariantsForProduct(x).length+1).padStart(2,'0'));
+  let newPath='';
+  try{
+    showToast('새 색상 파일을 업로드하고 있습니다.');
+    const d=await uploadMediaWithRetry('/api/admin/preset-upload',x.category,file);
+    newPath=String(d.path||'');if(!newPath)throw new Error('업로드된 파일 경로를 확인하지 못했습니다.');
+    const group=ensurePresetColorGroupForProduct(x);
+    group.variants.push({file:newPath,name:colorName,enabled:true});
+    if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};
+    S.presetMeta[newPath]={...(S.presetMeta[newPath]||{}),enabled:true,showcaseKind:'preset',pairChild:false};
+    const order=Array.isArray(S.presetOrder)?[...S.presetOrder]:[];
+    const memberPositions=group.variants.slice(0,-1).map(v=>order.indexOf(v.file)).filter(v=>v>=0);
+    const insertAt=memberPositions.length?Math.max(...memberPositions)+1:order.length;
+    order.splice(Math.min(insertAt,order.length),0,newPath);S.presetOrder=order;
+    presetColorOpenIds.add(group.id);
+    await persistPresetColorGroups('새 색상이 추가되었습니다.');
+    await loadPresetItemsOnly()
+  }catch(e){
+    if(newPath)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+    alert('색상 추가에 실패했습니다.\n'+e.message)
+  }
+}
+async function replacePresetColorVariant(i,j){
+  const x=presetItems[i];if(!x)return;
+  const group=presetColorGroupForPrimary(x.file);
+  if(!group){await replaceMediaFile('preset',i);return}
+  const variant=group.variants[j];if(!variant)return;
+  const file=await chooseReplacementFile();if(!file)return;
+  validatePresetUploadFile(file);
+  let newPath='';
+  try{
+    showToast('색상 파일을 교체하고 있습니다.');
+    const d=await uploadMediaWithRetry('/api/admin/preset-upload',x.category,file);
+    newPath=String(d.path||'');if(!newPath)throw new Error('새 파일 경로를 확인하지 못했습니다.');
+    const oldPath=variant.file,isPrimary=group.primaryFile===oldPath;
+    variant.file=newPath;if(isPrimary)group.primaryFile=newPath;
+    if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};
+    S.presetMeta[newPath]={...(S.presetMeta[oldPath]||{}),showcaseKind:'preset'};
+    delete S.presetMeta[oldPath];
+    S.presetOrder=replaceOrderPath(S.presetOrder,oldPath,newPath);
+    await persistPresetColorGroups('색상 파일이 교체되었습니다.');
+    await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:oldPath})}).catch(()=>showToast('새 파일은 저장됐지만 이전 파일 정리에 실패했습니다.','error'));
+    presetColorOpenIds.add(group.id);
+    await loadPresetItemsOnly()
+  }catch(e){
+    if(newPath)await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:newPath})}).catch(()=>{});
+    alert('색상 파일 교체에 실패했습니다.\n'+e.message)
+  }
+}
+async function deletePresetColorVariant(i,j){
+  const x=presetItems[i],group=x&&presetColorGroupForPrimary(x.file);if(!group)return;
+  if(group.variants.length<=1){alert('마지막 색상은 상품 삭제를 이용해 주세요.');return}
+  const variant=group.variants[j];if(!variant||!confirm('"'+(variant.name||'색상')+'" 색상 파일을 삭제할까요?'))return;
+  const oldPrimary=group.primaryFile;
+  group.variants.splice(j,1);
+  if(oldPrimary===variant.file){
+    group.primaryFile=group.variants[0].file;
+    copyPresetProductMeta(S,oldPrimary,group.primaryFile)
+  }
+  if(S.presetMeta)delete S.presetMeta[variant.file];
+  S.presetOrder=(S.presetOrder||[]).filter(v=>v!==variant.file);
+  await persistPresetColorGroups('색상을 삭제했습니다.');
+  await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file:variant.file})}).catch(()=>showToast('목록에서는 제거됐지만 파일 정리에 실패했습니다.','error'));
+  await syncPresetAutoNames();
+  presetColorOpenIds.add(group.id);
+  await loadPresetItemsOnly()
+}
+async function ungroupPresetColors(i){
+  const x=presetItems[i],group=x&&presetColorGroupForPrimary(x.file);if(!group)return;
+  if(!confirm('색상 그룹을 해제할까요? 기존 파일은 삭제되지 않고 다시 개별 프리셋으로 표시됩니다.'))return;
+  S.presetColorGroups=ensurePresetColorGroups().filter(g=>g.id!==group.id);
+  presetColorOpenIds.delete(group.id);
+  await persistPresetColorGroups('색상 그룹을 해제했습니다. 기존 파일은 그대로 유지됩니다.');
+  await syncPresetAutoNames();
+  renderPresetItems();updatePresetUploadAutoName()
+}
+async function deletePresetProduct(i){
+  const x=presetItems[i];if(!x)return;
+  const group=presetColorGroupForPrimary(x.file);
+  const files=group?group.variants.map(v=>v.file):[x.file];
+  if(!confirm('"'+(presetMetaFor(x).name||'프리셋')+'" 상품'+(files.length>1?'과 색상 '+files.length+'개':'')+'를 삭제할까요?'))return;
+  const failed=[],deleted=[];
+  for(const file of files){
+    try{await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});deleted.push(file)}
+    catch(e){failed.push(file)}
+  }
+  deleted.forEach(file=>{if(S.presetMeta)delete S.presetMeta[file]});
+  S.presetOrder=(S.presetOrder||[]).filter(file=>!deleted.includes(file));
+  if(group){
+    if(failed.length){
+      group.variants=group.variants.filter(v=>failed.includes(v.file));
+      if(!failed.includes(group.primaryFile)){
+        const old=group.primaryFile;group.primaryFile=failed[0];
+        copyPresetProductMeta(S,old,group.primaryFile)
+      }
+    }else{
+      S.presetColorGroups=ensurePresetColorGroups().filter(g=>g.id!==group.id)
+    }
+  }
+  await persistPresetColorGroups(failed.length?'일부 파일만 삭제되었습니다.':'프리셋 상품을 삭제했습니다.');
+  await loadPresetItemsOnly();
+  if(failed.length)alert('일부 색상 파일 삭제에 실패했습니다. 실패한 파일은 상품에 남겨두었습니다.')
+}
 async function savePresetEditPolicy(i,key,value){
   const x=presetItems[i];if(!x)return;
   const policyKeys=['colorChangeAvailable','colorOnlyChangeAvailable','isNoEdit'];
