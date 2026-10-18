@@ -187,5 +187,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261018174211"
+  },
+  {
+    "id": "preset-WEKkzK0wp8Y",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261018174823-10vn39w1f4v13g-background__34_.png",
+    "originalName": "background (34).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261018174824"
   }
 ]
