@@ -3796,3 +3796,41 @@ body.artmug-part-portfolio #inquirySection{
     line-height:1.2!important;
   }
 }
+
+/* 2026-10-19 FIXED BOTTOM SENTENCE ONLY V3 */
+.fixed-product-options,
+.fixed-product-option-group,
+.fixed-product-option-heading{
+  display:none!important;
+}
+.fixed-product-bottom-note{
+  width:100%!important;
+  margin:16px 0 0!important;
+  padding:12px 12px 1px!important;
+  border-top:1px solid #e5eef4!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+}
+.fixed-product-bottom-note p{
+  margin:0!important;
+  padding:0!important;
+  color:#5d7483!important;
+  font-size:10.5px!important;
+  font-weight:500!important;
+  line-height:1.45!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+.fixed-product-note{
+  display:none!important;
+}
+@media(max-width:680px){
+  .fixed-product-bottom-note{
+    margin-top:10px!important;
+    padding:9px 8px 0!important;
+  }
+  .fixed-product-bottom-note p{
+    font-size:9px!important;
+    line-height:1.4!important;
+  }
+}
