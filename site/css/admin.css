@@ -1909,3 +1909,24 @@
     grid-template-columns:1fr;
   }
 }
+
+/* 2026-10-18 PRESET COLOR MANAGER WIDE OPEN V2 */
+.preset-admin-item-v2.is-color-open{
+  grid-column:1/-1!important;
+}
+.preset-admin-item-v2.is-color-open .preset-color-manager{
+  width:100%;
+  box-sizing:border-box;
+}
+.preset-admin-item-v2.is-color-open .preset-color-row{
+  grid-template-columns:44px minmax(120px,1fr) auto auto auto auto auto;
+}
+@media(max-width:760px){
+  .preset-admin-item-v2.is-color-open .preset-color-row{
+    grid-template-columns:42px minmax(0,1fr) auto;
+  }
+  .preset-admin-item-v2.is-color-open .preset-color-row .preset-color-order,
+  .preset-admin-item-v2.is-color-open .preset-color-row>button{
+    margin-top:2px;
+  }
+}
