@@ -1219,8 +1219,8 @@
       "changeableOptions": [
         {
           "id": "opt-mve62j14-2ysg73",
-          "label": "색상",
-          "detail": "미리보기에 없는 색상도 가능합니다",
+          "label": "미리보기에 없는 색상으로도 변경 가능합니다",
+          "detail": "",
           "choices": []
         }
       ],
