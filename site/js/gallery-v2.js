@@ -10,7 +10,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const MEDIA_VERSION='20261015-live-media-v1';
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
 const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
-const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all'},expanded:{preset:false,fixed:false},mobile:matchMedia('(max-width:680px)').matches};
+const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all'},expanded:{preset:false,fixed:false},presetVariantSelection:{},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
 let portfolioHydrationObserver=null;
 let animatedMediaObserver=null;
@@ -99,6 +99,117 @@ function smeta(x){
   featured:m.featured===true,
   pairChild:m.pairChild===true
  }
+}
+function presetColorGroups(){
+ const raw=Array.isArray(state.settings?.presetColorGroups)?state.settings.presetColorGroups:[];
+ return raw.map((g,gi)=>{
+  const variants=(Array.isArray(g?.variants)?g.variants:[]).map((v,vi)=>({
+   file:String(v?.file||''),
+   name:String(v?.name||('색상 '+String(vi+1).padStart(2,'0'))),
+   enabled:v?.enabled!==false
+  })).filter(v=>v.file);
+  const primaryFile=String(g?.primaryFile||variants[0]?.file||'');
+  return {id:String(g?.id||('preset-color-group-'+gi)),category:String(g?.category||''),primaryFile,variants}
+ }).filter(g=>g.primaryFile&&g.variants.length)
+}
+function presetColorGroupForFile(file){
+ const f=String(file||'');
+ return presetColorGroups().find(g=>g.primaryFile===f||g.variants.some(v=>v.file===f))||null
+}
+function presetColorGroupForPrimary(file){
+ const f=String(file||'');
+ return presetColorGroups().find(g=>g.primaryFile===f)||null
+}
+function presetIndexItem(file){
+ return (Array.isArray(state.presetIndex)?state.presetIndex:[]).find(x=>x.file===file)||null
+}
+function presetVisibleVariants(primaryFile){
+ const group=presetColorGroupForPrimary(primaryFile);
+ if(!group)return [{file:String(primaryFile||''),name:'기본 색상',enabled:true}];
+ const existing=new Set((Array.isArray(state.presetIndex)?state.presetIndex:[]).map(x=>x.file));
+ return group.variants.filter(v=>v.enabled!==false&&(!existing.size||existing.has(v.file)))
+}
+function collapsePresetProducts(items){
+ const groups=presetColorGroups(),childToPrimary=new Map();
+ groups.forEach(g=>g.variants.forEach(v=>{if(v.file!==g.primaryFile)childToPrimary.set(v.file,g.primaryFile)}));
+ const seen=new Set();
+ return (Array.isArray(items)?items:[]).filter(x=>{
+  if(childToPrimary.has(x.file))return false;
+  if(seen.has(x.file))return false;
+  seen.add(x.file);return true
+ })
+}
+function presetVariantSource(file){
+ const x=presetIndexItem(file);
+ return media(x?.demoSrc||x?.file||file)
+}
+function presetSelectedVariant(primaryFile){
+ const variants=presetVisibleVariants(primaryFile);
+ if(!variants.length)return {file:primaryFile,name:'기본 색상',enabled:true};
+ const selected=state.presetVariantSelection[primaryFile];
+ return variants.find(v=>v.file===selected)||variants.find(v=>v.file===primaryFile)||variants[0]
+}
+let presetColorPopover=null;
+function closePresetColorPopover(){
+ if(presetColorPopover){presetColorPopover.remove();presetColorPopover=null}
+ document.querySelectorAll('[data-preset-color-menu].is-open').forEach(b=>b.classList.remove('is-open'))
+}
+function positionPresetColorPopover(button,pop){
+ const r=button.getBoundingClientRect(),gap=7;
+ pop.style.visibility='hidden';pop.style.display='block';
+ const w=Math.min(220,Math.max(154,pop.offsetWidth||174)),h=Math.min(260,pop.offsetHeight||180);
+ let left=r.right-w,top=r.bottom+gap;
+ if(left<8)left=Math.min(innerWidth-w-8,r.left);
+ if(left+w>innerWidth-8)left=Math.max(8,innerWidth-w-8);
+ if(top+h>innerHeight-8)top=Math.max(8,r.top-h-gap);
+ pop.style.left=Math.round(left)+'px';
+ pop.style.top=Math.round(top)+'px';
+ pop.style.maxWidth=Math.max(140,innerWidth-16)+'px';
+ pop.style.maxHeight=Math.max(120,innerHeight-16)+'px';
+ pop.style.visibility='visible'
+}
+function setPresetCardVariant(primaryFile,file){
+ const variants=presetVisibleVariants(primaryFile);
+ const variant=variants.find(v=>v.file===file);if(!variant)return;
+ state.presetVariantSelection[primaryFile]=file;
+ const card=document.querySelector('.v2-showcase-card[data-preset-product-file="'+CSS.escape(primaryFile)+'"]');
+ const img=card?.querySelector('.v2-showcase-media>img');if(!img)return;
+ const source=presetVariantSource(file);
+ if(isAnimatedMediaUrl(source)){
+  img.dataset.v2AnimatedSrc=source;
+  img.dataset.v2GifActive='0';
+  img.classList.add('is-gif-paused');
+  img.setAttribute('src',PAUSED_MEDIA_SRC);
+  manageAnimatedMedia(card);
+  const r=img.getBoundingClientRect();
+  if(r.bottom>=-650&&r.top<=innerHeight+650)restoreAnimatedMedia(img)
+ }else{
+  animatedMediaObserver?.unobserve?.(img);
+  delete img.dataset.v2AnimatedSrc;delete img.dataset.v2GifManaged;delete img.dataset.v2GifActive;delete img.dataset.v2GifNear;
+  img.classList.remove('is-gif-paused');
+  img.setAttribute('src',source)
+ }
+ closePresetColorPopover()
+}
+function openPresetColorPopover(button){
+ const primary=String(button.dataset.presetColorMenu||''),variants=presetVisibleVariants(primary);
+ closePresetColorPopover();
+ if(variants.length<2)return;
+ button.classList.add('is-open');
+ const selected=presetSelectedVariant(primary);
+ const pop=document.createElement('div');
+ pop.className='v2-preset-color-popover';
+ pop.setAttribute('role','menu');
+ pop.innerHTML='<div class="v2-preset-color-popover-title">색상 선택</div><div class="v2-preset-color-options">'+variants.map(v=>{
+  const source=presetVariantSource(v.file),active=v.file===selected.file;
+  return '<button type="button" class="v2-preset-color-option '+(active?'is-selected':'')+'" data-preset-color-choice="'+esc(v.file)+'" role="menuitemradio" aria-checked="'+(active?'true':'false')+'">'+
+   '<span class="v2-preset-color-thumb"><img src="'+esc(source)+'" alt="" loading="lazy" decoding="async" fetchpriority="low"></span>'+
+   '<span class="v2-preset-color-name">'+esc(v.name||'색상')+'</span>'+
+   '<span class="v2-preset-color-check" aria-hidden="true">✓</span></button>'
+ }).join('')+'</div>';
+ document.body.appendChild(pop);presetColorPopover=pop;positionPresetColorPopover(button,pop);
+ pop.querySelectorAll('[data-preset-color-choice]').forEach(b=>b.onclick=e=>{e.stopPropagation();setPresetCardVariant(primary,b.dataset.presetColorChoice)});
+ requestAnimationFrame(()=>positionPresetColorPopover(button,pop))
 }
 function presetBadges(m){
  const out=[];
@@ -200,11 +311,12 @@ function itemCard(x,c){
 function presetCard(x){
  const m=smeta(x),c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},profile=layoutKey(c)==='profile';
  const badges=presetBadges(m).map(b=>'<span class="v2-preset-badge '+b.cls+'"'+(b.style?' style="'+esc(b.style)+'"':'')+'><span class="v2-badge-label">'+esc(b.label)+'</span></span>').join('');
- const source=media(x.demoSrc||x.file),deferGif=profile&&isAnimatedMediaUrl(source);
+ const variants=presetVisibleVariants(x.file),selected=presetSelectedVariant(x.file),source=presetVariantSource(selected.file||x.file),deferGif=profile&&isAnimatedMediaUrl(source);
  const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
- return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'">'+
-   '<div class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+ const colorButton=variants.length>1?'<button type="button" class="v2-preset-color-button" data-preset-color-menu="'+esc(x.file)+'" aria-label="색상 선택" aria-haspopup="menu"><span aria-hidden="true">⌄</span></button>':'';
+ return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'" data-preset-product-file="'+esc(x.file)+'">'+
+   '<div class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false">'+colorButton+'</div>'+
    '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong></div>'+
    (badges?'<div class="v2-preset-badges">'+badges+'</div>':'')+
    (m.colorChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">수정가능</span>':'')+
@@ -603,11 +715,12 @@ async function renderShowcase(){
   const batches=await Promise.all(cats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
   source=batches.flat()
  }
- const all=applyOrder(source,state.settings.presetOrder).filter(x=>{
+ const orderedPresets=applyOrder(source,state.settings.presetOrder).filter(x=>{
   if(!presetRegistered(x))return false;
   const m=smeta(x);
-  return m.enabled&&m.showcaseKind!=='fixed'&&!m.pairChild
+  return m.showcaseKind!=='fixed'&&!m.pairChild
  });
+ const all=collapsePresetProducts(orderedPresets).filter(x=>smeta(x).enabled);
  state.showcase.preset=all;
  if(!all.length){root.hidden=true;root.innerHTML='';return}
 
@@ -645,6 +758,7 @@ async function renderShowcase(){
   state.expanded[key]=!state.expanded[key];
   renderShowcase();requestHeight()
  });
+ root.querySelectorAll('[data-preset-color-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetColorPopover(b)});
  root.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  manageAnimatedMedia(root);
  requestHeight()
@@ -787,7 +901,10 @@ function injectInquiry(card){
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="preset" '+(profileMode==='preset'?'checked':'')+'><span>프리셋 구매</span></label>'+
    '<label class="choice-pill"><input type="radio" data-v2-mode="profile" name="v2-profile-'+card.dataset.requestId+'" value="change" '+(profileMode==='change'?'checked':'')+'><span>이름/움짤 변경</span></label></div></fieldset>';
   if(profileMode==='fixed')html+=fixedSelectionHtml(card);
-  if(profileMode==='preset')html+=selectionHtml(card.dataset.selectedPresetFile)
+  if(profileMode==='preset'){
+   html+=selectionHtml(card.dataset.selectedPresetFile);
+   html+=presetInquiryColorHtml(card)
+  }
  }
  if(bannerTypeEnabled()&&banners.length){
   html+='<div class="v2-banner-type-fields">'+banners.map((x,i)=>{
@@ -812,8 +929,13 @@ function injectInquiry(card){
  });
  box.querySelectorAll('[data-v2-banner-index]').forEach(i=>i.onchange=()=>{card.dataset['bannerType'+i.dataset.v2BannerIndex]=i.value});
  box.querySelectorAll('[data-v2-select="preset"]').forEach(b=>b.onclick=()=>{
+  if(card.dataset.selectedPresetFile!==b.dataset.file)delete card.dataset.selectedPresetColorFile;
   card.dataset.selectedPresetFile=b.dataset.file;
   injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+ });
+ box.querySelectorAll('[data-v2-select="preset-color"]').forEach(i=>i.onchange=()=>{
+  card.dataset.selectedPresetColorFile=i.value;
+  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
  });
  box.querySelectorAll('[data-v2-select="fixed"]').forEach(i=>i.onchange=()=>{
   card.dataset.selectedFixedProductId=String(i.dataset.productId||i.value||'');
@@ -823,6 +945,15 @@ function injectInquiry(card){
   requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
  });
  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+}
+function presetInquiryColorHtml(card){
+ const primary=String(card.dataset.selectedPresetFile||'');if(!primary)return'';
+ const variants=presetVisibleVariants(primary);
+ if(variants.length<2)return'';
+ const selected=String(card.dataset.selectedPresetColorFile||'');
+ return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice v2-preset-color-inquiry"><legend data-question-title>색상 선택</legend><div class="choice-row">'+variants.map(v=>
+  '<label class="choice-pill v2-preset-color-choice"><input type="radio" data-v2-select="preset-color" name="v2-preset-color-'+esc(card.dataset.requestId||'0')+'" value="'+esc(v.file)+'" '+(selected===v.file?'checked':'')+'><span>'+esc(v.name||'색상')+'</span></label>'
+ ).join('')+'</div></fieldset>'
 }
 function selectionHtml(selected){
  const arr=state.showcase.preset.filter(x=>{
@@ -858,6 +989,16 @@ function selectedProductStatus(card){
  const m=smeta(x);
  return m.isReserved?'예약중':m.isReservable?'예약가능':m.isNew?'NEW':''
 }
+function selectedPresetColor(card){
+ const primary=String(card.dataset.selectedPresetFile||''),variants=presetVisibleVariants(primary);
+ if(variants.length<2)return variants[0]||null;
+ const file=String(card.dataset.selectedPresetColorFile||'');
+ return variants.find(v=>v.file===file)||null
+}
+function selectedPresetNeedsColor(card){
+ const primary=String(card.dataset.selectedPresetFile||'');
+ return presetVisibleVariants(primary).length>1
+}
 window.__ARTMUG_V2__={
  inquiryData(card){
   const types=selectedTypeInputs(card),banners=types.filter(x=>/배너/.test(x.label));
@@ -867,6 +1008,9 @@ window.__ARTMUG_V2__={
    selectedPresetFile:card.dataset.selectedPresetFile||'',
    selectedPresetName:selectedProductName(card),
    selectedPresetStatus:selectedProductStatus(card),
+   selectedPresetColorName:selectedPresetColor(card)?.name||'',
+   selectedPresetColorFile:selectedPresetColor(card)?.file||'',
+   selectedPresetNeedsColor:selectedPresetNeedsColor(card),
    selectedFixedProductId:card.dataset.selectedFixedProductId||'',
    selectedFixedProductName:fixedProduct?.name||'',
    bannerTypes:bannerTypeEnabled()?banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})):[],
@@ -877,6 +1021,7 @@ window.__ARTMUG_V2__={
   const d=this.inquiryData(card);
   if(d.profileSelected&&d.profileMode==='fixed'&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
   if(d.profileSelected&&d.profileMode==='preset'&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
+  if(d.profileSelected&&d.profileMode==='preset'&&d.selectedPresetNeedsColor&&!d.selectedPresetColorFile)return {ok:false,message:'구매할 프리셋의 색상을 선택해주세요.'};
   return {ok:true}
  },
  inquiryLines(card){
@@ -888,7 +1033,8 @@ window.__ARTMUG_V2__={
     out.push('선택 고정틀: '+d.selectedFixedProductName)
    }
    if(d.profileMode==='preset'&&d.selectedPresetName){
-    out.push('선택 프리셋: '+d.selectedPresetName)
+    out.push('선택 프리셋: '+d.selectedPresetName);
+    if(d.selectedPresetColorName)out.push('선택 색상: '+d.selectedPresetColorName)
    }
   }
   d.bannerTypes.forEach(x=>out.push(x.label+' TYPE: '+x.type));
@@ -918,6 +1064,10 @@ async function init(){
  if(!inquiryPart&&!portfolioPart)announceNavData();
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
+ document.addEventListener('click',e=>{if(presetColorPopover&&!e.target.closest('.v2-preset-color-popover')&&!e.target.closest('[data-preset-color-menu]'))closePresetColorPopover()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closePresetColorPopover()});
+ window.addEventListener('resize',closePresetColorPopover,{passive:true});
+ window.addEventListener('scroll',closePresetColorPopover,{passive:true});
  document.addEventListener('visibilitychange',()=>{
   document.querySelectorAll('img[data-v2-animated-src]').forEach(img=>{
    if(document.hidden)pauseAnimatedMedia(img);
