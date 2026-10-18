@@ -747,7 +747,7 @@
     "preset/profile/20261012061444-pyBpHjML-background__1_.gif": {
       "name": "프리셋 01",
       "enabled": true,
-      "isNew": true,
+      "isNew": false,
       "isReserved": false,
       "colorChangeAvailable": true,
       "showcaseKind": "preset",
