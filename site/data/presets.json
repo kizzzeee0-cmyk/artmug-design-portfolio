@@ -178,5 +178,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261018174158"
+  },
+  {
+    "id": "preset-NyAidcRIgDI",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png",
+    "originalName": "background (32).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261018174204"
   }
 ]
