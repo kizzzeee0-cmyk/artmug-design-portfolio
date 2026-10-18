@@ -1,5 +1,69 @@
 const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={};let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
+const ADMIN_PAUSED_GIF='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+let adminGifObserver=null;
+const adminGifTimers=new WeakMap();
+function adminIsGif(url){return /\.gif(?:$|[?#])/i.test(String(url||''))}
+function adminRestoreGif(img){
+  const src=img?.dataset?.adminGifSrc;
+  if(!src||img.dataset.adminGifActive==='1')return;
+  const timer=adminGifTimers.get(img);
+  if(timer){clearTimeout(timer);adminGifTimers.delete(img)}
+  img.dataset.adminGifActive='1';
+  img.classList.remove('is-gif-paused');
+  if(img.getAttribute('src')!==src)img.setAttribute('src',src)
+}
+function adminPauseGif(img){
+  const src=img?.dataset?.adminGifSrc;
+  if(!src||img.dataset.adminGifActive!=='1')return;
+  img.dataset.adminGifActive='0';
+  img.classList.add('is-gif-paused');
+  img.setAttribute('src',ADMIN_PAUSED_GIF)
+}
+function ensureAdminGifObserver(){
+  if(adminGifObserver||!('IntersectionObserver' in window))return adminGifObserver;
+  adminGifObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      const img=entry.target;
+      if(entry.isIntersecting){
+        img.dataset.adminGifNear='1';
+        adminRestoreGif(img);
+        return
+      }
+      img.dataset.adminGifNear='0';
+      const old=adminGifTimers.get(img);
+      if(old)clearTimeout(old);
+      const timer=setTimeout(()=>{
+        adminGifTimers.delete(img);
+        if(img.isConnected&&img.dataset.adminGifNear!=='1')adminPauseGif(img)
+      },600);
+      adminGifTimers.set(img,timer)
+    })
+  },{root:null,rootMargin:'500px 0px 500px 0px',threshold:0});
+  return adminGifObserver
+}
+function manageAdminGifs(root=document){
+  if(!root)return;
+  const observer=ensureAdminGifObserver();
+  root.querySelectorAll('img').forEach(img=>{
+    const src=img.dataset.adminGifSrc||img.getAttribute('src')||'';
+    if(!adminIsGif(src))return;
+    if(!img.dataset.adminGifSrc)img.dataset.adminGifSrc=src;
+    if(img.dataset.adminGifManaged==='1')return;
+    img.dataset.adminGifManaged='1';
+    img.dataset.adminGifActive='1';
+    if(observer)observer.observe(img)
+  })
+}
+document.addEventListener('visibilitychange',()=>{
+  document.querySelectorAll('img[data-admin-gif-src]').forEach(img=>{
+    if(document.hidden)adminPauseGif(img);
+    else{
+      const r=img.getBoundingClientRect();
+      if(r.bottom>=-500&&r.top<=innerHeight+500)adminRestoreGif(img)
+    }
+  })
+});
 function createUploadId(){
   const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
   const rand=new Uint32Array(2);
@@ -1524,7 +1588,8 @@ function renderPresetItems(){
     }).catch(()=>null);
     if(saved){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
     loadItems()
-  })
+  });
+  manageAdminGifs($('presetItems'))
 }
 async function savePresetEditPolicy(i,key,value){
   const x=presetItems[i];if(!x)return;
@@ -1583,7 +1648,8 @@ function renderItems(){
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
   document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
   document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{bannerType:el.value}));
-  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()})
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()});
+  manageAdminGifs($('items'))
 }
 async function savePortfolioMeta(i,patch){
   const x=items[i];if(!x)return;
@@ -1947,7 +2013,8 @@ function renderFixedItems(){
  const start=(fixedAdminPage-1)*ADMIN_PAGE_SIZE;
  root.innerHTML=products.slice(start,start+ADMIN_PAGE_SIZE).map((p,local)=>fixedProductAdminCard(p,start+local)).join('')||'<p class="muted">등록된 고정틀 상품이 없습니다. + 고정틀 추가로 새 상품을 만들어 주세요.</p>';
  bindAdminPagination('fixedItemsPagination','fixed',fixedAdminPage,totalPages);
- bindFixedProductAdminEvents()
+ bindFixedProductAdminEvents();
+ manageAdminGifs(root)
 }
 async function persistFixedProducts(message='고정틀 상품이 저장되었습니다.'){
  const saved=await queueSettingsMutation(latest=>{
