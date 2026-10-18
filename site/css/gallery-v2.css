@@ -3677,3 +3677,55 @@ body.artmug-part-portfolio #inquirySection{
     box-sizing:border-box!important;
   }
 }
+
+/* 2026-10-19 FIXED OPTION INLINE DETAIL V1 */
+.fixed-product-option-summary{
+  column-gap:0!important;
+  row-gap:3px!important;
+}
+.fixed-product-option-summary-item{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  flex-wrap:wrap!important;
+  gap:0!important;
+  min-width:0!important;
+  white-space:normal!important;
+}
+.fixed-product-option-label{
+  color:#536a78!important;
+  font-weight:600!important;
+}
+.fixed-product-option-detail{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  gap:4px!important;
+  margin-left:5px!important;
+  color:#83939d!important;
+  font-size:.92em!important;
+  font-weight:450!important;
+  line-height:inherit!important;
+  white-space:normal!important;
+}
+.fixed-product-option-detail>i{
+  margin:0!important;
+  color:#b3c0c7!important;
+  font-style:normal!important;
+  font-weight:400!important;
+}
+.fixed-product-option-separator{
+  flex:0 0 auto!important;
+  margin:0 6px!important;
+  color:#a7b5be!important;
+  font-style:normal!important;
+  font-weight:500!important;
+}
+@media(max-width:680px){
+  .fixed-product-option-detail{
+    margin-left:4px!important;
+    gap:3px!important;
+    font-size:.9em!important;
+  }
+  .fixed-product-option-separator{
+    margin:0 4px!important;
+  }
+}
