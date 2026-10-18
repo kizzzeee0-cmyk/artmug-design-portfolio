@@ -1930,3 +1930,143 @@
     margin-top:2px;
   }
 }
+
+/* 2026-10-18 PRESET COLOR MANAGER COMPACT CARD V3 */
+/* Keep an opened multi-color product the same grid width as every other preset card. */
+.preset-admin-item-v2.is-color-open{
+  grid-column:auto!important;
+  width:auto!important;
+  max-width:100%!important;
+}
+.preset-admin-item-v2.is-color-open .preset-color-manager{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  margin-top:2px!important;
+  padding:8px!important;
+  gap:7px!important;
+}
+.preset-color-manager-head{
+  align-items:flex-start!important;
+  gap:6px!important;
+}
+.preset-color-manager-head-copy{
+  gap:1px!important;
+}
+.preset-color-manager-head-copy strong{
+  font-size:10.5px!important;
+}
+.preset-color-manager-head-copy span{
+  font-size:9px!important;
+  line-height:1.35!important;
+}
+.preset-color-manager-actions{
+  flex:0 0 auto!important;
+}
+.preset-color-manager-actions .admin-compact{
+  min-height:27px!important;
+  padding:0 7px!important;
+  font-size:9px!important;
+}
+.preset-color-list{
+  gap:5px!important;
+}
+.preset-admin-item-v2.is-color-open .preset-color-row,
+.preset-color-row{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr)!important;
+  gap:6px!important;
+  align-items:start!important;
+  min-width:0!important;
+  padding:6px!important;
+  box-sizing:border-box!important;
+}
+.preset-color-thumb{
+  width:34px!important;
+  height:34px!important;
+}
+.preset-color-row-body{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:5px!important;
+  min-width:0!important;
+}
+.preset-color-name-input{
+  width:100%!important;
+  min-width:0!important;
+  height:29px!important;
+  min-height:29px!important;
+  padding:4px 7px!important;
+  font-size:9.5px!important;
+  box-sizing:border-box!important;
+}
+.preset-color-row-actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  flex-wrap:wrap!important;
+  min-width:0!important;
+}
+.preset-color-row-actions .mini-toggle{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:3px!important;
+  width:auto!important;
+  min-width:0!important;
+  padding:0!important;
+  font-size:8.8px!important;
+  white-space:nowrap!important;
+}
+.preset-color-row-actions .mini-toggle input{
+  margin:0!important;
+}
+.preset-color-order{
+  display:inline-flex!important;
+  gap:2px!important;
+}
+.preset-color-order .cat-order-button{
+  width:25px!important;
+  min-width:25px!important;
+  height:25px!important;
+  min-height:25px!important;
+  padding:0!important;
+  font-size:10px!important;
+}
+.preset-color-row-actions>.ghost,
+.preset-color-row-actions>.danger{
+  min-height:25px!important;
+  height:25px!important;
+  padding:0 6px!important;
+  font-size:8.8px!important;
+}
+.preset-color-add{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:5px!important;
+  padding-top:1px!important;
+}
+.preset-color-add input[type="text"],
+.preset-color-add input[type="file"]{
+  width:100%!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  box-sizing:border-box!important;
+  font-size:9px!important;
+}
+.preset-color-add .primary-button{
+  justify-self:stretch!important;
+  width:100%!important;
+  min-height:28px!important;
+  padding:0 8px!important;
+  font-size:9px!important;
+}
+@media(max-width:760px){
+  .preset-admin-item-v2.is-color-open{
+    grid-column:auto!important;
+  }
+  .preset-admin-item-v2.is-color-open .preset-color-row,
+  .preset-color-row{
+    grid-template-columns:34px minmax(0,1fr)!important;
+  }
+}
