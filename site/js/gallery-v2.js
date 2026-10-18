@@ -192,8 +192,9 @@ function setPresetCardVariant(primaryFile,file){
 }
 function openPresetColorPopover(button){
  const primary=String(button.dataset.presetColorMenu||''),variants=presetVisibleVariants(primary);
+ const wasOpen=button.classList.contains('is-open')&&!!presetColorPopover;
  closePresetColorPopover();
- if(variants.length<2)return;
+ if(wasOpen||variants.length<2)return;
  button.classList.add('is-open');
  const selected=presetSelectedVariant(primary);
  const pop=document.createElement('div');
