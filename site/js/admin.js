@@ -1321,9 +1321,73 @@ function applyAdminOrder(list,order){
 function presetAutoName(number){
   return '프리셋 '+String(Math.max(1,Number(number)||1)).padStart(2,'0')
 }
+const presetColorOpenIds=new Set();
+function makePresetColorGroupId(){
+  return 'pcg-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)
+}
+function ensurePresetColorGroups(target=S){
+  if(!target)return[];
+  if(!Array.isArray(target.presetColorGroups))target.presetColorGroups=[];
+  target.presetColorGroups=target.presetColorGroups.map((g,gi)=>{
+    const variants=(Array.isArray(g?.variants)?g.variants:[]).map((v,vi)=>({
+      file:String(v?.file||''),
+      name:String(v?.name||('색상 '+String(vi+1).padStart(2,'0'))),
+      enabled:v?.enabled!==false
+    })).filter(v=>v.file);
+    const primaryFile=String(g?.primaryFile||variants[0]?.file||'');
+    return {id:String(g?.id||('pcg-'+gi)),category:String(g?.category||''),primaryFile,variants}
+  }).filter(g=>g.primaryFile&&g.variants.length);
+  return target.presetColorGroups
+}
+function presetColorGroupByFile(file,target=S){
+  const f=String(file||'');
+  return ensurePresetColorGroups(target).find(g=>g.primaryFile===f||g.variants.some(v=>v.file===f))||null
+}
+function presetColorGroupForPrimary(file,target=S){
+  const f=String(file||'');
+  return ensurePresetColorGroups(target).find(g=>g.primaryFile===f)||null
+}
+function presetProductItems(list=presetItems,target=S){
+  const children=new Set();
+  ensurePresetColorGroups(target).forEach(g=>g.variants.forEach(v=>{if(v.file!==g.primaryFile)children.add(v.file)}));
+  return (Array.isArray(list)?list:[]).filter(x=>!children.has(x.file))
+}
+function presetColorVariantsForProduct(x,target=S){
+  if(!x)return[];
+  const group=presetColorGroupForPrimary(x.file,target);
+  return group?group.variants:[{file:x.file,name:'기본 색상',enabled:true}]
+}
+function presetColorManagerKey(x){
+  const group=presetColorGroupForPrimary(x?.file);
+  return group?.id||('solo:'+String(x?.file||''))
+}
+function presetItemByFile(file){
+  return presetItems.find(x=>x.file===file)||null
+}
+function copyPresetProductMeta(target,fromFile,toFile){
+  if(!target.presetMeta||typeof target.presetMeta!=='object'||Array.isArray(target.presetMeta))target.presetMeta={};
+  const from=target.presetMeta[fromFile]||{},to=target.presetMeta[toFile]||{};
+  const keys=['name','enabled','isNew','isReserved','isReservable','isNoEdit','colorChangeAvailable','colorOnlyChangeAvailable','showcaseKind','featured'];
+  const patch={};
+  keys.forEach(k=>{if(Object.prototype.hasOwnProperty.call(from,k))patch[k]=from[k]});
+  target.presetMeta[toFile]={...to,...patch}
+}
+async function persistPresetColorGroups(message='색상 설정이 저장되었습니다.'){
+  const groups=JSON.parse(JSON.stringify(ensurePresetColorGroups()));
+  const saved=await queueSettingsMutation(latest=>{
+    latest.presetColorGroups=groups;
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    Object.assign(latest.presetMeta,JSON.parse(JSON.stringify(S.presetMeta||{})));
+    latest.presetOrder=JSON.parse(JSON.stringify(S.presetOrder||[]))
+  });
+  S.presetColorGroups=saved.presetColorGroups||[];
+  S.presetMeta=saved.presetMeta||S.presetMeta||{};
+  S.presetOrder=saved.presetOrder||S.presetOrder||[];
+  if(message)showToast(message)
+}
 function presetAutoNameMap(list=presetItems){
   const counts=new Map(),names=new Map();
-  (Array.isArray(list)?list:[]).forEach(x=>{
+  presetProductItems(list).forEach(x=>{
     const category=String(x?.category||'');
     const next=(counts.get(category)||0)+1;
     counts.set(category,next);
@@ -1340,7 +1404,7 @@ function applyPresetAutoNamesLocal(list=presetItems){
   return names
 }
 function nextPresetAutoName(category){
-  const count=(Array.isArray(presetItems)?presetItems:[]).filter(x=>String(x?.category||'')===String(category||'')).length;
+  const count=presetProductItems(presetItems).filter(x=>String(x?.category||'')===String(category||'')).length;
   return presetAutoName(count+1)
 }
 function updatePresetUploadAutoName(){
@@ -1387,7 +1451,12 @@ async function saveMediaOrder(kind){
 }
 async function moveMediaItem(kind,index,dir){
   const list=kind==='preset'?presetItems:items,x=list[index];if(!x)return;
-  const same=list.map((v,i)=>({v,i})).filter(o=>kind==='portfolio'?logicalPortfolioCategory(o.v.category)===logicalPortfolioCategory(x.category):o.v.category===x.category),pos=same.findIndex(o=>o.i===index),next=pos+dir;
+  const productSet=kind==='preset'?new Set(presetProductItems(list).map(v=>v.file)):null;
+  const same=list.map((v,i)=>({v,i})).filter(o=>{
+    if(kind==='portfolio')return logicalPortfolioCategory(o.v.category)===logicalPortfolioCategory(x.category);
+    return productSet.has(o.v.file)&&o.v.category===x.category
+  });
+  const pos=same.findIndex(o=>o.i===index),next=pos+dir;
   if(next<0||next>=same.length)return;
   const target=same[next].i;
   [list[index],list[target]]=[list[target],list[index]];
@@ -1436,7 +1505,7 @@ function presetLocationText(x){
 }
 async function savePresetItem(i){
   const x=presetItems[i];if(!x)return;
-  const same=presetItems.filter(v=>v.category===x.category),position=same.findIndex(v=>v.file===x.file);
+  const same=presetProductItems(presetItems).filter(v=>v.category===x.category),position=same.findIndex(v=>v.file===x.file);
   const patch={name:presetAutoName(position+1)};
 
   const saved=await queueSettingsMutation(latest=>{
@@ -1541,15 +1610,41 @@ async function replaceMediaFile(kind,index){
     alert('파일 변경에 실패했습니다.\n'+e.message)
   }
 }
+function presetColorManagerHtml(x,i){
+  const group=presetColorGroupForPrimary(x.file),variants=presetColorVariantsForProduct(x),key=presetColorManagerKey(x),open=presetColorOpenIds.has(key);
+  const primary=group?.primaryFile||x.file;
+  const primaryVariant=variants.find(v=>v.file===primary)||variants[0];
+  const rows=variants.map((v,j)=>{
+    const canDelete=!!group&&variants.length>1;
+    return '<div class="preset-color-row" data-color-file="'+adminEsc(v.file)+'">'+
+      '<div class="preset-color-thumb">'+adminMediaImg(v.file,v.name||'색상')+'</div>'+
+      '<input class="preset-color-name-input" data-preset-color-name="'+i+':'+j+'" value="'+adminEsc(v.name||'')+'" placeholder="색상 이름">'+
+      '<label class="mini-toggle"><input type="radio" name="preset-color-primary-'+adminEsc(key)+'" data-preset-color-primary="'+i+':'+j+'" '+(v.file===primary?'checked':'')+'> 대표</label>'+
+      '<label class="mini-toggle"><input type="checkbox" data-preset-color-enabled="'+i+':'+j+'" '+(v.enabled!==false?'checked':'')+'> 공개</label>'+
+      '<div class="preset-color-order"><button type="button" class="ghost cat-order-button" data-preset-color-move="'+i+':'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-preset-color-move="'+i+':'+j+'" data-dir="1" '+(j===variants.length-1?'disabled':'')+'>↓</button></div>'+
+      '<button type="button" class="ghost admin-compact" data-preset-color-replace="'+i+':'+j+'">교체</button>'+
+      (canDelete?'<button type="button" class="danger admin-compact" data-preset-color-delete="'+i+':'+j+'">삭제</button>':'')+
+    '</div>'
+  }).join('');
+  return '<div class="preset-color-manager" data-preset-color-manager="'+adminEsc(key)+'" '+(open?'':'hidden')+'>'+
+    '<div class="preset-color-manager-head"><div class="preset-color-manager-head-copy"><strong>색상 관리</strong><span>대표 이미지: '+adminEsc(primaryVariant?.name||'기본 색상')+' · 등록된 색상 '+variants.length+'개</span></div>'+
+    '<div class="preset-color-manager-actions">'+(group?'<button type="button" class="ghost admin-compact" data-preset-color-ungroup="'+i+'">그룹 해제</button>':'')+'</div></div>'+
+    '<div class="preset-color-list">'+rows+'</div>'+
+    '<div class="preset-color-add"><input type="text" data-preset-color-new-name="'+i+'" placeholder="새 색상 이름"><input type="file" data-preset-color-new-file="'+i+'" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp"><button type="button" class="primary-button admin-compact" data-preset-color-add="'+i+'">+ 색상 추가</button></div>'+
+  '</div>'
+}
 function renderPresetItems(){
-  const totalPages=Math.max(1,Math.ceil(presetItems.length/ADMIN_PAGE_SIZE));
+  const products=presetProductItems(presetItems);
+  const totalPages=Math.max(1,Math.ceil(products.length/ADMIN_PAGE_SIZE));
   presetAdminPage=Math.min(Math.max(1,presetAdminPage),totalPages);
   const start=(presetAdminPage-1)*ADMIN_PAGE_SIZE;
-  const pageItems=presetItems.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>({x,i:start+local}));
+  const pageItems=products.slice(start,start+ADMIN_PAGE_SIZE).map(x=>({x,i:presetItems.findIndex(v=>v.file===x.file)}));
   $('presetItems').innerHTML=pageItems.map(({x,i})=>{
-    const meta=presetMetaFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file),autoName=presetAutoName(samePos+1);
-    return `<div class="preset-admin-item preset-admin-item-v2">
-      <div class="preset-admin-preview">${adminMediaImg(x.file,meta.name||'프리셋')}</div>
+    const meta=presetMetaFor(x),same=products.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file),autoName=presetAutoName(samePos+1);
+    const variants=presetColorVariantsForProduct(x),key=presetColorManagerKey(x),open=presetColorOpenIds.has(key);
+    return `<div class="preset-admin-item preset-admin-item-v2" data-preset-product-file="${adminEsc(x.file)}">
+      <label class="preset-group-select"><input type="checkbox" data-preset-group-select="${adminEsc(x.file)}"> 묶기</label>
+      <div class="preset-admin-preview">${adminMediaImg((presetColorGroupForPrimary(x.file)?.primaryFile||x.file),meta.name||'프리셋')}</div>
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
         <label class="preset-name-field">상품 이름<input data-preset-name="${i}" value="${adminEsc(autoName)}" readonly aria-readonly="true"></label>
@@ -1568,17 +1663,17 @@ function renderPresetItems(){
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''} title="위로 이동">↑</button>
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
         </div>
-        <button class="ghost admin-compact" data-replace-preset="${i}">이미지 수정</button>
-        <button class="ghost admin-compact" data-save-preset="${i}">이름 저장</button>
-        <button class="danger admin-compact" data-delete-preset="${encodeURIComponent(x.file)}">삭제</button>
+        <button class="ghost admin-compact preset-color-manage-button" data-preset-color-toggle="${i}">색상 관리 <span class="preset-color-count-badge">${variants.length}</span></button>
+        <button class="ghost admin-compact" data-replace-preset="${i}">대표 이미지 수정</button>
+        <button class="danger admin-compact" data-delete-preset-product="${i}">삭제</button>
       </div>
+      ${presetColorManagerHtml(x,i)}
     </div>`
   }).join('')||'<p class="muted">등록된 프리셋이 없습니다.</p>';
   bindAdminPagination('presetItemsPagination','preset',presetAdminPage,totalPages);
 
   document.querySelectorAll('[data-move-preset-item]').forEach(b=>b.onclick=()=>moveMediaItem('preset',+b.dataset.movePresetItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-preset]').forEach(b=>b.onclick=()=>replaceMediaFile('preset',+b.dataset.replacePreset));
-  document.querySelectorAll('[data-save-preset]').forEach(b=>b.onclick=()=>savePresetItem(+b.dataset.savePreset).catch(e=>alert(e.message)));
   document.querySelectorAll('[data-preset-enabled]').forEach(el=>el.onchange=()=>savePresetMetaField(+el.dataset.presetEnabled,'enabled',el.checked));
   document.querySelectorAll('[data-preset-new]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetNew,'isNew',el.checked).catch(e=>{el.checked=!el.checked;alert('NEW 표시 저장에 실패했습니다.\n'+e.message)}));
   document.querySelectorAll('[data-preset-reserved]').forEach(el=>el.onchange=()=>savePresetBadgeToggle(+el.dataset.presetReserved,'isReserved',el.checked).catch(e=>{el.checked=!el.checked;alert('예약 표시 저장에 실패했습니다.\n'+e.message)}));
@@ -1586,20 +1681,26 @@ function renderPresetItems(){
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
   document.querySelectorAll('[data-preset-color-only-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorOnlyChange,'colorOnlyChangeAvailable',el.checked));
   document.querySelectorAll('[data-preset-no-edit]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetNoEdit,'isNoEdit',el.checked));
-  document.querySelectorAll('[data-delete-preset]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('이 프리셋을 삭제할까요?'))return;
-    const file=decodeURIComponent(b.dataset.deletePreset);
-    await api('/api/admin/preset-delete',{method:'POST',body:JSON.stringify({file})});
-    const saved=await queueSettingsMutation(latest=>{
-      if(latest.presetMeta&&typeof latest.presetMeta==='object')delete latest.presetMeta[file];
-      latest.presetOrder=(latest.presetOrder||[]).filter(x=>x!==file);
-      delete latest.presetColorMeta
-    }).catch(()=>null);
-    if(saved){S.presetMeta=saved.presetMeta||{};S.presetOrder=saved.presetOrder||[]}
-    loadItems()
+  document.querySelectorAll('[data-preset-color-toggle]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.presetColorToggle,x=presetItems[i];if(!x)return;
+    const key=presetColorManagerKey(x);
+    if(presetColorOpenIds.has(key))presetColorOpenIds.delete(key);else presetColorOpenIds.add(key);
+    renderPresetItems()
   });
+  document.querySelectorAll('[data-preset-color-name]').forEach(el=>el.onchange=()=>{const [i,j]=el.dataset.presetColorName.split(':').map(Number);updatePresetColorVariant(i,j,{name:el.value.trim()||('색상 '+String(j+1).padStart(2,'0'))})});
+  document.querySelectorAll('[data-preset-color-enabled]').forEach(el=>el.onchange=()=>{const [i,j]=el.dataset.presetColorEnabled.split(':').map(Number);updatePresetColorVariant(i,j,{enabled:el.checked})});
+  document.querySelectorAll('[data-preset-color-primary]').forEach(el=>el.onchange=()=>{if(!el.checked)return;const [i,j]=el.dataset.presetColorPrimary.split(':').map(Number);setPresetColorPrimary(i,j)});
+  document.querySelectorAll('[data-preset-color-move]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.presetColorMove.split(':').map(Number);movePresetColorVariant(i,j,Number(b.dataset.dir))});
+  document.querySelectorAll('[data-preset-color-replace]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.presetColorReplace.split(':').map(Number);replacePresetColorVariant(i,j)});
+  document.querySelectorAll('[data-preset-color-delete]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.presetColorDelete.split(':').map(Number);deletePresetColorVariant(i,j)});
+  document.querySelectorAll('[data-preset-color-add]').forEach(b=>b.onclick=()=>addPresetColorVariant(+b.dataset.presetColorAdd));
+  document.querySelectorAll('[data-preset-color-ungroup]').forEach(b=>b.onclick=()=>ungroupPresetColors(+b.dataset.presetColorUngroup));
+  document.querySelectorAll('[data-delete-preset-product]').forEach(b=>b.onclick=()=>deletePresetProduct(+b.dataset.deletePresetProduct));
+  const groupButton=$('groupSelectedPresets');if(groupButton)groupButton.onclick=()=>groupSelectedPresetProducts();
+  const clearButton=$('clearPresetGroupSelection');if(clearButton)clearButton.onclick=()=>document.querySelectorAll('[data-preset-group-select]').forEach(x=>x.checked=false);
   manageAdminGifs($('presetItems'))
 }
+
 async function savePresetEditPolicy(i,key,value){
   const x=presetItems[i];if(!x)return;
   const policyKeys=['colorChangeAvailable','colorOnlyChangeAvailable','isNoEdit'];
