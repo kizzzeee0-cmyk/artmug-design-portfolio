@@ -944,6 +944,7 @@ function injectInquiry(card){
   injectInquiry(card);
   requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
  });
+ manageAnimatedMedia(box);
  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
 }
 function presetInquiryColorHtml(card){
@@ -962,8 +963,10 @@ function selectionHtml(selected){
  });
  const options=arr.map(x=>{
   const m=smeta(x),disabled=false,status=m.isReserved?'예약중':m.isReservable?'예약가능':m.isNew?'NEW':'';
+  const representative=presetSelectedVariant(x.file),source=presetVariantSource(representative.file||x.file),gif=isAnimatedMediaUrl(source);
+  const imgSrc=gif?PAUSED_MEDIA_SRC:source,gifAttrs=gif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
   return '<button type="button" data-v2-select="preset" data-file="'+esc(x.file)+'" class="'+(selected===x.file?'is-selected':'')+'" '+(disabled?'disabled':'')+'>'+
-   '<img src="'+esc(media(x.demoSrc||x.file))+'" alt=""><span>'+esc(m.name||'이름 없음')+'</span>'+
+   '<img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="" loading="lazy" decoding="async" fetchpriority="low"><span>'+esc(m.name||'이름 없음')+'</span>'+
    (status?'<em>'+status+'</em>':'')+'</button>'
  }).join('');
  return '<fieldset class="v2-mode-field v2-product-select choice-field inquiry-plain-choice" data-product-kind="preset"><legend data-question-title>프리셋 선택</legend>'+
