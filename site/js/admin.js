@@ -1640,8 +1640,8 @@ function presetColorManagerHtml(x,i){
       '<div class="preset-color-row-body">'+
         '<input class="preset-color-name-input" data-preset-color-name="'+i+':'+j+'" value="'+adminEsc(v.name||'')+'" placeholder="색상 이름">'+
         '<div class="preset-color-row-actions">'+
-          '<label class="mini-toggle"><input type="radio" name="preset-color-primary-'+adminEsc(key)+'" data-preset-color-primary="'+i+':'+j+'" '+(v.file===primary?'checked':'')+'> 대표</label>'+
           '<label class="mini-toggle"><input type="checkbox" data-preset-color-enabled="'+i+':'+j+'" '+(v.enabled!==false?'checked':'')+'> 공개</label>'+
+          '<label class="mini-toggle"><input type="radio" name="preset-color-primary-'+adminEsc(key)+'" data-preset-color-primary="'+i+':'+j+'" '+(v.file===primary?'checked':'')+'> 대표</label>'+
           '<div class="preset-color-order"><button type="button" class="ghost cat-order-button" data-preset-color-move="'+i+':'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-preset-color-move="'+i+':'+j+'" data-dir="1" '+(j===variants.length-1?'disabled':'')+'>↓</button></div>'+
           '<button type="button" class="ghost admin-compact" data-preset-color-replace="'+i+':'+j+'">교체</button>'+
           (canDelete?'<button type="button" class="danger admin-compact" data-preset-color-delete="'+i+':'+j+'">삭제</button>':'')+
