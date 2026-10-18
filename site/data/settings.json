@@ -920,15 +920,6 @@
       "fixedProductId": "product-mve3thwn-ti6e2f",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
-    },
-    "preset/fixed-store-profile/20261018173644-of0urf50jpg-______.png": {
-      "name": "디자인 02",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mve3thwn-ti6e2f",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -945,8 +936,7 @@
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
-    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
-    "preset/fixed-store-profile/20261018173644-of0urf50jpg-______.png"
+    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1254,14 +1244,6 @@
           "file": "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
           "category": "profile",
           "name": "",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mve3xxkb-z7pd11",
-          "file": "preset/fixed-store-profile/20261018173644-of0urf50jpg-______.png",
-          "category": "profile",
-          "name": "디자인 02",
           "description": "",
           "enabled": true
         }
