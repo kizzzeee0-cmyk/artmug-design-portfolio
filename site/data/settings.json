@@ -920,6 +920,51 @@
       "fixedProductId": "product-mve3thwn-ti6e2f",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png": {
+      "name": "디자인 02",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mve3thwn-ti6e2f",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261018174151-eacsnoc5ylwd-background__35_.png": {
+      "name": "디자인 03",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mve3thwn-ti6e2f",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png": {
+      "name": "디자인 04",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mve3thwn-ti6e2f",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png": {
+      "name": "디자인 05",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mve3thwn-ti6e2f",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261018174209-oz17pm96mvym-background__31_.png": {
+      "name": "디자인 06",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mve3thwn-ti6e2f",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -936,7 +981,12 @@
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
-    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
+    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
+    "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png",
+    "preset/fixed-store-profile/20261018174151-eacsnoc5ylwd-background__35_.png",
+    "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png",
+    "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png",
+    "preset/fixed-store-profile/20261018174209-oz17pm96mvym-background__31_.png"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
@@ -1244,6 +1294,46 @@
           "file": "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
           "category": "profile",
           "name": "",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mve44ddt-h2imz2",
+          "file": "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png",
+          "category": "profile",
+          "name": "디자인 02",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mve44i13-i5l050",
+          "file": "preset/fixed-store-profile/20261018174151-eacsnoc5ylwd-background__35_.png",
+          "category": "profile",
+          "name": "디자인 03",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mve44mxx-d1trem",
+          "file": "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png",
+          "category": "profile",
+          "name": "디자인 04",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mve44rpm-6lrkom",
+          "file": "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png",
+          "category": "profile",
+          "name": "디자인 05",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mve44wtu-26b2m0",
+          "file": "preset/fixed-store-profile/20261018174209-oz17pm96mvym-background__31_.png",
+          "category": "profile",
+          "name": "디자인 06",
           "description": "",
           "enabled": true
         }
