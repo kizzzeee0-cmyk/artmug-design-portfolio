@@ -1645,7 +1645,7 @@ function renderPresetItems(){
   $('presetItems').innerHTML=pageItems.map(({x,i})=>{
     const meta=presetMetaFor(x),same=products.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file),autoName=presetAutoName(samePos+1);
     const variants=presetColorVariantsForProduct(x),key=presetColorManagerKey(x),open=presetColorOpenIds.has(key);
-    return `<div class="preset-admin-item preset-admin-item-v2" data-preset-product-file="${adminEsc(x.file)}">
+    return `<div class="preset-admin-item preset-admin-item-v2 ${open?'is-color-open':''}" data-preset-product-file="${adminEsc(x.file)}">
       <label class="preset-group-select"><input type="checkbox" data-preset-group-select="${adminEsc(x.file)}"> 묶기</label>
       <div class="preset-admin-preview">${adminMediaImg((presetColorGroupForPrimary(x.file)?.primaryFile||x.file),meta.name||'프리셋')}</div>
       <div class="preset-admin-fields">
