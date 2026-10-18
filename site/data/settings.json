@@ -1162,25 +1162,7 @@
       "changeableOptions": [
         {
           "id": "opt-mvcqs8dl-c9qck3",
-          "label": "원형 프레임",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvcqt5ut-u1sbay",
-          "label": "전환 효과 및 애니메이션",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvcqtas1-4xgg13",
-          "label": "색상",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvcqtghg-y490xs",
-          "label": "폰트 디자인",
+          "label": "배경 디자인 외의 모든 부분은 자유롭게 변경하실 수 있습니다",
           "detail": "",
           "choices": []
         }
