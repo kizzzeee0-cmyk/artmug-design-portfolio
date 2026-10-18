@@ -51,9 +51,18 @@ function manageAdminGifs(root=document){
     if(!img.dataset.adminGifSrc)img.dataset.adminGifSrc=src;
     if(img.dataset.adminGifManaged==='1')return;
     img.dataset.adminGifManaged='1';
-    img.dataset.adminGifActive='1';
-    if(observer)observer.observe(img)
+    if(!img.dataset.adminGifActive){
+      img.dataset.adminGifActive=img.getAttribute('src')===img.dataset.adminGifSrc?'1':'0'
+    }
+    if(observer)observer.observe(img);
+    else adminRestoreGif(img)
   })
+}
+function adminMediaImg(file,alt=''){
+  const source=API+'/media/'+String(file||'').split('/').map(encodeURIComponent).join('/');
+  const gif=adminIsGif(source);
+  const src=gif?ADMIN_PAUSED_GIF:source;
+  return '<img src="'+adminEsc(src)+'"'+(gif?' data-admin-gif-src="'+adminEsc(source)+'" data-admin-gif-active="0"':'')+' loading="lazy" decoding="async" draggable="false" alt="'+adminEsc(alt)+'">'
 }
 document.addEventListener('visibilitychange',()=>{
   document.querySelectorAll('img[data-admin-gif-src]').forEach(img=>{
@@ -1540,7 +1549,7 @@ function renderPresetItems(){
   $('presetItems').innerHTML=pageItems.map(({x,i})=>{
     const meta=presetMetaFor(x),same=presetItems.filter(v=>v.category===x.category),samePos=same.findIndex(v=>v.file===x.file),autoName=presetAutoName(samePos+1);
     return `<div class="preset-admin-item preset-admin-item-v2">
-      <div class="preset-admin-preview"><img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" decoding="async" draggable="false"></div>
+      <div class="preset-admin-preview">${adminMediaImg(x.file,meta.name||'프리셋')}</div>
       <div class="preset-admin-fields">
         <div class="muted preset-location">${adminEsc(presetLocationText(x))}</div>
         <label class="preset-name-field">상품 이름<input data-preset-name="${i}" value="${adminEsc(autoName)}" readonly aria-readonly="true"></label>
@@ -1627,7 +1636,7 @@ function renderItems(){
     const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file);
     const isProfile=logical==='profile',isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category),meta=portfolioMetaFor(x),cat=(S.portfolioCategories||[]).find(c=>c.id===x.category);
     return `<div class="item portfolio-admin-item">
-      <img src="${API}/media/${x.file.split('/').map(encodeURIComponent).join('/')}" loading="lazy" draggable="false">
+      ${adminMediaImg(x.file,x.originalName||'')}
       <div class="portfolio-item-info">
         <strong title="${adminEsc(x.originalName)}">${adminEsc(x.originalName)}</strong>
         <div class="muted portfolio-item-category">${adminEsc(cat?.label||(isProfile?'움짤프사':x.category))}</div>
@@ -1938,7 +1947,7 @@ function fixedOptionEditorHtml(kind,o,i,j){
 function fixedPreviewAdminHtml(v,i,j){
  const cat=fixedCategoryById(v.category),kind=fixedCategoryKind(cat||{id:v.category,label:v.category});
  return '<div class="fixed-preview-admin-row">'+
-  '<div class="fixed-preview-admin-thumb fixed-preview-'+adminEsc(kind)+'"><img src="'+API+'/media/'+v.file.split('/').map(encodeURIComponent).join('/')+'" loading="lazy" decoding="async" alt=""></div>'+
+  '<div class="fixed-preview-admin-thumb fixed-preview-'+adminEsc(kind)+'">'+adminMediaImg(v.file,v.name||'')+'</div>'+
   '<div class="fixed-preview-admin-fields">'+
    '<label>디자인 종류<select data-fp-preview-cat="'+i+':'+j+'">'+fixedCategoryOptions(v.category)+'</select></label>'+
    '<label>미리보기 이름<input data-fp-preview-name="'+i+':'+j+'" value="'+adminEsc(v.name||'')+'" placeholder="예: 디자인 01"></label>'+
@@ -1958,7 +1967,7 @@ function fixedProductAdminCard(p,i){
  const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
  return '<article class="fixed-product-admin-card" data-fixed-product-id="'+adminEsc(p.id)+'">'+
   '<div class="fixed-product-admin-summary">'+
-   '<div class="fixed-product-summary-thumb">'+(first?'<img src="'+API+'/media/'+first.file.split('/').map(encodeURIComponent).join('/')+'" loading="lazy" decoding="async" alt="">':'<span>미리보기 없음</span>')+'</div>'+
+   '<div class="fixed-product-summary-thumb">'+(first?adminMediaImg(first.file,first.name||''):'<span>미리보기 없음</span>')+'</div>'+
    '<div class="fixed-product-summary-copy"><strong>'+adminEsc(p.name||'새 고정틀')+'</strong><span>미리보기 '+p.previews.length+'개 · '+(p.priceVisible?adminEsc(price):'가격 비공개')+'</span></div>'+
    '<label class="mini-toggle fixed-product-summary-enabled"><input type="checkbox" data-fp-enabled-summary="'+i+'" '+(p.enabled!==false?'checked':'')+'> 공개</label>'+
    '<div class="fixed-product-summary-actions"><button type="button" class="ghost cat-order-button" data-fp-product-move="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-fp-product-move="'+i+'" data-dir="1" '+(i===ensureFixedProducts().length-1?'disabled':'')+'>↓</button><button type="button" class="ghost admin-compact" data-fp-edit="'+i+'">'+(open?'닫기':'편집')+'</button><button type="button" class="danger admin-compact" data-fp-delete="'+i+'">삭제</button></div>'+
