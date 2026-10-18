@@ -316,7 +316,7 @@ function presetCard(x){
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  const colorButton=variants.length>1?'<button type="button" class="v2-preset-color-button" data-preset-color-menu="'+esc(x.file)+'" aria-label="색상 선택" aria-haspopup="menu"><span aria-hidden="true">⌄</span></button>':'';
  return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'" data-preset-product-file="'+esc(x.file)+'">'+
-   '<div class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false">'+colorButton+'</div>'+
+   '<div class="v2-showcase-media-wrap"><div class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+colorButton+'</div>'+
    '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong></div>'+
    (badges?'<div class="v2-preset-badges">'+badges+'</div>':'')+
    (m.colorChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">수정가능</span>':'')+
