@@ -1306,18 +1306,18 @@
           "enabled": true
         },
         {
-          "id": "preview-mve44i13-i5l050",
-          "file": "preset/fixed-store-profile/20261018174151-eacsnoc5ylwd-background__35_.png",
-          "category": "profile",
-          "name": "디자인 03",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mve44mxx-d1trem",
           "file": "preset/fixed-store-profile/20261018174157-1dtxbq0gao1d0-background__33_.png",
           "category": "profile",
           "name": "디자인 04",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mve44i13-i5l050",
+          "file": "preset/fixed-store-profile/20261018174151-eacsnoc5ylwd-background__35_.png",
+          "category": "profile",
+          "name": "디자인 03",
           "description": "",
           "enabled": true
         },
