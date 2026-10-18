@@ -1202,5 +1202,23 @@
     }
   ],
   "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6",
-  "presetColorGroups": []
+  "presetColorGroups": [
+    {
+      "id": "pcg-mvdhvt5r-ik14w4",
+      "category": "profile",
+      "primaryFile": "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
+      "variants": [
+        {
+          "file": "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
+          "name": "색상 01",
+          "enabled": true
+        },
+        {
+          "file": "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
+          "name": "색상 02",
+          "enabled": true
+        }
+      ]
+    }
+  ]
 }
