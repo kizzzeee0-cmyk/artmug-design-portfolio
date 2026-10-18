@@ -105,8 +105,7 @@ function presetColorGroups(){
  return raw.map((g,gi)=>{
   const variants=(Array.isArray(g?.variants)?g.variants:[]).map((v,vi)=>({
    file:String(v?.file||''),
-   name:String(v?.name||('색상 '+String(vi+1).padStart(2,'0'))),
-   enabled:v?.enabled!==false
+   name:String(v?.name||('색상 '+String(vi+1).padStart(2,'0')))
   })).filter(v=>v.file);
   const primaryFile=String(g?.primaryFile||variants[0]?.file||'');
   return {id:String(g?.id||('preset-color-group-'+gi)),category:String(g?.category||''),primaryFile,variants}
@@ -125,9 +124,9 @@ function presetIndexItem(file){
 }
 function presetVisibleVariants(primaryFile){
  const group=presetColorGroupForPrimary(primaryFile);
- if(!group)return [{file:String(primaryFile||''),name:'기본 색상',enabled:true}];
+ if(!group)return [{file:String(primaryFile||''),name:'기본 색상'}];
  const existing=new Set((Array.isArray(state.presetIndex)?state.presetIndex:[]).map(x=>x.file));
- return group.variants.filter(v=>v.enabled!==false&&(!existing.size||existing.has(v.file)))
+ return group.variants.filter(v=>!existing.size||existing.has(v.file))
 }
 function collapsePresetProducts(items){
  const groups=presetColorGroups(),childToPrimary=new Map();
@@ -145,7 +144,7 @@ function presetVariantSource(file){
 }
 function presetSelectedVariant(primaryFile){
  const variants=presetVisibleVariants(primaryFile);
- if(!variants.length)return {file:primaryFile,name:'기본 색상',enabled:true};
+ if(!variants.length)return {file:primaryFile,name:'기본 색상'};
  const selected=state.presetVariantSelection[primaryFile];
  return variants.find(v=>v.file===selected)||variants.find(v=>v.file===primaryFile)||variants[0]
 }
