@@ -1034,7 +1034,7 @@ window.__ARTMUG_V2__={
    }
    if(d.profileMode==='preset'&&d.selectedPresetName){
     out.push('선택 프리셋: '+d.selectedPresetName);
-    if(d.selectedPresetColorName)out.push('선택 색상: '+d.selectedPresetColorName)
+    if(d.selectedPresetNeedsColor&&d.selectedPresetColorName)out.push('선택 색상: '+d.selectedPresetColorName)
    }
   }
   d.bannerTypes.forEach(x=>out.push(x.label+' TYPE: '+x.type));
