@@ -813,7 +813,7 @@
     "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif": {
       "name": "프리셋 02",
       "enabled": true,
-      "isNew": true,
+      "isNew": false,
       "isReserved": false,
       "isReservable": false,
       "isNoEdit": false,
