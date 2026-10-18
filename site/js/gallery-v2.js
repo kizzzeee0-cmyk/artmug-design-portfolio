@@ -176,26 +176,35 @@ function manageAnimatedMedia(root=document){
   if(!img.dataset.v2AnimatedSrc)img.dataset.v2AnimatedSrc=img.getAttribute('src')||'';
   if(img.dataset.v2GifManaged==='1')return;
   img.dataset.v2GifManaged='1';
-  img.dataset.v2GifActive='1';
+  if(!img.dataset.v2GifActive){
+   img.dataset.v2GifActive=img.getAttribute('src')===img.dataset.v2AnimatedSrc?'1':'0'
+  }
   img.addEventListener('load',()=>{
    if(img.dataset.v2GifActive==='1')rememberAnimatedMediaRatio(img)
   });
-  if(observer)observer.observe(img)
+  if(observer)observer.observe(img);
+  else restoreAnimatedMedia(img)
  })
 }
 function itemCard(x,c){
  const k=layoutKey(c),m=pmeta(x),type=bannerTypeEnabled()&&bannerIds.has(k)?(m.bannerType||'B'):'';
  const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">TYPE '+type+'</span></span>':'';
+ const source=media(x.demoSrc||x.file),deferGif=k==='profile'&&isAnimatedMediaUrl(source);
+ const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
+ const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
-   '<div class="v2-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+   '<div class="v2-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
    (badge?'<div class="v2-work-tags">'+badge+'</div>':'')+
   '</article>'
 }
 function presetCard(x){
  const m=smeta(x),c=(state.settings?.presetCategories||[]).find(v=>v.id===x.category)||{},profile=layoutKey(c)==='profile';
  const badges=presetBadges(m).map(b=>'<span class="v2-preset-badge '+b.cls+'"'+(b.style?' style="'+esc(b.style)+'"':'')+'><span class="v2-badge-label">'+esc(b.label)+'</span></span>').join('');
+ const source=media(x.demoSrc||x.file),deferGif=profile&&isAnimatedMediaUrl(source);
+ const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
+ const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'">'+
-   '<div class="v2-showcase-media"><img src="'+esc(media(x.demoSrc||x.file))+'" alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+   '<div class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
    '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong></div>'+
    (badges?'<div class="v2-preset-badges">'+badges+'</div>':'')+
    (m.colorChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">수정가능</span>':'')+
@@ -530,12 +539,14 @@ function fixedOptionPublicHtml(title,items,kind){
  '</section>'
 }
 function fixedPreviewPublicHtml(v,p){
- const cfg=fixedPreviewDisplayConfig(v.category);
+ const cfg=fixedPreviewDisplayConfig(v.category),source=media(v.file),deferGif=cfg.key==='profile'&&isAnimatedMediaUrl(source);
+ const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
+ const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  const caption=(p.showPreviewNames&&v.name)||v.description
   ? '<figcaption>'+(p.showPreviewNames&&v.name?'<strong>'+esc(v.name)+'</strong>':'')+(v.description?'<p>'+esc(v.description)+'</p>':'')+'</figcaption>'
   : '';
  return '<figure class="fixed-product-preview fixed-preview-layout-'+esc(cfg.key)+'">'+
-  '<div class="fixed-product-preview-media"><img src="'+esc(media(v.file))+'" alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+  '<div class="fixed-product-preview-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(v.name||p.name)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
   caption+
  '</figure>'
 }
