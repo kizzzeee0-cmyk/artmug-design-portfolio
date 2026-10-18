@@ -609,7 +609,7 @@ function normalizePublicFixedProduct(x){
   showPreviewNames:x?.showPreviewNames!==false,
   changeableOptions:(Array.isArray(x?.changeableOptions)?x.changeableOptions:[]).map(normalizePublicFixedOption).filter(o=>o.label),
   fixedOptions:(Array.isArray(x?.fixedOptions)?x.fixedOptions:[]).map(normalizePublicFixedOption).filter(o=>o.label),
-  note:String(x?.note||''),
+  note:String(x?.note||x?.changeableOptions?.[0]?.label||x?.fixedOptions?.[0]?.label||''),
   price:Math.max(0,Number(x?.price||0)),
   priceVisible:x?.priceVisible!==false,
   priceNote:String(x?.priceNote||''),
@@ -682,8 +682,7 @@ function fixedProductPublicCard(p){
    (p.priceVisible&&priceMeta.length?'<div class="fixed-product-price-meta">'+priceMeta.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'')+
   '</header>'+
   '<div class="fixed-product-preview-grid '+(squareOnly?'is-square-only':'')+'" style="--fixed-product-cols:'+cols+'">'+previews.map(v=>fixedPreviewPublicHtml(v,p)).join('')+'</div>'+
-  ((p.changeableOptions.length||p.fixedOptions.length)?'<div class="fixed-product-options">'+fixedOptionPublicHtml('수정 가능',p.changeableOptions,'is-changeable')+fixedOptionPublicHtml('수정 불가',p.fixedOptions,'is-fixed')+'</div>':'')+
-  (p.note?'<p class="fixed-product-note">'+esc(p.note)+'</p>':'')+
+  (p.note?'<div class="fixed-product-bottom-note"><p>'+esc(p.note)+'</p></div>':'')+
  '</article>'
 }
 async function renderFixed(){
