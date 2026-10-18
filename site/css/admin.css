@@ -2070,3 +2070,158 @@
     grid-template-columns:34px minmax(0,1fr)!important;
   }
 }
+
+/* 2026-10-18 PRESET COLOR ROW SINGLE LINE V4 */
+.preset-admin-item-v2.is-color-open .preset-color-manager{
+  overflow:hidden!important;
+}
+.preset-admin-item-v2.is-color-open .preset-color-row,
+.preset-color-row{
+  grid-template-columns:32px minmax(0,1fr)!important;
+  gap:5px!important;
+  padding:5px!important;
+  align-items:center!important;
+}
+.preset-color-thumb{
+  width:32px!important;
+  height:32px!important;
+  align-self:center!important;
+}
+.preset-color-row-body{
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  min-width:0!important;
+  width:100%!important;
+}
+.preset-color-name-input{
+  flex:0 0 76px!important;
+  width:76px!important;
+  min-width:76px!important;
+  max-width:76px!important;
+  height:27px!important;
+  min-height:27px!important;
+  padding:3px 6px!important;
+  font-size:9px!important;
+  line-height:1.2!important;
+}
+.preset-color-row-actions{
+  display:flex!important;
+  flex:1 1 auto!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  flex-wrap:nowrap!important;
+  gap:3px!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+}
+.preset-color-row-actions .mini-toggle{
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:2px!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:8.4px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+.preset-color-row-actions .mini-toggle input{
+  width:11px!important;
+  height:11px!important;
+  margin:0!important;
+  flex:0 0 11px!important;
+}
+.preset-color-order{
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  gap:2px!important;
+  align-items:center!important;
+}
+.preset-color-order .cat-order-button{
+  width:23px!important;
+  min-width:23px!important;
+  height:23px!important;
+  min-height:23px!important;
+  padding:0!important;
+  line-height:1!important;
+  font-size:9px!important;
+}
+.preset-color-row-actions>.ghost,
+.preset-color-row-actions>.danger{
+  flex:0 0 auto!important;
+  min-width:0!important;
+  height:23px!important;
+  min-height:23px!important;
+  padding:0 5px!important;
+  font-size:8.3px!important;
+  line-height:1!important;
+}
+.preset-color-add{
+  display:grid!important;
+  grid-template-columns:82px minmax(0,1fr)!important;
+  grid-template-areas:
+    "name file"
+    "add add"!important;
+  gap:5px!important;
+  align-items:center!important;
+}
+.preset-color-add>input[type="text"]{
+  grid-area:name!important;
+  width:82px!important;
+  min-width:82px!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:0 7px!important;
+  line-height:30px!important;
+  box-sizing:border-box!important;
+}
+.preset-color-add>input[type="file"]{
+  grid-area:file!important;
+  width:100%!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:30px!important;
+  box-sizing:border-box!important;
+  vertical-align:middle!important;
+}
+.preset-color-add>input[type="file"]::file-selector-button{
+  height:30px!important;
+  margin:0 8px 0 0!important;
+  padding:0 10px!important;
+  border:0!important;
+  border-right:1px solid #dbe8f1!important;
+  background:#fff!important;
+  color:inherit!important;
+  font:inherit!important;
+  line-height:30px!important;
+  vertical-align:middle!important;
+}
+.preset-color-add>.primary-button{
+  grid-area:add!important;
+  width:100%!important;
+  min-height:27px!important;
+  height:27px!important;
+  padding:0 8px!important;
+}
+@media(max-width:760px){
+  .preset-color-row-body{
+    display:grid!important;
+    grid-template-columns:76px minmax(0,1fr)!important;
+    gap:4px!important;
+  }
+  .preset-color-row-actions{
+    flex-wrap:wrap!important;
+  }
+  .preset-color-add{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"name" "file" "add"!important;
+  }
+  .preset-color-add>input[type="text"]{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
