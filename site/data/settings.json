@@ -1097,31 +1097,7 @@
       "changeableOptions": [
         {
           "id": "opt-mvb489jt-21jtph",
-          "label": "원형 프레임",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvb48da4-9po3gc",
-          "label": "전환 효과 및 애니메이션",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvb4c7c5-748xaj",
-          "label": "색상",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvc65axf-hjezdh",
-          "label": "폰트 디자인",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mvcqr3ra-srtr5e",
-          "label": "레이스 여부",
+          "label": "배경 디자인 외의 모든 부분은 자유롭게 변경하실 수 있습니다",
           "detail": "",
           "choices": []
         }
@@ -1259,18 +1235,6 @@
       "mobileColumns": 2,
       "showPreviewNames": true,
       "changeableOptions": [
-        {
-          "id": "opt-mve3v4l8-44gxgc",
-          "label": "전환 효과 및 애니메이션",
-          "detail": "",
-          "choices": []
-        },
-        {
-          "id": "opt-mve3w9bz-91ymx1",
-          "label": "폰트 디자인",
-          "detail": "",
-          "choices": []
-        },
         {
           "id": "opt-mve62j14-2ysg73",
           "label": "색상",
