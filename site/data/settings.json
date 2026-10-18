@@ -894,8 +894,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261018075728-dbvsuh141demb-background__15_.gif": {
-      "name": "블랙&퍼플 / 하트",
+    "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif": {
+      "name": "핑크 / 하트",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -903,8 +903,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif": {
-      "name": "핑크 / 하트",
+    "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif": {
+      "name": "블랙&퍼플 / 하트",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -925,7 +925,7 @@
     "preset/fixed-store-profile/20261017155748-1lokz911mhn6mn-background__2_.gif",
     "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif",
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
-    "preset/fixed-store-profile/20261018075728-dbvsuh141demb-background__15_.gif",
+    "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif"
   ],
   "portfolioOrder": [
@@ -1117,7 +1117,7 @@
         },
         {
           "id": "preview-mvb5arkc-tdfosv",
-          "file": "preset/fixed-store-profile/20261018075728-dbvsuh141demb-background__15_.gif",
+          "file": "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
           "category": "profile",
           "name": "블랙&퍼플 / 하트",
           "description": "",
