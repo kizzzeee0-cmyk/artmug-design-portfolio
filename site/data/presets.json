@@ -115,5 +115,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261019200209"
+  },
+  {
+    "id": "preset-U_4X4QBFmvE",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
+    "originalName": "background (6).gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261019200303"
   }
 ]
