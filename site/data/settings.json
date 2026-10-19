@@ -1142,7 +1142,7 @@
       "fixedOptions": [],
       "note": "",
       "price": 15000,
-      "priceVisible": false,
+      "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
       "previews": [
