@@ -867,6 +867,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif": {
+      "name": "디자인 05",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -877,7 +886,8 @@
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
-    "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif"
+    "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
+    "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png",
@@ -1044,6 +1054,14 @@
           "file": "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
           "category": "profile",
           "name": "핑크 / 레이스",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvfohvlx-g0zg2m",
+          "file": "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
+          "category": "profile",
+          "name": "디자인 05",
           "description": "",
           "enabled": true
         }
