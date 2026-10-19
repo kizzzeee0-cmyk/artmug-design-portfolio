@@ -849,8 +849,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif": {
-      "name": "B - 핑크 기본 체크",
+    "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif": {
+      "name": "B - 노랑 기본 체크",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -858,8 +858,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif": {
-      "name": "B - 노랑 기본 체크",
+    "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif": {
+      "name": "B - 핑크 기본 체크",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -876,7 +876,7 @@
     "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif",
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
-    "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif",
+    "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif",
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
@@ -1041,7 +1041,7 @@
         },
         {
           "id": "preview-mvctdh5y-4dnr3i",
-          "file": "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif",
+          "file": "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif",
           "category": "profile",
           "name": "B - 핑크 기본 체크",
           "description": "",
