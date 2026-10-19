@@ -2307,6 +2307,21 @@ function renderFixedItems(){
  bindFixedProductAdminEvents();
  manageAdminGifs(root)
 }
+function syncFixedPresetOrderFromProducts(target,products){
+ const ordered=(Array.isArray(products)?products:[]).flatMap(p=>(Array.isArray(p?.previews)?p.previews:[]).filter(v=>v&&v.file).map(v=>String(v.file)));
+ if(!ordered.length)return;
+ const orderedSet=new Set(ordered),existing=Array.isArray(target?.presetOrder)?target.presetOrder.map(String):[];
+ const next=[];let inserted=false;
+ existing.forEach(file=>{
+  if(orderedSet.has(file)){
+   if(!inserted){next.push(...ordered);inserted=true}
+   return
+  }
+  next.push(file)
+ });
+ if(!inserted)next.push(...ordered);
+ target.presetOrder=[...new Set(next)]
+}
 async function persistFixedProducts(message='고정틀 상품이 저장되었습니다.'){
  const saved=await queueSettingsMutation(latest=>{
   stripSeasonData(latest);stripSeasonData(S);
@@ -2314,6 +2329,7 @@ async function persistFixedProducts(message='고정틀 상품이 저장되었습
   latest.fixedInquiryPatternProductId=String(S.fixedInquiryPatternProductId||'');
   latest.presetMeta=JSON.parse(JSON.stringify(S.presetMeta||{}));
   latest.presetOrder=JSON.parse(JSON.stringify(S.presetOrder||[]));
+  syncFixedPresetOrderFromProducts(latest,latest.fixedProducts);
   latest.fixedCategories=JSON.parse(JSON.stringify(S.fixedCategories||[]));
   syncFixedUploadCategories(latest)
  });
@@ -2338,8 +2354,31 @@ async function addFixedProduct(){
 }
 async function moveFixedProduct(i,dir){
  const arr=ensureFixedProducts(),j=i+dir;if(j<0||j>=arr.length)return;
- collectFixedProductFromDom(i);[arr[i],arr[j]]=[arr[j],arr[i]];
- await persistFixedProducts('상품 순서가 저장되었습니다.');renderFixedItems()
+ collectFixedProductFromDom(i);collectFixedProductFromDom(j);
+ [arr[i],arr[j]]=[arr[j],arr[i]];
+ const desiredIds=arr.map(p=>String(p.id||''));
+ renderFixedItems();
+ try{
+  const saved=await queueSettingsMutation(latest=>{
+   const current=Array.isArray(latest.fixedProducts)?latest.fixedProducts:[];
+   const byId=new Map(current.map(p=>[String(p?.id||''),p]));
+   const localById=new Map((S.fixedProducts||[]).map(p=>[String(p?.id||''),JSON.parse(JSON.stringify(p))]));
+   const ordered=desiredIds.map(id=>localById.get(id)||byId.get(id)).filter(Boolean);
+   current.forEach(p=>{const id=String(p?.id||'');if(id&&!desiredIds.includes(id))ordered.push(p)});
+   latest.fixedProducts=ordered;
+   syncFixedPresetOrderFromProducts(latest,latest.fixedProducts)
+  });
+  S.fixedProducts=(saved.fixedProducts||[]).map(normalizeFixedProduct);
+  S.presetOrder=saved.presetOrder||S.presetOrder||[];
+  const actual=S.fixedProducts.map(p=>String(p.id||''));
+  if(desiredIds.some((id,index)=>actual[index]!==id))throw new Error('저장된 상품 순서를 다시 확인하지 못했습니다.');
+  showToast('상품 공개 순서가 저장되었습니다.');
+ }catch(e){
+  const fresh=await fetchFreshSettings().catch(()=>null);
+  if(fresh?.fixedProducts)S.fixedProducts=fresh.fixedProducts.map(normalizeFixedProduct);
+  alert('상품 순서 저장에 실패했습니다.\n'+e.message)
+ }
+ renderFixedItems()
 }
 async function ensureFixedUploadInfrastructure(){
  collectFixedAdmin();
@@ -2384,7 +2423,31 @@ async function uploadFixedProductPreviews(i){
 async function moveFixedPreview(i,j,dir){
  const p=collectFixedProductFromDom(i);if(!p)return;const k=j+dir;if(k<0||k>=p.previews.length)return;
  [p.previews[j],p.previews[k]]=[p.previews[k],p.previews[j]];
- await persistFixedProducts('미리보기 순서가 저장되었습니다.');fixedProductOpenIds.add(p.id);renderFixedItems()
+ const productId=String(p.id||''),desiredFiles=p.previews.map(v=>String(v.file||'')),productSnapshot=JSON.parse(JSON.stringify(p));
+ fixedProductOpenIds.add(productId);
+ renderFixedItems();
+ try{
+  const saved=await queueSettingsMutation(latest=>{
+   if(!Array.isArray(latest.fixedProducts))latest.fixedProducts=[];
+   const pi=latest.fixedProducts.findIndex(x=>String(x?.id||'')===productId);
+   if(pi<0)throw new Error('순서를 저장할 고정틀 상품을 찾지 못했습니다.');
+   latest.fixedProducts[pi]=productSnapshot;
+   syncFixedPresetOrderFromProducts(latest,latest.fixedProducts)
+  });
+  S.fixedProducts=(saved.fixedProducts||[]).map(normalizeFixedProduct);
+  S.presetOrder=saved.presetOrder||S.presetOrder||[];
+  const stored=S.fixedProducts.find(x=>String(x.id||'')===productId);
+  const actual=(stored?.previews||[]).map(v=>String(v.file||''));
+  if(desiredFiles.some((file,index)=>actual[index]!==file))throw new Error('저장된 디자인 순서를 다시 확인하지 못했습니다.');
+  showToast('디자인 공개 순서가 저장되었습니다.');
+ }catch(e){
+  const fresh=await fetchFreshSettings().catch(()=>null);
+  if(fresh?.fixedProducts)S.fixedProducts=fresh.fixedProducts.map(normalizeFixedProduct);
+  if(fresh?.presetOrder)S.presetOrder=fresh.presetOrder;
+  alert('디자인 순서 저장에 실패했습니다.\n'+e.message)
+ }
+ fixedProductOpenIds.add(productId);
+ renderFixedItems()
 }
 async function replaceFixedProductPreview(i,j){
  const p=collectFixedProductFromDom(i),v=p?.previews[j];if(!p||!v)return;
