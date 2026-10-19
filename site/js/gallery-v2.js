@@ -877,13 +877,15 @@ async function renderShowcase(){
  const fixedData=fixed.length?showcasePageData(fixed,limits.fixed||1,'fixed'):{page:1,pages:1,shown:[]};
  const presetData=ordered.length?showcasePageData(ordered,limits.preset||1,'preset'):{page:1,pages:1,shown:[]};
  const filters=designWithItems.length>1?'<div class="v2-preset-filters v2-unified-preset-filters"><div class="v2-preset-filter-group is-design-only"><div class="v2-preset-filter-buttons">'+designWithItems.map(cat=>'<button type="button" class="v2-preset-filter-button '+(activeCat?.id===cat.id?'is-active':'')+'" data-preset-filter-id="'+esc(cat.id)+'">'+esc(cat.label||cat.id)+'</button>').join('')+'</div></div></div>':'';
+ const fixedNotice=String(state.settings?.fixedNotice??'배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.').trim();
+ const presetNotice=String(state.settings?.presetNotice??'아직 판매되지 않은 작업물입니다.\n그대로 제작을 원하시면 문의 시 말씀해주세요').trim();
  const fixedGroup=fixed.length?'<section class="v2-unified-group is-fixed" style="--group-weight:'+Math.max(1,fixedData.shown.length)+';--group-cols:'+Math.max(1,fixedData.shown.length)+'">'+
-  '<header class="v2-unified-group-head"><h3>고정틀</h3><p>배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.</p></header>'+
+  '<header class="v2-unified-group-head"><h3>고정틀</h3>'+(fixedNotice?'<p>'+esc(fixedNotice)+'</p>':'')+'</header>'+
   '<div class="v2-unified-grid">'+fixedData.shown.map(fixedProductPublicCard).join('')+'</div>'+
   pagination('showcase-fixed',fixedData.pages,fixedData.page)+
  '</section>':'';
  const presetGroup=ordered.length?'<section class="v2-unified-group is-preset" style="--group-weight:'+Math.max(1,presetData.shown.length)+';--group-cols:'+Math.max(1,presetData.shown.length)+'">'+
-  '<header class="v2-unified-group-head"><h3>프리셋</h3><p>각 디자인은 단 한 분께만 판매되며, 자유로운 수정이 가능합니다.</p></header>'+
+  '<header class="v2-unified-group-head"><h3>프리셋</h3>'+(presetNotice?'<p>'+esc(presetNotice)+'</p>':'')+'</header>'+
   filters+
   '<div class="v2-unified-grid '+(activeCat&&layoutKey(activeCat)==='profile'?'is-profile-category':'is-media-category')+'">'+presetData.shown.map(presetCard).join('')+'</div>'+
   pagination('showcase-preset',presetData.pages,presetData.page)+
