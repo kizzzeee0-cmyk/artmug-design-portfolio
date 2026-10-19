@@ -1095,7 +1095,7 @@
         }
       ],
       "fixedOptions": [],
-      "note": "미리보기에 없는 색상으로도 변경 가능합니다",
+      "note": "색상 자유롭게 변경 가능합니다",
       "price": 15000,
       "priceVisible": true,
       "priceNote": "",
@@ -1120,14 +1120,6 @@
         {
           "id": "preview-mve44i13-i5l050",
           "file": "preset/fixed-store-profile/20261018174823-10vn39w1f4v13g-background__34_.png",
-          "category": "profile",
-          "name": "",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mve44wtu-26b2m0",
-          "file": "preset/fixed-store-profile/20261018174209-oz17pm96mvym-background__31_.png",
           "category": "profile",
           "name": "",
           "description": "",
