@@ -858,15 +858,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif": {
-      "name": "핑크 / 하트",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif": {
       "name": "블랙&퍼플 / 하트",
       "description": "",
@@ -920,6 +911,15 @@
       "fixedProductId": "product-mve3thwn-ti6e2f",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261019124846-17m7vhpwmc3c3-background__2_.gif": {
+      "name": "핑크 기본 체크",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -928,7 +928,7 @@
     "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
     "preset/fixed-store-profile/20261017155009-12okvnn1atr36c-background__2_.gif",
-    "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif",
+    "preset/fixed-store-profile/20261019124846-17m7vhpwmc3c3-background__2_.gif",
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
@@ -1091,9 +1091,9 @@
         },
         {
           "id": "preview-mvb38zjq-arckn5",
-          "file": "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif",
+          "file": "preset/fixed-store-profile/20261019124846-17m7vhpwmc3c3-background__2_.gif",
           "category": "profile",
-          "name": "핑크 / 하트",
+          "name": "핑크 기본 체크",
           "description": "",
           "enabled": true
         },
