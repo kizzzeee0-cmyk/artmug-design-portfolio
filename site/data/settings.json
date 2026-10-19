@@ -878,7 +878,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif": {
-      "name": "디자인 01",
+      "name": "노랑",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -887,7 +887,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif": {
-      "name": "디자인 02",
+      "name": "보라",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -896,7 +896,7 @@
       "colorChangeAvailable": false
     },
     "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif": {
-      "name": "디자인 03",
+      "name": "핑크",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -1132,7 +1132,7 @@
     },
     {
       "id": "product-mvfojfsv-rhhe9w",
-      "name": "새 고정틀",
+      "name": "고정틀 B - 기본 체크",
       "description": "",
       "enabled": true,
       "pcColumns": 6,
@@ -1141,8 +1141,8 @@
       "changeableOptions": [],
       "fixedOptions": [],
       "note": "",
-      "price": 0,
-      "priceVisible": true,
+      "price": 15000,
+      "priceVisible": false,
       "priceNote": "",
       "priceScope": "",
       "previews": [
