@@ -206,9 +206,7 @@ function openPresetColorPopover(button){
  pop.setAttribute('role','menu');
  pop.innerHTML='<div class="v2-preset-color-popover-title">색상 선택</div><div class="v2-preset-color-options">'+variants.map(v=>{
   const source=presetVariantSource(v.file),active=v.file===selected.file;
-  const thumb=isAnimatedMediaUrl(source)
-   ? '<span class="v2-preset-color-thumb is-animated" aria-hidden="true"><span>GIF</span></span>'
-   : '<span class="v2-preset-color-thumb"><img src="'+esc(source)+'" alt="" loading="lazy" decoding="async" fetchpriority="low"></span>';
+  const thumb='<span class="v2-preset-color-thumb"><img src="'+esc(source)+'" alt="" loading="lazy" decoding="async" fetchpriority="low"></span>';
   return '<button type="button" class="v2-preset-color-option '+(active?'is-selected':'')+'" data-preset-color-choice="'+esc(v.file)+'" role="menuitemradio" aria-checked="'+(active?'true':'false')+'">'+
    thumb+
    '<span class="v2-preset-color-name">'+esc(v.name||'색상')+'</span>'+
@@ -758,9 +756,7 @@ function openFixedVariantPopover(button){
  pop.setAttribute('role','menu');
  pop.innerHTML='<div class="v2-preset-color-popover-title">디자인 선택</div><div class="v2-preset-color-options">'+variants.map(v=>{
   const source=media(v.file),active=v.file===selected?.file;
-  const thumb=isAnimatedMediaUrl(source)
-   ? '<span class="v2-preset-color-thumb is-animated" aria-hidden="true"><span>GIF</span></span>'
-   : '<span class="v2-preset-color-thumb"><img src="'+esc(source)+'" alt="" loading="lazy" decoding="async" fetchpriority="low"></span>';
+  const thumb='<span class="v2-preset-color-thumb"><img src="'+esc(source)+'" alt="" loading="lazy" decoding="async" fetchpriority="low"></span>';
   return '<button type="button" class="v2-preset-color-option '+(active?'is-selected':'')+'" data-fixed-variant-choice="'+esc(v.file)+'" role="menuitemradio" aria-checked="'+(active?'true':'false')+'">'+
    thumb+
    '<span class="v2-preset-color-name">'+esc(v.name||'디자인')+'</span>'+
