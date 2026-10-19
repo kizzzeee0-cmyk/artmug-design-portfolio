@@ -2513,8 +2513,7 @@ function listFrom(d){
  const list=[
   {label:'공지사항',target:'notice'}
  ];
- if(d.hasFixed)list.push({label:'고정틀',target:'fixed'});
- if(d.hasPreset)list.push({label:'프리셋',target:'showcase'});
+ if(d.hasFixed||d.hasPreset)list.push({label:'고정틀 · 프리셋',target:'showcase'});
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
@@ -2526,8 +2525,7 @@ function listFrom(d){
 }
 function normalizeActiveTarget(target){
  target=String(target||'');
- if(target==='preset'||target==='showcase-preset'||target.startsWith('showcase-'))return'showcase';
- if(target==='seasonal-fixed')return'fixed';
+ if(target==='preset'||target==='showcase-preset'||target.startsWith('showcase-')||target==='fixed'||target==='seasonal-fixed')return'showcase';
  if(target==='banner:A'||target==='banner:B'||target==='banner:all')return'banner:all';
  if(target.startsWith('portfolio:')){
   const id=target.split(':')[1];
