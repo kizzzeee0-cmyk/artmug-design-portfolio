@@ -744,24 +744,6 @@
       "colorChangeAvailable": true,
       "description": ""
     },
-    "preset/profile/20261012061444-pyBpHjML-background__1_.gif": {
-      "name": "프리셋 01",
-      "enabled": true,
-      "isNew": false,
-      "isReserved": false,
-      "colorChangeAvailable": true,
-      "showcaseKind": "preset",
-      "featured": false
-    },
-    "preset/profile/20261012063507-1r4zeu53rj15r-background.gif": {
-      "name": "프리셋 02",
-      "enabled": true,
-      "isNew": true,
-      "isReserved": false,
-      "colorChangeAvailable": true,
-      "showcaseKind": "preset",
-      "featured": false
-    },
     "preset/profile/20261012063603-1v1n0h5j6wofo-background__1_.png": {
       "name": "프리셋 02",
       "enabled": true,
@@ -869,8 +851,6 @@
     }
   },
   "presetOrder": [
-    "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
-    "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
     "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
     "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif",
@@ -1085,21 +1065,6 @@
   ],
   "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6",
   "presetColorGroups": [
-    {
-      "id": "pcg-mvdhvt5r-ik14w4",
-      "category": "profile",
-      "primaryFile": "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
-      "variants": [
-        {
-          "file": "preset/profile/20261012061444-pyBpHjML-background__1_.gif",
-          "name": "스카이블루"
-        },
-        {
-          "file": "preset/profile/20261012063507-1r4zeu53rj15r-background.gif",
-          "name": "핑크"
-        }
-      ]
-    },
     {
       "id": "pcg-mvdjcab6-hyxajq",
       "category": "profile",
