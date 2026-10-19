@@ -124,5 +124,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261019200303"
+  },
+  {
+    "id": "preset-BTAHOEYKcnk",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif",
+    "originalName": "background (5).gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261019200325"
   }
 ]
