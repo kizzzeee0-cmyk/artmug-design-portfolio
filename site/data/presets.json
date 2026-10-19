@@ -88,5 +88,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261019195736"
+  },
+  {
+    "id": "preset-BrjPcsMGzeU",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
+    "originalName": "옐로우최종본 수정띠_.gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261019195935"
   }
 ]
