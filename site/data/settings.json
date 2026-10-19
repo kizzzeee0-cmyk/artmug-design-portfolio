@@ -831,15 +831,6 @@
     "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif": {
       "name": "프리셋 01"
     },
-    "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif": {
-      "name": "옐로우 / 별",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif": {
       "name": "청록 / 하트",
       "description": "",
@@ -911,6 +902,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif": {
+      "name": "핑크 기본 체크",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvb2jx7t-2gb2f6",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -922,7 +922,7 @@
     "preset/fixed-store-profile/20261019124846-17m7vhpwmc3c3-background__2_.gif",
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
-    "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
+    "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif",
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
     "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png",
     "preset/fixed-store-profile/20261018174823-10vn39w1f4v13g-background__34_.png",
@@ -1090,7 +1090,7 @@
         },
         {
           "id": "preview-mvctdh5y-4dnr3i",
-          "file": "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
+          "file": "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif",
           "category": "profile",
           "name": "핑크 기본 체크",
           "description": "",
