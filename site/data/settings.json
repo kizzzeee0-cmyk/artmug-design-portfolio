@@ -655,8 +655,18 @@
         },
         {
           "id": "signature-style",
-          "name": "시그니처풍",
-          "price": 10000
+          "name": "시그풍 1개",
+          "price": 11000
+        },
+        {
+          "id": "qg-design-1792438046376",
+          "name": "시그풍 3개 세트",
+          "price": 30000
+        },
+        {
+          "id": "qg-design-1792438078960",
+          "name": "시그풍 6개 세트",
+          "price": 55000
         }
       ],
       "banner": [
