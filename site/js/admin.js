@@ -1298,7 +1298,7 @@ async function saveSettings(){
   delete S.eventsBenefitLabel;delete S.eventsOldPrice;delete S.eventsNewPrice;
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
-  collectCats(S.presetCategories||[],'preset');collectPresetGroups();collectFixedAdmin();ensureFixedProducts().forEach((_,i)=>collectFixedProductFromDom(i));
+  collectCats(S.presetCategories||[],'preset');collectPresetGroups();capturePresetEditorValues();collectFixedAdmin();ensureFixedProducts().forEach((_,i)=>collectFixedProductFromDom(i));
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
@@ -1431,7 +1431,25 @@ async function syncPresetAutoNames(){
   });
   S.presetMeta=saved.presetMeta||S.presetMeta||{}
 }
-function capturePresetEditorValues(){}
+function capturePresetEditorValues(){
+  if(!S.presetMeta||typeof S.presetMeta!=='object'||Array.isArray(S.presetMeta))S.presetMeta={};
+  presetItems.forEach((x,i)=>{
+    if(!x?.file)return;
+    const description=document.querySelector('[data-preset-description="'+i+'"]');
+    const price=document.querySelector('[data-preset-price="'+i+'"]');
+    const priceVisible=document.querySelector('[data-preset-price-visible="'+i+'"]');
+    const priceNote=document.querySelector('[data-preset-price-note="'+i+'"]');
+    if(!description&&!price&&!priceVisible&&!priceNote)return;
+    const prev=S.presetMeta[x.file]||{};
+    S.presetMeta[x.file]={
+      ...prev,
+      description:description?description.value:String(prev.description||''),
+      price:price?Math.max(0,Number(price.value||0)):Math.max(0,Number(prev.price||0)),
+      priceVisible:priceVisible?priceVisible.checked:prev.priceVisible===true,
+      priceNote:priceNote?priceNote.value:String(prev.priceNote||'')
+    }
+  })
+}
 async function saveMediaOrder(kind){
   const key=kind==='preset'?'presetOrder':'portfolioOrder',list=kind==='preset'?presetItems:items,order=list.map(x=>x.file);
   S[key]=order;
