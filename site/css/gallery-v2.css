@@ -3854,6 +3854,7 @@ body.artmug-part-portfolio #inquirySection{
   text-align:center!important;
 }
 .v2-unified-showcase{
+  --shared-profile-preview-size:clamp(112px,13vw,150px);
   display:flex;
   align-items:stretch;
   gap:22px;
@@ -4170,6 +4171,7 @@ body.v2-fixed-detail-open{
     font-size:19px!important;
   }
   .v2-unified-showcase{
+    --shared-profile-preview-size:132px;
     flex-direction:column;
     gap:16px;
   }
