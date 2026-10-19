@@ -841,8 +841,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif": {
-      "name": "B - 노랑 기본 체크",
+    "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif": {
+      "name": "B - 핑크 기본 체크",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -850,8 +850,8 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif": {
-      "name": "B - 핑크 기본 체크",
+    "preset/fixed-store-profile/20261019195717-803ogyd94gpn-___________.gif": {
+      "name": "노랑",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -863,7 +863,7 @@
   "presetOrder": [
     "preset/profile/20261017124500-huhct98pn6b8-qmff___.gif",
     "preset/profile/20261017124413-gfyryy1a9ohol-background_2_.gif",
-    "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif",
+    "preset/fixed-store-profile/20261019195717-803ogyd94gpn-___________.gif",
     "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif",
@@ -984,7 +984,7 @@
   "fixedProducts": [
     {
       "id": "product-mvb2jx7t-2gb2f6",
-      "name": "움짤프사 고정틀",
+      "name": "고정틀 A - 패턴 체크",
       "description": "",
       "enabled": true,
       "pcColumns": 6,
@@ -1009,7 +1009,7 @@
           "id": "preview-mvb380i3-d6hfkg",
           "file": "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
           "category": "profile",
-          "name": "A - 청록 / 하트",
+          "name": " 청록",
           "description": "",
           "enabled": true
         },
@@ -1017,15 +1017,15 @@
           "id": "preview-mvb5arkc-tdfosv",
           "file": "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
           "category": "profile",
-          "name": "A - 블랙&퍼플 / 하트",
+          "name": "블랙&퍼플 / 레이스",
           "description": "",
           "enabled": true
         },
         {
           "id": "preview-mvb38zjq-arckn5",
-          "file": "preset/fixed-store-profile/20261019184521-qk1ikz1y5bkh4-background__3_.gif",
+          "file": "preset/fixed-store-profile/20261019195717-803ogyd94gpn-___________.gif",
           "category": "profile",
-          "name": "B - 노랑 기본 체크",
+          "name": "노랑",
           "description": "",
           "enabled": true
         },
@@ -1033,7 +1033,7 @@
           "id": "preview-mvctdh5y-4dnr3i",
           "file": "preset/fixed-store-profile/20261019184640-1j4z52h1603th8-background__5_.gif",
           "category": "profile",
-          "name": "B - 핑크 기본 체크",
+          "name": "핑크 / 레이스",
           "description": "",
           "enabled": true
         }
