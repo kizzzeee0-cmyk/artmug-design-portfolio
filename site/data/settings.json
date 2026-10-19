@@ -1074,18 +1074,18 @@
       "priceScope": "",
       "previews": [
         {
-          "id": "preview-mvb38zjq-arckn5",
-          "file": "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif",
-          "category": "profile",
-          "name": "핑크 / 하트",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvb380i3-d6hfkg",
           "file": "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
           "category": "profile",
           "name": "청록 / 하트",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvb38zjq-arckn5",
+          "file": "preset/fixed-store-profile/20261018084911-njilvwk9dm57-background__18_.gif",
+          "category": "profile",
+          "name": "핑크 / 하트",
           "description": "",
           "enabled": true
         },
