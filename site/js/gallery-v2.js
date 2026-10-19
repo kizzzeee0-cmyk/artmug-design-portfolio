@@ -790,17 +790,20 @@ function positionDetailPopup(modal,anchorData){
  requestAnimationFrame(()=>{
   if(!modal.isConnected||!dialog.isConnected)return;
   const h=Math.max(1,dialog.offsetHeight||dialog.getBoundingClientRect().height||1);
-  const top=Math.max(16,data.centerY-(h/2));
+  const offset=Math.min(96,Math.max(52,h*.12));
+  const top=Math.max(16,data.centerY-offset);
   const overlayHeight=Math.max(data.documentHeight,top+h+24);
   modal.style.height=Math.ceil(overlayHeight)+'px';
   modal.style.minHeight=Math.ceil(overlayHeight)+'px';
-  dialog.style.top=Math.round(top)+'px'
+  dialog.style.top=Math.round(top)+'px';
+  requestHeight()
  })
 }
 let presetDetailModal=null;
 function closePresetDetailModal(){
  if(presetDetailModal){presetDetailModal.remove();presetDetailModal=null}
- if(!fixedDetailModal)document.body.classList.remove('v2-fixed-detail-open')
+ if(!fixedDetailModal)document.body.classList.remove('v2-fixed-detail-open');
+ requestHeight()
 }
 function presetPreviewPublicHtml(v,x){
  const cat=(state.settings?.presetCategories||[]).find(c=>c.id===x.category)||{id:x.category,label:x.category};
@@ -848,7 +851,8 @@ function openPresetDetailModal(primaryFile,trigger){
 let fixedDetailModal=null;
 function closeFixedDetailModal(){
  if(fixedDetailModal){fixedDetailModal.remove();fixedDetailModal=null}
- document.body.classList.remove('v2-fixed-detail-open')
+ document.body.classList.remove('v2-fixed-detail-open');
+ requestHeight()
 }
 function openFixedDetailModal(productId,trigger){
  const anchorData=detailPopupAnchor(trigger);
