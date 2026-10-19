@@ -1090,18 +1090,18 @@
           "enabled": true
         },
         {
-          "id": "preview-mvctdh5y-4dnr3i",
-          "file": "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
-          "category": "profile",
-          "name": "옐로우 / 별",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvb5arkc-tdfosv",
           "file": "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
           "category": "profile",
           "name": "블랙&퍼플 / 하트",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvctdh5y-4dnr3i",
+          "file": "preset/fixed-store-profile/20261017195308-1tyra0n7s5ftj-___________.gif",
+          "category": "profile",
+          "name": "옐로우 / 별",
           "description": "",
           "enabled": true
         },
