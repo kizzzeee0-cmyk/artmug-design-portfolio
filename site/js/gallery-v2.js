@@ -825,7 +825,7 @@ function combinedShowcaseLimits(fixedCount,presetCount){
   const perGroup=innerWidth>=520?3:2;
   return {fixed:fixedCount?Math.min(perGroup,fixedCount):0,preset:presetCount?Math.min(perGroup,presetCount):0}
  }
- const total=innerWidth>=1180?6:innerWidth>=920?5:4;
+ const total=innerWidth>=1180?6:5;
  if(!fixedCount)return {fixed:0,preset:Math.min(total,presetCount)};
  if(!presetCount)return {fixed:Math.min(total,fixedCount),preset:0};
  const fixed=Math.min(fixedCount,Math.max(1,total-1));
