@@ -876,6 +876,15 @@
       "fixedProductId": "product-mvb2jx7t-2gb2f6",
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
+    },
+    "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif": {
+      "name": "디자인 01",
+      "description": "",
+      "enabled": true,
+      "showcaseKind": "fixed",
+      "fixedProductId": "product-mvfojfsv-rhhe9w",
+      "fixedPreviewCategory": "profile",
+      "colorChangeAvailable": false
     }
   },
   "presetOrder": [
@@ -887,7 +896,8 @@
     "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
     "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
-    "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif"
+    "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
+    "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png",
@@ -1105,7 +1115,7 @@
       "name": "새 고정틀",
       "description": "",
       "enabled": true,
-      "pcColumns": 5,
+      "pcColumns": 6,
       "mobileColumns": 2,
       "showPreviewNames": true,
       "changeableOptions": [],
@@ -1115,7 +1125,16 @@
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
-      "previews": []
+      "previews": [
+        {
+          "id": "preview-mvfoktmm-ypqslm",
+          "file": "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif",
+          "category": "profile",
+          "name": "디자인 01",
+          "description": "",
+          "enabled": true
+        }
+      ]
     }
   ],
   "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6",
