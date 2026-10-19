@@ -1,7 +1,7 @@
 const API_VERSION='2026-03-10';
 const SETTINGS='site/data/settings.json',PRESETS='site/data/presets.json',INDEX='portfolio/index.json';
 const enc=new TextEncoder(),dec=new TextDecoder();
-export default {async fetch(req,env){try{if(req.method==='OPTIONS')return cors(new Response(null,{status:204}),req,env);const u=new URL(req.url),p=u.pathname;
+export default {async fetch(req,env,ctx){try{if(req.method==='OPTIONS')return cors(new Response(null,{status:204}),req,env);const u=new URL(req.url),p=u.pathname;
 if(p==='/health')return cors(json({ok:true,version:'1.1.0',vars:{owner:!!env.GITHUB_OWNER,repo:!!env.GITHUB_REPO,branch:!!env.GITHUB_BRANCH,password:!!env.ADMIN_PASSWORD,session:!!env.SESSION_SECRET,token:!!env.GITHUB_TOKEN}}),req,env);
 if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='/auth/logout'&&req.method==='POST')return logout(req,env);
 if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings},200,{'Cache-Control':'no-store'}),req,env);}
@@ -9,7 +9,7 @@ if(p==='/api/public/catalog')return cors(await publicCatalog(env),req,env);
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
 if(p==='/api/public/nav-summary')return cors(await publicNavSummary(env),req,env);
-if(p.startsWith('/media/'))return cors(await media(p.slice(7),env,req),req,env);
+if(p.startsWith('/media/'))return cors(await media(p.slice(7),env,req,ctx),req,env);
 if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors(json({error:'로그인이 필요합니다.'},401),req,env);
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
 if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
@@ -84,7 +84,7 @@ async function publicCatalog(env){
     settings:settings||{},
     portfolioIndex:Array.isArray(portfolioIndex)?portfolioIndex:[],
     presetIndex:Array.isArray(presetIndex)?presetIndex:[]
-  },200,{'Cache-Control':'no-store'})
+  },200,{'Cache-Control':'public, max-age=15, stale-while-revalidate=60'})
 }
 async function publicPortfolio(u,env){
   const cat=u.searchParams.get('category')||'profile';
@@ -199,23 +199,50 @@ async function publicNavSummary(env){
   };
   return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts,categories,workStatus},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=60'})
 }
-async function media(path,env,req){
+async function media(path,env,req,ctx){
+ const cache=(typeof caches!=='undefined'&&caches.default)?caches.default:null;
+ let cacheKey=null;
+ if(cache&&req?.method==='GET'){
+  try{
+   cacheKey=new Request(req.url,{method:'GET'});
+   const cached=await cache.match(cacheKey);
+   if(cached){
+    const h=new Headers(cached.headers);
+    h.set('X-Artmug-Media-Cache','HIT');
+    return new Response(cached.body,{status:cached.status,statusText:cached.statusText,headers:h})
+   }
+  }catch{}
+ }
+
  const upstreamHeaders={};
  const etag=req?.headers?.get('If-None-Match');
  const modified=req?.headers?.get('If-Modified-Since');
  if(etag)upstreamHeaders['If-None-Match']=etag;
  if(modified)upstreamHeaders['If-Modified-Since']=modified;
+
  const r=await fetch(`https://raw.githubusercontent.com/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/${env.GITHUB_BRANCH||'main'}/${path}`,{headers:upstreamHeaders});
- const h=new Headers({'Cache-Control':'public, max-age=31536000, immutable'});
+ const h=new Headers({
+  'Cache-Control':'public, max-age=31536000, immutable',
+  'CDN-Cache-Control':'public, max-age=31536000',
+  'Cloudflare-CDN-Cache-Control':'public, max-age=31536000'
+ });
  const upstreamEtag=r.headers.get('ETag');
  const lastModified=r.headers.get('Last-Modified');
+ const contentLength=r.headers.get('Content-Length');
  if(upstreamEtag)h.set('ETag',upstreamEtag);
  if(lastModified)h.set('Last-Modified',lastModified);
+ if(contentLength)h.set('Content-Length',contentLength);
  if(r.status===304)return new Response(null,{status:304,headers:h});
  if(!r.ok)return new Response('Not found',{status:404,headers:h});
  const ct=r.headers.get('Content-Type');
  if(ct)h.set('Content-Type',ct);
- return new Response(r.body,{status:200,headers:h})
+
+ const response=new Response(r.body,{status:200,headers:h});
+ if(cache&&cacheKey){
+  const put=cache.put(cacheKey,response.clone()).catch(()=>{});
+  if(ctx?.waitUntil)ctx.waitUntil(put)
+ }
+ return response
 }
 function b64(buf){const bytes=buf instanceof Uint8Array?buf:new Uint8Array(buf);let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
 function decodeB64(s){return Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0))}
