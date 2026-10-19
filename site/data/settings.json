@@ -858,15 +858,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png": {
-      "name": "",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mve3thwn-ti6e2f",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png": {
       "name": "",
       "description": "",
@@ -924,7 +915,6 @@
     "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
     "preset/fixed-store-profile/20261019124929-1owpsni1yd0191-background.gif",
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
-    "preset/fixed-store-profile/20261018174145-oyf7izdxe42b-background__36_.png",
     "preset/fixed-store-profile/20261018174823-10vn39w1f4v13g-background__34_.png",
     "preset/fixed-store-profile/20261018174203-1lo0phxci72q4-background__32_.png",
     "preset/fixed-store-profile/20261018174209-oz17pm96mvym-background__31_.png"
