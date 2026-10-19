@@ -187,6 +187,9 @@ function presetMetaFor(x){
     isNoEdit:meta.isNoEdit===true,
     colorChangeAvailable:meta.colorChangeAvailable===true,
     colorOnlyChangeAvailable:meta.colorOnlyChangeAvailable===true,
+    price:Math.max(0,Number(meta.price||0)),
+    priceVisible:meta.priceVisible===true,
+    priceNote:String(meta.priceNote||''),
     showcaseKind:['preset','fixed'].includes(meta.showcaseKind)?meta.showcaseKind:'preset',
     featured:meta.featured===true,
     pairChild:meta.pairChild===true
@@ -1366,7 +1369,7 @@ function presetItemByFile(file){
 function copyPresetProductMeta(target,fromFile,toFile){
   if(!target.presetMeta||typeof target.presetMeta!=='object'||Array.isArray(target.presetMeta))target.presetMeta={};
   const from=target.presetMeta[fromFile]||{},to=target.presetMeta[toFile]||{};
-  const keys=['name','enabled','isNew','isReserved','isReservable','isNoEdit','colorChangeAvailable','colorOnlyChangeAvailable','showcaseKind','featured'];
+  const keys=['name','description','price','priceVisible','priceNote','enabled','isNew','isReserved','isReservable','isNoEdit','colorChangeAvailable','colorOnlyChangeAvailable','showcaseKind','featured'];
   const patch={};
   keys.forEach(k=>{if(Object.prototype.hasOwnProperty.call(from,k))patch[k]=from[k]});
   target.presetMeta[toFile]={...to,...patch}
@@ -1678,6 +1681,12 @@ function renderPresetItems(){
           <label class="mini-toggle preset-color-only-toggle"><input type="checkbox" data-preset-color-only-change="${i}" ${meta.colorOnlyChangeAvailable?'checked':''}> 색상만 수정가능</label>
           <label class="mini-toggle"><input type="checkbox" data-preset-no-edit="${i}" ${meta.isNoEdit?'checked':''}> 수정불가</label>
         </div>
+        <div class="preset-admin-detail-fields">
+          <label class="wide">상세 설명<textarea rows="2" data-preset-description="${i}" placeholder="상세보기 팝업에 표시할 설명">${adminEsc(meta.description||'')}</textarea></label>
+          <label>가격<input type="number" min="0" step="100" data-preset-price="${i}" value="${Number(meta.price||0)}"></label>
+          <label class="mini-toggle preset-price-visible-toggle"><input type="checkbox" data-preset-price-visible="${i}" ${meta.priceVisible?'checked':''}> 가격 공개</label>
+          <label class="wide">가격 추가 안내<input data-preset-price-note="${i}" value="${adminEsc(meta.priceNote||'')}" placeholder="선택사항"></label>
+        </div>
       </div>
       <div class="preset-admin-actions">
         <div class="media-order-controls">
@@ -1685,6 +1694,7 @@ function renderPresetItems(){
           <button type="button" class="ghost cat-order-button" data-move-preset-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''} title="아래로 이동">↓</button>
         </div>
         <button class="ghost admin-compact preset-color-manage-button" data-preset-color-toggle="${i}">색상 관리 <span class="preset-color-count-badge">${variants.length}</span></button>
+        <button class="ghost admin-compact" data-preset-detail-save="${i}">상세정보 저장</button>
         <button class="ghost admin-compact" data-replace-preset="${i}">대표 이미지 수정</button>
         <button class="danger admin-compact" data-delete-preset-product="${i}">삭제</button>
       </div>
@@ -1702,6 +1712,7 @@ function renderPresetItems(){
   document.querySelectorAll('[data-preset-color-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorChange,'colorChangeAvailable',el.checked));
   document.querySelectorAll('[data-preset-color-only-change]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetColorOnlyChange,'colorOnlyChangeAvailable',el.checked));
   document.querySelectorAll('[data-preset-no-edit]').forEach(el=>el.onchange=()=>savePresetEditPolicy(+el.dataset.presetNoEdit,'isNoEdit',el.checked));
+  document.querySelectorAll('[data-preset-detail-save]').forEach(b=>b.onclick=()=>savePresetDetailInfo(+b.dataset.presetDetailSave));
   document.querySelectorAll('[data-preset-color-toggle]').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.presetColorToggle,x=presetItems[i];if(!x)return;
     const key=presetColorManagerKey(x);
@@ -1898,6 +1909,21 @@ async function deletePresetProduct(i){
   await persistPresetColorGroups(failed.length?'일부 파일만 삭제되었습니다.':'프리셋 상품을 삭제했습니다.');
   await loadPresetItemsOnly();
   if(failed.length)alert('일부 색상 파일 삭제에 실패했습니다. 실패한 파일은 상품에 남겨두었습니다.')
+}
+async function savePresetDetailInfo(i){
+  const x=presetItems[i];if(!x)return;
+  const description=document.querySelector('[data-preset-description="'+i+'"]')?.value||'';
+  const price=Math.max(0,Number(document.querySelector('[data-preset-price="'+i+'"]')?.value||0));
+  const priceVisible=document.querySelector('[data-preset-price-visible="'+i+'"]')?.checked===true;
+  const priceNote=document.querySelector('[data-preset-price-note="'+i+'"]')?.value||'';
+  const saved=await queueSettingsMutation(latest=>{
+    if(!latest.presetMeta||typeof latest.presetMeta!=='object'||Array.isArray(latest.presetMeta))latest.presetMeta={};
+    const prev=latest.presetMeta[x.file]||{};
+    latest.presetMeta[x.file]={...prev,description,price,priceVisible,priceNote}
+  });
+  S.presetMeta=saved.presetMeta||S.presetMeta||{};
+  renderPresetItems();
+  showToast('프리셋 상세정보가 저장되었습니다.')
 }
 async function savePresetEditPolicy(i,key,value){
   const x=presetItems[i];if(!x)return;
