@@ -133,5 +133,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261019200325"
+  },
+  {
+    "id": "preset-1EAgN7jy170",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261019200344-eygn66p6r1f8-background__6_.png",
+    "originalName": "background (6).png",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261019200345"
   }
 ]
