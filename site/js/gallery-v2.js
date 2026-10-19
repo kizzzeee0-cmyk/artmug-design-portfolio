@@ -99,6 +99,10 @@ function smeta(x){
   isNoEdit:m.isNoEdit===true,
   colorChangeAvailable:m.colorChangeAvailable===true,
   colorOnlyChangeAvailable:m.colorOnlyChangeAvailable===true,
+  description:String(m.description||''),
+  price:Math.max(0,Number(m.price||0)),
+  priceVisible:m.priceVisible===true,
+  priceNote:String(m.priceNote||''),
   showcaseKind:['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:'preset',
   featured:m.featured===true,
   pairChild:m.pairChild===true
@@ -353,10 +357,12 @@ function presetCard(x){
  const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  const colorButton=variants.length>1?'<button type="button" class="v2-preset-color-button" data-preset-color-menu="'+esc(x.file)+'" aria-label="색상 선택" aria-haspopup="menu"><svg viewBox="0 0 12 8" aria-hidden="true" focusable="false"><path d="M2 2.25 6 5.75l4-3.5"/></svg></button>':'';
+ const price=m.price>0?m.price.toLocaleString('ko-KR')+'원':'가격 문의';
  return '<article class="v2-showcase-card '+(profile?'is-profile':'')+'" data-file="'+esc(x.file)+'" data-preset-product-file="'+esc(x.file)+'">'+
-   '<div class="v2-showcase-media-wrap"><div class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+colorButton+'</div>'+
-   '<div class="v2-showcase-name-row"><strong>'+esc(m.name||'이름 없음')+'</strong></div>'+
+   '<div class="v2-showcase-media-wrap"><button type="button" class="v2-fixed-media-button" data-preset-detail-open="'+esc(x.file)+'" aria-label="'+esc(m.name||'프리셋')+' 상세보기"><span class="v2-showcase-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(m.name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></span></button>'+colorButton+'</div>'+
+   '<div class="v2-showcase-name-row"><button type="button" class="v2-showcase-name-button" data-preset-detail-open="'+esc(x.file)+'">'+esc(m.name||'이름 없음')+'</button></div>'+
    '<div class="v2-preset-badges">'+badges+'</div>'+
+   (m.priceVisible?'<span class="v2-unified-price">'+esc(price)+'</span>':'')+
    (m.colorChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">수정가능</span>':'')+
    (m.colorOnlyChangeAvailable&&!m.isNoEdit?'<span class="v2-editable-note">색상만 수정가능</span>':'')+
   '</article>'
@@ -766,13 +772,59 @@ function openFixedVariantPopover(button){
  pop.querySelectorAll('[data-fixed-variant-choice]').forEach(b=>b.onclick=e=>{e.stopPropagation();setFixedCardVariant(productId,b.dataset.fixedVariantChoice)});
  requestAnimationFrame(()=>positionPresetColorPopover(button,pop))
 }
+let presetDetailModal=null;
+function closePresetDetailModal(){
+ if(presetDetailModal){presetDetailModal.remove();presetDetailModal=null}
+ if(!fixedDetailModal)document.body.classList.remove('v2-fixed-detail-open')
+}
+function presetPreviewPublicHtml(v,x){
+ const cat=(state.settings?.presetCategories||[]).find(c=>c.id===x.category)||{id:x.category,label:x.category};
+ const key=layoutKey(cat),source=presetVariantSource(v.file),deferGif=key==='profile'&&isAnimatedMediaUrl(source);
+ const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
+ const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
+ return '<figure class="fixed-product-preview fixed-preview-layout-'+esc(key)+'">'+
+  '<div class="fixed-product-preview-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(v.name||smeta(x).name||'프리셋')+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+  '<figcaption><strong>'+esc(v.name||'기본 색상')+'</strong></figcaption>'+
+ '</figure>'
+}
+function presetPolicyHtml(m){
+ if(m.isNoEdit)return fixedOptionPublicHtml('변경 불가',[{label:'수정 불가',detail:'디자인 변경이 불가능한 프리셋입니다.'}],'is-fixed');
+ const rows=[];
+ if(m.colorChangeAvailable)rows.push({label:'수정 가능',detail:'디자인 요소를 자유롭게 수정할 수 있습니다.'});
+ if(m.colorOnlyChangeAvailable)rows.push({label:'색상 변경 가능',detail:'색상 위주로 변경할 수 있습니다.'});
+ return rows.length?fixedOptionPublicHtml('변경 가능',rows,'is-changeable'):''
+}
+function openPresetDetailModal(primaryFile){
+ closePresetColorPopover();closeFixedDetailModal();closePresetDetailModal();
+ const x=(state.showcase.preset||[]).find(v=>String(v.file)===String(primaryFile));if(!x)return;
+ const m=smeta(x),variants=presetVisibleVariants(x.file),price=m.price>0?m.price.toLocaleString('ko-KR')+'원':'가격 문의';
+ const badges=[{label:'1인 한정',cls:'is-limited-sale'},...presetBadges(m)].map(b=>'<span class="v2-preset-badge '+b.cls+'"><span class="v2-badge-label">'+esc(b.label)+'</span></span>').join('');
+ const modal=document.createElement('div');
+ modal.className='v2-fixed-detail-backdrop v2-preset-detail-backdrop';
+ modal.innerHTML='<section class="v2-fixed-detail-dialog v2-preset-detail-dialog" role="dialog" aria-modal="true" aria-label="'+esc(m.name||'프리셋 상세')+'">'+
+  '<button type="button" class="v2-fixed-detail-close" data-preset-detail-close aria-label="닫기">×</button>'+
+  '<header class="v2-fixed-detail-head"><h3>'+esc(m.name||'프리셋')+'</h3>'+
+   '<div class="v2-preset-badges v2-detail-badges">'+badges+'</div>'+
+   (m.priceVisible?'<strong class="v2-fixed-detail-price">'+esc(price)+'</strong>':'')+
+   (m.priceVisible&&m.priceNote?'<div class="v2-fixed-detail-price-meta"><span>'+esc(m.priceNote)+'</span></div>':'')+
+   (m.description?'<p>'+esc(m.description)+'</p>':'')+
+  '</header>'+
+  '<div class="v2-fixed-detail-previews">'+variants.map(v=>presetPreviewPublicHtml(v,x)).join('')+'</div>'+
+  '<div class="v2-fixed-detail-options">'+presetPolicyHtml(m)+'</div>'+
+ '</section>';
+ document.body.appendChild(modal);presetDetailModal=modal;document.body.classList.add('v2-fixed-detail-open');
+ modal.querySelector('[data-preset-detail-close]')?.addEventListener('click',closePresetDetailModal);
+ modal.addEventListener('click',e=>{if(e.target===modal)closePresetDetailModal()});
+ modal.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
+ manageAnimatedMedia(modal)
+}
 let fixedDetailModal=null;
 function closeFixedDetailModal(){
  if(fixedDetailModal){fixedDetailModal.remove();fixedDetailModal=null}
  document.body.classList.remove('v2-fixed-detail-open')
 }
 function openFixedDetailModal(productId){
- closePresetColorPopover();closeFixedDetailModal();
+ closePresetColorPopover();closePresetDetailModal();closeFixedDetailModal();
  const p=(state.showcase.fixed||[]).find(x=>String(x.id)===String(productId));if(!p)return;
  const previews=(p.previews||[]).filter(v=>v.enabled!==false);
  const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
@@ -894,6 +946,7 @@ async function renderShowcase(){
  root.innerHTML='<h2>고정틀 · 프리셋</h2><div class="v2-unified-showcase '+((fixed.length&&ordered.length)?'is-dual':'is-single')+'">'+fixedGroup+presetGroup+'</div>';
  root.querySelectorAll('[data-preset-filter-id]').forEach(b=>b.onclick=()=>{state.presetFilter={kind:'design',id:b.dataset.presetFilterId||''};state.showcasePage.preset=1;renderShowcase();requestHeight()});
  root.querySelectorAll('[data-preset-color-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetColorPopover(b)});
+ root.querySelectorAll('[data-preset-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetDetailModal(b.dataset.presetDetailOpen)});
  root.querySelectorAll('[data-fixed-variant-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedVariantPopover(b)});
  root.querySelectorAll('[data-fixed-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedDetailModal(b.dataset.fixedDetailOpen)});
  root.querySelectorAll('[data-v2-page^="showcase-fixed:"]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop(),cur=state.showcasePage.fixed||1;state.showcasePage.fixed=token==='prev'?cur-1:token==='next'?cur+1:Number(token);renderShowcase();requestHeight()});
@@ -1207,7 +1260,7 @@ async function init(){
  document.addEventListener('contextmenu',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
  document.addEventListener('click',e=>{if(presetColorPopover&&!e.target.closest('.v2-preset-color-popover')&&!e.target.closest('[data-preset-color-menu]')&&!e.target.closest('[data-fixed-variant-menu]'))closePresetColorPopover()});
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePresetColorPopover();closeFixedDetailModal()}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePresetColorPopover();closePresetDetailModal();closeFixedDetailModal()}});
  let showcaseResizeTimer=0;window.addEventListener('resize',()=>{closePresetColorPopover();clearTimeout(showcaseResizeTimer);showcaseResizeTimer=setTimeout(()=>{state.showcasePage.fixed=1;state.showcasePage.preset=1;renderShowcase();requestHeight()},120)},{passive:true});
  window.addEventListener('scroll',closePresetColorPopover,{passive:true});
  document.addEventListener('visibilitychange',()=>{
