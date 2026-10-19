@@ -4251,3 +4251,21 @@ body.v2-fixed-detail-open{
     width:min(100%,var(--shared-profile-preview-size,132px))!important;
   }
 }
+
+
+/* 2026-10-20 PRESET DETAIL POPUP */
+.v2-preset-detail-dialog .v2-detail-badges{
+  margin:8px auto 0;
+}
+.v2-preset-detail-dialog .v2-fixed-detail-price{
+  margin-top:8px;
+}
+.v2-preset-detail-dialog .v2-fixed-detail-options:empty{
+  display:none;
+}
+.v2-preset-detail-dialog .fixed-product-preview figcaption{
+  min-height:18px;
+}
+.v2-preset-detail-dialog .fixed-product-preview figcaption strong{
+  font-size:10.5px;
+}
