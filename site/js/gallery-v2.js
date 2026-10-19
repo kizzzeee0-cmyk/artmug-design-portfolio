@@ -772,6 +772,31 @@ function openFixedVariantPopover(button){
  pop.querySelectorAll('[data-fixed-variant-choice]').forEach(b=>b.onclick=e=>{e.stopPropagation();setFixedCardVariant(productId,b.dataset.fixedVariantChoice)});
  requestAnimationFrame(()=>positionPresetColorPopover(button,pop))
 }
+function detailPopupAnchor(trigger){
+ const target=trigger?.closest?.('.v2-showcase-card')||trigger;
+ const r=target?.getBoundingClientRect?.();
+ const scrollY=window.scrollY||document.documentElement.scrollTop||0;
+ return {
+  centerY:r?scrollY+r.top+(r.height/2):scrollY+(innerHeight/2),
+  documentHeight:Math.max(document.documentElement.scrollHeight||0,document.body?.scrollHeight||0,innerHeight||0)
+ }
+}
+function positionDetailPopup(modal,anchorData){
+ const dialog=modal?.querySelector?.('.v2-fixed-detail-dialog');if(!modal||!dialog)return;
+ const data=anchorData||detailPopupAnchor(null);
+ modal.classList.add('is-anchored');
+ modal.style.top='0px';modal.style.left='0px';modal.style.right='0px';
+ dialog.style.left='50%';dialog.style.transform='translateX(-50%)';
+ requestAnimationFrame(()=>{
+  if(!modal.isConnected||!dialog.isConnected)return;
+  const h=Math.max(1,dialog.offsetHeight||dialog.getBoundingClientRect().height||1);
+  const top=Math.max(16,data.centerY-(h/2));
+  const overlayHeight=Math.max(data.documentHeight,top+h+24);
+  modal.style.height=Math.ceil(overlayHeight)+'px';
+  modal.style.minHeight=Math.ceil(overlayHeight)+'px';
+  dialog.style.top=Math.round(top)+'px'
+ })
+}
 let presetDetailModal=null;
 function closePresetDetailModal(){
  if(presetDetailModal){presetDetailModal.remove();presetDetailModal=null}
@@ -794,7 +819,8 @@ function presetPolicyHtml(m){
  if(m.colorOnlyChangeAvailable)rows.push({label:'색상 변경 가능',detail:'색상 위주로 변경할 수 있습니다.'});
  return rows.length?fixedOptionPublicHtml('변경 가능',rows,'is-changeable'):''
 }
-function openPresetDetailModal(primaryFile){
+function openPresetDetailModal(primaryFile,trigger){
+ const anchorData=detailPopupAnchor(trigger);
  closePresetColorPopover();closeFixedDetailModal();closePresetDetailModal();
  const x=(state.showcase.preset||[]).find(v=>String(v.file)===String(primaryFile));if(!x)return;
  const m=smeta(x),variants=presetVisibleVariants(x.file),price=m.price>0?m.price.toLocaleString('ko-KR')+'원':'가격 문의';
@@ -813,9 +839,10 @@ function openPresetDetailModal(primaryFile){
   '<div class="v2-fixed-detail-options">'+presetPolicyHtml(m)+'</div>'+
  '</section>';
  document.body.appendChild(modal);presetDetailModal=modal;document.body.classList.add('v2-fixed-detail-open');
+ positionDetailPopup(modal,anchorData);
  modal.querySelector('[data-preset-detail-close]')?.addEventListener('click',closePresetDetailModal);
  modal.addEventListener('click',e=>{if(e.target===modal)closePresetDetailModal()});
- modal.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
+ modal.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',()=>{positionDetailPopup(modal,anchorData);requestHeight()},{once:true})});
  manageAnimatedMedia(modal)
 }
 let fixedDetailModal=null;
@@ -823,7 +850,8 @@ function closeFixedDetailModal(){
  if(fixedDetailModal){fixedDetailModal.remove();fixedDetailModal=null}
  document.body.classList.remove('v2-fixed-detail-open')
 }
-function openFixedDetailModal(productId){
+function openFixedDetailModal(productId,trigger){
+ const anchorData=detailPopupAnchor(trigger);
  closePresetColorPopover();closePresetDetailModal();closeFixedDetailModal();
  const p=(state.showcase.fixed||[]).find(x=>String(x.id)===String(productId));if(!p)return;
  const previews=(p.previews||[]).filter(v=>v.enabled!==false);
@@ -847,9 +875,10 @@ function openFixedDetailModal(productId){
   (note?'<p class="v2-fixed-detail-note">'+esc(note)+'</p>':'')+
  '</section>';
  document.body.appendChild(modal);fixedDetailModal=modal;document.body.classList.add('v2-fixed-detail-open');
+ positionDetailPopup(modal,anchorData);
  modal.querySelector('[data-fixed-detail-close]')?.addEventListener('click',closeFixedDetailModal);
  modal.addEventListener('click',e=>{if(e.target===modal)closeFixedDetailModal()});
- modal.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
+ modal.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',()=>{positionDetailPopup(modal,anchorData);requestHeight()},{once:true})});
  manageAnimatedMedia(modal)
 }
 function fixedProductPublicCard(p){
@@ -946,9 +975,9 @@ async function renderShowcase(){
  root.innerHTML='<h2>고정틀 · 프리셋</h2><div class="v2-unified-showcase '+((fixed.length&&ordered.length)?'is-dual':'is-single')+'">'+fixedGroup+presetGroup+'</div>';
  root.querySelectorAll('[data-preset-filter-id]').forEach(b=>b.onclick=()=>{state.presetFilter={kind:'design',id:b.dataset.presetFilterId||''};state.showcasePage.preset=1;renderShowcase();requestHeight()});
  root.querySelectorAll('[data-preset-color-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetColorPopover(b)});
- root.querySelectorAll('[data-preset-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetDetailModal(b.dataset.presetDetailOpen)});
+ root.querySelectorAll('[data-preset-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetDetailModal(b.dataset.presetDetailOpen,b)});
  root.querySelectorAll('[data-fixed-variant-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedVariantPopover(b)});
- root.querySelectorAll('[data-fixed-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedDetailModal(b.dataset.fixedDetailOpen)});
+ root.querySelectorAll('[data-fixed-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedDetailModal(b.dataset.fixedDetailOpen,b)});
  root.querySelectorAll('[data-v2-page^="showcase-fixed:"]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop(),cur=state.showcasePage.fixed||1;state.showcasePage.fixed=token==='prev'?cur-1:token==='next'?cur+1:Number(token);renderShowcase();requestHeight()});
  root.querySelectorAll('[data-v2-page^="showcase-preset:"]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop(),cur=state.showcasePage.preset||1;state.showcasePage.preset=token==='prev'?cur-1:token==='next'?cur+1:Number(token);renderShowcase();requestHeight()});
  root.querySelectorAll('img').forEach(img=>{img.draggable=false;img.setAttribute('draggable','false');if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
