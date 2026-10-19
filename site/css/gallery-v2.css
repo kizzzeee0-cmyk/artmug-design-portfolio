@@ -4017,7 +4017,7 @@ body.artmug-part-portfolio #inquirySection{
 
 /* Fixed-template detail dialog: hidden until a product is explicitly opened. */
 body.v2-fixed-detail-open{
-  overflow:hidden!important;
+  overflow:visible!important;
 }
 .v2-fixed-detail-backdrop{
   position:fixed;
@@ -4030,6 +4030,16 @@ body.v2-fixed-detail-open{
   box-sizing:border-box;
   background:rgba(41,64,78,.26);
   backdrop-filter:blur(3px);
+}
+.v2-fixed-detail-backdrop.is-anchored{
+  position:absolute;
+  inset:auto 0 auto 0;
+  display:block;
+  padding:0;
+}
+.v2-fixed-detail-backdrop.is-anchored .v2-fixed-detail-dialog{
+  position:absolute;
+  margin:0;
 }
 .v2-fixed-detail-dialog{
   position:relative;
@@ -4268,4 +4278,11 @@ body.v2-fixed-detail-open{
 }
 .v2-preset-detail-dialog .fixed-product-preview figcaption strong{
   font-size:10.5px;
+}
+
+
+/* 2026-10-20 CLICK-ANCHORED DETAIL POPUP */
+.v2-fixed-detail-backdrop.is-anchored{
+  width:100%;
+  min-width:100%;
 }
