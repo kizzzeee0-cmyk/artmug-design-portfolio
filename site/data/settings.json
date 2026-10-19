@@ -1052,7 +1052,7 @@
   "fixedProducts": [
     {
       "id": "product-mvb2jx7t-2gb2f6",
-      "name": "움짤프사 고정틀 A",
+      "name": "움짤프사 고정틀",
       "description": "",
       "enabled": true,
       "pcColumns": 6,
@@ -1098,18 +1098,18 @@
           "enabled": true
         },
         {
-          "id": "preview-mvb5po2z-2xe0vs",
-          "file": "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
-          "category": "profile",
-          "name": "브라운 / 도트",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvb5arkc-tdfosv",
           "file": "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
           "category": "profile",
           "name": "블랙&퍼플 / 하트",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvb5po2z-2xe0vs",
+          "file": "preset/fixed-store-profile/20261016163215-1ip7xojhq096h-________1_.gif",
+          "category": "profile",
+          "name": "브라운 / 도트",
           "description": "",
           "enabled": true
         }
