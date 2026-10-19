@@ -914,10 +914,10 @@
     "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
     "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
     "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
-    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
     "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif",
     "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
-    "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
+    "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif",
+    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png",
@@ -1098,39 +1098,6 @@
       ]
     },
     {
-      "id": "product-mve3thwn-ti6e2f",
-      "name": "할로윈 고정틀",
-      "description": "",
-      "enabled": true,
-      "pcColumns": 6,
-      "mobileColumns": 2,
-      "showPreviewNames": true,
-      "changeableOptions": [
-        {
-          "id": "opt-mve62j14-2ysg73",
-          "label": "미리보기에 없는 색상으로도 변경 가능합니다",
-          "detail": "",
-          "choices": []
-        }
-      ],
-      "fixedOptions": [],
-      "note": "색상 자유롭게 변경 가능합니다",
-      "price": 15000,
-      "priceVisible": true,
-      "priceNote": "",
-      "priceScope": "",
-      "previews": [
-        {
-          "id": "preview-mve3uuw2-o8cp3r",
-          "file": "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
-          "category": "profile",
-          "name": "",
-          "description": "",
-          "enabled": true
-        }
-      ]
-    },
-    {
       "id": "product-mvfojfsv-rhhe9w",
       "name": "고정틀 B - 기본 체크",
       "description": "",
@@ -1167,6 +1134,39 @@
           "file": "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif",
           "category": "profile",
           "name": "핑크",
+          "description": "",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "product-mve3thwn-ti6e2f",
+      "name": "할로윈 고정틀",
+      "description": "",
+      "enabled": true,
+      "pcColumns": 6,
+      "mobileColumns": 2,
+      "showPreviewNames": true,
+      "changeableOptions": [
+        {
+          "id": "opt-mve62j14-2ysg73",
+          "label": "미리보기에 없는 색상으로도 변경 가능합니다",
+          "detail": "",
+          "choices": []
+        }
+      ],
+      "fixedOptions": [],
+      "note": "색상 자유롭게 변경 가능합니다",
+      "price": 15000,
+      "priceVisible": true,
+      "priceNote": "",
+      "priceScope": "",
+      "previews": [
+        {
+          "id": "preview-mve3uuw2-o8cp3r",
+          "file": "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
+          "category": "profile",
+          "name": "",
           "description": "",
           "enabled": true
         }
