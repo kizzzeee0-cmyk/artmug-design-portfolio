@@ -722,7 +722,144 @@
     "copyIntroText": "안녕하세요 문의주셔서 감사드립니당!",
     "copyTotalPrefix": "총 금액",
     "copyTotalSuffix": "원입니다!",
-    "copyClosingText": "괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!"
+    "copyClosingText": "괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!",
+    "pricingV2": {
+      "version": 2,
+      "designs": {
+        "profile": {
+          "id": "profile",
+          "label": "움짤프사",
+          "typeId": "profile-a",
+          "pricing": "profileMode"
+        },
+        "topBanner": {
+          "id": "topBanner",
+          "label": "상단배너",
+          "typeId": "banner",
+          "price": 30000
+        },
+        "floatingBanner": {
+          "id": "floatingBanner",
+          "label": "플로팅배너",
+          "typeId": "type-1791282435211",
+          "price": 6000
+        },
+        "bottomBanner": {
+          "id": "bottomBanner",
+          "label": "하단배너",
+          "typeId": "type-1791282449527",
+          "pricing": "bottomType"
+        },
+        "fourCut": {
+          "id": "fourCut",
+          "label": "인생네컷",
+          "typeId": "type-1792042352882",
+          "price": 22000
+        }
+      },
+      "profileModes": {
+        "custom": {
+          "id": "custom",
+          "label": "맞춤제작",
+          "price": 20000
+        },
+        "fixed": {
+          "id": "fixed",
+          "label": "고정틀 구매",
+          "price": 15000
+        },
+        "preset": {
+          "id": "preset",
+          "label": "프리셋 구매",
+          "price": 20000
+        },
+        "change": {
+          "id": "change",
+          "label": "이름/움짤 변경",
+          "price": null,
+          "calculatedByOptions": true
+        }
+      },
+      "bottomTypes": {
+        "bottom1": {
+          "id": "bottom1",
+          "label": "하단 1칸",
+          "price": 10000
+        },
+        "bottom3": {
+          "id": "bottom3",
+          "label": "하단 3칸",
+          "price": 15000
+        },
+        "bottom6": {
+          "id": "bottom6",
+          "label": "하단 6칸",
+          "price": 25000
+        }
+      },
+      "options": {
+        "nameChange": {
+          "id": "nameChange",
+          "label": "이름 변경",
+          "price": 2000,
+          "quantityField": "nameChangeQty"
+        },
+        "gifChange": {
+          "id": "gifChange",
+          "label": "움짤 변경",
+          "price": 1000,
+          "quantityField": "gifChangeQty"
+        },
+        "textImageChange": {
+          "id": "textImageChange",
+          "label": "배너 · 텍스트/이미지 변경",
+          "price": 3000,
+          "quantityField": "textChangeQty"
+        },
+        "sameDesignColorChange": {
+          "id": "sameDesignColorChange",
+          "label": "동일 디자인 · 색상 변경",
+          "price": 0,
+          "quantityField": "sameDesignColorChangeQty"
+        },
+        "sameDay": {
+          "id": "sameDay",
+          "label": "당일마감",
+          "price": 10000,
+          "checkboxValue": "당일마감"
+        },
+        "fast": {
+          "id": "fast",
+          "label": "빠른 마감",
+          "price": 5000,
+          "checkboxValue": "빠른 마감"
+        },
+        "private": {
+          "id": "private",
+          "label": "포트폴리오 비공개",
+          "price": 20000,
+          "checkboxValue": "포트폴리오 비공개"
+        }
+      },
+      "customOptions": [],
+      "standaloneItems": [
+        {
+          "id": "signature-style",
+          "label": "시그풍 1개",
+          "price": 11000
+        },
+        {
+          "id": "qg-design-1792438046376",
+          "label": "시그풍 3개 세트",
+          "price": 30000
+        },
+        {
+          "id": "qg-design-1792438078960",
+          "label": "시그풍 6개 세트",
+          "price": 55000
+        }
+      ]
+    }
   },
   "presetGroups": [
     {
