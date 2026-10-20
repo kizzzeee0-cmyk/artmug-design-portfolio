@@ -1111,6 +1111,10 @@ function ensureQuoteConfig(){
   if(!q.bannerPrices||typeof q.bannerPrices!=='object')q.bannerPrices={};
   if(!q.optionPrices||typeof q.optionPrices!=='object')q.optionPrices={};
   if(!Array.isArray(q.customItems))q.customItems=[];
+  if(q.copyIntroText==null)q.copyIntroText='안녕하세요 문의주셔서 감사드립니당!';
+  if(q.copyTotalPrefix==null)q.copyTotalPrefix='총 금액';
+  if(q.copyTotalSuffix==null)q.copyTotalSuffix='원입니다!';
+  if(q.copyClosingText==null)q.copyClosingText='작업 일정 확인 후 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!';
 
   (S.designTypes||[]).forEach(x=>{if(q.designPrices[x.id]==null)q.designPrices[x.id]=0});
   QUOTE_BANNERS.forEach(([id])=>{if(q.bannerPrices[id]==null)q.bannerPrices[id]=0});
@@ -1180,6 +1184,10 @@ function renderQuoteAdmin(){
     quotePriceGroup('option',q.priceItems.option);
 
   $('quoteCustomItems').innerHTML=q.customItems.map((x,i)=>'<div class="quote-custom-row"><input data-q-custom-name="'+i+'" value="'+adminEsc(x.name||'')+'" placeholder="항목명"><div class="quote-price-input"><input type="number" step="100" data-q-custom-price="'+i+'" value="'+Number(x.price||0)+'"><em>원</em></div><button class="danger admin-compact" data-del-q-custom="'+i+'">삭제</button></div>').join('')||'<p class="muted quote-empty">등록된 별도 추가 항목이 없습니다.</p>';
+  if($('quoteCopyIntro'))$('quoteCopyIntro').value=String(q.copyIntroText||'');
+  if($('quoteCopyTotalPrefix'))$('quoteCopyTotalPrefix').value=String(q.copyTotalPrefix||'');
+  if($('quoteCopyTotalSuffix'))$('quoteCopyTotalSuffix').value=String(q.copyTotalSuffix||'');
+  if($('quoteCopyClosing'))$('quoteCopyClosing').value=String(q.copyClosingText||'');
 
   bindQuoteConfigInputs();
   renderQuoteBuilder()
@@ -1229,6 +1237,16 @@ function bindQuoteConfigInputs(){
     if(x)delete quoteState['custom:'+x.id];
     q.customItems.splice(+b.dataset.delQCustom,1);
     renderQuoteAdmin()
+  });
+  const copyFields=[
+    ['quoteCopyIntro','copyIntroText'],
+    ['quoteCopyTotalPrefix','copyTotalPrefix'],
+    ['quoteCopyTotalSuffix','copyTotalSuffix'],
+    ['quoteCopyClosing','copyClosingText']
+  ];
+  copyFields.forEach(([id,key])=>{
+    const el=$(id);if(!el)return;
+    el.oninput=()=>{ensureQuoteConfig()[key]=el.value;renderQuotePreview()}
   })
 }
 function quoteItems(){
@@ -1256,13 +1274,22 @@ function renderQuoteBuilder(){
 }
 function renderQuotePreview(){
   if(!$('quotePreview'))return;
+  const q=ensureQuoteConfig();
   const selected=quoteItems().map(x=>({...x,qty:Number(quoteState[x.key]||0)})).filter(x=>x.qty>0);
-  const lines=['안녕하세요 문의주셔서 감사드립니당!',''];
+  const itemLines=[];
   let total=0;
-  selected.forEach(x=>{total+=x.price*x.qty;lines.push(`${x.label} (${x.price})${x.qty>1?` *${x.qty}`:''}`)});
-  if(selected.length)lines.push('');
-  lines.push(`총 금액 ${total.toLocaleString('ko-KR')}원입니다!`,'','작업 일정 확인 후 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!');
-  $('quotePreview').value=lines.join('\n')
+  selected.forEach(x=>{
+    total+=x.price*x.qty;
+    itemLines.push(`${x.label} (${x.price.toLocaleString('ko-KR')}원)${x.qty>1?` ×${x.qty}`:'' }`)
+  });
+  const blocks=[];
+  const intro=String(q.copyIntroText||'').trim();
+  const closing=String(q.copyClosingText||'').trim();
+  if(intro)blocks.push(intro);
+  if(itemLines.length)blocks.push(itemLines.join('\n'));
+  blocks.push(String(q.copyTotalPrefix||'').trim()+(q.copyTotalPrefix?' ':'')+total.toLocaleString('ko-KR')+String(q.copyTotalSuffix||''));
+  if(closing)blocks.push(closing);
+  $('quotePreview').value=blocks.join('\n\n')
 }
 async function copyQuote(){
   const btn=$('copyQuote'),original=btn.textContent;
