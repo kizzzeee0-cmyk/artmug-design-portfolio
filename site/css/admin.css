@@ -2440,3 +2440,176 @@
   .quote-copy-fields .wide{grid-column:auto}
   .quote-builder{grid-template-columns:1fr!important}
 }
+
+
+/* 2026-10-20 PRICING V2 HIERARCHY */
+.quote-pricing{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:10px!important;
+}
+.quote-structure-section{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  overflow:hidden;
+}
+.quote-structure-section>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 13px;
+  cursor:pointer;
+  list-style:none;
+  background:var(--surface-2);
+}
+.quote-structure-section>summary::-webkit-details-marker{display:none}
+.quote-structure-section>summary strong{
+  font-size:13px;
+  font-weight:750;
+}
+.quote-structure-section>summary span{
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:450;
+  text-align:right;
+}
+.quote-structure-body{
+  display:grid;
+  gap:0;
+  padding:2px 12px 8px;
+}
+.quote-structure-row{
+  display:grid;
+  grid-template-columns:minmax(170px,1fr) 138px auto;
+  align-items:center;
+  gap:9px;
+  min-height:47px;
+  padding:7px 0;
+  border-bottom:1px solid var(--line);
+}
+.quote-structure-row:last-of-type{border-bottom:0}
+.quote-structure-item{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.quote-structure-item small{
+  flex:0 0 auto;
+  color:var(--muted);
+  font-size:9.5px;
+  white-space:nowrap;
+}
+.quote-admin-choice-pill{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  max-width:100%;
+  padding:5px 11px;
+  border:1px solid #d6e7f2;
+  border-radius:10px;
+  background:#fff;
+  color:#5c7482;
+  font-size:11.5px;
+  font-weight:600;
+  line-height:1.25;
+  box-sizing:border-box;
+}
+.quote-admin-pill-input{
+  width:min(100%,260px)!important;
+  min-width:0!important;
+  height:30px!important;
+  padding:5px 11px!important;
+  border:1px solid #d6e7f2!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  color:#5c7482!important;
+  font-size:11.5px!important;
+  font-weight:600!important;
+  box-shadow:none!important;
+}
+.quote-structure-price{
+  position:relative;
+  width:138px;
+}
+.quote-structure-price input{
+  width:100%!important;
+  min-height:32px!important;
+  padding:6px 31px 6px 9px!important;
+  border-radius:9px!important;
+  font-size:11.5px!important;
+  text-align:right;
+}
+.quote-structure-price em{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:10.5px;
+  font-style:normal;
+  pointer-events:none;
+}
+.quote-derived-note{
+  justify-self:end;
+  padding:5px 8px;
+  border-radius:8px;
+  background:#eef7fc;
+  color:#6a9bb8;
+  font-size:10.5px;
+  font-weight:650;
+  white-space:nowrap;
+}
+.quote-structure-row.is-derived{
+  grid-template-columns:minmax(170px,1fr) auto;
+}
+.quote-structure-delete{
+  padding-inline:8px!important;
+}
+.quote-add-inline{
+  justify-self:start;
+  margin:9px 0 2px;
+}
+.quote-standalone-row{
+  grid-template-columns:minmax(0,1fr) 138px auto!important;
+}
+@media(max-width:820px){
+  .quote-structure-section>summary{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:4px;
+  }
+  .quote-structure-section>summary span{text-align:left}
+  .quote-structure-row,
+  .quote-structure-row.is-derived{
+    grid-template-columns:minmax(0,1fr) 128px auto;
+  }
+  .quote-structure-row.is-derived{
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+  .quote-structure-price{width:128px}
+  .quote-structure-item small{display:none}
+}
+@media(max-width:560px){
+  .quote-structure-body{padding:3px 10px 8px}
+  .quote-structure-row,
+  .quote-structure-row.is-derived{
+    grid-template-columns:minmax(0,1fr) 112px auto;
+    gap:6px;
+  }
+  .quote-structure-row.is-derived{
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+  .quote-structure-price{width:112px}
+  .quote-admin-choice-pill,
+  .quote-admin-pill-input{
+    font-size:10.5px!important;
+  }
+  .quote-derived-note{
+    max-width:128px;
+    white-space:normal;
+    text-align:right;
+  }
+}
