@@ -1131,7 +1131,7 @@ function injectInquiry(card){
  const banners=types.filter(x=>/배너/.test(x.label));
  let box=fields.querySelector('.v2-inquiry-enhancements');
  if(!box){box=document.createElement('div');box.className='v2-inquiry-enhancements';fields.prepend(box)}
- const profileMode=card.dataset.profileMode||'custom';
+ const profileMode=card.dataset.profileMode||'';
  let html='';
  if(hasProfile){
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
@@ -1246,7 +1246,7 @@ window.__ARTMUG_V2__={
   const types=selectedTypeInputs(card),banners=types.filter(x=>/배너/.test(x.label));
   const fixedProduct=selectedFixedProduct(card);
   return {
-   profileMode:card.dataset.profileMode||'custom',
+   profileMode:card.dataset.profileMode||'',
    selectedPresetFile:card.dataset.selectedPresetFile||'',
    selectedPresetName:selectedProductName(card),
    selectedPresetStatus:selectedProductStatus(card),
@@ -1263,6 +1263,7 @@ window.__ARTMUG_V2__={
  },
  validateCard(card){
   const d=this.inquiryData(card);
+  if(d.profileSelected&&!d.profileMode)return {ok:false,message:'움짤프사 신청 방식을 선택해주세요.'};
   if(d.profileSelected&&d.profileMode==='fixed'&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
   if(d.profileSelected&&d.profileMode==='preset'&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
   if(d.profileSelected&&d.profileMode==='preset'&&d.selectedPresetNeedsColor&&!d.selectedPresetColorFile)return {ok:false,message:'구매할 프리셋의 색상을 선택해주세요.'};
@@ -1270,7 +1271,7 @@ window.__ARTMUG_V2__={
  },
  inquiryLines(card){
   const d=this.inquiryData(card),out=[];
-  if(d.profileSelected){
+  if(d.profileSelected&&d.profileMode){
    const modeLabel=v2ProfileMode(d.profileMode,d.profileMode==='fixed'?'고정틀 구매':d.profileMode==='preset'?'프리셋 구매':d.profileMode==='change'?'이름/움짤 변경':'맞춤제작').label;
    out.push('움짤프사 신청 방식: '+modeLabel);
    if(d.profileMode==='fixed'&&d.selectedFixedProductName){
