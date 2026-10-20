@@ -718,7 +718,11 @@
           "price": 20000
         }
       ]
-    }
+    },
+    "copyIntroText": "안녕하세요 문의주셔서 감사드립니당!",
+    "copyTotalPrefix": "총 금액",
+    "copyTotalSuffix": "원입니다!",
+    "copyClosingText": "작업 일정 확인 후 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!"
   },
   "presetGroups": [
     {
