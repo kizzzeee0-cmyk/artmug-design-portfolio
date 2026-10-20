@@ -933,8 +933,7 @@ function renderInquiryEstimate(){
     return '<div class="inquiry-estimate-row"><div class="inquiry-estimate-name"><strong>'+htmlAttr(x.label)+'</strong><span>'+unit+'</span></div>'+qty+'<b class="inquiry-estimate-subtotal">'+subtotal+'</b></div>'
   }).join('');
   box.innerHTML='<div class="inquiry-estimate-head"><div><strong>🧮 예상 금액</strong></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
-    (rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'')+
-    (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 가격이 설정되지 않은 항목은 총액에서 제외되며 별도 문의로 표시됩니다.</p>':'');
+    (rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'');
   box.hidden=false
 }
 let inquiryEstimateObserver=null;
