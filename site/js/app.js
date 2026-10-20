@@ -932,7 +932,7 @@ function renderInquiryEstimate(){
       '<span class="inquiry-estimate-count">× '+x.qty+'개</span>';
     return '<div class="inquiry-estimate-row"><div class="inquiry-estimate-name"><strong>'+htmlAttr(x.label)+'</strong><span>'+unit+'</span></div>'+qty+'<b class="inquiry-estimate-subtotal">'+subtotal+'</b></div>'
   }).join('');
-  box.innerHTML='<div class="inquiry-estimate-head"><div><strong>🧮 예상 금액</strong></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
+  box.innerHTML='<div class="inquiry-estimate-head"><div><strong><span class="inquiry-estimate-icon" aria-hidden="true">🖩</span> 예상 금액</strong></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
     (rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'');
   box.hidden=false
 }
