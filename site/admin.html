@@ -94,7 +94,7 @@
 </section>
 
 <section class="card admin-section quote-admin" data-section="quote" hidden>
-<div class="head"><div><span class="section-kicker">QUOTE BUILDER</span><h2>견적 계산기</h2><p class="muted">공개 페이지에는 표시되지 않는 관리자 전용 견적 작성 도구입니다.</p></div><button id="saveQuoteConfig" class="primary-button admin-compact">가격 설정 저장</button></div>
+<div class="head"><div><span class="section-kicker">QUOTE BUILDER</span><h2>견적 계산기</h2><p class="muted">공개 페이지에는 표시되지 않는 관리자 전용 견적 작성 도구입니다.</p></div><button id="saveQuoteConfig" class="primary-button admin-compact">견적 설정 저장</button></div>
 <div class="quote-admin-grid">
   <div class="sub card-in admin-block">
     <div class="admin-block-title"><span class="order-chip">A</span><div><h3>가격 설정</h3><p class="muted">신청 디자인 종류, 배너 종류, 추가 옵션의 항목과 금액을 직접 추가·삭제할 수 있습니다.</p></div></div>
@@ -106,6 +106,15 @@
   </div>
   <div class="sub card-in admin-block quote-builder-block">
     <div class="admin-block-title"><span class="order-chip">C</span><div><h3>견적 작성</h3><p class="muted">− / + 버튼으로 갯수를 선택하면 아래에 견적 문구와 총 금액이 자동으로 정리됩니다.</p></div></div>
+    <div class="quote-copy-settings">
+      <div class="quote-copy-settings-head"><strong>복사 문구 설정</strong><span class="muted">가격 숫자는 자동 계산되며, 나머지 문구만 수정할 수 있습니다.</span></div>
+      <div class="quote-copy-fields">
+        <label class="wide">첫 문구<textarea id="quoteCopyIntro" rows="2" placeholder="예: 안녕하세요 문의주셔서 감사드립니당!"></textarea></label>
+        <label>총 금액 앞 문구<input id="quoteCopyTotalPrefix" placeholder="예: 총 금액"></label>
+        <label>총 금액 뒤 문구<input id="quoteCopyTotalSuffix" placeholder="예: 원입니다!"></label>
+        <label class="wide">마무리 문구<textarea id="quoteCopyClosing" rows="2" placeholder="예: 작업 일정 확인 후 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!"></textarea></label>
+      </div>
+    </div>
     <div id="quoteBuilder" class="quote-builder"></div>
     <div class="quote-preview-wrap">
       <div class="quote-preview-head"><strong>복사될 견적 문구</strong><button id="copyQuote" class="primary-button admin-compact">견적 복사하기</button></div>
@@ -116,4 +125,4 @@
 </section>
 
 <section class="card admin-section" data-section="status" hidden><span class="section-kicker">CONNECTION</span><h2>연결 상태</h2><dl><div><dt>API</dt><dd id="api"></dd></div><div><dt>GitHub 관리자</dt><dd id="githubUser"></dd></div><div><dt>Worker</dt><dd id="health">확인 중…</dd></div></dl></section>
-</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261019-fixed-bottom-admin-v1"></script></body></html>
+</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261020-quote-compact-v1"></script></body></html>
