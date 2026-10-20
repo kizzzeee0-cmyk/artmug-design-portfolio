@@ -976,6 +976,8 @@ function requestText(card){
   if(has('showBannerFields')){
     designInfo.push('하단 배너 종류: '+(v.banners.length?v.banners.join(', '):'선택 없음'))
   }
+  const multiQty=selectedInquiryEstimateRows(card).filter(x=>x.adjustable&&x.qty>1);
+  if(multiQty.length)designInfo.push('신청 수량: '+multiQty.map(x=>x.label+' × '+x.qty+'개').join(', '));
 
   // Group 3: only fields currently visible in the inquiry form.
   var details=[];
