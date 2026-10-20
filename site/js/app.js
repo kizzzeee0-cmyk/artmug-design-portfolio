@@ -647,6 +647,13 @@ function addRequest(typeIds){
       var prev=readRequestValues(card);
       var selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
       card.dataset.typeIds=selected.join(',');
+      const stillHasProfile=selected.map(inquiryType).some(isProfileInquiryType);
+      if(!stillHasProfile){
+        delete card.dataset.profileMode;
+        delete card.dataset.selectedFixedProductId;
+        delete card.dataset.selectedPresetFile;
+        delete card.dataset.selectedPresetColorFile;
+      }
       card.querySelector('.request-type-selector').classList.remove('is-required-missing');
       renderRequestFields(card,selected,prev);
       clearRequiredMessageIfComplete();
