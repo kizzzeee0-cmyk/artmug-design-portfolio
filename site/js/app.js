@@ -696,7 +696,7 @@ function renderRequestFields(card,typeIds,prev){
   var has=function(key){return types.some(t=>t[key])};
   var hasProfile=types.some(isProfileInquiryType);
   var bottomBannerOnly=types.length===1&&types[0]?.showBannerFields===true&&!hasProfile;
-  var profileMode=card.dataset.profileMode||'custom';
+  var profileMode=card.dataset.profileMode||'';
   var contentEnabled=types.some(showsContentField);
 
   if(!types.length){
@@ -863,8 +863,8 @@ function selectedInquiryEstimateRows(card){
     const d=inquiryDesignPriceForType(t);if(!d)return;
     const designId=String(d.id||'');
     if(designId==='profile'||d.pricing==='profileMode'){
-      const mode=String(v2.profileMode||card.dataset.profileMode||'custom');
-      if(mode==='change')return;
+      const mode=String(v2.profileMode||card.dataset.profileMode||'');
+      if(!mode||mode==='change')return;
       const m=inquiryProfileMode(mode,mode);
       let label=(d.label||t.label||'움짤프사')+' · '+m.label;
       let price=inquiryPrice(m.price);
