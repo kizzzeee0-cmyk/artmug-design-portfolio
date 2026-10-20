@@ -1166,11 +1166,11 @@ function injectInquiry(card){
   injectInquiry(card);
   requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.());window.refreshInquiryEstimate?.()
  });
- box.querySelectorAll('[data-v2-banner-index]').forEach(i=>i.onchange=()=>{card.dataset['bannerType'+i.dataset.v2BannerIndex]=i.value});
+ box.querySelectorAll('[data-v2-banner-index]').forEach(i=>i.onchange=()=>{card.dataset['bannerType'+i.dataset.v2BannerIndex]=i.value;window.refreshInquiryEstimate?.()});
  box.querySelectorAll('[data-v2-select="preset"]').forEach(b=>b.onclick=()=>{
   if(card.dataset.selectedPresetFile!==b.dataset.file)delete card.dataset.selectedPresetColorFile;
   card.dataset.selectedPresetFile=b.dataset.file;
-  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.());window.refreshInquiryEstimate?.()
  });
  box.querySelectorAll('[data-v2-select="preset-color"]').forEach(i=>i.onchange=()=>{
   card.dataset.selectedPresetColorFile=i.value;
