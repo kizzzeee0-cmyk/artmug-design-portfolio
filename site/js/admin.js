@@ -1280,7 +1280,7 @@ function renderQuotePreview(){
   let total=0;
   selected.forEach(x=>{
     total+=x.price*x.qty;
-    itemLines.push(`${x.label} (${x.price.toLocaleString('ko-KR')}원)${x.qty>1?` ×${x.qty}`:'' }`)
+    itemLines.push(`${x.label} : ${x.price.toLocaleString('ko-KR')}원${x.qty>1?` × ${x.qty}개`:''}`)
   });
   const blocks=[];
   const intro=String(q.copyIntroText||'').trim();
