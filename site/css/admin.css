@@ -2337,3 +2337,106 @@
     grid-column:auto;
   }
 }
+
+
+/* 2026-10-20 COMPACT QUOTE BUILDER + COPY WORDING */
+.quote-copy-settings{
+  margin:0 0 14px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.quote-copy-settings-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:9px;
+}
+.quote-copy-settings-head strong{
+  font-size:12.5px;
+}
+.quote-copy-settings-head .muted{
+  font-size:10.5px;
+  text-align:right;
+}
+.quote-copy-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.quote-copy-fields label{
+  display:grid;
+  gap:5px;
+  min-width:0;
+  font-size:10.5px;
+  font-weight:650;
+}
+.quote-copy-fields .wide{
+  grid-column:1 / -1;
+}
+.quote-copy-fields input,
+.quote-copy-fields textarea{
+  width:100%;
+  min-height:34px;
+  padding:7px 9px;
+  border-radius:9px;
+  font-size:11.5px;
+}
+.quote-copy-fields textarea{
+  min-height:58px;
+  resize:vertical;
+}
+.quote-builder{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.quote-select-row{
+  min-width:0;
+  min-height:54px;
+  gap:7px!important;
+  padding:7px 8px!important;
+  border-radius:11px!important;
+}
+.quote-select-name{
+  gap:0!important;
+}
+.quote-select-name strong{
+  font-size:11px!important;
+  line-height:1.3;
+}
+.quote-select-name span{
+  margin-top:2px;
+  font-size:9.5px!important;
+  line-height:1.2;
+}
+.qty-control{
+  gap:4px!important;
+}
+.qty-control button{
+  width:24px!important;
+  height:24px!important;
+  border-radius:7px!important;
+  font-size:12px;
+}
+.qty-control b{
+  min-width:14px!important;
+  font-size:10.5px!important;
+}
+@media(max-width:1180px){
+  .quote-builder{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:860px){
+  .quote-builder{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:560px){
+  .quote-copy-settings-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .quote-copy-settings-head .muted{text-align:left}
+  .quote-copy-fields{grid-template-columns:1fr}
+  .quote-copy-fields .wide{grid-column:auto}
+  .quote-builder{grid-template-columns:1fr!important}
+}
