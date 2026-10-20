@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0,publicQuoteQty={};const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 function initArtmugEmbedMode(){
   // Report content height for both the complete public page and split embed pages.
   if(window.parent===window)return;
@@ -502,16 +502,48 @@ function isBannerInquiryType(t){
 function showsContentField(t){
   return t?.showContentField===true||t?.showBannerTextField===true
 }
+function inquiryPricing(){
+  const p=S?.quoteConfig?.pricingV2;
+  return p&&typeof p==='object'?p:{designs:{},profileModes:{},bottomTypes:{},options:{},customOptions:[]}
+}
+function inquiryPrice(v){return Math.max(0,Number(v||0))}
+function inquiryOption(key,fallbackLabel){
+  const x=inquiryPricing().options?.[key]||{};
+  return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:inquiryPrice(x.price)}
+}
+function inquiryProfileMode(key,fallbackLabel){
+  const x=inquiryPricing().profileModes?.[key]||{};
+  return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:x.price==null?null:inquiryPrice(x.price)}
+}
+function inquiryBottomType(key,fallbackLabel){
+  const x=inquiryPricing().bottomTypes?.[key]||{};
+  return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:inquiryPrice(x.price)}
+}
+function inquiryDesignPriceForType(t){
+  const designs=inquiryPricing().designs||{},id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
+  const entries=Object.values(designs);
+  const exact=entries.find(x=>String(x?.typeId||'')&&String(x.typeId)===id);
+  if(exact)return exact;
+  if(isProfileInquiryType(t))return designs.profile||{id:'profile',pricing:'profileMode'};
+  if(isFourCutInquiryType(t))return designs.fourCut||{id:'fourCut',price:0};
+  if(label.includes('상단배너'))return designs.topBanner||{id:'topBanner',price:0};
+  if(label.includes('플로팅배너'))return designs.floatingBanner||{id:'floatingBanner',price:0};
+  if(label.includes('하단배너'))return designs.bottomBanner||{id:'bottomBanner',pricing:'bottomType'};
+  return null
+}
+function inquiryCustomOptions(){
+  return (Array.isArray(inquiryPricing().customOptions)?inquiryPricing().customOptions:[]).filter(x=>x&&x.enabledInInquiry!==false)
+}
 function inquiryQuantityOptions(t){
   if(isProfileInquiryType(t))return [
-    {key:'nameChangeQty',label:'이름 변경'},
-    {key:'gifChangeQty',label:'움짤 변경'}
+    {key:'nameChangeQty',label:inquiryOption('nameChange','이름 변경').label},
+    {key:'gifChangeQty',label:inquiryOption('gifChange','움짤 변경').label}
   ];
   if(isFourCutInquiryType(t))return [
-    {key:'sameDesignColorChangeQty',label:'동일 디자인 · 색상 변경'}
+    {key:'sameDesignColorChangeQty',label:inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label}
   ];
   if(showsContentField(t)||isBannerInquiryType(t))return [
-    {key:'textChangeQty',label:'배너 · 텍스트/이미지 변경'}
+    {key:'textChangeQty',label:inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label}
   ];
   return []
 }
@@ -564,6 +596,7 @@ function renderInquiryForm(){
 
   var initial=types.length===1?[types[0].id]:[];
   addRequest(initial);
+  initInquiryEstimate();
   requestAnimationFrame(updateInquiryQuestionNumbers);
 
   nickname.oninput=function(){
@@ -644,11 +677,13 @@ function readRequestValues(card){
     extra:(q('[data-field="extra"]')||{}).value||'',
     bannerText:(q('[data-field="bannerText"]')||{}).value||'',
     banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
+    bannerIds:qa('input[data-field="bannerType"]:checked').map(function(x){return x.dataset.quoteBottomId||''}).filter(Boolean),
     nameChangeQty:Math.max(0,Number((q('[data-field="nameChangeQty"]')||{}).value||0)),
     gifChangeQty:Math.max(0,Number((q('[data-field="gifChangeQty"]')||{}).value||0)),
     textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
     sameDesignColorChangeQty:Math.max(0,Number((q('[data-field="sameDesignColorChangeQty"]')||{}).value||0)),
-    options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value})
+    options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value}),
+    optionIds:qa('input[data-field="extraOption"]:checked').map(function(x){return x.dataset.quoteOptionId||''}).filter(Boolean)
   };
 }
 
@@ -697,9 +732,13 @@ function renderRequestFields(card,typeIds,prev){
 
   var bannerFieldsHtml='';
   if(has('showBannerFields')){
-    var bannerValues=['하단 1칸','하단 3칸','하단 6칸'];
+    var bannerValues=[
+      inquiryBottomType('bottom1','하단 1칸'),
+      inquiryBottomType('bottom3','하단 3칸'),
+      inquiryBottomType('bottom6','하단 6칸')
+    ];
     bannerFieldsHtml='<div class="banner-fields"><fieldset class="choice-field inquiry-plain-choice"><legend data-question-title>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
-      bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" type="checkbox" value="'+v+'"><span>'+v+'</span></label>'}).join('')+
+      bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" data-quote-bottom-id="'+htmlAttr(v.id)+'" type="checkbox" value="'+htmlAttr(v.label)+'"><span>'+htmlAttr(v.label)+'</span></label>'}).join('')+
       '</div></fieldset></div>';
   }
 
@@ -746,10 +785,13 @@ function renderRequestFields(card,typeIds,prev){
     '</div></div>'
   }).join('')+'</div>':'';
 
+  var checkboxOptions=[
+    inquiryOption('sameDay','당일마감'),
+    inquiryOption('fast','빠른 마감'),
+    inquiryOption('private','포트폴리오 비공개')
+  ].concat(inquiryCustomOptions().map(function(x){return {id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true}}));
   html+='<fieldset class="choice-field inquiry-plain-choice option-field"><legend data-question-title>추가 옵션</legend>'+qtyHtml+'<div class="check-grid">'+
-    '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="당일마감"><span>당일마감</span></label>'+
-    '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="빠른 마감"><span>빠른 마감</span></label>'+
-    '<label class="choice-pill"><input data-field="extraOption" type="checkbox" value="포트폴리오 비공개"><span>포트폴리오 비공개</span></label>'+
+    checkboxOptions.map(function(o){return '<label class="choice-pill"><input data-field="extraOption" data-quote-option-id="'+htmlAttr(o.id)+'" type="checkbox" value="'+htmlAttr(o.label)+'"><span>'+htmlAttr(o.label)+'</span></label>'}).join('')+
   '</div></fieldset>';
 
   fields.innerHTML=html;
@@ -772,7 +814,8 @@ function renderRequestFields(card,typeIds,prev){
       var input=q('[data-field="'+btn.dataset.qtyField+'"]');
       if(!input)return;
       var next=Math.max(0,Math.floor(Number(input.value||0))+Number(btn.dataset.qtyDelta||0));
-      input.value=String(next)
+      input.value=String(next);
+      renderInquiryEstimate()
     }
   });
   qa('.inquiry-qty-input').forEach(function(input){
@@ -782,8 +825,8 @@ function renderRequestFields(card,typeIds,prev){
 
   var frame=q('input[data-field="frameKeep"][value="'+(prev.frameKeep||'O')+'"]')||q('input[data-field="frameKeep"][value="O"]');
   if(frame)frame.checked=true;
-  qa('input[data-field="bannerType"]').forEach(function(x){x.checked=(prev.banners||[]).includes(x.value)});
-  qa('input[data-field="extraOption"]').forEach(function(x){x.checked=(prev.options||[]).includes(x.value)});
+  qa('input[data-field="bannerType"]').forEach(function(x){x.checked=(prev.bannerIds||[]).includes(x.dataset.quoteBottomId)||(prev.banners||[]).includes(x.value)});
+  qa('input[data-field="extraOption"]').forEach(function(x){x.checked=(prev.optionIds||[]).includes(x.dataset.quoteOptionId)||(prev.options||[]).includes(x.value)});
 
   var concept=q('[data-field="concept"]');
   if(concept)concept.oninput=function(){
@@ -793,6 +836,128 @@ function renderRequestFields(card,typeIds,prev){
   };
 
   requestAnimationFrame(updateInquiryQuestionNumbers);
+}
+
+function ensureInquiryEstimateBox(){
+  let box=$('inquiryEstimate');
+  if(box)return box;
+  const attachment=document.querySelector('.inquiry-attachment-notice');
+  if(!attachment?.parentNode)return null;
+  box=document.createElement('section');
+  box.id='inquiryEstimate';
+  box.className='span-2 inquiry-estimate';
+  box.hidden=true;
+  box.setAttribute('aria-live','polite');
+  attachment.parentNode.insertBefore(box,attachment);
+  return box
+}
+function estimateQty(key){
+  if(publicQuoteQty[key]==null)publicQuoteQty[key]=1;
+  return Math.max(1,Math.floor(Number(publicQuoteQty[key]||1)))
+}
+function selectedInquiryEstimateRows(card){
+  if(!card)return[];
+  const p=inquiryPricing(),types=selectedInquiryTypes(card),v=readRequestValues(card),rows=[];
+  const v2=window.__ARTMUG_V2__?.inquiryData?.(card)||{};
+  types.forEach(function(t){
+    const d=inquiryDesignPriceForType(t);if(!d)return;
+    const designId=String(d.id||'');
+    if(designId==='profile'||d.pricing==='profileMode'){
+      const mode=String(v2.profileMode||card.dataset.profileMode||'custom');
+      if(mode==='change')return;
+      const m=inquiryProfileMode(mode,mode);
+      let label=(d.label||t.label||'움짤프사')+' · '+m.label;
+      let price=inquiryPrice(m.price);
+      let key='profile:'+mode;
+      if(mode==='fixed'&&v2.selectedFixedProductName){
+        label='고정틀 · '+v2.selectedFixedProductName;
+        key='fixed:'+String(v2.selectedFixedProductId||v2.selectedFixedProductName);
+        if(inquiryPrice(v2.selectedFixedPrice)>0)price=inquiryPrice(v2.selectedFixedPrice)
+      }
+      if(mode==='preset'&&v2.selectedPresetName){
+        label='프리셋 · '+v2.selectedPresetName;
+        key='preset:'+String(v2.selectedPresetFile||v2.selectedPresetName);
+        if(inquiryPrice(v2.selectedPresetPrice)>0)price=inquiryPrice(v2.selectedPresetPrice)
+      }
+      rows.push({key,label,price,qty:estimateQty(key),adjustable:true});
+      return
+    }
+    if(designId==='bottomBanner'||d.pricing==='bottomType'){
+      card.querySelectorAll('input[data-field="bannerType"]:checked').forEach(function(input){
+        const id=String(input.dataset.quoteBottomId||'');
+        const b=inquiryBottomType(id,input.value);
+        const key='bottom:'+b.id;
+        rows.push({key,label:(d.label||t.label||'하단배너')+' · '+b.label,price:inquiryPrice(b.price),qty:estimateQty(key),adjustable:true})
+      });
+      return
+    }
+    const key='design:'+designId;
+    rows.push({key,label:String(d.label||t.label||''),price:inquiryPrice(d.price),qty:estimateQty(key),adjustable:true})
+  });
+  [
+    ['nameChange','nameChangeQty'],
+    ['gifChange','gifChangeQty'],
+    ['textImageChange','textChangeQty'],
+    ['sameDesignColorChange','sameDesignColorChangeQty']
+  ].forEach(function(pair){
+    const o=inquiryOption(pair[0],pair[0]),qty=Math.max(0,Number(v[pair[1]]||0));
+    if(qty>0)rows.push({key:'option:'+o.id,label:o.label,price:o.price,qty,adjustable:false})
+  });
+  card.querySelectorAll('input[data-field="extraOption"]:checked').forEach(function(input){
+    const id=String(input.dataset.quoteOptionId||''),built=p.options?.[id],custom=(p.customOptions||[]).find(x=>String(x.id)===id),o=built||custom;
+    rows.push({key:'option:'+id,label:String(o?.label||input.value||'추가 옵션'),price:inquiryPrice(o?.price),qty:1,adjustable:false})
+  });
+  return rows
+}
+function renderInquiryEstimate(){
+  const box=ensureInquiryEstimateBox();if(!box)return;
+  const card=document.querySelector('.request-card');
+  const types=card?selectedInquiryTypes(card):[];
+  if(!card||!types.length){box.hidden=true;box.innerHTML='';return}
+  const rows=selectedInquiryEstimateRows(card);
+  let total=0,hasInquiryOnly=false;
+  rows.forEach(x=>{if(x.price>0)total+=x.price*x.qty;else hasInquiryOnly=true});
+  const rowHtml=rows.map(function(x){
+    const unit=x.price>0?x.price.toLocaleString('ko-KR')+'원':'별도 문의';
+    const subtotal=x.price>0?(x.price*x.qty).toLocaleString('ko-KR')+'원':'별도 문의';
+    const qty=x.adjustable?
+      '<div class="inquiry-estimate-qty"><button type="button" data-estimate-qty-key="'+htmlAttr(x.key)+'" data-estimate-delta="-1" aria-label="'+htmlAttr(x.label)+' 수량 감소">−</button><b>'+x.qty+'</b><button type="button" data-estimate-qty-key="'+htmlAttr(x.key)+'" data-estimate-delta="1" aria-label="'+htmlAttr(x.label)+' 수량 증가">+</button></div>':
+      '<span class="inquiry-estimate-count">× '+x.qty+'개</span>';
+    return '<div class="inquiry-estimate-row"><div class="inquiry-estimate-name"><strong>'+htmlAttr(x.label)+'</strong><span>'+unit+'</span></div>'+qty+'<b class="inquiry-estimate-subtotal">'+subtotal+'</b></div>'
+  }).join('');
+  const empty=!rows.length?'<p class="inquiry-estimate-empty">현재 선택된 유료 항목이 없습니다. 추가 옵션 수량을 선택하면 자동으로 반영됩니다.</p>':'';
+  box.innerHTML='<div class="inquiry-estimate-head"><div><strong>예상 견적</strong><span>선택한 항목과 수량을 기준으로 자동 계산됩니다.</span></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
+    '<div class="inquiry-estimate-list">'+(rowHtml||empty)+'</div>'+
+    (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 가격이 설정되지 않은 항목은 총액에서 제외되며 별도 문의로 표시됩니다.</p>':'');
+  box.hidden=false
+}
+let inquiryEstimateObserver=null;
+function initInquiryEstimate(){
+  const box=ensureInquiryEstimateBox(),root=$('requestsContainer');if(!box||!root)return;
+  if(box.dataset.bound!=='1'){
+    box.dataset.bound='1';
+    box.addEventListener('click',function(e){
+      const b=e.target.closest('[data-estimate-qty-key]');if(!b)return;
+      const key=b.dataset.estimateQtyKey,delta=Number(b.dataset.estimateDelta||0);
+      publicQuoteQty[key]=Math.max(1,estimateQty(key)+delta);
+      renderInquiryEstimate()
+    })
+  }
+  if(root.dataset.quoteBound!=='1'){
+    root.dataset.quoteBound='1';
+    root.addEventListener('change',()=>requestAnimationFrame(renderInquiryEstimate));
+    root.addEventListener('input',()=>requestAnimationFrame(renderInquiryEstimate));
+  }
+  if(!inquiryEstimateObserver){
+    let pending=false;
+    inquiryEstimateObserver=new MutationObserver(()=>{
+      if(pending)return;pending=true;
+      requestAnimationFrame(()=>{pending=false;renderInquiryEstimate()})
+    });
+    inquiryEstimateObserver.observe(root,{subtree:true,childList:true})
+  }
+  window.refreshInquiryEstimate=renderInquiryEstimate;
+  requestAnimationFrame(renderInquiryEstimate)
 }
 
 function requestText(card){
@@ -840,10 +1005,10 @@ function requestText(card){
   // Group 4: additional request and selected options.
   var additional=[(S.extraLabel||'추가 요청사항')+': '+v.extra];
   var extraOptions=[];
-  if(v.nameChangeQty>0)extraOptions.push('이름 변경 '+v.nameChangeQty+'개');
-  if(v.gifChangeQty>0)extraOptions.push('움짤 변경 '+v.gifChangeQty+'개');
-  if(v.textChangeQty>0)extraOptions.push('배너 · 텍스트/이미지 변경 '+v.textChangeQty+'개');
-  if(v.sameDesignColorChangeQty>0)extraOptions.push('동일 디자인 · 색상 변경 '+v.sameDesignColorChangeQty+'개');
+  if(v.nameChangeQty>0)extraOptions.push(inquiryOption('nameChange','이름 변경').label+' '+v.nameChangeQty+'개');
+  if(v.gifChangeQty>0)extraOptions.push(inquiryOption('gifChange','움짤 변경').label+' '+v.gifChangeQty+'개');
+  if(v.textChangeQty>0)extraOptions.push(inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label+' '+v.textChangeQty+'개');
+  if(v.sameDesignColorChangeQty>0)extraOptions.push(inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label+' '+v.sameDesignColorChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)additional.push('추가 옵션: '+extraOptions.join(', '));
 
