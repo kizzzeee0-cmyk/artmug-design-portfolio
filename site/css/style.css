@@ -6843,3 +6843,16 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     grid-template-columns:72px minmax(0,1fr)!important;
   }
 }
+
+
+/* 2026-10-20 ALIGN INQUIRY QTY WITH OPTION PILLS */
+@media(min-width:681px){
+  .option-field .inquiry-qty-options{
+    width:330px!important;
+    max-width:100%!important;
+    padding-right:0!important;
+  }
+  .option-field .inquiry-qty-row{
+    width:100%!important;
+  }
+}
