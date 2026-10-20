@@ -1104,6 +1104,16 @@ function updatePresetUploadSelectors(){
   updatePresetUploadAutoName()
 }
 
+function quoteLegacyFindPrice(arr,id,labelPart){
+ const x=(Array.isArray(arr)?arr:[]).find(v=>String(v?.id||'')===String(id)||String(v?.name||'').includes(labelPart||''));
+ return Math.max(0,Number(x?.price||0))
+}
+function quoteLegacyCustom(q,labelPart){
+ return (Array.isArray(q.customItems)?q.customItems:[]).find(v=>String(v?.name||'').replace(/\s/g,'').includes(String(labelPart||'').replace(/\s/g,'')))||null
+}
+function quoteDesignTypeByLabel(part){
+ return (S?.designTypes||[]).find(x=>String(x?.label||'').replace(/\s/g,'').includes(String(part||'').replace(/\s/g,'')))||null
+}
 function ensureQuoteConfig(){
   if(!S.quoteConfig||typeof S.quoteConfig!=='object')S.quoteConfig={};
   const q=S.quoteConfig;
@@ -1116,46 +1126,123 @@ function ensureQuoteConfig(){
   if(q.copyTotalSuffix==null)q.copyTotalSuffix='원입니다!';
   if(q.copyClosingText==null)q.copyClosingText='작업 일정 확인 후 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!';
 
-  (S.designTypes||[]).forEach(x=>{if(q.designPrices[x.id]==null)q.designPrices[x.id]=0});
-  QUOTE_BANNERS.forEach(([id])=>{if(q.bannerPrices[id]==null)q.bannerPrices[id]=0});
-  QUOTE_OPTIONS.forEach(([id])=>{if(q.optionPrices[id]==null)q.optionPrices[id]=0});
-
   if(!q.priceItems||typeof q.priceItems!=='object'||Array.isArray(q.priceItems))q.priceItems={};
+  if(!Array.isArray(q.priceItems.design))q.priceItems.design=[];
+  if(!Array.isArray(q.priceItems.banner))q.priceItems.banner=[];
+  if(!Array.isArray(q.priceItems.option))q.priceItems.option=[];
 
-  if(!Array.isArray(q.priceItems.design)){
-    q.priceItems.design=(S.designTypes||[]).map(x=>({
-      id:String(x.id),
-      name:String(x.label||''),
-      price:Number(q.designPrices[x.id]||0)
-    }))
+  if(!q.pricingV2||typeof q.pricingV2!=='object'||Array.isArray(q.pricingV2)){
+    const profile=quoteDesignTypeByLabel('움짤프사')||{id:'profile-a',label:'움짤프사'};
+    const top=quoteDesignTypeByLabel('상단배너')||{id:'banner',label:'상단배너'};
+    const floating=quoteDesignTypeByLabel('플로팅배너')||{id:'',label:'플로팅배너'};
+    const bottom=quoteDesignTypeByLabel('하단배너')||{id:'',label:'하단배너'};
+    const four=quoteDesignTypeByLabel('인생네컷')||{id:'',label:'인생네컷'};
+    const nameLegacy=quoteLegacyCustom(q,'이름 변경'),gifLegacy=quoteLegacyCustom(q,'움짤 변경'),textLegacy=quoteLegacyCustom(q,'텍스트/이미지 변경');
+    const mapped=new Set([nameLegacy?.id,gifLegacy?.id,textLegacy?.id].filter(Boolean));
+    q.pricingV2={
+      version:2,
+      designs:{
+        profile:{id:'profile',label:profile.label||'움짤프사',typeId:profile.id||'profile-a',pricing:'profileMode'},
+        topBanner:{id:'topBanner',label:top.label||'상단배너',typeId:top.id||'banner',price:quoteLegacyFindPrice(q.priceItems.banner,'top','상단배너')},
+        floatingBanner:{id:'floatingBanner',label:floating.label||'플로팅배너',typeId:floating.id||'',price:quoteLegacyFindPrice(q.priceItems.banner,'floating','플로팅배너')},
+        bottomBanner:{id:'bottomBanner',label:bottom.label||'하단배너',typeId:bottom.id||'',pricing:'bottomType'},
+        fourCut:{id:'fourCut',label:four.label||'인생네컷',typeId:four.id||'',price:quoteLegacyFindPrice(q.priceItems.banner,'fourCut','인생네컷')}
+      },
+      profileModes:{
+        custom:{id:'custom',label:'맞춤제작',price:quoteLegacyFindPrice(q.priceItems.design,'profile-a','움짤프사')||20000},
+        fixed:{id:'fixed',label:'고정틀 구매',price:quoteLegacyFindPrice(q.priceItems.design,'__fixed__','고정틀')||15000},
+        preset:{id:'preset',label:'프리셋 구매',price:20000},
+        change:{id:'change',label:'이름/움짤 변경',price:null,calculatedByOptions:true}
+      },
+      bottomTypes:{
+        bottom1:{id:'bottom1',label:'하단 1칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom1','1칸')},
+        bottom3:{id:'bottom3',label:'하단 3칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom3','3칸')},
+        bottom6:{id:'bottom6',label:'하단 6칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom6','6칸')}
+      },
+      options:{
+        nameChange:{id:'nameChange',label:'이름 변경',price:Number(nameLegacy?.price||0),quantityField:'nameChangeQty'},
+        gifChange:{id:'gifChange',label:'움짤 변경',price:Number(gifLegacy?.price||0),quantityField:'gifChangeQty'},
+        textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:Number(textLegacy?.price||0),quantityField:'textChangeQty'},
+        sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
+        sameDay:{id:'sameDay',label:'당일마감',price:quoteLegacyFindPrice(q.priceItems.option,'sameDay','당일'),checkboxValue:'당일마감'},
+        fast:{id:'fast',label:'빠른 마감',price:quoteLegacyFindPrice(q.priceItems.option,'fast','빠른'),checkboxValue:'빠른 마감'},
+        private:{id:'private',label:'포트폴리오 비공개',price:quoteLegacyFindPrice(q.priceItems.option,'private','비공개'),checkboxValue:'포트폴리오 비공개'}
+      },
+      customOptions:q.customItems.filter(x=>!mapped.has(x.id)).map(x=>({id:String(x.id||('qopt-'+Date.now())),label:String(x.name||''),price:Number(x.price||0),enabledInInquiry:true})),
+      standaloneItems:(q.priceItems.design||[]).filter(x=>x.id!=='profile-a'&&!/고정틀/.test(String(x.name||''))).map(x=>({id:String(x.id),label:String(x.name||''),price:Number(x.price||0)}))
+    }
   }
+  const p=q.pricingV2;
+  p.version=2;
+  if(!p.designs||typeof p.designs!=='object')p.designs={};
+  if(!p.profileModes||typeof p.profileModes!=='object')p.profileModes={};
+  if(!p.bottomTypes||typeof p.bottomTypes!=='object')p.bottomTypes={};
+  if(!p.options||typeof p.options!=='object')p.options={};
+  if(!Array.isArray(p.customOptions))p.customOptions=[];
+  if(!Array.isArray(p.standaloneItems))p.standaloneItems=[];
 
-  if(!Array.isArray(q.priceItems.banner)){
-    q.priceItems.banner=QUOTE_BANNERS.map(([id,label])=>({
-      id:String(id),
-      name:String(label),
-      price:Number(q.bannerPrices[id]||0)
-    }))
-  }
-
-  if(!Array.isArray(q.priceItems.option)){
-    q.priceItems.option=QUOTE_OPTIONS.map(([id,label])=>({
-      id:String(id),
-      name:String(label),
-      price:Number(q.optionPrices[id]||0)
-    }))
-  }
-
-  ['design','banner','option'].forEach(group=>{
-    q.priceItems[group]=q.priceItems[group].map((x,i)=>({
-      id:String(x?.id||('qg-'+group+'-'+Date.now()+'-'+i)),
-      name:String(x?.name||''),
-      price:Number(x?.price||0)
-    }))
-  });
-
+  const designDefaults={
+    profile:{id:'profile',label:'움짤프사',typeId:'profile-a',pricing:'profileMode'},
+    topBanner:{id:'topBanner',label:'상단배너',typeId:'banner',price:0},
+    floatingBanner:{id:'floatingBanner',label:'플로팅배너',typeId:'',price:0},
+    bottomBanner:{id:'bottomBanner',label:'하단배너',typeId:'',pricing:'bottomType'},
+    fourCut:{id:'fourCut',label:'인생네컷',typeId:'',price:0}
+  };
+  Object.entries(designDefaults).forEach(([k,d])=>{p.designs[k]={...d,...(p.designs[k]||{})}});
+  const modeDefaults={
+    custom:{id:'custom',label:'맞춤제작',price:20000},
+    fixed:{id:'fixed',label:'고정틀 구매',price:15000},
+    preset:{id:'preset',label:'프리셋 구매',price:20000},
+    change:{id:'change',label:'이름/움짤 변경',price:null,calculatedByOptions:true}
+  };
+  Object.entries(modeDefaults).forEach(([k,d])=>{p.profileModes[k]={...d,...(p.profileModes[k]||{})}});
+  const bottomDefaults={
+    bottom1:{id:'bottom1',label:'하단 1칸',price:0},
+    bottom3:{id:'bottom3',label:'하단 3칸',price:0},
+    bottom6:{id:'bottom6',label:'하단 6칸',price:0}
+  };
+  Object.entries(bottomDefaults).forEach(([k,d])=>{p.bottomTypes[k]={...d,...(p.bottomTypes[k]||{})}});
+  const optionDefaults={
+    nameChange:{id:'nameChange',label:'이름 변경',price:0,quantityField:'nameChangeQty'},
+    gifChange:{id:'gifChange',label:'움짤 변경',price:0,quantityField:'gifChangeQty'},
+    textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:0,quantityField:'textChangeQty'},
+    sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
+    sameDay:{id:'sameDay',label:'당일마감',price:0,checkboxValue:'당일마감'},
+    fast:{id:'fast',label:'빠른 마감',price:0,checkboxValue:'빠른 마감'},
+    private:{id:'private',label:'포트폴리오 비공개',price:0,checkboxValue:'포트폴리오 비공개'}
+  };
+  Object.entries(optionDefaults).forEach(([k,d])=>{p.options[k]={...d,...(p.options[k]||{})}});
   return q
 }
+function quotePriceValue(v){return Math.max(0,Number(v||0))}
+function quoteUpsertLegacy(arr,id,name,price){
+ let x=(arr||[]).find(v=>String(v.id)===String(id));
+ if(!x&&name)x=(arr||[]).find(v=>String(v.name||'').includes(name));
+ if(x){x.price=quotePriceValue(price);return x}
+ const n={id,name,price:quotePriceValue(price)};(arr||[]).push(n);return n
+}
+function syncQuoteLegacyMirrors(q=ensureQuoteConfig()){
+ const p=q.pricingV2;
+ quoteUpsertLegacy(q.priceItems.design,'profile-a','움짤프사',p.profileModes.custom.price);
+ let fixed=(q.priceItems.design||[]).find(x=>/고정틀/.test(String(x.name||'')));
+ if(fixed)fixed.price=quotePriceValue(p.profileModes.fixed.price);
+ quoteUpsertLegacy(q.priceItems.banner,'top','상단배너',p.designs.topBanner.price);
+ quoteUpsertLegacy(q.priceItems.banner,'floating','플로팅배너',p.designs.floatingBanner.price);
+ quoteUpsertLegacy(q.priceItems.banner,'bottom1','1칸',p.bottomTypes.bottom1.price);
+ quoteUpsertLegacy(q.priceItems.banner,'bottom3','3칸',p.bottomTypes.bottom3.price);
+ quoteUpsertLegacy(q.priceItems.banner,'bottom6','6칸',p.bottomTypes.bottom6.price);
+ let four=(q.priceItems.banner||[]).find(x=>/인생네컷/.test(String(x.name||'')));if(four)four.price=quotePriceValue(p.designs.fourCut.price);
+ quoteUpsertLegacy(q.priceItems.option,'sameDay','당일마감',p.options.sameDay.price);
+ quoteUpsertLegacy(q.priceItems.option,'fast','빠른',p.options.fast.price);
+ quoteUpsertLegacy(q.priceItems.option,'private','비공개',p.options.private.price);
+ const syncCustom=(part,item)=>{
+  const x=(q.customItems||[]).find(v=>String(v.name||'').replace(/\s/g,'').includes(part.replace(/\s/g,'')));
+  if(x)x.price=quotePriceValue(item.price)
+ };
+ syncCustom('이름 변경',p.options.nameChange);syncCustom('움짤 변경',p.options.gifChange);syncCustom('텍스트/이미지 변경',p.options.textImageChange);
+ return q
+}
+
 function quoteGroupTitle(group){
   return {design:'신청 디자인 종류',banner:'배너 종류',option:'추가 옵션'}[group]||group
 }
@@ -1174,69 +1261,100 @@ function quotePriceGroup(group,items){
     '</div>'+
   '</div>'
 }
+function quoteAdminPriceInput(group,key,item){
+ const price=quotePriceValue(item?.price);
+ return '<div class="quote-structure-price"><input type="number" min="0" step="100" data-qv2-price="'+group+':'+key+'" value="'+price+'" aria-label="'+adminEsc(item?.label||key)+' 가격"><em>원</em></div>'
+}
+function quoteAdminLabelControl(group,key,item,editable=true){
+ if(!editable)return '<span class="quote-admin-choice-pill">'+adminEsc(item?.label||key)+'</span>';
+ return '<input class="quote-admin-choice-pill quote-admin-pill-input" data-qv2-label="'+group+':'+key+'" value="'+adminEsc(item?.label||key)+'" aria-label="항목명">'
+}
+function quoteAdminRow(group,key,item,opt={}){
+ const locked=opt.locked===true;
+ return '<div class="quote-structure-row '+(locked?'is-derived':'')+'">'+
+  '<div class="quote-structure-item">'+quoteAdminLabelControl(group,key,item,opt.editable!==false)+(opt.tag?'<small>'+adminEsc(opt.tag)+'</small>':'')+'</div>'+
+  (locked?'<span class="quote-derived-note">'+adminEsc(opt.note||'하위 항목에서 계산')+'</span>':quoteAdminPriceInput(group,key,item))+
+  (opt.deleteIndex!=null?'<button type="button" class="danger admin-compact quote-structure-delete" data-del-qv2-custom="'+opt.deleteIndex+'">삭제</button>':'')+
+ '</div>'
+}
+function quoteStructureSection(title,body,note=''){
+ return '<details class="quote-structure-section" open><summary><strong>'+adminEsc(title)+'</strong>'+(note?'<span>'+adminEsc(note)+'</span>':'')+'</summary><div class="quote-structure-body">'+body+'</div></details>'
+}
 function renderQuoteAdmin(){
   if(!$('quotePricing'))return;
-  const q=ensureQuoteConfig();
-
+  const q=ensureQuoteConfig(),p=q.pricingV2;
+  const designRows=
+    quoteAdminRow('designs','profile',p.designs.profile,{locked:true,note:'움짤프사 신청 방식에서 계산',editable:false})+
+    quoteAdminRow('designs','topBanner',p.designs.topBanner,{editable:false})+
+    quoteAdminRow('designs','floatingBanner',p.designs.floatingBanner,{editable:false})+
+    quoteAdminRow('designs','bottomBanner',p.designs.bottomBanner,{locked:true,note:'하단배너 종류에서 계산',editable:false})+
+    quoteAdminRow('designs','fourCut',p.designs.fourCut,{editable:false});
+  const profileRows=
+    quoteAdminRow('profileModes','custom',p.profileModes.custom)+
+    quoteAdminRow('profileModes','fixed',p.profileModes.fixed,{tag:'개별 고정틀 가격 우선'})+
+    quoteAdminRow('profileModes','preset',p.profileModes.preset,{tag:'개별 프리셋 가격 우선'})+
+    quoteAdminRow('profileModes','change',p.profileModes.change,{locked:true,note:'추가 옵션에서 계산'});
+  const bottomRows=
+    quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1)+
+    quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3)+
+    quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6);
+  let optionRows=['nameChange','gifChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
+    .map(k=>quoteAdminRow('options',k,p.options[k])).join('');
+  optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가'})).join('');
+  optionRows+='<button type="button" class="ghost admin-compact quote-add-inline" data-add-qv2-custom>+ 추가 옵션 등록</button>';
   $('quotePricing').innerHTML=
-    quotePriceGroup('design',q.priceItems.design)+
-    quotePriceGroup('banner',q.priceItems.banner)+
-    quotePriceGroup('option',q.priceItems.option);
+    quoteStructureSection('신청하시는 디자인 종류',designRows,'상위 종류와 하위 가격이 중복되지 않도록 계산')+
+    quoteStructureSection('움짤프사 신청 방식',profileRows,'움짤프사는 이 단가만 적용')+
+    quoteStructureSection('하단배너 종류',bottomRows,'선택한 칸 종류의 단가만 적용')+
+    quoteStructureSection('추가 옵션',optionRows,'수량형 옵션은 개당 가격 × 선택 수량');
 
-  $('quoteCustomItems').innerHTML=q.customItems.map((x,i)=>'<div class="quote-custom-row"><input data-q-custom-name="'+i+'" value="'+adminEsc(x.name||'')+'" placeholder="항목명"><div class="quote-price-input"><input type="number" step="100" data-q-custom-price="'+i+'" value="'+Number(x.price||0)+'"><em>원</em></div><button class="danger admin-compact" data-del-q-custom="'+i+'">삭제</button></div>').join('')||'<p class="muted quote-empty">등록된 별도 추가 항목이 없습니다.</p>';
+  const stand=p.standaloneItems||[];
+  $('quoteCustomItems').innerHTML=stand.length?stand.map((x,i)=>
+    '<div class="quote-custom-row quote-standalone-row"><input data-qv2-standalone-label="'+i+'" value="'+adminEsc(x.label||'')+'" placeholder="항목명"><div class="quote-price-input"><input type="number" min="0" step="100" data-qv2-standalone-price="'+i+'" value="'+quotePriceValue(x.price)+'"><em>원</em></div><button class="danger admin-compact" data-del-q-standalone="'+i+'">삭제</button></div>'
+  ).join(''):'<p class="muted quote-empty">문의 양식과 직접 연결되지 않는 독립 가격 항목이 없습니다.</p>';
+
   if($('quoteCopyIntro'))$('quoteCopyIntro').value=String(q.copyIntroText||'');
   if($('quoteCopyTotalPrefix'))$('quoteCopyTotalPrefix').value=String(q.copyTotalPrefix||'');
   if($('quoteCopyTotalSuffix'))$('quoteCopyTotalSuffix').value=String(q.copyTotalSuffix||'');
   if($('quoteCopyClosing'))$('quoteCopyClosing').value=String(q.copyClosingText||'');
-
   bindQuoteConfigInputs();
   renderQuoteBuilder()
 }
+function quoteObjectFor(group,key){
+ const p=ensureQuoteConfig().pricingV2;
+ if(group==='customOptions')return p.customOptions?.[Number(key)]||null;
+ return p[group]?.[key]||null
+}
 function bindQuoteConfigInputs(){
-  document.querySelectorAll('[data-q-group-name]').forEach(e=>e.oninput=()=>{
-    const q=ensureQuoteConfig(),group=e.dataset.qGroupName,i=Number(e.dataset.qGroupIndex),x=q.priceItems[group]?.[i];
-    if(x){x.name=e.value;renderQuoteBuilder()}
+  document.querySelectorAll('[data-qv2-price]').forEach(e=>e.oninput=()=>{
+    const [group,key]=e.dataset.qv2Price.split(':'),x=quoteObjectFor(group,key);
+    if(x){x.price=quotePriceValue(e.value);syncQuoteLegacyMirrors();renderQuoteBuilder()}
   });
-
-  document.querySelectorAll('[data-q-group-price]').forEach(e=>e.oninput=()=>{
-    const q=ensureQuoteConfig(),group=e.dataset.qGroupPrice,i=Number(e.dataset.qGroupIndex),x=q.priceItems[group]?.[i];
-    if(x){x.price=Number(e.value||0);renderQuoteBuilder()}
+  document.querySelectorAll('[data-qv2-label]').forEach(e=>e.oninput=()=>{
+    const [group,key]=e.dataset.qv2Label.split(':'),x=quoteObjectFor(group,key);
+    if(x){x.label=e.value;renderQuoteBuilder()}
   });
-
-  document.querySelectorAll('[data-add-q-group]').forEach(b=>b.onclick=()=>{
-    const q=ensureQuoteConfig(),group=b.dataset.addQGroup;
-    if(!Array.isArray(q.priceItems[group]))q.priceItems[group]=[];
-    q.priceItems[group].push({
-      id:'qg-'+group+'-'+Date.now(),
-      name:'새 항목',
-      price:0
-    });
+  document.querySelectorAll('[data-add-qv2-custom]').forEach(b=>b.onclick=()=>{
+    const p=ensureQuoteConfig().pricingV2;
+    p.customOptions.push({id:'qopt-'+Date.now(),label:'새 추가 옵션',price:0,enabledInInquiry:true});
     renderQuoteAdmin()
   });
-
-  document.querySelectorAll('[data-del-q-group]').forEach(b=>b.onclick=()=>{
-    const q=ensureQuoteConfig(),group=b.dataset.delQGroup,i=Number(b.dataset.qGroupIndex),x=q.priceItems[group]?.[i];
-    if(!x)return;
-    delete quoteState[group+':'+x.id];
-    q.priceItems[group].splice(i,1);
-    renderQuoteAdmin()
+  document.querySelectorAll('[data-del-qv2-custom]').forEach(b=>b.onclick=()=>{
+    const p=ensureQuoteConfig().pricingV2,i=Number(b.dataset.delQv2Custom);
+    const x=p.customOptions?.[i];if(!x)return;
+    if(!confirm('이 추가 옵션을 삭제할까요? 공개 문의 양식에서도 함께 사라집니다.'))return;
+    delete quoteState['customOption:'+x.id];p.customOptions.splice(i,1);renderQuoteAdmin()
   });
-
-  document.querySelectorAll('[data-q-custom-name]').forEach(e=>e.oninput=()=>{
-    const x=ensureQuoteConfig().customItems[+e.dataset.qCustomName];
-    if(x){x.name=e.value;renderQuoteBuilder()}
+  document.querySelectorAll('[data-qv2-standalone-label]').forEach(e=>e.oninput=()=>{
+    const x=ensureQuoteConfig().pricingV2.standaloneItems[Number(e.dataset.qv2StandaloneLabel)];if(x){x.label=e.value;renderQuoteBuilder()}
   });
-
-  document.querySelectorAll('[data-q-custom-price]').forEach(e=>e.oninput=()=>{
-    const x=ensureQuoteConfig().customItems[+e.dataset.qCustomPrice];
-    if(x){x.price=Number(e.value||0);renderQuoteBuilder()}
+  document.querySelectorAll('[data-qv2-standalone-price]').forEach(e=>e.oninput=()=>{
+    const x=ensureQuoteConfig().pricingV2.standaloneItems[Number(e.dataset.qv2StandalonePrice)];if(x){x.price=quotePriceValue(e.value);renderQuoteBuilder()}
   });
-
-  document.querySelectorAll('[data-del-q-custom]').forEach(b=>b.onclick=()=>{
-    const q=ensureQuoteConfig(),x=q.customItems[+b.dataset.delQCustom];
-    if(x)delete quoteState['custom:'+x.id];
-    q.customItems.splice(+b.dataset.delQCustom,1);
-    renderQuoteAdmin()
+  document.querySelectorAll('[data-del-q-standalone]').forEach(b=>b.onclick=()=>{
+    const p=ensureQuoteConfig().pricingV2,i=Number(b.dataset.delQStandalone),x=p.standaloneItems?.[i];if(!x)return;
+    if(!confirm('이 독립 가격 항목을 삭제할까요?'))return;
+    delete quoteState['standalone:'+x.id];p.standaloneItems.splice(i,1);renderQuoteAdmin()
   });
   const copyFields=[
     ['quoteCopyIntro','copyIntroText'],
@@ -1249,20 +1367,15 @@ function bindQuoteConfigInputs(){
     el.oninput=()=>{ensureQuoteConfig()[key]=el.value;renderQuotePreview()}
   })
 }
+
 function quoteItems(){
-  const q=ensureQuoteConfig(),out=[];
-  ['design','banner','option'].forEach(group=>{
-    (q.priceItems[group]||[]).forEach(x=>out.push({
-      key:group+':'+x.id,
-      label:x.name||'이름 없는 항목',
-      price:Number(x.price||0)
-    }))
-  });
-  q.customItems.forEach(x=>out.push({
-    key:'custom:'+x.id,
-    label:x.name||'이름 없는 항목',
-    price:Number(x.price||0)
-  }));
+  const p=ensureQuoteConfig().pricingV2,out=[];
+  ['topBanner','floatingBanner','fourCut'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
+  ['bottom1','bottom3','bottom6'].forEach(k=>{const x=p.bottomTypes[k];out.push({key:'bottomType:'+k,label:'하단배너 · '+x.label,price:quotePriceValue(x.price)})});
+  ['nameChange','gifChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  (p.customOptions||[]).forEach(x=>out.push({key:'customOption:'+x.id,label:x.label||'이름 없는 추가 옵션',price:quotePriceValue(x.price)}));
+  (p.standaloneItems||[]).forEach(x=>out.push({key:'standalone:'+x.id,label:x.label||'이름 없는 독립 항목',price:quotePriceValue(x.price)}));
   return out
 }
 function renderQuoteBuilder(){
@@ -1277,17 +1390,17 @@ function renderQuotePreview(){
   const q=ensureQuoteConfig();
   const selected=quoteItems().map(x=>({...x,qty:Number(quoteState[x.key]||0)})).filter(x=>x.qty>0);
   const itemLines=[];
-  let total=0;
+  let total=0,hasInquiryOnly=false;
   selected.forEach(x=>{
-    total+=x.price*x.qty;
-    itemLines.push(`${x.label} : ${x.price.toLocaleString('ko-KR')}원${x.qty>1?` × ${x.qty}개`:''}`)
+    if(x.price>0){total+=x.price*x.qty;itemLines.push(`${x.label} : ${x.price.toLocaleString('ko-KR')}원${x.qty>1?` × ${x.qty}개`:''}`)}
+    else{hasInquiryOnly=true;itemLines.push(`${x.label} : 별도 문의${x.qty>1?` × ${x.qty}개`:''}`)}
   });
   const blocks=[];
   const intro=String(q.copyIntroText||'').trim();
   const closing=String(q.copyClosingText||'').trim();
   if(intro)blocks.push(intro);
   if(itemLines.length)blocks.push(itemLines.join('\n'));
-  blocks.push(String(q.copyTotalPrefix||'').trim()+(q.copyTotalPrefix?' ':'')+total.toLocaleString('ko-KR')+String(q.copyTotalSuffix||''));
+  blocks.push(String(q.copyTotalPrefix||'').trim()+(q.copyTotalPrefix?' ':'')+total.toLocaleString('ko-KR')+String(q.copyTotalSuffix||'')+(hasInquiryOnly?' (별도 문의 항목 제외)':''));
   if(closing)blocks.push(closing);
   $('quotePreview').value=blocks.join('\n\n')
 }
@@ -1300,6 +1413,7 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);collectNotices();(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
+  syncQuoteLegacyMirrors(ensureQuoteConfig());
   collect();collectWorkStatusAdmin();collectScheduleAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
   S.bannerTypeEnabled=$('bannerTypeEnabled')?$('bannerTypeEnabled').checked:(S.bannerTypeEnabled!==false);
   S.presetEnabled=$('presetEnabled').checked;
@@ -2665,7 +2779,7 @@ async function migrateLegacyFixedProducts(){
 }
 
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=stripSeasonData(d.settings||{});render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
-$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const q=ensureQuoteConfig();q.customItems.push({id:'q-'+Date.now(),name:'새 추가 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 디자인 종류',enabled:true});renderFixedCats();renderFixedItems()};if($('addFixedProduct'))$('addFixedProduct').onclick=()=>addFixedProduct().catch(e=>alert('고정틀 추가 실패: '+e.message));if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const p=ensureQuoteConfig().pricingV2;p.standaloneItems.push({id:'qstand-'+Date.now(),label:'새 독립 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 디자인 종류',enabled:true});renderFixedCats();renderFixedItems()};if($('addFixedProduct'))$('addFixedProduct').onclick=()=>addFixedProduct().catch(e=>alert('고정틀 추가 실패: '+e.message));if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
