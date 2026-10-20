@@ -932,9 +932,8 @@ function renderInquiryEstimate(){
       '<span class="inquiry-estimate-count">× '+x.qty+'개</span>';
     return '<div class="inquiry-estimate-row"><div class="inquiry-estimate-name"><strong>'+htmlAttr(x.label)+'</strong><span>'+unit+'</span></div>'+qty+'<b class="inquiry-estimate-subtotal">'+subtotal+'</b></div>'
   }).join('');
-  const empty=!rows.length?'<p class="inquiry-estimate-empty">현재 선택된 유료 항목이 없습니다. 추가 옵션 수량을 선택하면 자동으로 반영됩니다.</p>':'';
-  box.innerHTML='<div class="inquiry-estimate-head"><div><strong>예상 견적</strong><span>선택한 항목과 수량을 기준으로 자동 계산됩니다.</span></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
-    '<div class="inquiry-estimate-list">'+(rowHtml||empty)+'</div>'+
+  box.innerHTML='<div class="inquiry-estimate-head"><div><strong>🧮 예상 금액</strong></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
+    (rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'')+
     (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 가격이 설정되지 않은 항목은 총액에서 제외되며 별도 문의로 표시됩니다.</p>':'');
   box.hidden=false
 }
