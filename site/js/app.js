@@ -492,6 +492,10 @@ function isProfileInquiryType(t){
   const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
   return id==='profile-a'||label.includes('움짤프사')||label.includes('움짤프로필')
 }
+function isFourCutInquiryType(t){
+  const id=String(t?.id||'').toLowerCase(),label=String(t?.label||'').replace(/\s/g,'');
+  return /four-cut|4cut/.test(id)||label.includes('인생네컷')
+}
 function isBannerInquiryType(t){
   return String(t?.label||'').replace(/\s/g,'').includes('배너')
 }
@@ -502,6 +506,9 @@ function inquiryQuantityOptions(t){
   if(isProfileInquiryType(t))return [
     {key:'nameChangeQty',label:'이름 변경'},
     {key:'gifChangeQty',label:'움짤 변경'}
+  ];
+  if(isFourCutInquiryType(t))return [
+    {key:'sameDesignColorChangeQty',label:'동일 디자인 · 색상 변경'}
   ];
   if(showsContentField(t)||isBannerInquiryType(t))return [
     {key:'textChangeQty',label:'배너 · 텍스트/이미지 변경'}
@@ -640,6 +647,7 @@ function readRequestValues(card){
     nameChangeQty:Math.max(0,Number((q('[data-field="nameChangeQty"]')||{}).value||0)),
     gifChangeQty:Math.max(0,Number((q('[data-field="gifChangeQty"]')||{}).value||0)),
     textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
+    sameDesignColorChangeQty:Math.max(0,Number((q('[data-field="sameDesignColorChangeQty"]')||{}).value||0)),
     options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value})
   };
 }
@@ -754,7 +762,7 @@ function renderRequestFields(card,typeIds,prev){
   if(q('[data-field="extra"]'))q('[data-field="extra"]').value=prev.extra||'';
   if(q('[data-field="bannerText"]'))q('[data-field="bannerText"]').value=prev.bannerText||'';
 
-  ['nameChangeQty','gifChangeQty','textChangeQty'].forEach(function(key){
+  ['nameChangeQty','gifChangeQty','textChangeQty','sameDesignColorChangeQty'].forEach(function(key){
     var el=q('[data-field="'+key+'"]');
     if(el)el.value=String(Math.max(0,Math.floor(Number(prev[key]||0))))
   });
@@ -835,6 +843,7 @@ function requestText(card){
   if(v.nameChangeQty>0)extraOptions.push('이름 변경 '+v.nameChangeQty+'개');
   if(v.gifChangeQty>0)extraOptions.push('움짤 변경 '+v.gifChangeQty+'개');
   if(v.textChangeQty>0)extraOptions.push('배너 · 텍스트/이미지 변경 '+v.textChangeQty+'개');
+  if(v.sameDesignColorChangeQty>0)extraOptions.push('동일 디자인 · 색상 변경 '+v.sameDesignColorChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
   if(extraOptions.length)additional.push('추가 옵션: '+extraOptions.join(', '));
 
