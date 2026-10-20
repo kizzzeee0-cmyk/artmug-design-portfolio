@@ -2496,6 +2496,16 @@
   gap:7px;
   min-width:0;
 }
+.quote-structure-item::before{
+  content:"";
+  flex:0 0 13px;
+  width:13px;
+  height:13px;
+  box-sizing:border-box;
+  border:1.5px solid #b9cbd7;
+  border-radius:4px;
+  background:#fff;
+}
 .quote-structure-item small{
   flex:0 0 auto;
   color:var(--muted);
