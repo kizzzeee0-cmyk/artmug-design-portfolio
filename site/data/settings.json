@@ -1038,7 +1038,7 @@
     "portfolio/top-banner/20261021092145-r86z791c5h4hj-__.png",
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png",
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
-    "portfolio/top-banner/20261014054753-AhCw7an--___y2k.png",
+    "portfolio/top-banner/20261021145517-9vqR9XZU-___y2k2.png",
     "portfolio/bottom-split/20261013090930-mvmy3iat8o59-____.png",
     "portfolio/floating-banner/20261013090907-a70kro1mdlg6c-_______.png",
     "portfolio/profile/20261012022933-LHOOp_VP-_________.gif",
@@ -1131,10 +1131,6 @@
     "portfolio/profile/20261013093918-pmbDUNSg-______.gif": {
       "enabled": true
     },
-    "portfolio/top-banner/20261014054753-AhCw7an--___y2k.png": {
-      "enabled": true,
-      "bannerType": "B"
-    },
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png": {
       "enabled": true
     },
@@ -1143,6 +1139,10 @@
     },
     "portfolio/profile/20261019184630-mrNSL5tl-______.gif": {},
     "portfolio/top-banner/20261021092145-r86z791c5h4hj-__.png": {
+      "enabled": true,
+      "bannerType": "B"
+    },
+    "portfolio/top-banner/20261021145517-9vqR9XZU-___y2k2.png": {
       "enabled": true,
       "bannerType": "B"
     }
