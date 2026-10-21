@@ -1035,6 +1035,7 @@
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
+    "portfolio/top-banner/20261021092145-r86z791c5h4hj-__.png",
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png",
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
     "portfolio/top-banner/20261014054753-AhCw7an--___y2k.png",
@@ -1140,7 +1141,11 @@
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png": {
       "enabled": true
     },
-    "portfolio/profile/20261019184630-mrNSL5tl-______.gif": {}
+    "portfolio/profile/20261019184630-mrNSL5tl-______.gif": {},
+    "portfolio/top-banner/20261021092145-r86z791c5h4hj-__.png": {
+      "enabled": true,
+      "bannerType": "B"
+    }
   },
   "bannerTypeEnabled": false,
   "authorName": "CHILGONG DESIGN",
