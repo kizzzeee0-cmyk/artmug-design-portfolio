@@ -720,8 +720,8 @@
       ]
     },
     "copyIntroText": "안녕하세요 문의주셔서 감사드립니당!",
-    "copyTotalPrefix": "총 금액",
-    "copyTotalSuffix": "원입니다!",
+    "copyTotalPrefix": "총 금액 :",
+    "copyTotalSuffix": "원",
     "copyClosingText": "괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!",
     "pricingV2": {
       "version": 2,
