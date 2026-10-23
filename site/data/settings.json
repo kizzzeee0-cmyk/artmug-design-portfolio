@@ -20,9 +20,9 @@
     {
       "icon": "🎞️",
       "title": "움짤 프사 파일 전달",
-      "description": "움짤 프사 제작 시 GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
+      "description": "움짤프사 제작에 사용될 영상은 3초 이상 5초 이내로 준비해 주시고, GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
       "enabled": true,
-      "descriptionRich": "움짤 프사 제작 시 <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">GIF가 아닌 MP4 동영상 파일로 전달</span></span></strong>해 주세요.",
+      "descriptionRich": "움짤프사 제작에 사용될 영상은 <span style=\"color:rgb(105, 173, 210)\"><strong>3초 이상 5초 이내</strong></span>로 준비해 주시고, <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">GIF가 아닌 MP4 동영상 파일로 전달</span></span></strong>해 주세요.",
       "editorColor": "#69ADD2"
     },
     {
