@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={};let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
+const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={};let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1;let availabilityAdminView=null,availabilityAdminSelected=new Set(),availabilityAdminMulti=false,availabilityAdminStatus='available',availabilityAdminDirty=false,availabilityAdminUndo=null;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
 const ADMIN_PAUSED_GIF='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 let adminGifObserver=null;
@@ -475,6 +475,171 @@ function ensureScheduleExtras(){
   S.scheduleExtras=S.scheduleExtras.map(x=>String(x??''));
   return S.scheduleExtras
 }
+
+function ensureAvailabilityCalendar(target=S){
+  if(!target.availabilityCalendar||typeof target.availabilityCalendar!=='object'||Array.isArray(target.availabilityCalendar))target.availabilityCalendar={};
+  if(target.availabilityCalendar.enabled==null)target.availabilityCalendar.enabled=true;
+  if(!target.availabilityCalendar.dates||typeof target.availabilityCalendar.dates!=='object'||Array.isArray(target.availabilityCalendar.dates))target.availabilityCalendar.dates={};
+  return target.availabilityCalendar
+}
+function adminKoreaDate(){
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const o={};parts.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});
+  return o.year+'-'+o.month+'-'+o.day
+}
+function adminAvailabilityViewFromYmd(ymd){
+  const m=String(ymd||'').match(/^(\d{4})-(\d{2})-/);
+  return m?{year:Number(m[1]),month:Number(m[2])}:null
+}
+function adminAvailabilityShift(view,delta){
+  const d=new Date(Date.UTC(view.year,view.month-1+Number(delta||0),1));
+  return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1}
+}
+function adminAvailabilityMonthKey(view){return view.year+'-'+String(view.month).padStart(2,'0')}
+function adminAvailabilityDays(view){return new Date(Date.UTC(view.year,view.month,0)).getUTCDate()}
+function adminAvailabilityFirst(view){return new Date(Date.UTC(view.year,view.month-1,1)).getUTCDay()}
+function adminAvailabilityMeta(status){
+  return {
+    available:{label:'접수 가능',className:'is-available'},
+    closed:{label:'마감',className:'is-closed'},
+    off:{label:'휴무',className:'is-off'}
+  }[status]||null
+}
+function adminAvailabilityRange(start,end){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))return[];
+  let a=new Date(start+'T00:00:00Z'),b=new Date(end+'T00:00:00Z');
+  if(a>b){const t=a;a=b;b=t}
+  const out=[];
+  for(let d=new Date(a);d<=b;d.setUTCDate(d.getUTCDate()+1))out.push(d.toISOString().slice(0,10));
+  return out
+}
+function markAvailabilityDirty(){
+  availabilityAdminDirty=true;
+  const el=$('availabilityCalendarSaveState');
+  if(el){el.textContent='저장 전 변경사항';el.dataset.state='dirty'}
+}
+function collectAvailabilityCalendarAdmin(){
+  const cfg=ensureAvailabilityCalendar();
+  const enabled=$('availabilityCalendarEnabled');
+  if(enabled)cfg.enabled=enabled.checked
+}
+function applyAvailabilityStatus(status,dates=[...availabilityAdminSelected]){
+  const cfg=ensureAvailabilityCalendar();
+  if(!dates.length)return;
+  availabilityAdminUndo=JSON.parse(JSON.stringify(cfg.dates||{}));
+  dates.forEach(date=>{
+    if(status==='unset')delete cfg.dates[date];
+    else if(['available','closed','off'].includes(status))cfg.dates[date]=status
+  });
+  markAvailabilityDirty();
+  renderAvailabilityCalendarAdmin()
+}
+async function saveAvailabilityCalendar(){
+  collectAvailabilityCalendarAdmin();
+  const payload=JSON.parse(JSON.stringify(ensureAvailabilityCalendar()));
+  const button=$('saveAvailabilityCalendar'),state=$('availabilityCalendarSaveState');
+  try{
+    if(button)button.disabled=true;
+    if(state){state.textContent='저장 중…';state.dataset.state='saving'}
+    const saved=await queueSettingsMutation(latest=>{latest.availabilityCalendar=payload});
+    S.availabilityCalendar=saved.availabilityCalendar||payload;
+    availabilityAdminDirty=false;
+    if(state){state.textContent='저장됨';state.dataset.state='saved'}
+    showToast('일정 확인 달력이 저장되었습니다.')
+  }catch(e){
+    if(state){state.textContent='저장 실패 · 다시 시도해주세요';state.dataset.state='error'}
+    alert('일정 달력 저장에 실패했습니다.\n'+e.message)
+  }finally{
+    if(button)button.disabled=false
+  }
+}
+function renderAvailabilityCalendarAdmin(){
+  const root=$('availabilityCalendarAdmin'),toggle=$('availabilityCalendarEnabled');
+  if(!root||!S)return;
+  const cfg=ensureAvailabilityCalendar();
+  if(toggle){
+    toggle.checked=cfg.enabled!==false;
+    if(toggle.dataset.boundAvailability!=='1'){
+      toggle.dataset.boundAvailability='1';
+      toggle.onchange=()=>{cfg.enabled=toggle.checked;markAvailabilityDirty()}
+    }
+  }
+  if(!availabilityAdminView)availabilityAdminView=adminAvailabilityViewFromYmd(adminKoreaDate())||{year:new Date().getUTCFullYear(),month:new Date().getUTCMonth()+1};
+  const view=availabilityAdminView,key=adminAvailabilityMonthKey(view),days=adminAvailabilityDays(view),first=adminAvailabilityFirst(view),today=adminKoreaDate();
+  const cells=[];
+  for(let i=0;i<first;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
+  for(let day=1;day<=days;day++){
+    const ymd=key+'-'+String(day).padStart(2,'0'),meta=adminAvailabilityMeta(cfg.dates[ymd]),selected=availabilityAdminSelected.has(ymd);
+    cells.push(
+      '<button type="button" class="availability-admin-day '+(meta?meta.className:'is-unset')+' '+(selected?'is-selected':'')+' '+(ymd===today?'is-today':'')+'" data-availability-date="'+ymd+'">'+
+        '<span>'+day+'</span>'+(meta?'<small>'+meta.label+'</small>':'<small>미등록</small>')+
+      '</button>'
+    )
+  }
+  const rem=cells.length%7;if(rem)for(let i=rem;i<7;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
+  const selectedOne=!availabilityAdminMulti&&availabilityAdminSelected.size===1?[...availabilityAdminSelected][0]:'';
+  const statusButtons=['available','closed','off'].map(status=>{
+    const meta=adminAvailabilityMeta(status);
+    return '<button type="button" class="availability-admin-status '+meta.className+' '+(availabilityAdminStatus===status?'is-active':'')+'" data-availability-status="'+status+'">'+meta.label+'</button>'
+  }).join('');
+  root.innerHTML=
+    '<div class="availability-admin-toolbar">'+
+      '<div class="availability-admin-nav"><button type="button" data-availability-admin-shift="-1">‹</button><strong>'+view.year+'.'+String(view.month).padStart(2,'0')+'</strong><button type="button" data-availability-admin-shift="1">›</button></div>'+
+      '<div class="availability-admin-mode-row"><button type="button" id="availabilityMultiToggle" class="ghost admin-compact '+(availabilityAdminMulti?'is-active':'')+'">'+(availabilityAdminMulti?'여러 날짜 선택 중':'여러 날짜 선택')+'</button><span id="availabilitySelectedCount">'+availabilityAdminSelected.size+'개 선택</span></div>'+
+      '<div class="availability-admin-status-row">'+statusButtons+'<button type="button" class="availability-admin-status is-unset '+(availabilityAdminStatus==='unset'?'is-active':'')+'" data-availability-status="unset">미등록</button><button type="button" id="availabilityApplySelected" class="primary admin-compact" '+(!availabilityAdminSelected.size?'disabled':'')+'>선택한 날짜에 적용</button></div>'+
+      '<div class="availability-admin-quick-row"><button type="button" class="ghost admin-compact" data-availability-select="all">이번 달 전체</button><button type="button" class="ghost admin-compact" data-availability-select="weekdays">평일만</button><button type="button" class="ghost admin-compact" data-availability-select="weekends">주말만</button><button type="button" class="ghost admin-compact" data-availability-select="clear">선택 해제</button><button type="button" class="ghost admin-compact" id="availabilityUndo" '+(availabilityAdminUndo?'':'disabled')+'>이전 상태</button></div>'+
+      '<div class="availability-admin-range"><label>범위 시작<input id="availabilityRangeStart" type="date"></label><span>~</span><label>범위 끝<input id="availabilityRangeEnd" type="date"></label><button type="button" class="ghost admin-compact" id="availabilitySelectRange">범위 선택</button></div>'+
+    '</div>'+
+    '<div class="availability-admin-weekdays">'+['일','월','화','수','목','금','토'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+
+    '<div class="availability-admin-days">'+cells.join('')+'</div>'+
+    (selectedOne?'<div class="availability-single-editor"><strong>'+selectedOne+'</strong><span>상태 변경</span>'+statusButtons+'<button type="button" class="availability-admin-status is-unset" data-availability-single-status="unset">미등록</button></div>':'')+
+    '<div class="availability-admin-save-row"><span id="availabilityCalendarSaveState" data-state="'+(availabilityAdminDirty?'dirty':'saved')+'">'+(availabilityAdminDirty?'저장 전 변경사항':'저장됨')+'</span><button type="button" id="saveAvailabilityCalendar" class="primary admin-compact">일정 저장</button></div>';
+
+  root.querySelectorAll('[data-availability-admin-shift]').forEach(b=>b.onclick=()=>{availabilityAdminView=adminAvailabilityShift(view,Number(b.dataset.availabilityAdminShift||0));renderAvailabilityCalendarAdmin()});
+  root.querySelectorAll('[data-availability-date]').forEach(b=>b.onclick=()=>{
+    const date=b.dataset.availabilityDate;
+    if(availabilityAdminMulti){
+      if(availabilityAdminSelected.has(date))availabilityAdminSelected.delete(date);else availabilityAdminSelected.add(date)
+    }else{
+      availabilityAdminSelected=new Set([date])
+    }
+    renderAvailabilityCalendarAdmin()
+  });
+  root.querySelectorAll('[data-availability-status]').forEach(b=>b.onclick=()=>{availabilityAdminStatus=b.dataset.availabilityStatus;renderAvailabilityCalendarAdmin()});
+  root.querySelectorAll('[data-availability-single-status]').forEach(b=>b.onclick=()=>applyAvailabilityStatus(b.dataset.availabilitySingleStatus,[selectedOne]));
+  $('availabilityApplySelected').onclick=()=>applyAvailabilityStatus(availabilityAdminStatus);
+  $('availabilityMultiToggle').onclick=()=>{availabilityAdminMulti=!availabilityAdminMulti;if(!availabilityAdminMulti&&availabilityAdminSelected.size>1)availabilityAdminSelected.clear();renderAvailabilityCalendarAdmin()};
+  root.querySelectorAll('[data-availability-select]').forEach(b=>b.onclick=()=>{
+    const mode=b.dataset.availabilitySelect;
+    if(mode==='clear'){availabilityAdminSelected.clear();renderAvailabilityCalendarAdmin();return}
+    availabilityAdminMulti=true;
+    availabilityAdminSelected.clear();
+    for(let day=1;day<=days;day++){
+      const date=key+'-'+String(day).padStart(2,'0'),dow=new Date(Date.UTC(view.year,view.month-1,day)).getUTCDay();
+      if(mode==='all'||(mode==='weekdays'&&dow>=1&&dow<=5)||(mode==='weekends'&&(dow===0||dow===6)))availabilityAdminSelected.add(date)
+    }
+    renderAvailabilityCalendarAdmin()
+  });
+  $('availabilitySelectRange').onclick=()=>{
+    const list=adminAvailabilityRange($('availabilityRangeStart').value,$('availabilityRangeEnd').value);
+    if(!list.length){alert('범위 시작일과 종료일을 선택해주세요.');return}
+    availabilityAdminMulti=true;
+    availabilityAdminSelected=new Set(list);
+    availabilityAdminView=adminAvailabilityViewFromYmd(list[0])||availabilityAdminView;
+    renderAvailabilityCalendarAdmin()
+  };
+  $('availabilityUndo').onclick=()=>{
+    if(!availabilityAdminUndo)return;
+    const current=JSON.parse(JSON.stringify(cfg.dates||{}));
+    cfg.dates=JSON.parse(JSON.stringify(availabilityAdminUndo));
+    availabilityAdminUndo=current;
+    markAvailabilityDirty();
+    renderAvailabilityCalendarAdmin()
+  };
+  $('saveAvailabilityCalendar').onclick=()=>saveAvailabilityCalendar();
+  syncAdminVisibilityCollapse()
+}
+
 function collectScheduleAdmin(){
   if(!$('scheduleEnabled'))return;
   S.scheduleEnabled=$('scheduleEnabled').checked;
@@ -714,6 +879,7 @@ function syncBannerTypeAdminUI(){
 
 function render(){
 renderScheduleAdmin();
+renderAvailabilityCalendarAdmin();
 $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+area('공지 안내 문구','noticeText',S.noticeText,true);
 $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('내용 입력 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
@@ -1414,7 +1580,7 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);collectNotices();(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
-  collect();collectWorkStatusAdmin();collectScheduleAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
+  collect();collectWorkStatusAdmin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
   S.bannerTypeEnabled=$('bannerTypeEnabled')?$('bannerTypeEnabled').checked:(S.bannerTypeEnabled!==false);
   S.presetEnabled=$('presetEnabled').checked;
   S.presetTitle=$('presetTitle').value;
