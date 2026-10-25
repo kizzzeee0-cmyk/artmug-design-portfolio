@@ -148,12 +148,13 @@ function artmugNavTarget(name){
   const inquiryOnly=body&&body.classList.contains('artmug-part-inquiry');
   const portfolioOnly=body&&body.classList.contains('artmug-part-portfolio');
 
-  if(portfolioOnly&&['top','notice','inquiry'].includes(name))return null;
+  if(portfolioOnly&&['top','notice','calendar','inquiry'].includes(name))return null;
   if(inquiryOnly&&['portfolio','preset'].includes(name))return null;
 
   const map={
     top:document.querySelector('.site-shell'),
     notice:document.querySelector('.notice-card'),
+    calendar:document.getElementById('availabilityCalendarSection')||document.querySelector('.availability-calendar-card'),
     inquiry:document.getElementById('inquirySection')||document.querySelector('.form-card'),
     portfolio:document.getElementById('portfolioAllSectionV2')||document.getElementById('portfolioSection'),
     showcase:document.getElementById('showcaseSectionV2'),
@@ -179,6 +180,7 @@ function initArtmugSectionNavigation(){
   const sectionMap=[
     ['.site-shell','page-top'],
     ['.notice-card','notice-section'],
+    ['#availabilityCalendarSection','calendar-section'],
     ['#inquirySection','inquiry-section'],
     ['#portfolioAllSectionV2','portfolio-section'],
     ['#showcaseSectionV2','preset-section']
@@ -206,6 +208,7 @@ function initArtmugSectionNavigation(){
   const hashMap={
     'page-top':'top',
     'notice-section':'notice',
+    'calendar-section':'calendar',
     'inquiry-section':'inquiry',
     'portfolio-section':'portfolio',
     'preset-section':'preset'
