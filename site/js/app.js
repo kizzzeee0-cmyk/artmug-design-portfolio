@@ -974,20 +974,23 @@ function estimateQty(key){
   if(publicQuoteQty[key]==null)publicQuoteQty[key]=1;
   return Math.max(1,Math.floor(Number(publicQuoteQty[key]||1)))
 }
+
 function selectedInquiryEstimateRows(card){
   if(!card)return[];
-  const p=inquiryPricing(),types=selectedInquiryTypes(card),v=readRequestValues(card),rows=[];
+  if(!inquirySchema()){
+    const p=inquiryPricing(),types=selectedInquiryTypes(card),v=readRequestValues(card),rows=[];
+    types.forEach(t=>{const d=inquiryDesignPriceForType(t);if(d)rows.push({key:'design:'+d.id,label:String(d.label||t.label||''),price:inquiryPrice(d.price),qty:estimateQty('design:'+d.id),adjustable:true})});
+    return rows
+  }
+  const p=inquiryPricing(),types=selectedInquiryTypes(card),v=readRequestValues(card),rows=[],state={...(card.__v3State||{}),...v.v3};
   const v2=window.__ARTMUG_V2__?.inquiryData?.(card)||{};
-  types.forEach(function(t){
-    const d=inquiryDesignPriceForType(t);if(!d)return;
-    const designId=String(d.id||'');
-    if(designId==='profile'||d.pricing==='profileMode'){
+  const designs=inquirySchema()?.designs||{};
+  types.forEach(t=>{
+    if(t.id==='profile'){
       const modes=Array.isArray(v2.profileModes)&&v2.profileModes.length?v2.profileModes:inquiryProfileModesFromCard(card);
-      modes.filter(mode=>mode&&mode!=='change').forEach(function(mode){
+      modes.filter(mode=>mode&&mode!=='change').forEach(mode=>{
         const m=inquiryProfileMode(mode,mode);
-        let label=(d.label||t.label||'움짤프사')+' · '+m.label;
-        let price=inquiryPrice(m.price);
-        let key='profile:'+mode;
+        let label='움짤프사 · '+m.label,price=inquiryPrice(m.price),key='profile:'+mode;
         if(mode==='fixed'&&v2.selectedFixedProductName){
           label='고정틀 · '+v2.selectedFixedProductName;
           key='fixed:'+String(v2.selectedFixedProductId||v2.selectedFixedProductName);
@@ -1002,51 +1005,75 @@ function selectedInquiryEstimateRows(card){
       });
       return
     }
-    if(designId==='bottomBanner'||d.pricing==='bottomType'){
-      card.querySelectorAll('input[data-field="bannerType"]:checked').forEach(function(input){
-        const id=String(input.dataset.quoteBottomId||'');
-        const b=inquiryBottomType(id,input.value);
-        const key='bottom:'+b.id;
-        rows.push({key,label:(d.label||t.label||'하단배너')+' · '+b.label,price:inquiryPrice(b.price),qty:estimateQty(key),adjustable:true})
+    if(t.id==='soopBanner'){
+      const kinds=v3Array(state,'bannerKinds');
+      kinds.forEach(kind=>{
+        if(kind==='bottomBanner'){
+          v3Array(state,'bottomTypes').forEach(id=>{
+            const b=inquiryBottomType(id,id),key='bottom:'+b.id;
+            rows.push({key,label:'하단배너 · '+b.label,price:inquiryPrice(b.price),qty:estimateQty(key),adjustable:true})
+          })
+        }else{
+          const d=p.designs?.[kind]||{},key='design:'+kind;
+          rows.push({key,label:String(d.label||designs.soopBanner?.bannerKinds?.find(x=>x.id===kind)?.label||kind),price:inquiryPrice(d.price),qty:estimateQty(key),adjustable:true})
+        }
       });
       return
     }
-    const key='design:'+designId;
-    rows.push({key,label:String(d.label||t.label||''),price:inquiryPrice(d.price),qty:estimateQty(key),adjustable:true})
+    if(t.id==='fourCut'){
+      const id=String(v3Value(state,'fourCut.type',''));if(!id)return;
+      const x=inquiryFourCutType(id,id),key='fourCut:'+id;
+      rows.push({key,label:x.label,price:x.price,qty:estimateQty(key),adjustable:true});
+      return
+    }
+    if(t.id==='signature'){
+      const id=String(v3Value(state,'signature.count',''));if(!id)return;
+      if(id==='custom'){
+        const qty=Math.max(0,Math.floor(Number(v3Value(state,'signature.customQty',0)||0))),x=inquirySignatureType('direct','시그풍 직접 수량 · 개당');
+        if(qty>0)rows.push({key:'signature:custom',label:'시그풍 직접 수량',price:x.price,qty,adjustable:false})
+      }else{
+        const pricingKey=id==='one'?'one':id==='three'?'three':'six',x=inquirySignatureType(pricingKey,pricingKey);
+        rows.push({key:'signature:'+pricingKey,label:x.label,price:x.price,qty:1,adjustable:false})
+      }
+    }
   });
   [
     ['nameOnlyChange','nameOnlyChangeQty'],
     ['profileChange','profileChangeQty'],
     ['textImageChange','textChangeQty'],
     ['sameDesignColorChange','sameDesignColorChangeQty']
-  ].forEach(function(pair){
+  ].forEach(pair=>{
     const o=inquiryOption(pair[0],pair[0]),qty=Math.max(0,Number(v[pair[1]]||0));
     if(qty>0)rows.push({key:'option:'+o.id,label:o.label,price:o.price,qty,adjustable:false})
   });
-  card.querySelectorAll('input[data-field="extraOption"]:checked').forEach(function(input){
+  card.querySelectorAll('input[data-field="extraOption"]:checked').forEach(input=>{
     const id=String(input.dataset.quoteOptionId||''),built=p.options?.[id],custom=(p.customOptions||[]).find(x=>String(x.id)===id),o=built||custom;
     rows.push({key:'option:'+id,label:String(o?.label||input.value||'추가 옵션'),price:inquiryPrice(o?.price),qty:1,adjustable:false})
   });
   return rows
 }
+
 function renderInquiryEstimate(){
   const box=ensureInquiryEstimateBox();if(!box)return;
-  const card=document.querySelector('.request-card');
-  const types=card?selectedInquiryTypes(card):[];
+  const card=document.querySelector('.request-card'),types=card?selectedInquiryTypes(card):[];
   if(!card||!types.length){box.hidden=true;box.innerHTML='';return}
   const rows=selectedInquiryEstimateRows(card);
   let total=0,hasInquiryOnly=false;
   rows.forEach(x=>{if(x.price>0)total+=x.price*x.qty;else hasInquiryOnly=true});
-  const rowHtml=rows.map(function(x){
+  const rowHtml=rows.map(x=>{
     const unit=x.price>0?x.price.toLocaleString('ko-KR')+'원':'별도 문의';
     const subtotal=x.price>0?(x.price*x.qty).toLocaleString('ko-KR')+'원':'별도 문의';
-    const qty=x.adjustable?
-      '<div class="inquiry-estimate-qty"><button type="button" data-estimate-qty-key="'+htmlAttr(x.key)+'" data-estimate-delta="-1" aria-label="'+htmlAttr(x.label)+' 수량 감소">−</button><b>'+x.qty+'</b><button type="button" data-estimate-qty-key="'+htmlAttr(x.key)+'" data-estimate-delta="1" aria-label="'+htmlAttr(x.label)+' 수량 증가">+</button></div>':
-      '<span class="inquiry-estimate-count">× '+x.qty+'개</span>';
+    const qty=x.adjustable
+      ?'<div class="inquiry-estimate-qty"><button type="button" data-estimate-qty-key="'+htmlAttr(x.key)+'" data-estimate-delta="-1">−</button><b>'+x.qty+'</b><button type="button" data-estimate-qty-key="'+htmlAttr(x.key)+'" data-estimate-delta="1">+</button></div>'
+      :'<span class="inquiry-estimate-count">× '+x.qty+'개</span>';
     return '<div class="inquiry-estimate-row"><div class="inquiry-estimate-name"><strong>'+htmlAttr(x.label)+'</strong><span>'+unit+'</span></div>'+qty+'<b class="inquiry-estimate-subtotal">'+subtotal+'</b></div>'
   }).join('');
-  box.innerHTML='<div class="inquiry-estimate-head"><div><strong>예상 금액</strong></div><b>'+total.toLocaleString('ko-KR')+'원</b></div>'+
-    (rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'');
+  const wasOpen=box.dataset.open==='1';
+  box.innerHTML='<details class="inquiry-estimate-details" '+(wasOpen?'open':'')+'>'+
+    '<summary class="inquiry-estimate-head"><div class="inquiry-estimate-head-title"><span class="inquiry-v3-step-number">6</span><strong>예상 견적</strong></div><div class="inquiry-estimate-head-total"><b>'+total.toLocaleString('ko-KR')+'원</b><span class="inquiry-estimate-chevron">⌄</span></div></summary>'+
+    '<div class="inquiry-estimate-body">'+(rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'<p class="inquiry-estimate-empty">선택된 가격 항목이 없습니다.</p>')+
+    (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 별도 문의 항목은 총 금액에서 제외됩니다.</p>':'')+'</div></details>';
+  const details=box.querySelector('details');if(details)details.ontoggle=()=>{box.dataset.open=details.open?'1':'0'};
   box.hidden=false
 }
 let inquiryEstimateObserver=null;
