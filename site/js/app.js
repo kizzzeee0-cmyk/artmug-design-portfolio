@@ -1050,8 +1050,8 @@ function selectedInquiryEstimateRows(card){
         const qty=Math.max(0,Math.floor(Number(v3Value(state,'signature.customQty',0)||0))),x=inquirySignatureType('direct','시그풍 직접 수량 · 개당');
         if(qty>0)rows.push({key:'signature:custom',label:'시그풍 직접 수량',price:x.price,qty,adjustable:false})
       }else{
-        const pricingKey=id==='one'?'one':id==='three'?'three':'six',x=inquirySignatureType(pricingKey,pricingKey);
-        rows.push({key:'signature:'+pricingKey,label:x.label,price:x.price,qty:1,adjustable:false})
+        const x=inquirySignatureType(id,id);
+        rows.push({key:'signature:'+id,label:x.label,price:x.price,qty:1,adjustable:false})
       }
       return
     }
