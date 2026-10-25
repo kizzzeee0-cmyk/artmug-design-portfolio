@@ -1685,7 +1685,7 @@ function quoteAdminLabelControl(group,key,item,editable=true){
 }
 function quoteAdminRow(group,key,item,opt={}){
  const locked=opt.locked===true;
- return '<div class="quote-structure-row '+(locked?'is-derived':'')+'">'+
+ return '<div class="quote-structure-row '+(locked?'is-derived ':'')+(opt.applyMode?'has-apply-mode':'')+'">'+
   '<div class="quote-structure-item">'+quoteAdminLabelControl(group,key,item,opt.editable!==false)+(opt.tag?'<small>'+adminEsc(opt.tag)+'</small>':'')+'</div>'+
   (locked?'<span class="quote-derived-note">'+adminEsc(opt.note||'하위 항목에서 계산')+'</span>':quoteAdminPriceInput(group,key,item))+
   (opt.applyMode?'<label class="quote-apply-mode"><span>적용 기준</span><select data-qv2-apply="'+group+':'+key+'"><option value="order" '+(item.applyMode!=='perItem'?'selected':'')+'>주문 전체 1회</option><option value="perItem" '+(item.applyMode==='perItem'?'selected':'')+'>작업물마다</option></select></label>':'')+
