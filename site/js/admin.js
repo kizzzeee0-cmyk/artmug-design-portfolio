@@ -1486,9 +1486,9 @@ function ensureQuoteConfig(){
         profileChange:{id:'profileChange',label:'움짤프사 · 이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
         textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:Number(textLegacy?.price||0),quantityField:'textChangeQty'},
         sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
-        sameDay:{id:'sameDay',label:'당일마감',price:quoteLegacyFindPrice(q.priceItems.option,'sameDay','당일'),checkboxValue:'당일마감'},
-        fast:{id:'fast',label:'빠른 마감',price:quoteLegacyFindPrice(q.priceItems.option,'fast','빠른'),checkboxValue:'빠른 마감'},
-        private:{id:'private',label:'포트폴리오 비공개',price:quoteLegacyFindPrice(q.priceItems.option,'private','비공개'),checkboxValue:'포트폴리오 비공개'}
+        sameDay:{id:'sameDay',label:'당일마감',price:quoteLegacyFindPrice(q.priceItems.option,'sameDay','당일'),checkboxValue:'당일마감',applyMode:'order'},
+        fast:{id:'fast',label:'빠른 마감',price:quoteLegacyFindPrice(q.priceItems.option,'fast','빠른'),checkboxValue:'빠른 마감',applyMode:'order'},
+        private:{id:'private',label:'포트폴리오 비공개',price:quoteLegacyFindPrice(q.priceItems.option,'private','비공개'),checkboxValue:'포트폴리오 비공개',applyMode:'order'}
       },
       customOptions:q.customItems.filter(x=>!mapped.has(x.id)).map(x=>({id:String(x.id||('qopt-'+Date.now())),label:String(x.name||''),price:Number(x.price||0),enabledInInquiry:true})),
       standaloneItems:(q.priceItems.design||[]).filter(x=>x.id!=='profile-a'&&!/고정틀/.test(String(x.name||''))).map(x=>({id:String(x.id),label:String(x.name||''),price:Number(x.price||0)}))
@@ -1550,9 +1550,9 @@ function ensureQuoteConfig(){
     profileChange:{id:'profileChange',label:'움짤프사 · 이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
     textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:0,quantityField:'textChangeQty'},
     sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
-    sameDay:{id:'sameDay',label:'당일마감',price:0,checkboxValue:'당일마감'},
-    fast:{id:'fast',label:'빠른 마감',price:0,checkboxValue:'빠른 마감'},
-    private:{id:'private',label:'포트폴리오 비공개',price:0,checkboxValue:'포트폴리오 비공개'}
+    sameDay:{id:'sameDay',label:'당일마감',price:0,checkboxValue:'당일마감',applyMode:'order'},
+    fast:{id:'fast',label:'빠른 마감',price:0,checkboxValue:'빠른 마감',applyMode:'order'},
+    private:{id:'private',label:'포트폴리오 비공개',price:0,checkboxValue:'포트폴리오 비공개',applyMode:'order'}
   };
   Object.entries(optionDefaults).forEach(([k,d])=>{p.options[k]={...d,...(p.options[k]||{})}});
   return q
@@ -1617,6 +1617,7 @@ function quoteAdminRow(group,key,item,opt={}){
  return '<div class="quote-structure-row '+(locked?'is-derived':'')+'">'+
   '<div class="quote-structure-item">'+quoteAdminLabelControl(group,key,item,opt.editable!==false)+(opt.tag?'<small>'+adminEsc(opt.tag)+'</small>':'')+'</div>'+
   (locked?'<span class="quote-derived-note">'+adminEsc(opt.note||'하위 항목에서 계산')+'</span>':quoteAdminPriceInput(group,key,item))+
+  (opt.applyMode?'<label class="quote-apply-mode"><span>적용 기준</span><select data-qv2-apply="'+group+':'+key+'"><option value="order" '+(item.applyMode!=='perItem'?'selected':'')+'>주문 전체 1회</option><option value="perItem" '+(item.applyMode==='perItem'?'selected':'')+'>작업물마다</option></select></label>':'')+
   (opt.deleteIndex!=null?'<button type="button" class="danger admin-compact quote-structure-delete" data-del-qv2-custom="'+opt.deleteIndex+'">삭제</button>':'')+
  '</div>'
 }
@@ -1651,8 +1652,8 @@ function renderQuoteAdmin(){
     quoteAdminRow('signatureTypes','six',p.signatureTypes.six)+
     quoteAdminRow('signatureTypes','direct',p.signatureTypes.direct,{note:'갯수 직접입력 시 개당 가격'});
   let optionRows=['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
-    .map(k=>quoteAdminRow('options',k,p.options[k])).join('');
-  optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가'})).join('');
+    .map(k=>quoteAdminRow('options',k,p.options[k],{applyMode:['sameDay','fast','private'].includes(k)})).join('');
+  optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가',applyMode:true})).join('');
   optionRows+='<button type="button" class="ghost admin-compact quote-add-inline" data-add-qv2-custom>+ 추가 옵션 등록</button>';
   $('quotePricing').innerHTML=
     quoteStructureSection('신청하시는 디자인 종류',designRows,'상위 종류와 하위 가격이 중복되지 않도록 계산')+
@@ -1684,13 +1685,17 @@ function bindQuoteConfigInputs(){
     const [group,key]=e.dataset.qv2Price.split(':'),x=quoteObjectFor(group,key);
     if(x){x.price=quotePriceValue(e.value);syncQuoteLegacyMirrors();renderQuoteBuilder()}
   });
+  document.querySelectorAll('[data-qv2-apply]').forEach(e=>e.onchange=()=>{
+    const [group,key]=e.dataset.qv2Apply.split(':'),x=quoteObjectFor(group,key);
+    if(x)x.applyMode=e.value==='perItem'?'perItem':'order'
+  });
   document.querySelectorAll('[data-qv2-label]').forEach(e=>e.oninput=()=>{
     const [group,key]=e.dataset.qv2Label.split(':'),x=quoteObjectFor(group,key);
     if(x){x.label=e.value;renderQuoteBuilder()}
   });
   document.querySelectorAll('[data-add-qv2-custom]').forEach(b=>b.onclick=()=>{
     const p=ensureQuoteConfig().pricingV2;
-    p.customOptions.push({id:'qopt-'+Date.now(),label:'새 추가 옵션',price:0,enabledInInquiry:true});
+    p.customOptions.push({id:'qopt-'+Date.now(),label:'새 추가 옵션',price:0,enabledInInquiry:true,applyMode:'order'});
     renderQuoteAdmin()
   });
   document.querySelectorAll('[data-del-qv2-custom]').forEach(b=>b.onclick=()=>{
