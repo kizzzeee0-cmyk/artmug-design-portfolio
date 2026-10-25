@@ -1181,11 +1181,8 @@ function requestText(card){
         const frameKeep=v3FormatValue(state['profile.common.frameKeep']);
         if(frameKeep)lines.push('움짤프사 파일 보관 여부: '+frameKeep)
       }
-      if(modes.includes('change')){
-        lines.push(...v3FieldLines(design.modeFields?.change,'profile.change',state));
-        if(v.nameOnlyChangeQty>0)lines.push(inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label+': × '+v.nameOnlyChangeQty+'개');
-        if(v.profileChangeQty>0)lines.push(inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label+': × '+v.profileChangeQty+'개')
-      }
+      if(v.nameOnlyChangeQty>0)lines.push(inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label+': × '+v.nameOnlyChangeQty+'개');
+      if(v.profileChangeQty>0)lines.push(inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label+': × '+v.profileChangeQty+'개');
     }else if(type.id==='soopBanner'){
       const kinds=v3Array(state,'bannerKinds'),kindDefs=design.bannerKinds||[];
       if(kinds.length)lines.push('선택 종류: '+kinds.map(id=>kindDefs.find(x=>x.id===id)?.label||id).join(', '));
