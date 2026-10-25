@@ -754,7 +754,14 @@
           "id": "fourCut",
           "label": "인생네컷",
           "typeId": "type-1792042352882",
-          "price": 27000
+          "price": 27000,
+          "pricing": "fourCutType"
+        },
+        "signature": {
+          "id": "signature",
+          "label": "시그풍",
+          "typeId": "signature-style",
+          "pricing": "signatureType"
         }
       },
       "profileModes": {
@@ -858,7 +865,41 @@
           "label": "시그풍 6개 세트",
           "price": 55000
         }
-      ]
+      ],
+      "fourCutTypes": {
+        "large": {
+          "id": "large",
+          "label": "인생네컷 대형 (2×2)",
+          "price": 27000
+        },
+        "small": {
+          "id": "small",
+          "label": "인생네컷 소형 (1×4)",
+          "price": 27000
+        }
+      },
+      "signatureTypes": {
+        "one": {
+          "id": "one",
+          "label": "시그풍 1개",
+          "price": 11000
+        },
+        "three": {
+          "id": "three",
+          "label": "시그풍 3개 세트",
+          "price": 30000
+        },
+        "six": {
+          "id": "six",
+          "label": "시그풍 6개 세트",
+          "price": 55000
+        },
+        "direct": {
+          "id": "direct",
+          "label": "시그풍 직접 수량 · 개당",
+          "price": 11000
+        }
+      }
     }
   },
   "presetGroups": [
@@ -1240,6 +1281,54 @@
           "description": "",
           "enabled": true
         }
+      ],
+      "inquiryFields": [
+        {
+          "id": "lace",
+          "label": "레이스 여부",
+          "type": "radio",
+          "required": true,
+          "options": [
+            "O",
+            "X"
+          ],
+          "enabled": true
+        },
+        {
+          "id": "backgroundPatternColor",
+          "label": "배경 & 패턴 색상",
+          "type": "text",
+          "required": true,
+          "placeholder": "원하는 색상을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "frameBorder",
+          "label": "원형 프레임 테두리 디자인",
+          "type": "text",
+          "required": true,
+          "placeholder": "원하는 테두리 디자인을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "name",
+          "label": "이름 입력",
+          "type": "text",
+          "required": true,
+          "placeholder": "적용할 이름을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "frameKeep",
+          "label": "움짤프사 파일 보관 여부",
+          "type": "radio",
+          "required": true,
+          "options": [
+            "O",
+            "X"
+          ],
+          "enabled": true
+        }
       ]
     },
     {
@@ -1282,6 +1371,43 @@
           "description": "",
           "enabled": true
         }
+      ],
+      "inquiryFields": [
+        {
+          "id": "checkColor",
+          "label": "체크 패턴 색상",
+          "type": "text",
+          "required": true,
+          "placeholder": "원하는 색상을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "frameBorder",
+          "label": "원형 프레임 테두리 디자인",
+          "type": "text",
+          "required": true,
+          "placeholder": "원하는 테두리 디자인을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "name",
+          "label": "이름 입력",
+          "type": "text",
+          "required": true,
+          "placeholder": "적용할 이름을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "frameKeep",
+          "label": "움짤프사 파일 보관 여부",
+          "type": "radio",
+          "required": true,
+          "options": [
+            "O",
+            "X"
+          ],
+          "enabled": true
+        }
       ]
     },
     {
@@ -1315,6 +1441,24 @@
           "description": "",
           "enabled": true
         }
+      ],
+      "inquiryFields": [
+        {
+          "id": "backgroundColor",
+          "label": "배경 색상",
+          "type": "text",
+          "required": true,
+          "placeholder": "원하는 배경 색상을 입력해주세요",
+          "enabled": true
+        },
+        {
+          "id": "name",
+          "label": "이름 입력",
+          "type": "text",
+          "required": true,
+          "placeholder": "적용할 이름을 입력해주세요",
+          "enabled": true
+        }
       ]
     }
   ],
@@ -1333,5 +1477,194 @@
       "2026-10-28": "off"
     },
     "weekendsDefaultOff": true
+  },
+  "inquiryV3": {
+    "version": 3,
+    "enabled": true,
+    "broadcast": {
+      "nicknameLabel": "방송 닉네임",
+      "nicknamePlaceholder": "방송 닉네임을 입력해주세요",
+      "addressLabel": "방송 주소",
+      "addressPlaceholder": "https://..."
+    },
+    "designTypeLabel": "신청하시는 디자인 종류",
+    "designOrder": [
+      "profile",
+      "soopBanner",
+      "fourCut",
+      "signature"
+    ],
+    "designs": {
+      "profile": {
+        "id": "profile",
+        "label": "움짤프사",
+        "enabled": true,
+        "icon": "profile",
+        "modeOrder": [
+          "custom",
+          "fixed",
+          "preset",
+          "change"
+        ],
+        "modeFields": {
+          "custom": [
+            {
+              "id": "concept",
+              "label": "원하는 디자인 컨셉 및 색상",
+              "type": "textarea",
+              "required": true,
+              "placeholder": "원하는 분위기, 컨셉, 색상을 작성해주세요",
+              "wide": true
+            },
+            {
+              "id": "name",
+              "label": "이름 입력",
+              "type": "text",
+              "required": true,
+              "placeholder": "움짤프사에 적용할 이름을 입력해주세요"
+            },
+            {
+              "id": "frameKeep",
+              "label": "움짤프사 파일 보관 여부",
+              "type": "radio",
+              "required": true,
+              "options": [
+                "O",
+                "X"
+              ]
+            }
+          ],
+          "preset": [
+            {
+              "id": "request",
+              "label": "프리셋 수정 요청사항",
+              "type": "textarea",
+              "required": false,
+              "placeholder": "원하는 수정 내용을 입력해주세요",
+              "wide": true
+            },
+            {
+              "id": "name",
+              "label": "이름 입력",
+              "type": "text",
+              "required": true,
+              "placeholder": "움짤프사에 적용할 이름을 입력해주세요"
+            },
+            {
+              "id": "frameKeep",
+              "label": "움짤프사 파일 보관 여부",
+              "type": "radio",
+              "required": true,
+              "options": [
+                "O",
+                "X"
+              ]
+            }
+          ],
+          "change": [
+            {
+              "id": "name",
+              "label": "이름 입력",
+              "type": "text",
+              "required": true,
+              "placeholder": "변경할 이름을 입력해주세요"
+            }
+          ]
+        },
+        "customFields": []
+      },
+      "soopBanner": {
+        "id": "soopBanner",
+        "label": "SOOP 배너",
+        "enabled": true,
+        "icon": "banner",
+        "bannerKinds": [
+          {
+            "id": "topBanner",
+            "label": "상단배너"
+          },
+          {
+            "id": "floatingBanner",
+            "label": "플로팅배너"
+          },
+          {
+            "id": "bottomBanner",
+            "label": "하단배너"
+          }
+        ],
+        "conceptLabel": "원하는 디자인 컨셉 및 색상",
+        "contentLabel": "내용 입력",
+        "textChangeLabel": "배너 · 텍스트/이미지 변경",
+        "customFields": []
+      },
+      "fourCut": {
+        "id": "fourCut",
+        "label": "인생네컷",
+        "enabled": true,
+        "icon": "fourcut",
+        "types": [
+          {
+            "id": "large",
+            "label": "인생네컷 대형 (2×2)"
+          },
+          {
+            "id": "small",
+            "label": "인생네컷 소형 (1×4)"
+          }
+        ],
+        "conceptLabel": "원하는 디자인 컨셉 및 색상",
+        "colorChangeLabel": "동일 디자인 · 색상 변경",
+        "customFields": []
+      },
+      "signature": {
+        "id": "signature",
+        "label": "시그풍",
+        "enabled": false,
+        "comingSoon": true,
+        "icon": "signature",
+        "counts": [
+          {
+            "id": "one",
+            "label": "시그풍 1개",
+            "count": 1
+          },
+          {
+            "id": "three",
+            "label": "시그풍 3개",
+            "count": 3
+          },
+          {
+            "id": "six",
+            "label": "시그풍 6개",
+            "count": 6
+          },
+          {
+            "id": "custom",
+            "label": "갯수 직접입력",
+            "count": null
+          }
+        ],
+        "modes": [
+          {
+            "id": "omakase",
+            "label": "오마카세"
+          },
+          {
+            "id": "direct",
+            "label": "직접 입력"
+          }
+        ],
+        "customFields": []
+      }
+    },
+    "common": {
+      "extraLabel": "추가 요청사항",
+      "extraPlaceholder": "여러 디자인에 공통으로 전달할 내용을 입력해주세요",
+      "optionOrder": [
+        "sameDay",
+        "fast",
+        "private"
+      ]
+    }
   }
 }
