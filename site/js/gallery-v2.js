@@ -1015,8 +1015,9 @@ function scrollToElement(el){
 function navigate(target){
  target=String(target||'');
  if(target==='top'){try{window.parent.postMessage({type:'artmug-scroll-request',offset:0,top:true},'*')}catch{};window.scrollTo({top:0,behavior:'smooth'});return}
- if(target==='notice')return scrollToElement($('.notice-card'));
+ if(target==='schedule')return scrollToElement($('.schedule-card'));
  if(target==='calendar')return scrollToElement($('#availabilityCalendarSection')||$('.availability-calendar-card'));
+ if(target==='notice')return scrollToElement($('.notice-card'));
  if(target==='inquiry')return scrollToElement($('#inquirySection')||$('.form-card'));
  if(target==='showcase'||target==='preset'||target==='showcase-preset')return scrollToElement($('#showcaseSectionV2'));
  if(target==='fixed'||target==='seasonal-fixed')return scrollToElement($('#showcaseSectionV2'))
@@ -1054,8 +1055,9 @@ function sendDetailedSectionMap(){
   if(!el||el.hidden||!el.getClientRects().length)return;
   sections.push({target,offset:Math.max(0,Math.round(el.getBoundingClientRect().top+window.scrollY))})
  };
- add('notice',$('.notice-card'));
+ add('schedule',$('.schedule-card'));
  add('calendar',$('#availabilityCalendarSection')||$('.availability-calendar-card'));
+ add('notice',$('.notice-card'));
  add('fixed',$('#showcaseSectionV2'));
  add('showcase',$('#showcaseSectionV2'));
  state.portfolio.forEach((d,id)=>{
