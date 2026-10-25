@@ -7892,52 +7892,273 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
 }
 
 
-/* 2026-10-26 inquiry hierarchy + compact controls */
+/* 2026-10-26 inquiry reference typography refresh */
+.form-card{
+  --inquiry-title:#3f5663;
+  --inquiry-label:#475f6c;
+  --inquiry-body:#5f707b;
+  --inquiry-muted:#87949c;
+  --inquiry-border:#d8e7ef;
+  --inquiry-soft:#f8fbfd;
+}
+.form-card .section-heading,
+.form-card .section-heading>div,
+.form-card .section-heading-copy{
+  width:100%!important;
+  align-items:flex-start!important;
+  text-align:left!important;
+}
+.form-card .section-heading-copy{
+  position:relative;
+  display:grid;
+  gap:5px;
+  padding-left:15px;
+}
+.form-card .section-heading-copy::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:3px;
+  width:4px;
+  height:20px;
+  border-radius:999px;
+  background:var(--primary-action,var(--accent));
+}
+.form-card h2,
+.form-card #formTitle{
+  margin:0!important;
+  color:var(--inquiry-title)!important;
+  font-size:20px!important;
+  font-weight:700!important;
+  line-height:1.35!important;
+  letter-spacing:-.02em!important;
+  text-align:left!important;
+}
+.form-card #formDescription{
+  margin:0!important;
+  color:var(--inquiry-muted)!important;
+  font-size:13px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  text-align:left!important;
+}
+.form-card .contact-form{
+  margin-top:26px!important;
+  gap:22px!important;
+}
+.inquiry-broadcast-section{
+  gap:13px!important;
+}
+.inquiry-v3-step-heading{
+  align-items:center!important;
+  gap:7px!important;
+}
 .inquiry-v3-step-heading>div{
-  gap:0;
+  display:block!important;
+}
+.inquiry-v3-step-number{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:auto!important;
+  height:auto!important;
+  flex:0 0 auto!important;
+  padding:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--primary-action,var(--accent-strong))!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+}
+.inquiry-v3-step-number::after{
+  content:".";
 }
 .inquiry-v3-step-heading strong{
-  font-size:14.5px;
-  font-weight:780;
+  color:var(--inquiry-label)!important;
+  font-size:14.5px!important;
+  font-weight:650!important;
+  line-height:1.4!important;
+  letter-spacing:-.012em!important;
 }
 .inquiry-title-note{
-  display:inline;
   margin-left:4px;
-  color:#718894;
-  font-size:12px;
-  font-weight:650;
-  line-height:1.35;
+  color:#7c8e98!important;
+  font-size:12.5px!important;
+  font-weight:500!important;
   white-space:nowrap;
 }
 .inquiry-v3-step-heading small:not(.required-badge){
   display:none!important;
 }
-.inquiry-design-card-head strong{
-  font-size:13.5px;
-  font-weight:800;
+.inquiry-broadcast-grid{
+  gap:16px!important;
+  padding-left:0!important;
 }
 .inquiry-broadcast-grid .field-label-row,
 .inquiry-field-title,
-.inquiry-v3-choice-field>legend,
-.profile-mode-subtitle,
-.inquiry-v3-qty-row .inquiry-qty-label{
-  font-size:11.5px!important;
+.inquiry-v3-choice-field>legend{
+  margin-bottom:7px!important;
+  color:var(--inquiry-label)!important;
+  font-size:13.5px!important;
+  font-weight:600!important;
+  line-height:1.4!important;
+  letter-spacing:-.01em!important;
+}
+.inquiry-design-cards{
+  gap:14px!important;
+  padding-left:0!important;
+}
+.inquiry-design-detail-card{
+  gap:16px!important;
+  padding:18px!important;
+  border:1px solid #d6e9f3!important;
+  border-radius:16px!important;
+  background:#fbfdff!important;
+}
+.inquiry-design-card-head{
+  min-height:27px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid #e5f0f6!important;
+}
+.inquiry-design-card-head strong{
+  color:#4f91b4!important;
+  font-size:15px!important;
+  font-weight:700!important;
+  line-height:1.35!important;
+}
+.profile-mode-subcard{
+  gap:13px!important;
+  padding:14px 15px!important;
+  border:1px solid #e3eef4!important;
+  border-radius:13px!important;
+  background:#f7fbfd!important;
+}
+.profile-mode-subtitle{
+  color:#54707f!important;
+  font-size:13.5px!important;
   font-weight:650!important;
+  line-height:1.4!important;
+}
+.inquiry-v3-field-grid{
+  gap:14px 16px!important;
 }
 .inquiry-v3-field input[type="text"],
 .inquiry-v3-field input[type="number"],
 .inquiry-v3-field textarea,
 .inquiry-broadcast-grid input,
 .inquiry-v3-common-section>textarea{
-  font-size:11.5px!important;
+  border:1px solid var(--inquiry-border)!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  color:var(--inquiry-body)!important;
+  font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif!important;
+  font-size:13.5px!important;
+  font-weight:400!important;
+  line-height:1.5!important;
+  box-shadow:none!important;
+}
+.inquiry-v3-field input[type="text"],
+.inquiry-v3-field input[type="number"],
+.inquiry-broadcast-grid input{
+  min-height:44px!important;
+  padding:10px 13px!important;
+}
+.inquiry-v3-field textarea,
+.inquiry-v3-common-section>textarea{
+  min-height:92px!important;
+  padding:11px 13px!important;
+}
+.contact-form input::placeholder,
+.contact-form textarea::placeholder{
+  color:#929da4!important;
+  font-size:13px!important;
+  font-weight:400!important;
+  opacity:1!important;
+}
+.contact-form .field-help,
+.banner-text-help{
+  margin:2px 0 0!important;
+  color:#7f8d96!important;
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+}
+.required-badge{
+  font-size:9.5px!important;
+  font-weight:650!important;
+}
+.request-card-v3 .request-type-selector{
+  gap:13px!important;
+  margin-bottom:21px!important;
+}
+.request-card-v3 .request-type-options,
+.inquiry-design-detail-card .choice-row,
+.inquiry-v3-option-section .check-grid,
+.choice-row,
+.check-grid{
+  gap:9px!important;
+  padding-left:0!important;
+}
+.request-card-v3 .request-type-option,
+.request-card-v3 .choice-pill{
+  width:auto!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+.request-card-v3 .request-type-option span,
+.request-card-v3 .choice-pill>span{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:40px!important;
+  padding:8px 14px!important;
+  border:1px solid #cfe4ef!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#60727d!important;
+  font-size:13px!important;
   font-weight:500!important;
+  line-height:1.25!important;
+  box-sizing:border-box!important;
+}
+.request-card-v3 .request-type-option input:checked+span,
+.request-card-v3 .choice-pill:has(input:checked)>span{
+  border-color:var(--primary-action,var(--accent))!important;
+  background:#eaf7fd!important;
+  color:#427f9f!important;
+  font-weight:600!important;
+}
+.choice-pill>span::before{
+  width:14px!important;
+  height:14px!important;
+  flex-basis:14px!important;
+}
+.inquiry-v3-qty-row{
+  min-height:42px!important;
+  padding:7px 9px!important;
+  border:1px solid #e0ebf1!important;
+  border-radius:11px!important;
+  background:#fff!important;
+}
+.inquiry-v3-qty-row .inquiry-qty-label{
+  color:#5e717d!important;
+  font-size:13px!important;
+  font-weight:500!important;
+}
+.inquiry-qty-input{
+  font-size:12.5px!important;
 }
 .inquiry-v3-global-sections{
   display:grid;
-  gap:17px;
-  margin-top:17px;
+  gap:22px!important;
+  margin-top:22px!important;
 }
 .inquiry-v3-common-section{
+  gap:12px!important;
   margin-top:0!important;
   padding-left:0!important;
 }
@@ -7945,65 +8166,189 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   margin:0!important;
   padding-left:0!important;
 }
+.inquiry-estimate-details{
+  border:1px solid #d2e5ef!important;
+  border-radius:13px!important;
+  background:#fbfdff!important;
+}
+.inquiry-estimate-head{
+  min-height:52px!important;
+  padding:10px 13px!important;
+}
+.inquiry-estimate-head-title{
+  gap:7px!important;
+}
 .inquiry-estimate-head-title strong{
+  color:var(--inquiry-label)!important;
   font-size:14.5px!important;
-  font-weight:780!important;
-}
-.request-card-v3 .choice-pill{
-  width:auto!important;
-  min-height:34px!important;
-  padding:0!important;
-}
-.request-card-v3 .choice-pill>span,
-.request-card-v3 .request-type-option span{
-  min-height:32px!important;
-  padding:6px 11px!important;
-  font-size:11px!important;
   font-weight:650!important;
-  line-height:1.2!important;
-  box-sizing:border-box;
+}
+.inquiry-estimate-head-total b{
+  font-size:14px!important;
+  font-weight:700!important;
+}
+.inquiry-estimate-body{
+  padding:2px 13px 12px!important;
+}
+.inquiry-estimate-row{
+  min-height:48px!important;
+  padding:9px 2px!important;
+}
+.inquiry-estimate-name strong{
+  color:#566d79!important;
+  font-size:12.5px!important;
+  font-weight:600!important;
+}
+.inquiry-estimate-name span,
+.inquiry-estimate-count,
+.inquiry-estimate-note,
+.inquiry-estimate-empty{
+  color:#87949c!important;
+  font-size:11.5px!important;
+  font-weight:400!important;
+}
+.inquiry-estimate-subtotal{
+  color:#557887!important;
+  font-size:12.5px!important;
+  font-weight:650!important;
+}
+.inquiry-attachment-notice{
+  padding:11px 13px!important;
+  border-radius:11px!important;
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+}
+.inquiry-form-footer #copyButton{
+  min-height:42px!important;
+  padding:0 18px!important;
+  font-size:13.5px!important;
+  font-weight:600!important;
+}
+.inquiry-inline-error{
+  font-size:11.5px!important;
+  font-weight:500!important;
+  line-height:1.45!important;
 }
 .profile-common-fields{
-  margin-top:2px;
+  margin-top:3px!important;
 }
 .profile-common-fields>.inquiry-v3-field{
   grid-column:1/-1;
 }
 @media(max-width:680px){
+  .form-card h2,
+  .form-card #formTitle{
+    font-size:18px!important;
+  }
+  .form-card .section-heading-copy{
+    padding-left:13px;
+  }
+  .form-card .section-heading-copy::before{
+    top:2px;
+    height:19px;
+  }
+  .form-card #formDescription{
+    font-size:12px!important;
+  }
+  .form-card .contact-form{
+    margin-top:21px!important;
+    gap:18px!important;
+  }
   .inquiry-v3-step-heading strong{
-    font-size:13.5px;
+    font-size:13.5px!important;
+  }
+  .inquiry-v3-step-number{
+    font-size:13px!important;
   }
   .inquiry-title-note{
-    font-size:11px;
+    font-size:11.5px!important;
   }
-  .inquiry-design-card-head strong{
-    font-size:12.5px;
-  }
-  .request-card-v3 .choice-pill,
-  .request-card-v3 .request-type-option{
-    min-height:32px!important;
-  }
-  .request-card-v3 .choice-pill>span,
-  .request-card-v3 .request-type-option span{
-    min-height:30px!important;
-    padding:5px 9px!important;
-    font-size:10.5px!important;
+  .inquiry-broadcast-grid,
+  .inquiry-v3-field-grid,
+  .inquiry-v3-banner-types{
+    grid-template-columns:1fr!important;
   }
   .inquiry-broadcast-grid .field-label-row,
   .inquiry-field-title,
-  .inquiry-v3-choice-field>legend,
-  .profile-mode-subtitle,
-  .inquiry-v3-qty-row .inquiry-qty-label{
-    font-size:11px!important;
+  .inquiry-v3-choice-field>legend{
+    font-size:12.5px!important;
+  }
+  .inquiry-design-card-head strong{
+    font-size:14px!important;
+  }
+  .profile-mode-subtitle{
+    font-size:12.5px!important;
+  }
+  .inquiry-design-detail-card{
+    gap:14px!important;
+    padding:14px 12px 15px!important;
+    border-radius:14px!important;
+  }
+  .profile-mode-subcard{
+    padding:12px!important;
   }
   .inquiry-v3-field input[type="text"],
   .inquiry-v3-field input[type="number"],
   .inquiry-v3-field textarea,
   .inquiry-broadcast-grid input,
   .inquiry-v3-common-section>textarea{
-    font-size:11px!important;
+    font-size:12.5px!important;
+  }
+  .contact-form input::placeholder,
+  .contact-form textarea::placeholder{
+    font-size:12px!important;
+  }
+  .inquiry-v3-field input[type="text"],
+  .inquiry-v3-field input[type="number"],
+  .inquiry-broadcast-grid input{
+    min-height:42px!important;
+  }
+  .inquiry-v3-field textarea,
+  .inquiry-v3-common-section>textarea{
+    min-height:84px!important;
+  }
+  .contact-form .field-help,
+  .banner-text-help{
+    font-size:11.5px!important;
+  }
+  .request-card-v3 .request-type-option,
+  .request-card-v3 .choice-pill{
+    min-height:36px!important;
+  }
+  .request-card-v3 .request-type-option span,
+  .request-card-v3 .choice-pill>span{
+    min-height:36px!important;
+    padding:7px 11px!important;
+    font-size:12px!important;
+  }
+  .inquiry-v3-qty-row .inquiry-qty-label{
+    font-size:12px!important;
+  }
+  .inquiry-estimate-head{
+    min-height:48px!important;
+    padding:9px 10px!important;
   }
   .inquiry-estimate-head-title strong{
     font-size:13.5px!important;
+  }
+  .inquiry-estimate-head-total b{
+    font-size:13px!important;
+  }
+  .inquiry-estimate-name strong,
+  .inquiry-estimate-subtotal{
+    font-size:11.5px!important;
+  }
+  .inquiry-estimate-name span,
+  .inquiry-estimate-count,
+  .inquiry-estimate-note,
+  .inquiry-estimate-empty{
+    font-size:10.5px!important;
+  }
+  .inquiry-attachment-notice{
+    font-size:11.5px!important;
+  }
+  .inquiry-form-footer #copyButton{
+    font-size:13px!important;
   }
 }
