@@ -852,23 +852,7 @@
         }
       },
       "customOptions": [],
-      "standaloneItems": [
-        {
-          "id": "signature-style",
-          "label": "시그풍 1개",
-          "price": 11000
-        },
-        {
-          "id": "qg-design-1792438046376",
-          "label": "시그풍 3개 세트",
-          "price": 30000
-        },
-        {
-          "id": "qg-design-1792438078960",
-          "label": "시그풍 6개 세트",
-          "price": 55000
-        }
-      ],
+      "standaloneItems": [],
       "fourCutTypes": {
         "large": {
           "id": "large",
