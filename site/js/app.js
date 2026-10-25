@@ -389,9 +389,10 @@ function renderAvailabilityCalendar(s){
     const savedStatus=dates[ymd];
     const dayOfWeek=new Date(Date.UTC(view.year,view.month-1,day)).getUTCDay();
     const isWeekend=dayOfWeek===0||dayOfWeek===6;
+    const weekendsDefaultOff=cfg.weekendsDefaultOff!==false;
     const resolvedStatus=ymd<today
       ?'closed'
-      :(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:(isWeekend?'off':'available'));
+      :(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:((weekendsDefaultOff&&isWeekend)?'off':'available'));
     const meta=availabilityStatusMeta(resolvedStatus);
     cells.push(
       '<div class="availability-day '+meta.className+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+' '+meta.label)+'">'+
