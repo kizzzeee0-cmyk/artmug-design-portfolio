@@ -833,6 +833,12 @@
           "label": "이름/움짤 변경",
           "price": 3000,
           "quantityField": "profileChangeQty"
+        },
+        "nameOnlyChange": {
+          "id": "nameOnlyChange",
+          "label": "이름만 변경",
+          "price": 3000,
+          "quantityField": "nameOnlyChangeQty"
         }
       },
       "customOptions": [],
