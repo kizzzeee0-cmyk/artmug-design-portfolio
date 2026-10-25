@@ -2712,6 +2712,11 @@
   border-color:#dce2e5;
   color:#87949a;
 }
+.availability-admin-status.is-reserved{
+  background:#8fc8e8;
+  border-color:#8fc8e8;
+  color:#fff;
+}
 .availability-admin-status.is-unset{
   background:#fff;
   border-style:dashed;
@@ -2797,6 +2802,11 @@
   background:#f2f4f5;
   border-color:#e5e9eb;
   color:#8f9ba1;
+}
+.availability-admin-day.is-reserved{
+  background:#8fc8e8;
+  border-color:#8fc8e8;
+  color:#fff;
 }
 .availability-admin-day.is-today{
   border-color:#69add2;
