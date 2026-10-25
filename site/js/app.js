@@ -714,6 +714,7 @@ function readV3Map(card){
   });
   return out
 }
+window.readV3Map=readV3Map;
 function v3Remember(card,map){
   card.__v3State={...(card.__v3State||{}),...(map||{})};
   return card.__v3State
