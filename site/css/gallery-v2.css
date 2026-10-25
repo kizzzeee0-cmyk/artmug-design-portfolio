@@ -4315,3 +4315,49 @@ body.v2-fixed-detail-open{
     font-size:9.2px;
   }
 }
+
+
+/* 2026-10-26 fixed inquiry single-layer choice */
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+  position:relative!important;
+  min-height:40px!important;
+  padding:8px 14px!important;
+  border:1px solid #cfe4ef!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#60727d!important;
+  box-shadow:none!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice>span{
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  box-shadow:none!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:checked){
+  border-color:var(--primary-action,#327CAA)!important;
+  background:var(--primary-action,#327CAA)!important;
+  color:#fff!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:checked)>span{
+  background:transparent!important;
+  color:#fff!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice>span::before{
+  border-color:#b9c9d5!important;
+  background:#fff!important;
+}
+.contact-form .v2-fixed-product-grid .v2-fixed-product-choice>input:checked+span::before{
+  border-color:#fff!important;
+  background:#fff!important;
+  color:var(--primary-action,#327CAA)!important;
+}
+@media(max-width:680px){
+  .contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+    min-height:36px!important;
+    padding:7px 11px!important;
+  }
+}
