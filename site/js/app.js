@@ -842,30 +842,46 @@ function renderV3GenericCard(card,design,state){
   html+='</div></section>';
   return html
 }
+function renderInquiryCommonSections(card,prev,state){
+  const host=card.querySelector('.inquiry-v3-global-sections');if(!host)return;
+  const schema=inquirySchema(),common=schema?.common||{};
+  const optionOrder=Array.isArray(common.optionOrder)?common.optionOrder:['sameDay','fast','private'];
+  const checkboxOptions=optionOrder.map(k=>inquiryOption(k,k)).filter(o=>o.enabledInInquiry!==false).concat(inquiryCustomOptions().map(x=>({id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true,enabledInInquiry:x.enabledInInquiry!==false})));
+  const extraValue=v3Value(state,'extraRequest',prev.extra||'');
+  host.innerHTML='<section class="inquiry-v3-common-section inquiry-v3-extra-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">4</span><div><strong>'+htmlAttr(common.extraLabel||'추가 요청사항')+'</strong></div></div>'+
+    '<textarea data-field="extra" data-v3-field="extraRequest" placeholder="'+htmlAttr(common.extraPlaceholder||'')+'">'+htmlAttr(extraValue)+'</textarea></section>'+
+    '<section class="inquiry-v3-common-section inquiry-v3-option-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">5</span><div><strong>추가 옵션</strong></div></div><div class="check-grid">'+
+      checkboxOptions.map(o=>'<label class="choice-pill"><input data-field="extraOption" data-quote-option-id="'+htmlAttr(o.id)+'" type="checkbox" value="'+htmlAttr(o.label)+'" '+((prev.optionIds||[]).includes(o.id)||(prev.options||[]).includes(o.label)?'checked':'')+'><span>'+htmlAttr(o.label)+'</span></label>').join('')+
+    '</div></section>';
+  host.querySelectorAll('[data-v3-field]').forEach(el=>{
+    const sync=()=>{card.__v3State={...card.__v3State,...readV3Map(card)};window.refreshInquiryEstimate?.()};
+    el.addEventListener(el.tagName==='TEXTAREA'||['text','number','url'].includes(el.type)?'input':'change',sync)
+  });
+  const sameDay=host.querySelector('input[data-quote-option-id="sameDay"]'),fast=host.querySelector('input[data-quote-option-id="fast"]');
+  if(sameDay&&fast){
+    sameDay.addEventListener('change',()=>{if(sameDay.checked)fast.checked=false});
+    fast.addEventListener('change',()=>{if(fast.checked)sameDay.checked=false})
+  }
+}
 function renderRequestFieldsV3(card,typeIds,prev){
   prev=prev||{};
   const state=v3Remember(card,prev.v3||readV3Map(card));
   const schema=inquirySchema(),designs=schema?.designs||{},fields=card.querySelector('.request-fields');
   const selected=(typeIds||[]).map(id=>designs[id]).filter(Boolean);
-  if(!selected.length){fields.innerHTML='';requestAnimationFrame(renderInquiryEstimate);return}
-  let html='<div class="inquiry-v3-step-heading inquiry-v3-detail-heading"><span class="inquiry-v3-step-number">3</span><div><strong>상세 옵션</strong><small>선택한 디자인 타입의 상세 정보를 입력해주세요.</small></div></div><div class="inquiry-design-cards">';
-  selected.forEach(design=>{
-    if(design.id==='profile')html+='<section class="inquiry-design-detail-card" data-design-card="profile">'+v3DesignCardHead(design.label||'움짤프사')+'<div data-v3-profile-slot></div></section>';
-    else if(design.id==='soopBanner')html+=renderV3BannerCard(card,design,state);
-    else if(design.id==='fourCut')html+=renderV3FourCutCard(card,design,state);
-    else if(design.id==='signature')html+=renderV3SignatureCard(card,design,state);
-    else html+=renderV3GenericCard(card,design,state);
-  });
-  html+='</div>';
-  const common=schema.common||{};
-  html+='<section class="inquiry-v3-common-section inquiry-v3-extra-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">4</span><div><strong>'+htmlAttr(common.extraLabel||'추가 요청사항')+'</strong><small>선택한 모든 디자인에 공통으로 전달할 내용을 작성해주세요.</small></div></div>'+
-    '<textarea data-field="extra" data-v3-field="extraRequest" placeholder="'+htmlAttr(common.extraPlaceholder||'')+'">'+htmlAttr(v3Value(state,'extraRequest',''))+'</textarea></section>';
-  const optionOrder=Array.isArray(common.optionOrder)?common.optionOrder:['sameDay','fast','private'];
-  const checkboxOptions=optionOrder.map(k=>inquiryOption(k,k)).filter(o=>o.enabledInInquiry!==false).concat(inquiryCustomOptions().map(x=>({id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true,enabledInInquiry:x.enabledInInquiry!==false})));
-  html+='<section class="inquiry-v3-common-section inquiry-v3-option-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">5</span><div><strong>추가 옵션</strong><small>필요한 공통 옵션을 선택해주세요.</small></div></div><div class="check-grid">'+
-    checkboxOptions.map(o=>'<label class="choice-pill"><input data-field="extraOption" data-quote-option-id="'+htmlAttr(o.id)+'" type="checkbox" value="'+htmlAttr(o.label)+'" '+((prev.optionIds||[]).includes(o.id)||(prev.options||[]).includes(o.label)?'checked':'')+'><span>'+htmlAttr(o.label)+'</span></label>').join('')+
-  '</div></section>';
+  let html='<div class="inquiry-v3-step-heading inquiry-v3-detail-heading"><span class="inquiry-v3-step-number">3</span><div><strong>상세 옵션</strong></div></div>';
+  if(selected.length){
+    html+='<div class="inquiry-design-cards">';
+    selected.forEach(design=>{
+      if(design.id==='profile')html+='<section class="inquiry-design-detail-card" data-design-card="profile">'+v3DesignCardHead(design.label||'움짤프사')+'<div data-v3-profile-slot></div></section>';
+      else if(design.id==='soopBanner')html+=renderV3BannerCard(card,design,state);
+      else if(design.id==='fourCut')html+=renderV3FourCutCard(card,design,state);
+      else if(design.id==='signature')html+=renderV3SignatureCard(card,design,state);
+      else html+=renderV3GenericCard(card,design,state);
+    });
+    html+='</div>'
+  }
   fields.innerHTML=html;
+  renderInquiryCommonSections(card,prev,state);
 
   fields.querySelectorAll('[data-v3-rerender]').forEach(el=>el.addEventListener('change',()=>{
     const now={...card.__v3State,...readV3Map(card)};card.__v3State=now;
@@ -882,11 +898,6 @@ function renderRequestFieldsV3(card,typeIds,prev){
     input.dispatchEvent(new Event('input',{bubbles:true}))
   });
   fields.querySelectorAll('.inquiry-qty-input').forEach(input=>input.addEventListener('blur',()=>{input.value=String(Math.max(0,Math.floor(Number(input.value||0))))}));
-  const sameDay=fields.querySelector('input[data-quote-option-id="sameDay"]'),fast=fields.querySelector('input[data-quote-option-id="fast"]');
-  if(sameDay&&fast){
-    sameDay.addEventListener('change',()=>{if(sameDay.checked)fast.checked=false});
-    fast.addEventListener('change',()=>{if(fast.checked)sameDay.checked=false})
-  }
   requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
 }
 function renderInquiryForm(){
@@ -928,9 +939,9 @@ function addRequest(typeIds){
   card.className='request-card request-card-combined request-card-v3';
   card.dataset.requestId=String(id);card.dataset.typeIds=typeIds.join(',');
   card.innerHTML='<div class="request-type-selector">'+
-    '<div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">2</span><div><strong>'+htmlAttr(inquirySchema()?.designTypeLabel||S.designTypeLabel||'신청하시는 디자인 종류')+'</strong><small>신청하실 디자인을 모두 선택해주세요. (중복 선택 가능)</small></div></div>'+
+    '<div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">2</span><div><strong>'+htmlAttr(inquirySchema()?.designTypeLabel||S.designTypeLabel||'신청하시는 디자인 종류')+' <span class="inquiry-title-note">(중복 선택 가능)</span></strong></div></div>'+
     '<div class="request-type-options">'+requestTypeOptions(typeIds)+'</div>'+
-  '</div><div class="request-fields"></div>';
+  '</div><div class="request-fields"></div><div class="inquiry-v3-global-sections"></div>';
   $('requestsContainer').appendChild(card);
   card.querySelectorAll('input[data-field="requestType"]').forEach(input=>input.onchange=()=>{
     const prev=readRequestValues(card),selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
@@ -954,7 +965,7 @@ function readRequestValues(card){
     typeIds:qa('input[data-field="requestType"]:checked').map(x=>x.value),
     signatureNumber:String(v3['signature.content']||''),
     signatureContent:String(v3['signature.content']||''),
-    frameKeep:String(v3['profile.custom.frameKeep']||v3['profile.preset.frameKeep']||'O'),
+    frameKeep:String(v3['profile.common.frameKeep']||v3['profile.custom.frameKeep']||v3['profile.preset.frameKeep']||'O'),
     concept:String(v3['banner.concept']||v3['fourCut.concept']||v3['profile.custom.concept']||''),
     extra:String(v3.extraRequest||(q('[data-field="extra"]')||{}).value||''),
     bannerText:String(v3['banner.content']||''),
@@ -1079,8 +1090,8 @@ function selectedInquiryEstimateRows(card){
 function renderInquiryEstimate(){
   const box=ensureInquiryEstimateBox();if(!box)return;
   const card=document.querySelector('.request-card'),types=card?selectedInquiryTypes(card):[];
-  if(!card||!types.length){box.hidden=true;box.innerHTML='';return}
-  const rows=selectedInquiryEstimateRows(card);
+  if(!card){box.hidden=true;box.innerHTML='';return}
+  const rows=types.length?selectedInquiryEstimateRows(card):[];
   let total=0,hasInquiryOnly=false;
   rows.forEach(x=>{if(x.price>0)total+=x.price*x.qty;else hasInquiryOnly=true});
   const rowHtml=rows.map(x=>{
@@ -1091,10 +1102,11 @@ function renderInquiryEstimate(){
       :'<span class="inquiry-estimate-count">× '+x.qty+'개</span>';
     return '<div class="inquiry-estimate-row"><div class="inquiry-estimate-name"><strong>'+htmlAttr(x.label)+'</strong><span>'+unit+'</span></div>'+qty+'<b class="inquiry-estimate-subtotal">'+subtotal+'</b></div>'
   }).join('');
+  const emptyText=types.length?'선택된 가격 항목이 없습니다.':'디자인 종류를 선택하면 예상 견적이 표시됩니다.';
   const wasOpen=box.dataset.open==='1';
   box.innerHTML='<details class="inquiry-estimate-details" '+(wasOpen?'open':'')+'>'+
     '<summary class="inquiry-estimate-head"><div class="inquiry-estimate-head-title"><span class="inquiry-v3-step-number">6</span><strong>예상 견적</strong></div><div class="inquiry-estimate-head-total"><b>'+total.toLocaleString('ko-KR')+'원</b><span class="inquiry-estimate-chevron">⌄</span></div></summary>'+
-    '<div class="inquiry-estimate-body">'+(rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'<p class="inquiry-estimate-empty">선택된 가격 항목이 없습니다.</p>')+
+    '<div class="inquiry-estimate-body">'+(rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'<p class="inquiry-estimate-empty">'+emptyText+'</p>')+
     (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 별도 문의 항목은 총 금액에서 제외됩니다.</p>':'')+'</div></details>';
   const details=box.querySelector('details');if(details)details.ontoggle=()=>{box.dataset.open=details.open?'1':'0'};
   box.hidden=false
@@ -1152,16 +1164,20 @@ function requestText(card){
     if(type.id==='profile'){
       const modes=Array.isArray(v2.profileModes)?v2.profileModes:inquiryProfileModesFromCard(card);
       if(modes.length)lines.push('신청 방식: '+modes.map(mode=>inquiryProfileMode(mode,mode).label).join(', '));
-      if(modes.includes('custom'))lines.push(...v3FieldLines(design.modeFields?.custom,'profile.custom',state));
+      if(modes.includes('custom'))lines.push(...v3FieldLines((design.modeFields?.custom||[]).filter(f=>f.id!=='frameKeep'),'profile.custom',state));
       if(modes.includes('fixed')){
         if(v2.selectedFixedProductName)lines.push('고정틀 선택: '+v2.selectedFixedProductName);
         const product=(S.fixedProducts||[]).find(x=>String(x.id)===String(v2.selectedFixedProductId||''));
-        lines.push(...v3FieldLines(product?.inquiryFields||[],'profile.fixed.'+String(v2.selectedFixedProductId||''),state))
+        lines.push(...v3FieldLines((product?.inquiryFields||[]).filter(f=>f.id!=='frameKeep'),'profile.fixed.'+String(v2.selectedFixedProductId||''),state))
       }
       if(modes.includes('preset')){
         if(v2.selectedPresetName)lines.push('프리셋 선택: '+v2.selectedPresetName);
         if(v2.selectedPresetNeedsColor&&v2.selectedPresetColorName)lines.push('색상 선택: '+v2.selectedPresetColorName);
-        lines.push(...v3FieldLines(design.modeFields?.preset,'profile.preset',state))
+        lines.push(...v3FieldLines((design.modeFields?.preset||[]).filter(f=>f.id!=='frameKeep'),'profile.preset',state))
+      }
+      if(modes.some(mode=>mode!=='change')){
+        const frameKeep=v3FormatValue(state['profile.common.frameKeep']);
+        if(frameKeep)lines.push('움짤프사 파일 보관 여부: '+frameKeep)
       }
       if(modes.includes('change')){
         lines.push(...v3FieldLines(design.modeFields?.change,'profile.change',state));
