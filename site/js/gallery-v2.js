@@ -1348,7 +1348,7 @@ window.__ARTMUG_V2__={
    selectedFixedPrice:Math.max(0,Number(fixedProduct?.price||0)),
    selectedPresetPrice:selectedPresetPrice(card),
    bannerTypes:bannerTypeEnabled()?banners.map((x,i)=>({label:x.label,type:card.dataset['bannerType'+i]||'B'})):[],
-   profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||/움짤\s*프로필/.test(x.label)||x.id==='profile-a')
+   profileSelected:types.some(x=>/움짤\s*프사/.test(x.label)||/움짤\s*프로필/.test(x.label)||x.id==='profile-a'||x.id==='profile')
   }
  },
  validateCard(card){
@@ -1358,6 +1358,11 @@ window.__ARTMUG_V2__={
   if(modes.includes('fixed')&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
   if(modes.includes('preset')&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
   if(modes.includes('preset')&&d.selectedPresetNeedsColor&&!d.selectedPresetColorFile)return {ok:false,message:'구매할 프리셋의 색상을 선택해주세요.'};
+  if(modes.includes('change')){
+   const nameQty=Math.max(0,Number(card.querySelector('[data-field="nameOnlyChangeQty"]')?.value||0));
+   const fullQty=Math.max(0,Number(card.querySelector('[data-field="profileChangeQty"]')?.value||0));
+   if(nameQty+fullQty<1)return {ok:false,message:'재주문할 이름 변경 또는 이름/움짤 변경 수량을 1개 이상 선택해주세요.'}
+  }
   return {ok:true}
  },
  inquiryLines(card){
