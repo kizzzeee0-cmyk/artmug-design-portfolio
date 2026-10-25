@@ -507,6 +507,12 @@ function inquiryPricing(){
   return p&&typeof p==='object'?p:{designs:{},profileModes:{},bottomTypes:{},options:{},customOptions:[]}
 }
 function inquiryPrice(v){return Math.max(0,Number(v||0))}
+function inquiryProfileModesFromCard(card){
+  const raw=String(card?.dataset?.profileModes||'').split(',').map(x=>x.trim()).filter(Boolean);
+  if(raw.length)return [...new Set(raw)];
+  const legacy=String(card?.dataset?.profileMode||'').trim();
+  return legacy?[legacy]:[]
+}
 function inquiryOption(key,fallbackLabel){
   const x=inquiryPricing().options?.[key]||{};
   return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:inquiryPrice(x.price)}
@@ -650,6 +656,7 @@ function addRequest(typeIds){
       const stillHasProfile=selected.map(inquiryType).some(isProfileInquiryType);
       if(!stillHasProfile){
         delete card.dataset.profileMode;
+        delete card.dataset.profileModes;
         delete card.dataset.selectedFixedProductId;
         delete card.dataset.selectedPresetFile;
         delete card.dataset.selectedPresetColorFile;
@@ -703,7 +710,8 @@ function renderRequestFields(card,typeIds,prev){
   var has=function(key){return types.some(t=>t[key])};
   var hasProfile=types.some(isProfileInquiryType);
   var bottomBannerOnly=types.length===1&&types[0]?.showBannerFields===true&&!hasProfile;
-  var profileMode=card.dataset.profileMode||'';
+  var profileModes=inquiryProfileModesFromCard(card);
+  var profileChangeOnly=profileModes.length===1&&profileModes.includes('change');
   var contentEnabled=types.some(showsContentField);
 
   if(!types.length){
@@ -726,7 +734,7 @@ function renderRequestFields(card,typeIds,prev){
   }
 
   var frameHtml='';
-  if(has('showFrameRetention')&&!(hasProfile&&profileMode==='change')){
+  if(has('showFrameRetention')&&!(hasProfile&&profileChangeOnly)){
     frameHtml='<fieldset class="choice-field inquiry-plain-choice frame-retention-field">'+
       '<div class="choice-title-row frame-retention-title-row"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</span>'+
       '<span class="frame-retention-inline-help">'+htmlAttr(S.frameKeepDescription||'')+'</span></div>'+
@@ -874,23 +882,24 @@ function selectedInquiryEstimateRows(card){
     const d=inquiryDesignPriceForType(t);if(!d)return;
     const designId=String(d.id||'');
     if(designId==='profile'||d.pricing==='profileMode'){
-      const mode=String(v2.profileMode||card.dataset.profileMode||'');
-      if(!mode||mode==='change')return;
-      const m=inquiryProfileMode(mode,mode);
-      let label=(d.label||t.label||'움짤프사')+' · '+m.label;
-      let price=inquiryPrice(m.price);
-      let key='profile:'+mode;
-      if(mode==='fixed'&&v2.selectedFixedProductName){
-        label='고정틀 · '+v2.selectedFixedProductName;
-        key='fixed:'+String(v2.selectedFixedProductId||v2.selectedFixedProductName);
-        if(inquiryPrice(v2.selectedFixedPrice)>0)price=inquiryPrice(v2.selectedFixedPrice)
-      }
-      if(mode==='preset'&&v2.selectedPresetName){
-        label='프리셋 · '+v2.selectedPresetName;
-        key='preset:'+String(v2.selectedPresetFile||v2.selectedPresetName);
-        if(inquiryPrice(v2.selectedPresetPrice)>0)price=inquiryPrice(v2.selectedPresetPrice)
-      }
-      rows.push({key,label,price,qty:estimateQty(key),adjustable:true});
+      const modes=Array.isArray(v2.profileModes)&&v2.profileModes.length?v2.profileModes:inquiryProfileModesFromCard(card);
+      modes.filter(mode=>mode&&mode!=='change').forEach(function(mode){
+        const m=inquiryProfileMode(mode,mode);
+        let label=(d.label||t.label||'움짤프사')+' · '+m.label;
+        let price=inquiryPrice(m.price);
+        let key='profile:'+mode;
+        if(mode==='fixed'&&v2.selectedFixedProductName){
+          label='고정틀 · '+v2.selectedFixedProductName;
+          key='fixed:'+String(v2.selectedFixedProductId||v2.selectedFixedProductName);
+          if(inquiryPrice(v2.selectedFixedPrice)>0)price=inquiryPrice(v2.selectedFixedPrice)
+        }
+        if(mode==='preset'&&v2.selectedPresetName){
+          label='프리셋 · '+v2.selectedPresetName;
+          key='preset:'+String(v2.selectedPresetFile||v2.selectedPresetName);
+          if(inquiryPrice(v2.selectedPresetPrice)>0)price=inquiryPrice(v2.selectedPresetPrice)
+        }
+        rows.push({key,label,price,qty:estimateQty(key),adjustable:true})
+      });
       return
     }
     if(designId==='bottomBanner'||d.pricing==='bottomType'){
