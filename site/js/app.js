@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0,publicQuoteQty={};const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0,publicQuoteQty={},availabilityCalendarView=null;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 function initArtmugEmbedMode(){
   // Report content height for both the complete public page and split embed pages.
   if(window.parent===window)return;
@@ -221,7 +221,7 @@ async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 const MEDIA_VERSION='20261015-live-media-v1';
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:''}
-function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
+function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);renderAvailabilityCalendar(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
 function renderWorkStatus(s){
   const box=$('workStatus');
   const enabled=s.workStatusEnabled===true;
@@ -335,6 +335,81 @@ function renderSchedule(s){
   card?.querySelectorAll('.schedule-date').forEach(el=>el.style.setProperty('color',dateColor,'important'));
 
 }
+
+function availabilityMonthFromYmd(ymd){
+  const m=String(ymd||'').match(/^(\d{4})-(\d{2})-/);
+  return m?{year:Number(m[1]),month:Number(m[2])}:null
+}
+function availabilityMonthShift(view,delta){
+  const d=new Date(Date.UTC(Number(view.year),Number(view.month)-1+Number(delta||0),1));
+  return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1}
+}
+function availabilityMonthKey(view){
+  return String(view.year)+'-'+String(view.month).padStart(2,'0')
+}
+function availabilityDaysInMonth(year,month){
+  return new Date(Date.UTC(Number(year),Number(month),0)).getUTCDate()
+}
+function availabilityFirstDay(year,month){
+  return new Date(Date.UTC(Number(year),Number(month)-1,1)).getUTCDay()
+}
+function availabilityStatusMeta(status){
+  return {
+    available:{label:'접수 가능',className:'is-available'},
+    closed:{label:'마감',className:'is-closed'},
+    off:{label:'휴무',className:'is-off'}
+  }[status]||null
+}
+function renderAvailabilityCalendar(s){
+  const card=document.querySelector('.availability-calendar-card');
+  const root=$('availabilityCalendar');
+  if(!card||!root)return;
+  const cfg=s?.availabilityCalendar&&typeof s.availabilityCalendar==='object'?s.availabilityCalendar:{enabled:false,dates:{}};
+  const enabled=cfg.enabled===true;
+  card.hidden=!enabled;
+  if(!enabled){root.innerHTML='';return}
+  const today=koreaDate();
+  if(!availabilityCalendarView)availabilityCalendarView=availabilityMonthFromYmd(today)||{year:new Date().getUTCFullYear(),month:new Date().getUTCMonth()+1};
+  const view=availabilityCalendarView,days=availabilityDaysInMonth(view.year,view.month),first=availabilityFirstDay(view.year,view.month);
+  const dates=cfg.dates&&typeof cfg.dates==='object'&&!Array.isArray(cfg.dates)?cfg.dates:{};
+  const weekdayLabels=['일','월','화','수','목','금','토'];
+  const cells=[];
+  for(let i=0;i<first;i++)cells.push('<span class="availability-day is-empty" aria-hidden="true"></span>');
+  for(let day=1;day<=days;day++){
+    const ymd=availabilityMonthKey(view)+'-'+String(day).padStart(2,'0');
+    const meta=availabilityStatusMeta(dates[ymd]);
+    cells.push(
+      '<div class="availability-day '+(meta?meta.className:'is-unset')+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+(meta?' '+meta.label:''))+'">'+
+        '<span class="availability-day-number">'+day+'</span>'+
+        (meta?'<span class="availability-day-status">'+meta.label+'</span>':'')+
+      '</div>'
+    )
+  }
+  const remainder=cells.length%7;
+  if(remainder)for(let i=remainder;i<7;i++)cells.push('<span class="availability-day is-empty" aria-hidden="true"></span>');
+  root.innerHTML=
+    '<div class="availability-calendar-inner">'+
+      '<div class="availability-calendar-nav">'+
+        '<button type="button" data-availability-shift="-1" aria-label="이전 달">‹</button>'+
+        '<strong>'+view.year+'.'+String(view.month).padStart(2,'0')+'</strong>'+
+        '<button type="button" data-availability-shift="1" aria-label="다음 달">›</button>'+
+      '</div>'+
+      '<div class="availability-legend">'+
+        '<span><i class="is-available"></i>접수 가능</span>'+
+        '<span><i class="is-closed"></i>마감</span>'+
+        '<span><i class="is-off"></i>휴무</span>'+
+      '</div>'+
+      '<div class="availability-weekdays">'+weekdayLabels.map((x,i)=>'<span class="'+(i===0?'is-sunday':i===6?'is-saturday':'')+'">'+x+'</span>').join('')+'</div>'+
+      '<div class="availability-days">'+cells.join('')+'</div>'+
+    '</div>';
+  root.querySelectorAll('[data-availability-shift]').forEach(button=>button.onclick=()=>{
+    availabilityCalendarView=availabilityMonthShift(availabilityCalendarView,Number(button.dataset.availabilityShift||0));
+    renderAvailabilityCalendar(S||s);
+    requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
+  });
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
+}
+
 function renderAuthorIntro(s){
   const on=!!s.authorEnabled,sec=$('authorIntro');
   sec.hidden=!on;
