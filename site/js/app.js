@@ -1113,8 +1113,9 @@ function initInquiryEstimate(){
   }
   if(root.dataset.quoteBound!=='1'){
     root.dataset.quoteBound='1';
-    root.addEventListener('change',()=>requestAnimationFrame(renderInquiryEstimate));
-    root.addEventListener('input',()=>requestAnimationFrame(renderInquiryEstimate));
+    const syncInquiry=()=>{requestAnimationFrame(renderInquiryEstimate);requestAnimationFrame(clearRequiredMessageIfComplete)};
+    root.addEventListener('change',syncInquiry);
+    root.addEventListener('input',syncInquiry);
   }
   if(!inquiryEstimateObserver){
     let pending=false;
@@ -1164,8 +1165,8 @@ function requestText(card){
       }
       if(modes.includes('change')){
         lines.push(...v3FieldLines(design.modeFields?.change,'profile.change',state));
-        if(v.nameOnlyChangeQty>0)lines.push(inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label+': '+v.nameOnlyChangeQty+'개');
-        if(v.profileChangeQty>0)lines.push(inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label+': '+v.profileChangeQty+'개')
+        if(v.nameOnlyChangeQty>0)lines.push(inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label+': × '+v.nameOnlyChangeQty+'개');
+        if(v.profileChangeQty>0)lines.push(inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label+': × '+v.profileChangeQty+'개')
       }
     }else if(type.id==='soopBanner'){
       const kinds=v3Array(state,'bannerKinds'),kindDefs=design.bannerKinds||[];
@@ -1181,14 +1182,14 @@ function requestText(card){
       const concept=v3FormatValue(state['banner.concept']),content=v3FormatValue(state['banner.content']);
       if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
       if(content)lines.push((design.contentLabel||'내용 입력')+': '+content);
-      if(v.textChangeQty>0)lines.push((design.textChangeLabel||inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label)+': '+v.textChangeQty+'개');
+      if(v.textChangeQty>0)lines.push((design.textChangeLabel||inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label)+': × '+v.textChangeQty+'개');
       lines.push(...v3FieldLines(design.customFields,'banner.custom',state))
     }else if(type.id==='fourCut'){
       const id=v3FormatValue(state['fourCut.type']),def=(design.types||[]).find(x=>String(x.id)===id);
       if(id)lines.push('인생네컷 종류: '+(def?.label||id));
       const concept=v3FormatValue(state['fourCut.concept']);
       if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
-      if(v.sameDesignColorChangeQty>0)lines.push((design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label)+': '+v.sameDesignColorChangeQty+'개');
+      if(v.sameDesignColorChangeQty>0)lines.push((design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label)+': × '+v.sameDesignColorChangeQty+'개');
       lines.push(...v3FieldLines(design.customFields,'fourCut.custom',state))
     }else if(type.id==='signature'){
       const countId=v3FormatValue(state['signature.count']),countDef=(design.counts||[]).find(x=>String(x.id)===countId);
@@ -1231,6 +1232,7 @@ function validBroadcastUrl(value){
 }
 function inquiryValidationState(mark){
   let firstMissing=null,message='';
+  if(mark)document.querySelectorAll('.inquiry-inline-error').forEach(el=>el.remove());
   const markEl=(el,missing)=>{
     if(!el)return;
     el.classList.toggle('is-required-missing',!!missing);
@@ -1276,6 +1278,12 @@ function inquiryValidationState(mark){
       if(missing){firstMissing=el;message=(wrap.querySelector('legend,.inquiry-field-title')?.textContent||'필수 항목').replace('필수','').trim()+'을(를) 입력해주세요.';break}
     }
   }
+  if(mark&&firstMissing){
+    const host=firstMissing.closest?.('.inquiry-v3-field,.inquiry-v3-choice-field,.inquiry-broadcast-grid label,.request-type-selector,.inquiry-design-detail-card')||firstMissing.parentElement;
+    if(host){
+      const error=document.createElement('small');error.className='inquiry-inline-error';error.textContent=message||'필수 항목을 확인해주세요.';host.appendChild(error)
+    }
+  }
   return {ok:!firstMissing,first:firstMissing,message}
 }
 function validateRequiredInquiryFields(){
@@ -1289,7 +1297,13 @@ function validateRequiredInquiryFields(){
   $('copyStatus').textContent='';return true
 }
 function allRequiredInquiryFieldsFilled(){return inquiryValidationState(false).ok}
-function clearRequiredMessageIfComplete(){if(allRequiredInquiryFieldsFilled())$('copyStatus').textContent=''}
+function clearRequiredMessageIfComplete(){
+ if(!allRequiredInquiryFieldsFilled())return;
+ $('copyStatus').textContent='';
+ document.querySelectorAll('.inquiry-inline-error').forEach(el=>el.remove());
+ document.querySelectorAll('.is-required-missing').forEach(el=>el.classList.remove('is-required-missing'));
+ document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.setAttribute('aria-invalid','false'))
+}
 
 function parsePresetOriginalName(name){
   const raw=String(name||''),m=raw.match(/^__PG_(.+?)__PM_(.+?)__(.+)$/);
