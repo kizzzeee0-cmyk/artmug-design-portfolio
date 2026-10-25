@@ -821,19 +821,22 @@
           "id": "sameDay",
           "label": "당일마감",
           "price": 10000,
-          "checkboxValue": "당일마감"
+          "checkboxValue": "당일마감",
+          "applyMode": "order"
         },
         "fast": {
           "id": "fast",
           "label": "빠른 마감",
           "price": 5000,
-          "checkboxValue": "빠른 마감"
+          "checkboxValue": "빠른 마감",
+          "applyMode": "order"
         },
         "private": {
           "id": "private",
           "label": "포트폴리오 비공개",
           "price": 20000,
-          "checkboxValue": "포트폴리오 비공개"
+          "checkboxValue": "포트폴리오 비공개",
+          "applyMode": "order"
         },
         "profileChange": {
           "id": "profileChange",
