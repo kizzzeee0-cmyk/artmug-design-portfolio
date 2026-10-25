@@ -901,6 +901,15 @@ function ensureInquiryV3(target=S){
  if(!Array.isArray(v.common.optionOrder))v.common.optionOrder=['sameDay','fast','private'];
  return v
 }
+function inquiryV3ConditionOptions(pathKey,field){
+ const design=String(pathKey||'').split('.')[0],current=(field.conditionKey&&field.conditionValue)?field.conditionKey+':'+field.conditionValue:'';
+ const options=[['','항상 표시']];
+ if(design==='profile')options.push(['profileModes:custom','맞춤제작 선택 시'],['profileModes:fixed','고정틀 구매 선택 시'],['profileModes:preset','프리셋 구매 선택 시'],['profileModes:change','재주문 선택 시']);
+ if(design==='soopBanner')options.push(['bannerKinds:topBanner','상단배너 선택 시'],['bannerKinds:floatingBanner','플로팅배너 선택 시'],['bannerKinds:bottomBanner','하단배너 선택 시'],['bottomTypes:bottom1','하단 1칸 선택 시'],['bottomTypes:bottom3','하단 3칸 선택 시'],['bottomTypes:bottom6','하단 6칸 선택 시']);
+ if(design==='fourCut')options.push(['fourCut.type:large','인생네컷 대형 선택 시'],['fourCut.type:small','인생네컷 소형 선택 시']);
+ if(design==='signature')options.push(['signature.mode:omakase','오마카세 선택 시'],['signature.mode:direct','직접 입력 선택 시'],['signature.count:one','1개 선택 시'],['signature.count:three','3개 선택 시'],['signature.count:six','6개 선택 시'],['signature.count:custom','갯수 직접입력 선택 시']);
+ return options.map(([v,l])=>'<option value="'+adminEsc(v)+'" '+(current===v?'selected':'')+'>'+adminEsc(l)+'</option>').join('')
+}
 function inquiryV3FieldAdminHtml(field,pathKey,index){
  const optionText=(field.options||[]).map(v=>typeof v==='object'?String(v.value??v.label??''):String(v)).join(', ');
  return '<div class="inquiry-v3-admin-field-row" data-inquiry-v3-field-row="'+adminEsc(pathKey)+':'+index+'">'+
@@ -909,6 +918,7 @@ function inquiryV3FieldAdminHtml(field,pathKey,index){
    [['text','한 줄 텍스트'],['textarea','여러 줄 텍스트'],['radio','단일 선택'],['multi','다중 선택'],['number','숫자 입력']].map(([v,l])=>'<option value="'+v+'" '+(field.type===v?'selected':'')+'>'+l+'</option>').join('')+
   '</select></label>'+
   '<label>플레이스홀더<input data-iq3-field-placeholder="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(field.placeholder||'')+'"></label>'+
+  '<label>표시 조건<select data-iq3-field-condition="'+adminEsc(pathKey)+':'+index+'">'+inquiryV3ConditionOptions(pathKey,field)+'</select></label>'+
   '<label class="wide">선택지 · 쉼표로 구분<input data-iq3-field-options="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(optionText)+'" placeholder="단일/다중 선택일 때 사용"></label>'+
   '<div class="inquiry-v3-admin-field-flags">'+
    '<label class="mini-toggle"><input type="checkbox" data-iq3-field-required="'+adminEsc(pathKey)+':'+index+'" '+(field.required?'checked':'')+'> 필수</label>'+
@@ -955,6 +965,9 @@ function collectInquiryV3Admin(){
   field.label=input.value.trim()||field.label;
   field.type=q('data-iq3-field-type')?.value||field.type;
   field.placeholder=q('data-iq3-field-placeholder')?.value||'';
+  const condition=q('data-iq3-field-condition')?.value||'',conditionParts=condition.split(':');
+  field.conditionKey=conditionParts.shift()||'';
+  field.conditionValue=conditionParts.join(':')||'';
   field.options=(q('data-iq3-field-options')?.value||'').split(',').map(v=>v.trim()).filter(Boolean);
   field.required=q('data-iq3-field-required')?.checked===true;
   field.enabled=q('data-iq3-field-enabled')?.checked!==false;
@@ -2645,6 +2658,8 @@ function normalizeInquiryField(x){
   enabled:x?.enabled!==false,
   wide:x?.wide===true,
   placeholder:String(x?.placeholder||''),
+  conditionKey:String(x?.conditionKey||''),
+  conditionValue:String(x?.conditionValue||''),
   options:Array.isArray(x?.options)?x.options.map(v=>typeof v==='object'?String(v.value??v.label??''):String(v)).filter(Boolean):[]
  }
 }
