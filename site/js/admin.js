@@ -773,14 +773,19 @@ function adminBlockKey(block,index){
 }
 function readAdminCollapsedBlocks(){
   const out=new Set();
+  let hasCurrent=false;
   try{
-    const value=JSON.parse(localStorage.getItem(ADMIN_COLLAPSE_STORAGE_KEY)||'[]');
+    const raw=localStorage.getItem(ADMIN_COLLAPSE_STORAGE_KEY);
+    hasCurrent=raw!==null;
+    const value=JSON.parse(raw||'[]');
     if(Array.isArray(value))value.forEach(x=>out.add(String(x)))
   }catch{}
-  try{
-    const legacy=JSON.parse(localStorage.getItem(ADMIN_COLLAPSE_LEGACY_STORAGE_KEY)||'[]');
-    if(Array.isArray(legacy))legacy.forEach(x=>out.add(String(x)))
-  }catch{}
+  if(!hasCurrent){
+    try{
+      const legacy=JSON.parse(localStorage.getItem(ADMIN_COLLAPSE_LEGACY_STORAGE_KEY)||'[]');
+      if(Array.isArray(legacy))legacy.forEach(x=>out.add(String(x)))
+    }catch{}
+  }
   return out
 }
 function writeAdminCollapsedBlocks(set){
