@@ -1152,7 +1152,7 @@ function ensureQuoteConfig(){
         custom:{id:'custom',label:'맞춤제작',price:quoteLegacyFindPrice(q.priceItems.design,'profile-a','움짤프사')||20000},
         fixed:{id:'fixed',label:'고정틀 구매',price:quoteLegacyFindPrice(q.priceItems.design,'__fixed__','고정틀')||15000},
         preset:{id:'preset',label:'프리셋 구매',price:20000},
-        change:{id:'change',label:'이름/움짤 변경',price:null,calculatedByOptions:true}
+        change:{id:'change',label:'(재주문) 이름/움짤만 변경',price:null,calculatedByOptions:true}
       },
       bottomTypes:{
         bottom1:{id:'bottom1',label:'하단 1칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom1','1칸')},
@@ -1160,8 +1160,8 @@ function ensureQuoteConfig(){
         bottom6:{id:'bottom6',label:'하단 6칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom6','6칸')}
       },
       options:{
-        nameOnlyChange:{id:'nameOnlyChange',label:'이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
-        profileChange:{id:'profileChange',label:'이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
+        nameOnlyChange:{id:'nameOnlyChange',label:'움짤프사 · 이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
+        profileChange:{id:'profileChange',label:'움짤프사 · 이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
         textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:Number(textLegacy?.price||0),quantityField:'textChangeQty'},
         sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
         sameDay:{id:'sameDay',label:'당일마감',price:quoteLegacyFindPrice(q.priceItems.option,'sameDay','당일'),checkboxValue:'당일마감'},
@@ -1194,7 +1194,7 @@ function ensureQuoteConfig(){
     custom:{id:'custom',label:'맞춤제작',price:20000},
     fixed:{id:'fixed',label:'고정틀 구매',price:15000},
     preset:{id:'preset',label:'프리셋 구매',price:20000},
-    change:{id:'change',label:'이름/움짤 변경',price:null,calculatedByOptions:true}
+    change:{id:'change',label:'(재주문) 이름/움짤만 변경',price:null,calculatedByOptions:true}
   };
   Object.entries(modeDefaults).forEach(([k,d])=>{p.profileModes[k]={...d,...(p.profileModes[k]||{})}});
   const bottomDefaults={
@@ -1204,8 +1204,8 @@ function ensureQuoteConfig(){
   };
   Object.entries(bottomDefaults).forEach(([k,d])=>{p.bottomTypes[k]={...d,...(p.bottomTypes[k]||{})}});
   const optionDefaults={
-    nameOnlyChange:{id:'nameOnlyChange',label:'이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
-    profileChange:{id:'profileChange',label:'이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
+    nameOnlyChange:{id:'nameOnlyChange',label:'움짤프사 · 이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
+    profileChange:{id:'profileChange',label:'움짤프사 · 이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
     textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:0,quantityField:'textChangeQty'},
     sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
     sameDay:{id:'sameDay',label:'당일마감',price:0,checkboxValue:'당일마감'},
