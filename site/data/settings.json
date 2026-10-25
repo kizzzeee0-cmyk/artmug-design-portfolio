@@ -836,7 +836,7 @@
         },
         "nameOnlyChange": {
           "id": "nameOnlyChange",
-          "label": "움짤프사 · 이름만 변경",
+          "label": "움짤프사 · 이름 변경",
           "price": 3000,
           "quantityField": "nameOnlyChangeQty"
         }
