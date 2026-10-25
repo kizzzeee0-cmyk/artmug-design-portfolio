@@ -914,8 +914,8 @@
       "option:profileChange",
       "option:sameDesignColorChange",
       "option:sameDay",
-      "signatureType:direct",
       "option:fast",
+      "signatureType:direct",
       "option:private"
     ]
   },
