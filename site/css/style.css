@@ -8539,3 +8539,127 @@ textarea[data-v3-field="extraRequest"]{
     padding:9px 11px!important;
   }
 }
+
+
+/* 2026-10-26 inquiry typography system final */
+/*
+  One typography scale for the public inquiry form.
+  Same semantic role = same size/weight regardless of renderer (core / fixed / preset).
+*/
+.form-card .contact-form{
+  --iq-section-title-size:14.5px;
+  --iq-design-title-size:15px;
+  --iq-label-size:13.5px;
+  --iq-control-size:13.5px;
+  --iq-placeholder-size:13px;
+  --iq-choice-size:13px;
+  --iq-help-size:12.5px;
+  --iq-label-weight:600;
+  --iq-control-weight:400;
+  --iq-choice-weight:500;
+  --iq-help-weight:400;
+}
+
+/* Major numbered section headings */
+.form-card .contact-form .inquiry-v3-step-heading strong,
+.form-card .contact-form .inquiry-estimate-head-title strong{
+  font-size:var(--iq-section-title-size)!important;
+  font-weight:650!important;
+  line-height:1.4!important;
+  letter-spacing:-.012em!important;
+}
+
+/* Design subsection titles: 움짤프사 / SOOP 배너 / 인생네컷 */
+.form-card .contact-form .inquiry-design-card-head strong{
+  font-size:var(--iq-design-title-size)!important;
+  font-weight:700!important;
+  line-height:1.35!important;
+}
+
+/* Every question / field label uses one exact scale. */
+.form-card .contact-form .inquiry-broadcast-grid .field-label-row,
+.form-card .contact-form .inquiry-field-title,
+.form-card .contact-form .inquiry-v3-choice-field>legend,
+.form-card .contact-form .inquiry-profile-mode-field>legend,
+.form-card .contact-form .v2-mode-field>legend,
+.form-card .contact-form .v2-fixed-product-select>legend,
+.form-card .contact-form .profile-mode-subtitle,
+.form-card .contact-form .inquiry-v3-qty-row .inquiry-qty-label{
+  color:var(--inquiry-label,#475f6c)!important;
+  font-size:var(--iq-label-size)!important;
+  font-weight:var(--iq-label-weight)!important;
+  line-height:1.4!important;
+  letter-spacing:-.01em!important;
+}
+
+/* Entered/control text is identical across text, textarea, number and select controls. */
+.form-card .contact-form input[type="text"],
+.form-card .contact-form input[type="url"],
+.form-card .contact-form input[type="number"],
+.form-card .contact-form input[type="date"],
+.form-card .contact-form textarea,
+.form-card .contact-form select{
+  font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif!important;
+  font-size:var(--iq-control-size)!important;
+  font-weight:var(--iq-control-weight)!important;
+  line-height:1.5!important;
+}
+
+/* All pre-input placeholder copy is exactly identical. */
+.form-card .contact-form input::placeholder,
+.form-card .contact-form textarea::placeholder{
+  color:#929da4!important;
+  font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif!important;
+  font-size:var(--iq-placeholder-size)!important;
+  font-weight:400!important;
+  line-height:1.5!important;
+  letter-spacing:-.005em!important;
+  opacity:1!important;
+}
+
+/* All pill choices share one typography scale, including fixed-template choices. */
+.form-card .contact-form .request-type-option span,
+.form-card .contact-form .choice-pill>span,
+.form-card .contact-form .v2-fixed-product-grid .v2-fixed-product-choice,
+.form-card .contact-form .v2-fixed-product-grid .v2-fixed-product-choice>span{
+  font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif!important;
+  font-size:var(--iq-choice-size)!important;
+  font-weight:var(--iq-choice-weight)!important;
+  line-height:1.25!important;
+}
+.form-card .contact-form .request-type-option input:checked+span,
+.form-card .contact-form .choice-pill>input:checked+span,
+.form-card .contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:checked),
+.form-card .contact-form .v2-fixed-product-grid .v2-fixed-product-choice:has(input:checked)>span{
+  font-weight:600!important;
+}
+
+/* Same-purpose supporting text uses one scale. */
+.form-card .contact-form .field-help,
+.form-card .contact-form .banner-text-help,
+.form-card .contact-form .inquiry-estimate-name span,
+.form-card .contact-form .inquiry-estimate-count,
+.form-card .contact-form .inquiry-estimate-note,
+.form-card .contact-form .inquiry-estimate-empty{
+  font-size:var(--iq-help-size)!important;
+  font-weight:var(--iq-help-weight)!important;
+  line-height:1.55!important;
+}
+
+/* Quantity inputs should visually match ordinary control text. */
+.form-card .contact-form .inquiry-qty-input{
+  font-size:var(--iq-control-size)!important;
+  font-weight:var(--iq-control-weight)!important;
+}
+
+@media(max-width:680px){
+  .form-card .contact-form{
+    --iq-section-title-size:13.5px;
+    --iq-design-title-size:14px;
+    --iq-label-size:12.5px;
+    --iq-control-size:12.5px;
+    --iq-placeholder-size:12px;
+    --iq-choice-size:12px;
+    --iq-help-size:11.5px;
+  }
+}
