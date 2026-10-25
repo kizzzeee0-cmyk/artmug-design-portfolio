@@ -197,7 +197,8 @@ async function publicNavSummary(env){
         : (s.workStatusWorkingText??'')
     ).trim()
   };
-  return json({hasPreset,hasFixed,hasA,hasB,fourCutId:four?.category||'',categoryCounts,categories,workStatus},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=60'})
+  const hasAvailability=s.availabilityCalendar?.enabled===true;
+  return json({hasPreset,hasFixed,hasA,hasB,hasAvailability,fourCutId:four?.category||'',categoryCounts,categories,workStatus},200,{'Cache-Control':'public,max-age=15,stale-while-revalidate=60'})
 }
 async function media(path,env,req,ctx){
  const cache=(typeof caches!=='undefined'&&caches.default)?caches.default:null;
