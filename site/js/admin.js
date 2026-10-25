@@ -502,7 +502,8 @@ function adminAvailabilityMeta(status){
   return {
     available:{label:'접수 가능',className:'is-available'},
     closed:{label:'마감',className:'is-closed'},
-    off:{label:'휴무',className:'is-off'}
+    off:{label:'휴무',className:'is-off'},
+    reserved:{label:'예약',className:'is-reserved'}
   }[status]||null
 }
 function adminAvailabilityRange(start,end){
@@ -529,7 +530,7 @@ function applyAvailabilityStatus(status,dates=[...availabilityAdminSelected]){
   availabilityAdminUndo=JSON.parse(JSON.stringify(cfg.dates||{}));
   dates.forEach(date=>{
     if(status==='unset')delete cfg.dates[date];
-    else if(['available','closed','off'].includes(status))cfg.dates[date]=status
+    else if(['available','closed','off','reserved'].includes(status))cfg.dates[date]=status
   });
   markAvailabilityDirty();
   renderAvailabilityCalendarAdmin()
@@ -569,7 +570,7 @@ function renderAvailabilityCalendarAdmin(){
   const cells=[];
   for(let i=0;i<first;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
   for(let day=1;day<=days;day++){
-    const ymd=key+'-'+String(day).padStart(2,'0'),savedStatus=cfg.dates[ymd],resolvedStatus=['available','closed','off'].includes(savedStatus)?savedStatus:(ymd<today?'closed':'available'),meta=adminAvailabilityMeta(resolvedStatus),selected=availabilityAdminSelected.has(ymd);
+    const ymd=key+'-'+String(day).padStart(2,'0'),savedStatus=cfg.dates[ymd],resolvedStatus=ymd<today?'closed':(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:'available'),meta=adminAvailabilityMeta(resolvedStatus),selected=availabilityAdminSelected.has(ymd);
     cells.push(
       '<button type="button" class="availability-admin-day '+meta.className+' '+(selected?'is-selected':'')+' '+(ymd===today?'is-today':'')+'" data-availability-date="'+ymd+'">'+
         '<span>'+day+'</span><small>'+meta.label+'</small>'+
@@ -578,11 +579,11 @@ function renderAvailabilityCalendarAdmin(){
   }
   const rem=cells.length%7;if(rem)for(let i=rem;i<7;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
   const selectedOne=!availabilityAdminMulti&&availabilityAdminSelected.size===1?[...availabilityAdminSelected][0]:'';
-  const statusButtons=['available','closed','off'].map(status=>{
+  const statusButtons=['available','closed','off','reserved'].map(status=>{
     const meta=adminAvailabilityMeta(status);
     return '<button type="button" class="availability-admin-status '+meta.className+' '+(availabilityAdminStatus===status?'is-active':'')+'" data-availability-status="'+status+'">'+meta.label+'</button>'
   }).join('');
-  const singleStatusButtons=['available','closed','off'].map(status=>{
+  const singleStatusButtons=['available','closed','off','reserved'].map(status=>{
     const meta=adminAvailabilityMeta(status);
     return '<button type="button" class="availability-admin-status '+meta.className+'" data-availability-single-status="'+status+'">'+meta.label+'</button>'
   }).join('');
