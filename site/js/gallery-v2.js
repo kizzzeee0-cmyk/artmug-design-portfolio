@@ -1192,7 +1192,12 @@ function v3ProfileModeFields(card,mode){
 }
 function v3FixedInquiryFields(card){
  const p=selectedFixedProduct(card);if(!p)return'';
- const fields=(Array.isArray(p.inquiryFields)?p.inquiryFields:[]).filter(field=>field?.id!=='frameKeep');
+ let fields=(Array.isArray(p.inquiryFields)?p.inquiryFields:[]).filter(field=>field?.id!=='frameKeep');
+ const isFixedA=/^고정틀\s*A(?:\s|-|$)/i.test(String(p.name||'').trim());
+ if(isFixedA){
+  const order={backgroundPatternColor:0,frameBorder:1,name:2,lace:3};
+  fields=[...fields].sort((a,b)=>(order[a?.id]??99)-(order[b?.id]??99))
+ }
  if(!fields.length)return'';
  return '<div class="inquiry-v3-field-grid fixed-inquiry-fields" data-fixed-inquiry-product="'+esc(p.id)+'">'+fields.map(field=>v3ProfileFieldHtml(card,field,'profile.fixed.'+p.id)).join('')+'</div>'
 }
@@ -1248,11 +1253,13 @@ function injectInquiryV3(card){
    modeDefs.map(([value,m,disabled])=>modeChoice(value,m.label,disabled)).join('')+
  '</div></fieldset>';
  if(profileModes.includes('change')){
-  html+='<div class="profile-reorder-only">'+v3ProfileChangeQtyHtml(card)+'</div>'
+  html+='<div class="profile-reorder-only">'+v3ProfileModeFields(card,'change')+v3ProfileChangeQtyHtml(card)+'</div>'
  }else{
   if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
   if(profileModes.includes('fixed')){
-   html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('fixed','고정틀 구매').label)+'</strong>'+fixedSelectionHtml(card)+v3FixedInquiryFields(card)+'</div>'
+   const fixedProduct=selectedFixedProduct(card),fixedBase=String(fixedProduct?.name||'').split(' - ')[0].trim();
+   const fixedTitle=fixedBase?'움짤프사 '+fixedBase:v2ProfileMode('fixed','고정틀 구매').label;
+   html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(fixedTitle)+'</strong>'+fixedSelectionHtml(card)+v3FixedInquiryFields(card)+'</div>'
   }
   if(profileModes.includes('preset')){
    html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('preset','프리셋 구매').label)+'</strong>'+selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)+v3ProfileModeFields(card,'preset')+'</div>'
