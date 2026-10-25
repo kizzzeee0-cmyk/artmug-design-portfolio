@@ -573,25 +573,45 @@ function visibleCats(xs){return (xs||[]).filter(function(x){return x.enabled!==f
 function visiblePortfolioCats(xs){
   return visibleCats(xs).filter(x=>x.id!=='profile-b'&&x.id!=='profile-c'&&!x.hiddenLegacy)
 }
-function inquiryTypes(){return visibleCats((S&&S.designTypes)||[])}
-function inquiryType(id){return ((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{}}
+
+function inquirySchema(){
+  const v=S?.inquiryV3;
+  return v&&v.enabled!==false&&v.version>=3?v:null
+}
+function inquiryTypes(){
+  const v=inquirySchema();
+  if(v){
+    const designs=v.designs||{};
+    return (Array.isArray(v.designOrder)?v.designOrder:Object.keys(designs))
+      .map(id=>designs[id])
+      .filter(Boolean)
+      .map(x=>({...x,disabled:x.enabled===false,displayLabel:x.enabled===false&&x.comingSoon?String(x.label||x.id)+' (추가예정)':String(x.label||x.id)}))
+  }
+  return visibleCats((S&&S.designTypes)||[])
+}
+function inquiryType(id){
+  const v=inquirySchema();
+  if(v)return v.designs?.[id]||{};
+  return ((S&&S.designTypes)||[]).find(function(x){return x.id===id})||{}
+}
 function isProfileInquiryType(t){
   const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
-  return id==='profile-a'||label.includes('움짤프사')||label.includes('움짤프로필')
+  return id==='profile'||id==='profile-a'||label.includes('움짤프사')||label.includes('움짤프로필')
 }
 function isFourCutInquiryType(t){
   const id=String(t?.id||'').toLowerCase(),label=String(t?.label||'').replace(/\s/g,'');
-  return /four-cut|4cut/.test(id)||label.includes('인생네컷')
+  return id==='fourcut'||/four-cut|4cut/.test(id)||label.includes('인생네컷')
 }
 function isBannerInquiryType(t){
-  return String(t?.label||'').replace(/\s/g,'').includes('배너')
+  const id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
+  return id==='soopBanner'||label.includes('배너')
 }
 function showsContentField(t){
-  return t?.showContentField===true||t?.showBannerTextField===true
+  return t?.showContentField===true||t?.showBannerTextField===true||String(t?.id||'')==='soopBanner'
 }
 function inquiryPricing(){
   const p=S?.quoteConfig?.pricingV2;
-  return p&&typeof p==='object'?p:{designs:{},profileModes:{},bottomTypes:{},options:{},customOptions:[]}
+  return p&&typeof p==='object'?p:{designs:{},profileModes:{},bottomTypes:{},fourCutTypes:{},signatureTypes:{},options:{},customOptions:[]}
 }
 function inquiryPrice(v){return Math.max(0,Number(v||0))}
 function inquiryProfileModesFromCard(card){
@@ -612,13 +632,25 @@ function inquiryBottomType(key,fallbackLabel){
   const x=inquiryPricing().bottomTypes?.[key]||{};
   return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:inquiryPrice(x.price)}
 }
+function inquiryFourCutType(key,fallbackLabel){
+  const x=inquiryPricing().fourCutTypes?.[key]||{};
+  return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:inquiryPrice(x.price)}
+}
+function inquirySignatureType(key,fallbackLabel){
+  const x=inquiryPricing().signatureTypes?.[key]||{};
+  return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:inquiryPrice(x.price)}
+}
 function inquiryDesignPriceForType(t){
   const designs=inquiryPricing().designs||{},id=String(t?.id||''),label=String(t?.label||'').replace(/\s/g,'');
+  if(id==='profile')return designs.profile||{id:'profile',pricing:'profileMode'};
+  if(id==='soopBanner')return {id:'soopBanner',pricing:'bannerGroup'};
+  if(id==='fourCut')return designs.fourCut||{id:'fourCut',pricing:'fourCutType'};
+  if(id==='signature')return designs.signature||{id:'signature',pricing:'signatureType'};
   const entries=Object.values(designs);
   const exact=entries.find(x=>String(x?.typeId||'')&&String(x.typeId)===id);
   if(exact)return exact;
   if(isProfileInquiryType(t))return designs.profile||{id:'profile',pricing:'profileMode'};
-  if(isFourCutInquiryType(t))return designs.fourCut||{id:'fourCut',price:0};
+  if(isFourCutInquiryType(t))return designs.fourCut||{id:'fourCut',pricing:'fourCutType'};
   if(label.includes('상단배너'))return designs.topBanner||{id:'topBanner',price:0};
   if(label.includes('플로팅배너'))return designs.floatingBanner||{id:'floatingBanner',price:0};
   if(label.includes('하단배너'))return designs.bottomBanner||{id:'bottomBanner',pricing:'bottomType'};
@@ -629,13 +661,13 @@ function inquiryCustomOptions(){
 }
 function inquiryQuantityOptions(t){
   if(isProfileInquiryType(t))return [
-    {key:'nameOnlyChangeQty',label:inquiryOption('nameOnlyChange','움짤프사 · 이름만 변경').label},
+    {key:'nameOnlyChangeQty',label:inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label},
     {key:'profileChangeQty',label:inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label}
   ];
   if(isFourCutInquiryType(t))return [
     {key:'sameDesignColorChangeQty',label:inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label}
   ];
-  if(showsContentField(t)||isBannerInquiryType(t))return [
+  if(isBannerInquiryType(t))return [
     {key:'textChangeQty',label:inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label}
   ];
   return []
@@ -648,300 +680,280 @@ function inquiryQuantityOptionsForTypes(types){
   return out
 }
 function htmlAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function requiredLabel(text){return '<span class="field-label-row" data-question-title><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
+function requiredLabel(text){return '<span class="field-label-row"><span>'+htmlAttr(text)+'</span><small class="required-badge">필수</small></span>'}
 function updateInquiryQuestionNumbers(){
   const form=document.querySelector('.contact-form');
   if(!form)return;
+  if(inquirySchema())return;
   let number=0;
   form.querySelectorAll('[data-question-title]').forEach(function(el){
     const hiddenParent=el.closest('[hidden]');
     const visible=!hiddenParent&&el.getClientRects().length>0;
-    if(!visible){
-      delete el.dataset.questionNumber;
-      return;
-    }
-    el.dataset.questionNumber=String(++number);
+    if(!visible){delete el.dataset.questionNumber;return}
+    el.dataset.questionNumber=String(++number)
   })
 }
+window.updateInquiryQuestionNumbers=updateInquiryQuestionNumbers;
 
-function renderInquiryForm(){
-  set('nicknameLabel',S.nicknameLabel||'방송 닉네임 및 주소');
-  const nicknameTitle=document.querySelector('.inquiry-nickname-field>.field-label-row');
-  if(nicknameTitle)nicknameTitle.setAttribute('data-question-title','');
-  var nickname=$('nicknameInput');
-  nickname.placeholder=S.nicknamePlaceholder||'';
-  nickname.value='';
-  nickname.classList.remove('is-required-missing');
-  nickname.setAttribute('aria-invalid','false');
-
-  var container=$('requestsContainer');
-  container.innerHTML='';
-  requestSeq=0;
-
-  var types=inquiryTypes();
-  var addRow=$('requestAddRow');
-  if(addRow)addRow.hidden=true;
-
-  if(!types.length){
-    container.innerHTML='<div class="request-empty">현재 신청 가능한 디자인 종류가 없습니다.</div>';
-    return;
-  }
-
-  var initial=types.length===1?[types[0].id]:[];
-  addRequest(initial);
-  initInquiryEstimate();
-  requestAnimationFrame(updateInquiryQuestionNumbers);
-
-  nickname.oninput=function(){
-    if(String(nickname.value||'').trim()){
-      nickname.classList.remove('is-required-missing');
-      nickname.setAttribute('aria-invalid','false');
+function readV3Map(card){
+  const out={};
+  if(!card)return out;
+  card.querySelectorAll('[data-v3-field]').forEach(el=>{
+    const key=String(el.dataset.v3Field||'');if(!key)return;
+    if(el.type==='checkbox'){
+      if(!el.checked)return;
+      if(!Array.isArray(out[key]))out[key]=[];
+      out[key].push(el.value||'1');
+      return
     }
-    clearRequiredMessageIfComplete();
-  };
+    if(el.type==='radio'){
+      if(el.checked)out[key]=el.value;
+      return
+    }
+    out[key]=el.value
+  });
+  return out
 }
+function v3Remember(card,map){
+  card.__v3State={...(card.__v3State||{}),...(map||{})};
+  return card.__v3State
+}
+function v3Value(state,key,fallback=''){
+  const v=state?.[key];
+  return v==null?fallback:v
+}
+function v3Array(state,key){
+  const v=state?.[key];
+  if(Array.isArray(v))return v;
+  return v==null||v===''?[]:[v]
+}
+function v3Checked(state,key,value){
+  return v3Array(state,key).map(String).includes(String(value))
+}
+function v3RequiredMark(required){return required?'<small class="required-badge">필수</small>':''}
+function v3FieldHtml(field,prefix,rid,state){
+  if(!field||field.enabled===false)return'';
+  const key=prefix+'.'+String(field.id||'field'),label=String(field.label||'항목'),type=String(field.type||'text'),value=v3Value(state,key,'');
+  const cls='inquiry-v3-field '+(field.wide?'is-wide':'')+(field.required?' is-required':'');
+  if(type==='radio'||type==='multi'){
+    const opts=Array.isArray(field.options)?field.options:[];
+    return '<fieldset class="'+cls+' inquiry-v3-choice-field"><legend>'+htmlAttr(label)+v3RequiredMark(field.required)+'</legend><div class="choice-row">'+opts.map(opt=>{
+      const raw=typeof opt==='object'?String(opt.value??opt.label??''):String(opt);
+      const text=typeof opt==='object'?String(opt.label??opt.value??''):String(opt);
+      const inputType=type==='multi'?'checkbox':'radio';
+      const checked=type==='multi'?v3Checked(state,key,raw):String(value)===raw;
+      return '<label class="choice-pill"><input type="'+inputType+'" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'name="v3-'+htmlAttr(rid)+'-'+htmlAttr(key)+'" value="'+htmlAttr(raw)+'" '+(checked?'checked':'')+'><span>'+htmlAttr(text)+'</span></label>'
+    }).join('')+'</div></fieldset>'
+  }
+  if(type==='textarea'){
+    return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><textarea data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'placeholder="'+htmlAttr(field.placeholder||'')+'">'+htmlAttr(value)+'</textarea></label>'
+  }
+  if(type==='number'){
+    return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="number" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+htmlAttr(field.min??0)+'" step="'+htmlAttr(field.step??1)+'" value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'"></label>'
+  }
+  return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="text" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'"></label>'
+}
+function v3QtyHtml(fieldKey,label,value){
+  const n=Math.max(0,Math.floor(Number(value||0)));
+  return '<div class="inquiry-qty-row inquiry-v3-qty-row"><span class="inquiry-qty-label">'+htmlAttr(label)+'</span><div class="inquiry-qty-control">'+
+    '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(fieldKey)+'" data-qty-delta="-1" aria-label="'+htmlAttr(label)+' 수량 감소">−</button>'+
+    '<input class="inquiry-qty-input" data-field="'+htmlAttr(fieldKey)+'" data-v3-field="'+htmlAttr(fieldKey==='textChangeQty'?'banner.textChangeQty':fieldKey==='sameDesignColorChangeQty'?'fourCut.colorChangeQty':fieldKey)+'" type="number" min="0" step="1" inputmode="numeric" value="'+n+'" aria-label="'+htmlAttr(label)+' 수량">'+
+    '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(fieldKey)+'" data-qty-delta="1" aria-label="'+htmlAttr(label)+' 수량 증가">+</button>'+
+  '</div></div>'
+}
+function v3DesignCardHead(label){
+  return '<div class="inquiry-design-card-head"><strong>'+htmlAttr(label)+'</strong></div>'
+}
+function renderV3BannerCard(card,design,state){
+  const rid=card.dataset.requestId||'0',kinds=Array.isArray(design.bannerKinds)?design.bannerKinds:[],selected=v3Array(state,'bannerKinds');
+  const selectedBottom=selected.includes('bottomBanner'),bottomTypes=['bottom1','bottom3','bottom6'].map(k=>inquiryBottomType(k,k));
+  let html='<section class="inquiry-design-detail-card" data-design-card="soopBanner">'+v3DesignCardHead(design.label||'SOOP 배너')+
+    '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>배너 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
+      kinds.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="bannerKinds" data-v3-rerender="1" value="'+htmlAttr(x.id)+'" '+(selected.includes(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+    '</div></fieldset>';
+  if(selectedBottom){
+    html+='<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>하단배너 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
+      bottomTypes.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="bottomTypes" value="'+htmlAttr(x.id)+'" '+(v3Checked(state,'bottomTypes',x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+    '</div></fieldset>'
+  }
+  if(S?.bannerTypeEnabled!==false&&selected.length){
+    html+='<div class="inquiry-v3-banner-types">'+selected.map(kind=>{
+      const k=kinds.find(x=>x.id===kind),key='banner.type.'+kind,val=String(v3Value(state,key,'B'));
+      return '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>'+htmlAttr(k?.label||kind)+' TYPE</legend><div class="choice-row">'+
+        ['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v3-field="'+htmlAttr(key)+'" name="v3-'+rid+'-'+htmlAttr(key)+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+
+      '</div></fieldset>'
+    }).join('')+'</div>'
+  }
+  html+='<div class="inquiry-v3-field-grid">'+
+    v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:S?.conceptPlaceholder||'',wide:true},'banner',rid,state)+
+    v3FieldHtml({id:'content',label:design.contentLabel||'내용 입력',type:'textarea',required:true,placeholder:S?.bannerTextPlaceholder||'',wide:true},'banner',rid,state)+
+  '</div>';
+  html+='<div class="inquiry-v3-design-options">'+v3QtyHtml('textChangeQty',design.textChangeLabel||inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label,v3Value(state,'banner.textChangeQty',0))+'</div>';
+  (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'banner.custom',rid,state)});
+  return html+'</section>'
+}
+function renderV3FourCutCard(card,design,state){
+  const rid=card.dataset.requestId||'0',types=Array.isArray(design.types)?design.types:[],value=String(v3Value(state,'fourCut.type',''));
+  let html='<section class="inquiry-design-detail-card" data-design-card="fourCut">'+v3DesignCardHead(design.label||'인생네컷')+
+    '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>인생네컷 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
+      types.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="fourCut.type" name="v3-fourcut-'+rid+'" value="'+htmlAttr(x.id)+'" '+(value===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+    '</div></fieldset>'+
+    '<div class="inquiry-v3-field-grid">'+v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:S?.conceptPlaceholder||'',wide:true},'fourCut',rid,state)+'</div>'+
+    '<div class="inquiry-v3-design-options">'+v3QtyHtml('sameDesignColorChangeQty',design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label,v3Value(state,'fourCut.colorChangeQty',0))+'</div>';
+  (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'fourCut.custom',rid,state)});
+  return html+'</section>'
+}
+function renderV3SignatureCard(card,design,state){
+  const rid=card.dataset.requestId||'0',counts=Array.isArray(design.counts)?design.counts:[],modes=Array.isArray(design.modes)?design.modes:[],count=String(v3Value(state,'signature.count','')),mode=String(v3Value(state,'signature.mode',''));
+  let html='<section class="inquiry-design-detail-card" data-design-card="signature">'+v3DesignCardHead(design.label||'시그풍')+
+    '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>시그풍 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
+      counts.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="signature.count" data-v3-rerender="1" name="v3-sign-count-'+rid+'" value="'+htmlAttr(x.id)+'" '+(count===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+    '</div></fieldset>';
+  if(count==='custom')html+=v3FieldHtml({id:'customQty',label:'갯수 직접입력',type:'number',required:true,min:1,step:1,placeholder:'1 이상의 숫자'},'signature',rid,state);
+  html+='<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>디자인 신청 방식'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
+    modes.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="signature.mode" data-v3-rerender="1" name="v3-sign-mode-'+rid+'" value="'+htmlAttr(x.id)+'" '+(mode===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+  '</div></fieldset>';
+  if(mode){
+    html+='<div class="inquiry-v3-field-grid">'+
+      v3FieldHtml({id:'content',label:'시그풍 숫자 및 내용',type:'textarea',required:true,placeholder:'숫자와 문구를 여러 줄로 작성해주세요',wide:true},'signature',rid,state)+
+      (mode==='omakase'
+        ?v3FieldHtml({id:'colors',label:'색상 입력',type:'textarea',required:true,placeholder:'원하는 색상 / 싫어하는 색상을 작성해주세요',wide:true},'signature',rid,state)
+        :v3FieldHtml({id:'concept',label:'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:'원하는 컨셉과 색상을 작성해주세요',wide:true},'signature',rid,state))+
+    '</div>'
+  }
+  (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'signature.custom',rid,state)});
+  return html+'</section>'
+}
+function renderRequestFieldsV3(card,typeIds,prev){
+  prev=prev||{};
+  const state=v3Remember(card,prev.v3||readV3Map(card));
+  const schema=inquirySchema(),designs=schema?.designs||{},fields=card.querySelector('.request-fields');
+  const selected=(typeIds||[]).map(id=>designs[id]).filter(Boolean);
+  if(!selected.length){fields.innerHTML='';requestAnimationFrame(renderInquiryEstimate);return}
+  let html='<div class="inquiry-v3-step-heading inquiry-v3-detail-heading"><span class="inquiry-v3-step-number">3</span><div><strong>상세 옵션</strong><small>선택한 디자인 타입의 상세 정보를 입력해주세요.</small></div></div><div class="inquiry-design-cards">';
+  selected.forEach(design=>{
+    if(design.id==='profile')html+='<section class="inquiry-design-detail-card" data-design-card="profile">'+v3DesignCardHead(design.label||'움짤프사')+'<div data-v3-profile-slot></div></section>';
+    else if(design.id==='soopBanner')html+=renderV3BannerCard(card,design,state);
+    else if(design.id==='fourCut')html+=renderV3FourCutCard(card,design,state);
+    else if(design.id==='signature')html+=renderV3SignatureCard(card,design,state);
+  });
+  html+='</div>';
+  const common=schema.common||{};
+  html+='<section class="inquiry-v3-common-section inquiry-v3-extra-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">4</span><div><strong>'+htmlAttr(common.extraLabel||'추가 요청사항')+'</strong><small>선택한 모든 디자인에 공통으로 전달할 내용을 작성해주세요.</small></div></div>'+
+    '<textarea data-field="extra" data-v3-field="extraRequest" placeholder="'+htmlAttr(common.extraPlaceholder||'')+'">'+htmlAttr(v3Value(state,'extraRequest',''))+'</textarea></section>';
+  const optionOrder=Array.isArray(common.optionOrder)?common.optionOrder:['sameDay','fast','private'];
+  const checkboxOptions=optionOrder.map(k=>inquiryOption(k,k)).concat(inquiryCustomOptions().map(x=>({id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true})));
+  html+='<section class="inquiry-v3-common-section inquiry-v3-option-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">5</span><div><strong>추가 옵션</strong><small>필요한 공통 옵션을 선택해주세요.</small></div></div><div class="check-grid">'+
+    checkboxOptions.map(o=>'<label class="choice-pill"><input data-field="extraOption" data-quote-option-id="'+htmlAttr(o.id)+'" type="checkbox" value="'+htmlAttr(o.label)+'" '+((prev.optionIds||[]).includes(o.id)||(prev.options||[]).includes(o.label)?'checked':'')+'><span>'+htmlAttr(o.label)+'</span></label>').join('')+
+  '</div></section>';
+  fields.innerHTML=html;
 
+  fields.querySelectorAll('[data-v3-rerender]').forEach(el=>el.addEventListener('change',()=>{
+    const now={...card.__v3State,...readV3Map(card)};card.__v3State=now;
+    renderRequestFieldsV3(card,typeIds,{...readRequestValues(card),v3:now});
+    clearRequiredMessageIfComplete()
+  }));
+  fields.querySelectorAll('[data-v3-field]').forEach(el=>{
+    const sync=()=>{card.__v3State={...card.__v3State,...readV3Map(card)};window.refreshInquiryEstimate?.()};
+    el.addEventListener(el.tagName==='TEXTAREA'||['text','number','url'].includes(el.type)?'input':'change',sync)
+  });
+  fields.querySelectorAll('[data-qty-field]').forEach(btn=>btn.onclick=()=>{
+    const input=fields.querySelector('[data-field="'+CSS.escape(btn.dataset.qtyField)+'"]');if(!input)return;
+    input.value=String(Math.max(0,Math.floor(Number(input.value||0))+Number(btn.dataset.qtyDelta||0)));
+    input.dispatchEvent(new Event('input',{bubbles:true}))
+  });
+  fields.querySelectorAll('.inquiry-qty-input').forEach(input=>input.addEventListener('blur',()=>{input.value=String(Math.max(0,Math.floor(Number(input.value||0))))}));
+  const sameDay=fields.querySelector('input[data-quote-option-id="sameDay"]'),fast=fields.querySelector('input[data-quote-option-id="fast"]');
+  if(sameDay&&fast){
+    sameDay.addEventListener('change',()=>{if(sameDay.checked)fast.checked=false});
+    fast.addEventListener('change',()=>{if(fast.checked)sameDay.checked=false})
+  }
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
+}
+function renderInquiryForm(){
+  const schema=inquirySchema(),broadcast=schema?.broadcast||{};
+  set('nicknameLabel',broadcast.nicknameLabel||S.nicknameLabel||'방송 닉네임');
+  set('broadcastAddressLabel',broadcast.addressLabel||'방송 주소');
+  const nickname=$('nicknameInput'),address=$('broadcastAddressInput');
+  nickname.placeholder=broadcast.nicknamePlaceholder||S.nicknamePlaceholder||'';
+  if(address)address.placeholder=broadcast.addressPlaceholder||'https://...';
+  nickname.value='';if(address)address.value='';
+  [nickname,address].filter(Boolean).forEach(el=>{el.classList.remove('is-required-missing');el.setAttribute('aria-invalid','false')});
+  const container=$('requestsContainer');container.innerHTML='';requestSeq=0;
+  const types=inquiryTypes();
+  if(!types.length){container.innerHTML='<div class="request-empty">현재 신청 가능한 디자인 종류가 없습니다.</div>';return}
+  addRequest([]);
+  initInquiryEstimate();
+  [nickname,address].filter(Boolean).forEach(el=>el.oninput=()=>{
+    if(String(el.value||'').trim()){el.classList.remove('is-required-missing');el.setAttribute('aria-invalid','false')}
+    clearRequiredMessageIfComplete()
+  });
+  requestAnimationFrame(updateInquiryQuestionNumbers)
+}
 function requestTypeOptions(selectedIds){
   selectedIds=Array.isArray(selectedIds)?selectedIds:[];
-  return inquiryTypes().map(function(t){
-    return '<label class="request-type-option"><input type="checkbox" data-field="requestType" value="'+htmlAttr(t.id)+'" '+(selectedIds.includes(t.id)?'checked':'')+'><span>'+htmlAttr(t.label)+'</span></label>';
-  }).join('');
+  return inquiryTypes().map(t=>{
+    const disabled=t.disabled===true;
+    return '<label class="request-type-option '+(disabled?'is-disabled':'')+'"><input type="checkbox" data-field="requestType" value="'+htmlAttr(t.id)+'" '+(selectedIds.includes(t.id)?'checked ':'')+(disabled?'disabled ':'')+'><span>'+htmlAttr(t.displayLabel||t.label)+'</span></label>'
+  }).join('')
 }
-
 function selectedInquiryTypes(card){
   return Array.from(card.querySelectorAll('input[data-field="requestType"]:checked'))
     .map(input=>inquiryType(input.value))
     .filter(t=>t&&t.id)
 }
-
 function addRequest(typeIds){
-  var types=inquiryTypes();
-  if(!types.length)return;
+  const types=inquiryTypes();if(!types.length)return;
   typeIds=Array.isArray(typeIds)?typeIds:[];
-  if(types.length===1)typeIds=[types[0].id];
-
-  var id=++requestSeq;
-  var card=document.createElement('article');
-  card.className='request-card request-card-combined';
-  card.dataset.requestId=String(id);
-  card.dataset.typeIds=typeIds.join(',');
-  card.innerHTML=
-    '<div class="request-type-selector '+(types.length===1?'is-single':'')+'">'+
-      requiredLabel(S.designTypeLabel||'신청하시는 디자인 종류')+
-      '<div class="request-type-options">'+requestTypeOptions(typeIds)+'</div>'+
-    '</div>'+
-    '<div class="inquiry-form-divider inquiry-form-divider-primary" aria-hidden="true"></div>'+
-    '<div class="request-fields"></div>';
-
+  const id=++requestSeq,card=document.createElement('article');
+  card.className='request-card request-card-combined request-card-v3';
+  card.dataset.requestId=String(id);card.dataset.typeIds=typeIds.join(',');
+  card.innerHTML='<div class="request-type-selector">'+
+    '<div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">2</span><div><strong>'+htmlAttr(inquirySchema()?.designTypeLabel||S.designTypeLabel||'신청하시는 디자인 종류')+'</strong><small>신청하실 디자인을 모두 선택해주세요. (중복 선택 가능)</small></div></div>'+
+    '<div class="request-type-options">'+requestTypeOptions(typeIds)+'</div>'+
+  '</div><div class="request-fields"></div>';
   $('requestsContainer').appendChild(card);
-
-  card.querySelectorAll('input[data-field="requestType"]').forEach(function(input){
-    input.onchange=function(){
-      var prev=readRequestValues(card);
-      var selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
-      card.dataset.typeIds=selected.join(',');
-      const stillHasProfile=selected.map(inquiryType).some(isProfileInquiryType);
-      if(!stillHasProfile){
-        delete card.dataset.profileMode;
-        delete card.dataset.profileModes;
-        delete card.dataset.selectedFixedProductId;
-        delete card.dataset.selectedPresetFile;
-        delete card.dataset.selectedPresetColorFile;
-      }
-      card.querySelector('.request-type-selector').classList.remove('is-required-missing');
-      renderRequestFields(card,selected,prev);
-      clearRequiredMessageIfComplete();
-    };
+  card.querySelectorAll('input[data-field="requestType"]').forEach(input=>input.onchange=()=>{
+    const prev=readRequestValues(card),selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
+    card.dataset.typeIds=selected.join(',');
+    if(!selected.includes('profile')){
+      delete card.dataset.profileMode;delete card.dataset.profileModes;delete card.dataset.selectedFixedProductId;delete card.dataset.selectedPresetFile;delete card.dataset.selectedPresetColorFile
+    }
+    renderRequestFields(card,selected,prev);clearRequiredMessageIfComplete()
   });
-
-  renderRequestFields(card,typeIds,{});
+  renderRequestFields(card,typeIds,{})
 }
-
 function updateRequestCardMeta(){}
-
 window.refreshInquiryRequestFields=function(card){
   if(!card)return;
-  var prev=readRequestValues(card);
-  var selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
-  renderRequestFields(card,selected,prev);
+  const prev=readRequestValues(card),selected=Array.from(card.querySelectorAll('input[data-field="requestType"]:checked')).map(x=>x.value);
+  renderRequestFields(card,selected,prev)
 };
-
 function readRequestValues(card){
-  function q(s){return card.querySelector(s)}
-  function qa(s){return Array.from(card.querySelectorAll(s))}
+  const q=s=>card.querySelector(s),qa=s=>Array.from(card.querySelectorAll(s)),v3=readV3Map(card);
   return{
-    typeIds:qa('input[data-field="requestType"]:checked').map(function(x){return x.value}),
-    signatureNumber:(q('[data-field="signatureNumber"]')||{}).value||'',
-    signatureContent:(q('[data-field="signatureContent"]')||{}).value||'',
-    frameKeep:(q('input[data-field="frameKeep"]:checked')||{}).value||'O',
-    concept:(q('[data-field="concept"]')||{}).value||'',
-    extra:(q('[data-field="extra"]')||{}).value||'',
-    bannerText:(q('[data-field="bannerText"]')||{}).value||'',
-    banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
-    bannerIds:qa('input[data-field="bannerType"]:checked').map(function(x){return x.dataset.quoteBottomId||''}).filter(Boolean),
-    nameOnlyChangeQty:Math.max(0,Number((q('[data-field="nameOnlyChangeQty"]')||{}).value||0)),
-    profileChangeQty:Math.max(0,Number((q('[data-field="profileChangeQty"]')||{}).value||0)),
-    textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
-    sameDesignColorChangeQty:Math.max(0,Number((q('[data-field="sameDesignColorChangeQty"]')||{}).value||0)),
-    options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value}),
-    optionIds:qa('input[data-field="extraOption"]:checked').map(function(x){return x.dataset.quoteOptionId||''}).filter(Boolean)
-  };
+    typeIds:qa('input[data-field="requestType"]:checked').map(x=>x.value),
+    signatureNumber:String(v3['signature.content']||''),
+    signatureContent:String(v3['signature.content']||''),
+    frameKeep:String(v3['profile.custom.frameKeep']||v3['profile.preset.frameKeep']||'O'),
+    concept:String(v3['banner.concept']||v3['fourCut.concept']||v3['profile.custom.concept']||''),
+    extra:String(v3.extraRequest||(q('[data-field="extra"]')||{}).value||''),
+    bannerText:String(v3['banner.content']||''),
+    banners:v3Array(v3,'bottomTypes'),
+    bannerIds:v3Array(v3,'bottomTypes'),
+    nameOnlyChangeQty:Math.max(0,Number((q('[data-field="nameOnlyChangeQty"]')||{}).value||v3['profile.change.nameOnlyQty']||0)),
+    profileChangeQty:Math.max(0,Number((q('[data-field="profileChangeQty"]')||{}).value||v3['profile.change.fullQty']||0)),
+    textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||v3['banner.textChangeQty']||0)),
+    sameDesignColorChangeQty:Math.max(0,Number((q('[data-field="sameDesignColorChangeQty"]')||{}).value||v3['fourCut.colorChangeQty']||0)),
+    options:qa('input[data-field="extraOption"]:checked').map(x=>x.value),
+    optionIds:qa('input[data-field="extraOption"]:checked').map(x=>x.dataset.quoteOptionId||'').filter(Boolean),
+    v3
+  }
 }
-
 function renderRequestFields(card,typeIds,prev){
-  prev=prev||{};
-  typeIds=Array.isArray(typeIds)?typeIds:[];
-  var fields=card.querySelector('.request-fields');
-  var types=typeIds.map(inquiryType).filter(t=>t&&t.id);
-  var rid=card.dataset.requestId;
-  var has=function(key){return types.some(t=>t[key])};
-  var hasProfile=types.some(isProfileInquiryType);
-  var bottomBannerOnly=types.length===1&&types[0]?.showBannerFields===true&&!hasProfile;
-  var profileModes=inquiryProfileModesFromCard(card);
-  var profileChangeOnly=profileModes.length===1&&profileModes.includes('change');
-  var contentEnabled=types.some(showsContentField);
-
-  if(!types.length){
-    fields.innerHTML='';
-    requestAnimationFrame(updateInquiryQuestionNumbers);
-    return;
-  }
-
-  var conceptHtml='<label class="request-full-field inquiry-standard-field concept-request-field concept-color-combined-field">'+
-    '<span class="inquiry-field-title" data-question-title>'+htmlAttr(S.conceptLabel||'원하는 디자인 컨셉 및 색상')+'</span>'+
-    '<textarea data-field="concept" aria-required="false" placeholder="'+htmlAttr(S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+'"></textarea>'+
-  '</label>';
-
-  var signatureHtml='';
-  if(has('showSignatureFields')){
-    signatureHtml='<div class="signature-fields signature-inline-fields">'+
-      '<label class="signature-inline-row"><span data-question-title>'+htmlAttr(S.signatureNumberLabel||'시그풍 숫자')+'</span><input data-field="signatureNumber" placeholder="'+htmlAttr(S.signatureNumberPlaceholder||'')+'"></label>'+
-      '<label class="signature-inline-row"><span data-question-title>'+htmlAttr(S.signatureContentLabel||'시그풍 내용')+'</span><input data-field="signatureContent" placeholder="'+htmlAttr(S.signatureContentPlaceholder||'')+'"></label>'+
-    '</div>';
-  }
-
-  var frameHtml='';
-  if(has('showFrameRetention')&&!(hasProfile&&profileChangeOnly)){
-    frameHtml='<fieldset class="choice-field inquiry-plain-choice frame-retention-field">'+
-      '<div class="choice-title-row frame-retention-title-row"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.frameKeepLabel||'움짤프사 파일 보관 여부')+'</span>'+
-      '<span class="frame-retention-inline-help">'+htmlAttr(S.frameKeepDescription||'')+'</span></div>'+
-      '<div class="choice-row">'+
-        '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="O"><span>'+htmlAttr(S.frameKeepYes||'O')+'</span></label>'+
-        '<label class="choice-pill"><input data-field="frameKeep" name="frameKeep-'+rid+'" type="radio" value="X"><span>'+htmlAttr(S.frameKeepNo||'X')+'</span></label>'+
-      '</div>'+
-    '</fieldset>';
-  }
-
-  var bannerFieldsHtml='';
-  if(has('showBannerFields')){
-    var bannerValues=[
-      inquiryBottomType('bottom1','하단 1칸'),
-      inquiryBottomType('bottom3','하단 3칸'),
-      inquiryBottomType('bottom6','하단 6칸')
-    ];
-    bannerFieldsHtml='<div class="banner-fields"><fieldset class="choice-field inquiry-plain-choice"><legend data-question-title>하단 배너 종류</legend><p class="field-help">필요한 배너를 선택해주세요.</p><div class="check-grid">'+
-      bannerValues.map(function(v){return '<label class="choice-pill"><input data-field="bannerType" data-quote-bottom-id="'+htmlAttr(v.id)+'" type="checkbox" value="'+htmlAttr(v.label)+'"><span>'+htmlAttr(v.label)+'</span></label>'}).join('')+
-      '</div></fieldset></div>';
-  }
-
-  var contentHtml='';
-  if(contentEnabled){
-    contentHtml='<label class="request-full-field inquiry-standard-field banner-text-field content-input-field"><span class="inquiry-field-title" data-question-title>내용 입력</span>'+
-      '<textarea data-field="bannerText" placeholder="'+htmlAttr(S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페')+'"></textarea></label>';
-  }
-
-  var html='';
-  if(hasProfile){
-    // Profile combinations keep shared fields in this exact order:
-    // profile mode (injected by V2) -> bottom banner kind -> concept -> content -> frame retention.
-    html+=bannerFieldsHtml;
-    html+=conceptHtml;
-    html+=contentHtml;
-    html+=signatureHtml;
-    html+=frameHtml;
-  }else if(bottomBannerOnly){
-    // Bottom-banner-only requests use the dedicated order requested by the inquiry flow:
-    // bottom banner kind -> concept -> content.
-    html+=bannerFieldsHtml;
-    html+=conceptHtml;
-    html+=contentHtml;
-  }else{
-    // Preserve the existing order for every other non-profile request.
-    html+=conceptHtml;
-    html+=signatureHtml;
-    html+=frameHtml;
-    html+=bannerFieldsHtml;
-    html+=contentHtml;
-  }
-
-  html+='<div class="inquiry-form-divider inquiry-form-divider-secondary" aria-hidden="true"></div>';
-
-  html+='<label class="request-full-field inquiry-standard-field"><span class="inquiry-field-title" data-question-title>'+htmlAttr(S.extraLabel||'추가 요청사항')+'</span><textarea data-field="extra" placeholder="'+htmlAttr(S.extraPlaceholder||'')+'"></textarea></label>';
-
-  var qtyOptions=inquiryQuantityOptionsForTypes(types);
-  var qtyHtml=qtyOptions.length?'<div class="inquiry-qty-options">'+qtyOptions.map(function(o){
-    return '<div class="inquiry-qty-row"><span class="inquiry-qty-label">'+htmlAttr(o.label)+'</span><div class="inquiry-qty-control">'+
-      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="-1" aria-label="'+htmlAttr(o.label)+' 수량 감소">−</button>'+
-      '<input class="inquiry-qty-input" data-field="'+htmlAttr(o.key)+'" type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="'+htmlAttr(o.label)+' 수량">'+
-      '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(o.key)+'" data-qty-delta="1" aria-label="'+htmlAttr(o.label)+' 수량 증가">+</button>'+
-    '</div></div>'
-  }).join('')+'</div>':'';
-
-  var checkboxOptions=[
-    inquiryOption('sameDay','당일마감'),
-    inquiryOption('fast','빠른 마감'),
-    inquiryOption('private','포트폴리오 비공개')
-  ].concat(inquiryCustomOptions().map(function(x){return {id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true}}));
-  html+='<fieldset class="choice-field inquiry-plain-choice option-field"><legend data-question-title>추가 옵션</legend>'+qtyHtml+'<div class="check-grid">'+
-    checkboxOptions.map(function(o){return '<label class="choice-pill"><input data-field="extraOption" data-quote-option-id="'+htmlAttr(o.id)+'" type="checkbox" value="'+htmlAttr(o.label)+'"><span>'+htmlAttr(o.label)+'</span></label>'}).join('')+
-  '</div></fieldset>';
-
-  fields.innerHTML=html;
-
-  function q(s){return card.querySelector(s)}
-  function qa(s){return Array.from(card.querySelectorAll(s))}
-  if(q('[data-field="signatureNumber"]'))q('[data-field="signatureNumber"]').value=prev.signatureNumber||'';
-  if(q('[data-field="signatureContent"]'))q('[data-field="signatureContent"]').value=prev.signatureContent||'';
-  if(q('[data-field="concept"]'))q('[data-field="concept"]').value=prev.concept||'';
-  if(q('[data-field="extra"]'))q('[data-field="extra"]').value=prev.extra||'';
-  if(q('[data-field="bannerText"]'))q('[data-field="bannerText"]').value=prev.bannerText||'';
-
-  ['nameOnlyChangeQty','profileChangeQty','textChangeQty','sameDesignColorChangeQty'].forEach(function(key){
-    var el=q('[data-field="'+key+'"]');
-    if(!el)return;
-    var saved=prev[key];
-    if(key==='nameOnlyChangeQty'&&saved==null)saved=Number(prev.nameChangeQty||0);
-    if(key==='profileChangeQty'&&saved==null)saved=Math.max(Number(prev.gifChangeQty||0),Number(prev.profileChangeQty||0));
-    el.value=String(Math.max(0,Math.floor(Number(saved||0))))
-  });
-
-  qa('[data-qty-field]').forEach(function(btn){
-    btn.onclick=function(){
-      var input=q('[data-field="'+btn.dataset.qtyField+'"]');
-      if(!input)return;
-      var next=Math.max(0,Math.floor(Number(input.value||0))+Number(btn.dataset.qtyDelta||0));
-      input.value=String(next);
-      renderInquiryEstimate()
-    }
-  });
-  qa('.inquiry-qty-input').forEach(function(input){
-    input.oninput=function(){if(Number(input.value)<0)input.value='0'};
-    input.onblur=function(){input.value=String(Math.max(0,Math.floor(Number(input.value||0))))}
-  });
-
-  var frame=q('input[data-field="frameKeep"][value="'+(prev.frameKeep||'O')+'"]')||q('input[data-field="frameKeep"][value="O"]');
-  if(frame)frame.checked=true;
-  qa('input[data-field="bannerType"]').forEach(function(x){x.checked=(prev.bannerIds||[]).includes(x.dataset.quoteBottomId)||(prev.banners||[]).includes(x.value)});
-  qa('input[data-field="extraOption"]').forEach(function(x){x.checked=(prev.optionIds||[]).includes(x.dataset.quoteOptionId)||(prev.options||[]).includes(x.value)});
-
-  var concept=q('[data-field="concept"]');
-  if(concept)concept.oninput=function(){
-    concept.classList.remove('is-required-missing');
-    concept.setAttribute('aria-invalid','false');
-    clearRequiredMessageIfComplete();
-  };
-
-  requestAnimationFrame(updateInquiryQuestionNumbers);
+  if(inquirySchema())return renderRequestFieldsV3(card,typeIds,prev);
+  const fields=card.querySelector('.request-fields');
+  fields.innerHTML='<label class="request-full-field"><span class="inquiry-field-title">추가 요청사항</span><textarea data-field="extra"></textarea></label>'
 }
 
 function ensureInquiryEstimateBox(){
