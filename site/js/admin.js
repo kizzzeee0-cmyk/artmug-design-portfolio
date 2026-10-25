@@ -1616,6 +1616,7 @@ function ensureQuoteConfig(){
     direct:{id:'direct',label:'시그풍 직접 수량 · 개당',price:standaloneByLabel('1개',11000)}
   };
   Object.entries(signatureDefaults).forEach(([k,d])=>{p.signatureTypes[k]={...d,...(p.signatureTypes[k]||{})}});
+  p.standaloneItems=(p.standaloneItems||[]).filter(x=>!/시그풍\s*(?:1개|3개|6개)/.test(String(x.label||'')));
   const optionDefaults={
     nameOnlyChange:{id:'nameOnlyChange',label:'움짤프사 · 이름 변경',price:3000,quantityField:'nameOnlyChangeQty'},
     profileChange:{id:'profileChange',label:'움짤프사 · 이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
@@ -1686,7 +1687,7 @@ function quoteAdminLabelControl(group,key,item,editable=true){
 function quoteAdminRow(group,key,item,opt={}){
  const locked=opt.locked===true;
  return '<div class="quote-structure-row '+(locked?'is-derived ':'')+(opt.applyMode?'has-apply-mode':'')+'">'+
-  '<div class="quote-structure-item">'+quoteAdminLabelControl(group,key,item,opt.editable!==false)+(opt.tag?'<small>'+adminEsc(opt.tag)+'</small>':'')+'</div>'+
+  '<div class="quote-structure-item">'+quoteAdminLabelControl(group,key,item,opt.editable!==false)+(opt.tag?'<small>'+adminEsc(opt.tag)+'</small>':'')+(opt.visibility?'<label class="mini-toggle quote-option-visibility"><input type="checkbox" data-qv2-enabled="'+group+':'+key+'" '+(item.enabledInInquiry!==false?'checked':'')+'> 공개</label>':'')+'</div>'+
   (locked?'<span class="quote-derived-note">'+adminEsc(opt.note||'하위 항목에서 계산')+'</span>':quoteAdminPriceInput(group,key,item))+
   (opt.applyMode?'<label class="quote-apply-mode"><span>적용 기준</span><select data-qv2-apply="'+group+':'+key+'"><option value="order" '+(item.applyMode!=='perItem'?'selected':'')+'>주문 전체 1회</option><option value="perItem" '+(item.applyMode==='perItem'?'selected':'')+'>작업물마다</option></select></label>':'')+
   (opt.deleteIndex!=null?'<button type="button" class="danger admin-compact quote-structure-delete" data-del-qv2-custom="'+opt.deleteIndex+'">삭제</button>':'')+
@@ -1724,7 +1725,7 @@ function renderQuoteAdmin(){
     quoteAdminRow('signatureTypes','direct',p.signatureTypes.direct,{note:'갯수 직접입력 시 개당 가격'});
   let optionRows=['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
     .map(k=>quoteAdminRow('options',k,p.options[k],{applyMode:['sameDay','fast','private'].includes(k)})).join('');
-  optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가',applyMode:true})).join('');
+  optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가',applyMode:true,visibility:true})).join('');
   optionRows+='<button type="button" class="ghost admin-compact quote-add-inline" data-add-qv2-custom>+ 추가 옵션 등록</button>';
   $('quotePricing').innerHTML=
     quoteStructureSection('신청하시는 디자인 종류',designRows,'상위 종류와 하위 가격이 중복되지 않도록 계산')+
@@ -1755,6 +1756,10 @@ function bindQuoteConfigInputs(){
   document.querySelectorAll('[data-qv2-price]').forEach(e=>e.oninput=()=>{
     const [group,key]=e.dataset.qv2Price.split(':'),x=quoteObjectFor(group,key);
     if(x){x.price=quotePriceValue(e.value);syncQuoteLegacyMirrors();renderQuoteBuilder()}
+  });
+  document.querySelectorAll('[data-qv2-enabled]').forEach(e=>e.onchange=()=>{
+    const [group,key]=e.dataset.qv2Enabled.split(':'),x=quoteObjectFor(group,key);
+    if(x)x.enabledInInquiry=e.checked
   });
   document.querySelectorAll('[data-qv2-apply]').forEach(e=>e.onchange=()=>{
     const [group,key]=e.dataset.qv2Apply.split(':'),x=quoteObjectFor(group,key);
