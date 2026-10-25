@@ -1176,24 +1176,46 @@ function v3ProfileFieldHtml(card,field,prefix){
  if(type==='radio'||type==='multi'){
   const opts=Array.isArray(field.options)?field.options:[];
   const selected=Array.isArray(value)?value.map(String):[String(value||'')];
-  return '<fieldset class="inquiry-v3-field inquiry-v3-choice-field '+(field.wide?'is-wide':'')+'"><legend>'+esc(label)+v3ProfileRequired(field.required)+'</legend><div class="choice-row">'+opts.map(opt=>{
+  const wide=field.wide||field.id==='frameKeep';
+  return '<fieldset class="inquiry-v3-field inquiry-v3-choice-field '+(wide?'is-wide':'')+'"><legend>'+esc(label)+v3ProfileRequired(field.required)+'</legend><div class="choice-row">'+opts.map(opt=>{
    const raw=typeof opt==='object'?String(opt.value??opt.label??''):String(opt),text=typeof opt==='object'?String(opt.label??opt.value??''):String(opt),inputType=type==='multi'?'checkbox':'radio';
    return '<label class="choice-pill"><input type="'+inputType+'" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'name="v3-profile-'+esc(card.dataset.requestId||'0')+'-'+esc(key)+'" value="'+esc(raw)+'" '+(selected.includes(raw)?'checked':'')+'><span>'+esc(text)+'</span></label>'
   }).join('')+'</div>'+helpHtml+'</fieldset>'
  }
  if(type==='textarea')return '<label class="inquiry-v3-field is-wide"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><textarea data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'placeholder="'+esc(field.placeholder||'')+'">'+esc(value)+'</textarea>'+helpHtml+'</label>';
  if(type==='number')return '<label class="inquiry-v3-field"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><input type="number" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+esc(field.min??0)+'" step="'+esc(field.step??1)+'" value="'+esc(value)+'" placeholder="'+esc(field.placeholder||'')+'">'+helpHtml+'</label>';
- return '<label class="inquiry-v3-field '+(field.wide?'is-wide':'')+'"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><input type="text" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+esc(value)+'" placeholder="'+esc(field.placeholder||'')+'"></label>'
+ return '<label class="inquiry-v3-field '+((field.wide||field.id==='name')?'is-wide':'')+'"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><input type="text" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+esc(value)+'" placeholder="'+esc(field.placeholder||'')+'"></label>'
 }
 function v3ProfileModeFields(card,mode){
- const cfg=state.settings?.inquiryV3?.designs?.profile?.modeFields?.[mode]||[];
+ const cfg=(state.settings?.inquiryV3?.designs?.profile?.modeFields?.[mode]||[]).filter(field=>field?.id!=='frameKeep');
  return '<div class="inquiry-v3-field-grid profile-mode-fields profile-mode-'+esc(mode)+'">'+cfg.map(field=>v3ProfileFieldHtml(card,field,'profile.'+mode)).join('')+'</div>'
 }
 function v3FixedInquiryFields(card){
  const p=selectedFixedProduct(card);if(!p)return'';
- const fields=Array.isArray(p.inquiryFields)?p.inquiryFields:[];
- if(!fields.length)return'<p class="field-help">이 고정틀은 별도의 추가 입력 항목이 없습니다.</p>';
+ const fields=(Array.isArray(p.inquiryFields)?p.inquiryFields:[]).filter(field=>field?.id!=='frameKeep');
+ if(!fields.length)return'';
  return '<div class="inquiry-v3-field-grid fixed-inquiry-fields" data-fixed-inquiry-product="'+esc(p.id)+'">'+fields.map(field=>v3ProfileFieldHtml(card,field,'profile.fixed.'+p.id)).join('')+'</div>'
+}
+function v3ProfileFrameKeepField(card,profileModes){
+ const modes=Array.isArray(profileModes)?profileModes:[];
+ if(!modes.some(mode=>mode!=='change'))return'';
+ const profile=state.settings?.inquiryV3?.designs?.profile||{},candidates=[];
+ modes.forEach(mode=>{
+  const fields=profile.modeFields?.[mode]||[];
+  fields.forEach(field=>{if(field?.id==='frameKeep')candidates.push({field,prefix:'profile.'+mode})})
+ });
+ if(modes.includes('fixed')){
+  const p=selectedFixedProduct(card);
+  (Array.isArray(p?.inquiryFields)?p.inquiryFields:[]).forEach(field=>{if(field?.id==='frameKeep')candidates.push({field,prefix:'profile.fixed.'+p.id})})
+ }
+ const source=candidates[0]?.field||{id:'frameKeep',label:'움짤프사 파일 보관 여부',type:'radio',required:true,options:['O','X'],enabled:true};
+ const stateMap={...(card.__v3State||{}),...(window.readV3Map?window.readV3Map(card):{})};
+ if(stateMap['profile.common.frameKeep']==null||stateMap['profile.common.frameKeep']===''){
+  const legacy=candidates.map(x=>stateMap[x.prefix+'.frameKeep']).find(v=>v!=null&&v!=='');
+  if(legacy!=null&&legacy!=='')card.__v3State={...(card.__v3State||{}),'profile.common.frameKeep':legacy}
+ }
+ const field={...source,id:'frameKeep',label:source.label||'움짤프사 파일 보관 여부',type:'radio',required:source.required!==false,options:Array.isArray(source.options)&&source.options.length?source.options:['O','X'],wide:true};
+ return '<div class="inquiry-v3-field-grid profile-common-fields">'+v3ProfileFieldHtml(card,field,'profile.common')+'</div>'
 }
 function v3ProfileChangeQtyHtml(card){
  const p=v2Pricing(),name=p?.options?.nameOnlyChange||{},full=p?.options?.profileChange||{};
@@ -1235,6 +1257,7 @@ function injectInquiryV3(card){
  if(profileModes.includes('change')){
   html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('change','(재주문) 이름/움짤만 변경').label)+'</strong>'+v3ProfileModeFields(card,'change')+v3ProfileChangeQtyHtml(card)+'</div>'
  }
+ html+=v3ProfileFrameKeepField(card,profileModes);
  if(slot.dataset.renderSignature!==html){slot.innerHTML=html;slot.dataset.renderSignature=html}
  slot.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
   if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
