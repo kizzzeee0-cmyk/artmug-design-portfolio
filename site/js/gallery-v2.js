@@ -658,6 +658,15 @@ function normalizePublicFixedProduct(x){
   priceVisible:x?.priceVisible!==false,
   priceNote:String(x?.priceNote||''),
   priceScope:String(x?.priceScope||''),
+  inquiryFields:(Array.isArray(x?.inquiryFields)?x.inquiryFields:[]).map(v=>({
+   id:String(v?.id||'field'),
+   label:String(v?.label||'항목'),
+   type:String(v?.type||'text'),
+   required:v?.required===true,
+   enabled:v?.enabled!==false,
+   placeholder:String(v?.placeholder||''),
+   options:Array.isArray(v?.options)?v.options.map(o=>typeof o==='object'?{label:String(o.label??o.value??''),value:String(o.value??o.label??'')}:String(o)):[]
+  })).filter(v=>v.enabled!==false),
   previews:(Array.isArray(x?.previews)?x.previews:[]).map(normalizePublicFixedPreview).filter(v=>v.file&&v.enabled!==false)
  }
 }
@@ -1108,7 +1117,7 @@ function fixedSelectionHtml(card){
  const arr=fixedInquiryProducts();
  const options=arr.map(p=>
   '<label class="choice-pill v2-fixed-product-choice">'+
-   '<input type="radio" data-v2-select="fixed" data-product-id="'+esc(p.id)+'" name="v2-fixed-product-'+esc(card.dataset.requestId||'0')+'" value="'+esc(p.id)+'" '+(selectedId===String(p.id)?'checked':'')+'>'+
+   '<input type="radio" data-v2-select="fixed" data-v3-field="profile.fixed.product" data-product-id="'+esc(p.id)+'" name="v2-fixed-product-'+esc(card.dataset.requestId||'0')+'" value="'+esc(p.id)+'" '+(selectedId===String(p.id)?'checked':'')+'>'+
    '<span>'+esc(p.name||'이름 없음')+'</span>'+
   '</label>'
  ).join('');
@@ -1141,79 +1150,129 @@ function setSelectedProfileModes(card,modes){
  if(list.length===1)card.dataset.profileMode=list[0];else delete card.dataset.profileMode;
  return list
 }
+
+function inquiryV3Active(){
+ return state.settings?.inquiryV3?.enabled!==false&&Number(state.settings?.inquiryV3?.version||0)>=3
+}
+function v3ProfileFieldValue(card,key,fallback=''){
+ const stateMap=card.__v3State||{};
+ return stateMap[key]==null?fallback:stateMap[key]
+}
+function v3ProfileRequired(required){return required?'<small class="required-badge">필수</small>':''}
+function v3ProfileFieldHtml(card,field,prefix){
+ if(!field||field.enabled===false)return'';
+ const key=prefix+'.'+String(field.id||'field'),type=String(field.type||'text'),label=String(field.label||'항목'),value=v3ProfileFieldValue(card,key,'');
+ if(type==='radio'||type==='multi'){
+  const opts=Array.isArray(field.options)?field.options:[];
+  const selected=Array.isArray(value)?value.map(String):[String(value||'')];
+  return '<fieldset class="inquiry-v3-field inquiry-v3-choice-field '+(field.wide?'is-wide':'')+'"><legend>'+esc(label)+v3ProfileRequired(field.required)+'</legend><div class="choice-row">'+opts.map(opt=>{
+   const raw=typeof opt==='object'?String(opt.value??opt.label??''):String(opt),text=typeof opt==='object'?String(opt.label??opt.value??''):String(opt),inputType=type==='multi'?'checkbox':'radio';
+   return '<label class="choice-pill"><input type="'+inputType+'" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'name="v3-profile-'+esc(card.dataset.requestId||'0')+'-'+esc(key)+'" value="'+esc(raw)+'" '+(selected.includes(raw)?'checked':'')+'><span>'+esc(text)+'</span></label>'
+  }).join('')+'</div></fieldset>'
+ }
+ if(type==='textarea')return '<label class="inquiry-v3-field is-wide"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><textarea data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'placeholder="'+esc(field.placeholder||'')+'">'+esc(value)+'</textarea></label>';
+ if(type==='number')return '<label class="inquiry-v3-field"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><input type="number" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+esc(field.min??0)+'" step="'+esc(field.step??1)+'" value="'+esc(value)+'" placeholder="'+esc(field.placeholder||'')+'"></label>';
+ return '<label class="inquiry-v3-field '+(field.wide?'is-wide':'')+'"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><input type="text" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+esc(value)+'" placeholder="'+esc(field.placeholder||'')+'"></label>'
+}
+function v3ProfileModeFields(card,mode){
+ const cfg=state.settings?.inquiryV3?.designs?.profile?.modeFields?.[mode]||[];
+ return '<div class="inquiry-v3-field-grid profile-mode-fields profile-mode-'+esc(mode)+'">'+cfg.map(field=>v3ProfileFieldHtml(card,field,'profile.'+mode)).join('')+'</div>'
+}
+function v3FixedInquiryFields(card){
+ const p=selectedFixedProduct(card);if(!p)return'';
+ const fields=Array.isArray(p.inquiryFields)?p.inquiryFields:[];
+ if(!fields.length)return'<p class="field-help">이 고정틀은 별도의 추가 입력 항목이 없습니다.</p>';
+ return '<div class="inquiry-v3-field-grid fixed-inquiry-fields" data-fixed-inquiry-product="'+esc(p.id)+'">'+fields.map(field=>v3ProfileFieldHtml(card,field,'profile.fixed')).join('')+'</div>'
+}
+function v3ProfileChangeQtyHtml(card){
+ const p=v2Pricing(),name=p?.options?.nameOnlyChange||{},full=p?.options?.profileChange||{};
+ const stateMap=card.__v3State||{};
+ const n1=Math.max(0,Math.floor(Number(stateMap['profile.change.nameOnlyQty']||0))),n2=Math.max(0,Math.floor(Number(stateMap['profile.change.fullQty']||0)));
+ const row=(key,v3key,label,value)=>'<div class="inquiry-qty-row inquiry-v3-qty-row"><span class="inquiry-qty-label">'+esc(label)+'</span><div class="inquiry-qty-control">'+
+  '<button type="button" class="inquiry-qty-button" data-v3-profile-qty="'+key+'" data-qty-delta="-1">−</button>'+
+  '<input class="inquiry-qty-input" data-field="'+key+'" data-v3-field="'+v3key+'" type="number" min="0" step="1" value="'+value+'">'+
+  '<button type="button" class="inquiry-qty-button" data-v3-profile-qty="'+key+'" data-qty-delta="1">+</button></div></div>';
+ return '<div class="inquiry-v3-design-options profile-change-options">'+
+  row('nameOnlyChangeQty','profile.change.nameOnlyQty',String(name.label||'움짤프사 · 이름 변경'),n1)+
+  row('profileChangeQty','profile.change.fullQty',String(full.label||'움짤프사 · 이름/움짤 변경'),n2)+
+ '</div>'
+}
+function injectInquiryV3(card){
+ const slot=card.querySelector('[data-v3-profile-slot]');if(!slot)return;
+ const types=selectedTypeInputs(card),hasProfile=types.some(x=>x.id==='profile'||/움짤\s*프사/.test(x.label));
+ if(!hasProfile){slot.innerHTML='';return}
+ const profileModes=selectedProfileModes(card),hasChange=profileModes.includes('change'),hasOrderMode=profileModes.some(x=>x!=='change');
+ const modeChoice=(value,label,disabled)=>'<label class="choice-pill '+(disabled?'is-disabled':'')+'"><input type="checkbox" data-v2-mode="profile" data-v3-field="profileModes" value="'+value+'" '+(profileModes.includes(value)?'checked':'')+' '+(disabled?'disabled':'')+'><span>'+esc(label)+'</span></label>';
+ let html='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">'+
+   modeChoice('custom',v2ProfileMode('custom','맞춤제작').label,hasChange)+
+   modeChoice('fixed',v2ProfileMode('fixed','고정틀 구매').label,hasChange)+
+   modeChoice('preset',v2ProfileMode('preset','프리셋 구매').label,hasChange)+
+   modeChoice('change',v2ProfileMode('change','(재주문) 이름/움짤만 변경').label,hasOrderMode)+
+ '</div></fieldset>';
+ if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
+ if(profileModes.includes('fixed')){
+  html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('fixed','고정틀 구매').label)+'</strong>'+fixedSelectionHtml(card)+v3FixedInquiryFields(card)+'</div>'
+ }
+ if(profileModes.includes('preset')){
+  html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('preset','프리셋 구매').label)+'</strong>'+selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)+v3ProfileModeFields(card,'preset')+'</div>'
+ }
+ if(profileModes.includes('change')){
+  html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('change','(재주문) 이름/움짤만 변경').label)+'</strong>'+v3ProfileModeFields(card,'change')+v3ProfileChangeQtyHtml(card)+'</div>'
+ }
+ if(slot.dataset.renderSignature!==html){slot.innerHTML=html;slot.dataset.renderSignature=html}
+ slot.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
+  if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
+  let modes=selectedProfileModes(card),value=i.value;
+  if(value==='change')modes=i.checked?['change']:[];
+  else{modes=modes.filter(x=>x!=='change'&&x!==value);if(i.checked)modes.push(value)}
+  setSelectedProfileModes(card,modes);
+  window.refreshInquiryRequestFields?.(card)
+ });
+ slot.querySelectorAll('[data-v2-select="fixed"]').forEach(i=>i.onchange=()=>{
+  if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
+  card.dataset.selectedFixedProductId=String(i.dataset.productId||i.value||'');
+  window.refreshInquiryRequestFields?.(card)
+ });
+ slot.querySelectorAll('[data-v2-select="preset"]').forEach(b=>b.onclick=()=>{
+  if(card.dataset.selectedPresetFile!==b.dataset.file)delete card.dataset.selectedPresetColorFile;
+  card.dataset.selectedPresetFile=b.dataset.file;
+  injectInquiryV3(card);window.refreshInquiryEstimate?.()
+ });
+ slot.querySelectorAll('[data-v2-select="preset-color"]').forEach(i=>i.onchange=()=>{card.dataset.selectedPresetColorFile=i.value;window.refreshInquiryEstimate?.()});
+ slot.querySelectorAll('[data-v3-field]').forEach(el=>{
+  const sync=()=>{if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};window.refreshInquiryEstimate?.()};
+  el.addEventListener(el.tagName==='TEXTAREA'||['text','number'].includes(el.type)?'input':'change',sync)
+ });
+ slot.querySelectorAll('[data-v3-profile-qty]').forEach(btn=>btn.onclick=()=>{
+  const input=slot.querySelector('[data-field="'+CSS.escape(btn.dataset.v3ProfileQty)+'"]');if(!input)return;
+  input.value=String(Math.max(0,Math.floor(Number(input.value||0))+Number(btn.dataset.qtyDelta||0)));
+  input.dispatchEvent(new Event('input',{bubbles:true}))
+ });
+ manageAnimatedMedia(slot);
+ requestAnimationFrame(()=>{window.refreshInquiryEstimate?.();requestHeight()})
+}
 function injectInquiry(card){
+ if(inquiryV3Active())return injectInquiryV3(card);
  const fields=card.querySelector('.request-fields');if(!fields)return;
  const types=selectedTypeInputs(card),hasProfile=types.some(x=>/움짤\s*프사/.test(x.label)||x.id==='profile-a');
  const banners=types.filter(x=>/배너/.test(x.label));
  let box=fields.querySelector('.v2-inquiry-enhancements');
  if(!box){box=document.createElement('div');box.className='v2-inquiry-enhancements';fields.prepend(box)}
  const profileModes=selectedProfileModes(card);
- const hasChange=profileModes.includes('change');
- const hasOrderMode=profileModes.some(x=>x!=='change');
+ const hasChange=profileModes.includes('change'),hasOrderMode=profileModes.some(x=>x!=='change');
  let html='';
  if(hasProfile){
   const modeChoice=(value,label,disabled)=>'<label class="choice-pill '+(disabled?'is-disabled':'')+'"><input type="checkbox" data-v2-mode="profile" value="'+value+'" '+(profileModes.includes(value)?'checked':'')+' '+(disabled?'disabled':'')+'><span>'+esc(label)+'</span></label>';
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
-   modeChoice('custom',v2ProfileMode('custom','맞춤제작').label,hasChange)+
-   modeChoice('fixed',v2ProfileMode('fixed','고정틀 구매').label,hasChange)+
-   modeChoice('preset',v2ProfileMode('preset','프리셋 구매').label,hasChange)+
-   modeChoice('change',v2ProfileMode('change','(재주문) 이름/움짤만 변경').label,hasOrderMode)+
-   '</div></fieldset>';
+   modeChoice('custom',v2ProfileMode('custom','맞춤제작').label,hasChange)+modeChoice('fixed',v2ProfileMode('fixed','고정틀 구매').label,hasChange)+modeChoice('preset',v2ProfileMode('preset','프리셋 구매').label,hasChange)+modeChoice('change',v2ProfileMode('change','(재주문) 이름/움짤만 변경').label,hasOrderMode)+'</div></fieldset>';
   if(profileModes.includes('fixed'))html+=fixedSelectionHtml(card);
-  if(profileModes.includes('preset')){
-   html+=selectionHtml(card.dataset.selectedPresetFile);
-   html+=presetInquiryColorHtml(card)
-  }
+  if(profileModes.includes('preset'))html+=selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)
  }
  if(bannerTypeEnabled()&&banners.length){
-  html+='<div class="v2-banner-type-fields">'+banners.map((x,i)=>{
-   const val=card.dataset['bannerType'+i]||'B';
-   return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>'+esc(x.label)+' TYPE</legend><div class="choice-row">'+
-    ['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v2-banner-index="'+i+'" data-v2-banner-label="'+esc(x.label)+'" name="v2-banner-'+card.dataset.requestId+'-'+i+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+
-   '</div></fieldset>'
-  }).join('')+'</div>'
+  html+='<div class="v2-banner-type-fields">'+banners.map((x,i)=>{const val=card.dataset['bannerType'+i]||'B';return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>'+esc(x.label)+' TYPE</legend><div class="choice-row">'+['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v2-banner-index="'+i+'" name="v2-banner-'+card.dataset.requestId+'-'+i+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+'</div></fieldset>'}).join('')+'</div>'
  }
  if(box.dataset.renderSignature!==html){box.innerHTML=html;box.dataset.renderSignature=html}
- box.hidden=!String(html||'').trim();
-
- const profileChangeOnly=hasProfile&&types.length===1&&profileModes.length===1&&hasChange;
- const profileNeedsNoConcept=hasProfile&&types.length===1&&profileModes.length>0&&!profileModes.includes('custom');
- fields.querySelectorAll('.concept-request-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileNeedsNoConcept));
- fields.querySelectorAll('.content-input-field').forEach(el=>el.classList.toggle('v2-hidden-field',profileChangeOnly));
-
- box.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
-  let modes=selectedProfileModes(card);
-  const value=i.value;
-  if(value==='change'){
-   modes=i.checked?['change']:[]
-  }else{
-   modes=modes.filter(x=>x!=='change'&&x!==value);
-   if(i.checked)modes.push(value)
-  }
-  setSelectedProfileModes(card,modes);
-  if(typeof window.refreshInquiryRequestFields==='function')window.refreshInquiryRequestFields(card);
-  injectInquiry(card);
-  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.());window.refreshInquiryEstimate?.()
- });
- box.querySelectorAll('[data-v2-banner-index]').forEach(i=>i.onchange=()=>{card.dataset['bannerType'+i.dataset.v2BannerIndex]=i.value;window.refreshInquiryEstimate?.()});
- box.querySelectorAll('[data-v2-select="preset"]').forEach(b=>b.onclick=()=>{
-  if(card.dataset.selectedPresetFile!==b.dataset.file)delete card.dataset.selectedPresetColorFile;
-  card.dataset.selectedPresetFile=b.dataset.file;
-  injectInquiry(card);requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.());window.refreshInquiryEstimate?.()
- });
- box.querySelectorAll('[data-v2-select="preset-color"]').forEach(i=>i.onchange=()=>{
-  card.dataset.selectedPresetColorFile=i.value;
-  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.());window.refreshInquiryEstimate?.()
- });
- box.querySelectorAll('[data-v2-select="fixed"]').forEach(i=>i.onchange=()=>{
-  card.dataset.selectedFixedProductId=String(i.dataset.productId||i.value||'');
-  delete card.dataset.fixedPattern;
-  delete card.dataset.fixedPatternOther;
-  injectInquiry(card);
-  requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.());window.refreshInquiryEstimate?.()
- });
- manageAnimatedMedia(box);
- requestAnimationFrame(()=>window.updateInquiryQuestionNumbers?.())
+ box.hidden=!String(html||'').trim()
 }
 function presetInquiryColorHtml(card){
  const primary=String(card.dataset.selectedPresetFile||'');if(!primary)return'';
