@@ -377,11 +377,13 @@ function renderAvailabilityCalendar(s){
   for(let i=0;i<first;i++)cells.push('<span class="availability-day is-empty" aria-hidden="true"></span>');
   for(let day=1;day<=days;day++){
     const ymd=availabilityMonthKey(view)+'-'+String(day).padStart(2,'0');
-    const meta=availabilityStatusMeta(dates[ymd]);
+    const savedStatus=dates[ymd];
+    const resolvedStatus=['available','closed','off'].includes(savedStatus)?savedStatus:(ymd<today?'closed':'available');
+    const meta=availabilityStatusMeta(resolvedStatus);
     cells.push(
-      '<div class="availability-day '+(meta?meta.className:'is-unset')+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+(meta?' '+meta.label:''))+'">'+
+      '<div class="availability-day '+meta.className+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+' '+meta.label)+'">'+
         '<span class="availability-day-number">'+day+'</span>'+
-        (meta?'<span class="availability-day-status">'+meta.label+'</span>':'')+
+        '<span class="availability-day-status">'+meta.label+'</span>'+
       '</div>'
     )
   }
