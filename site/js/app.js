@@ -1156,7 +1156,7 @@ function requestText(card){
       if(modes.includes('fixed')){
         if(v2.selectedFixedProductName)lines.push('고정틀 선택: '+v2.selectedFixedProductName);
         const product=(S.fixedProducts||[]).find(x=>String(x.id)===String(v2.selectedFixedProductId||''));
-        lines.push(...v3FieldLines(product?.inquiryFields||[],'profile.fixed',state))
+        lines.push(...v3FieldLines(product?.inquiryFields||[],'profile.fixed.'+String(v2.selectedFixedProductId||''),state))
       }
       if(modes.includes('preset')){
         if(v2.selectedPresetName)lines.push('프리셋 선택: '+v2.selectedPresetName);
