@@ -913,8 +913,8 @@
       "option:nameOnlyChange",
       "option:profileChange",
       "option:sameDesignColorChange",
-      "signatureType:direct",
       "option:sameDay",
+      "signatureType:direct",
       "option:fast",
       "option:private"
     ]
