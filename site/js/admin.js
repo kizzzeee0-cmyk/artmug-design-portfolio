@@ -756,21 +756,45 @@ function renderScheduleAdmin(){
   });
   syncAdminVisibilityCollapse();
 }
-const ADMIN_COLLAPSE_STORAGE_KEY='artmug-admin-collapsed-blocks-v1';
+const ADMIN_COLLAPSE_STORAGE_KEY='artmug-admin-collapsed-blocks-v2';
+const ADMIN_COLLAPSE_LEGACY_STORAGE_KEY='artmug-admin-collapsed-blocks-v1';
+const ADMIN_DETAILS_STORAGE_KEY='artmug-admin-details-state-v1';
 
+function adminCollapseToken(value){
+  return String(value||'').trim().replace(/\s+/g,' ').replace(/[|:]/g,'-')
+}
 function adminBlockKey(block,index){
-  const title=block.querySelector('.admin-block-title h3')?.textContent?.trim()||'section';
-  const section=block.closest('[data-section]')?.dataset.section||'page';
-  return section+':'+index+':'+title
+  const explicit=String(block.dataset.adminCollapseId||'').trim();
+  if(explicit)return 'id:'+explicit;
+  const title=adminCollapseToken(block.querySelector('.admin-block-title h3')?.textContent||'section');
+  const section=adminCollapseToken(block.closest('[data-section]')?.dataset.section||'page');
+  const chip=adminCollapseToken(block.querySelector('.admin-block-title .order-chip')?.textContent||'');
+  return section+':'+(chip||'block')+':'+title
 }
 function readAdminCollapsedBlocks(){
+  const out=new Set();
   try{
     const value=JSON.parse(localStorage.getItem(ADMIN_COLLAPSE_STORAGE_KEY)||'[]');
-    return new Set(Array.isArray(value)?value:[])
-  }catch{return new Set()}
+    if(Array.isArray(value))value.forEach(x=>out.add(String(x)))
+  }catch{}
+  try{
+    const legacy=JSON.parse(localStorage.getItem(ADMIN_COLLAPSE_LEGACY_STORAGE_KEY)||'[]');
+    if(Array.isArray(legacy))legacy.forEach(x=>out.add(String(x)))
+  }catch{}
+  return out
 }
 function writeAdminCollapsedBlocks(set){
   try{localStorage.setItem(ADMIN_COLLAPSE_STORAGE_KEY,JSON.stringify([...set]))}catch{}
+}
+function adminBlockWasSavedCollapsed(saved,block,index,key){
+  if(saved.has(key))return true;
+  const title=adminCollapseToken(block.querySelector('.admin-block-title h3')?.textContent||'section');
+  const section=adminCollapseToken(block.closest('[data-section]')?.dataset.section||'page');
+  for(const oldKey of saved){
+    const s=String(oldKey||'');
+    if(s.startsWith(section+':')&&s.endsWith(':'+title))return true
+  }
+  return false
 }
 function updateAdminCollapseButton(block){
   const button=block.querySelector('.admin-collapse-button');
@@ -784,6 +808,7 @@ function updateAdminCollapseButton(block){
 }
 function syncAdminManualCollapsers(){
   const saved=readAdminCollapsedBlocks();
+  const migrated=new Set([...saved]);
   document.querySelectorAll('.admin-block').forEach((block,index)=>{
     const title=block.querySelector('.admin-block-title');
     if(!title)return;
@@ -794,6 +819,8 @@ function syncAdminManualCollapsers(){
     }
     const key=adminBlockKey(block,index);
     block.dataset.adminCollapseKey=key;
+    const shouldCollapse=adminBlockWasSavedCollapsed(saved,block,index,key);
+    if(shouldCollapse)migrated.add(key);
 
     let button=title.querySelector('.admin-collapse-button');
     if(!button){
@@ -807,14 +834,24 @@ function syncAdminManualCollapsers(){
         const next=!block.classList.contains('is-manual-collapsed');
         block.classList.toggle('is-manual-collapsed',next);
         const current=readAdminCollapsedBlocks();
-        if(next)current.add(key);else current.delete(key);
+        const currentKey=block.dataset.adminCollapseKey||adminBlockKey(block,index);
+        if(next)current.add(currentKey);else{
+          current.delete(currentKey);
+          const blockTitle=adminCollapseToken(block.querySelector('.admin-block-title h3')?.textContent||'section');
+          const section=adminCollapseToken(block.closest('[data-section]')?.dataset.section||'page');
+          [...current].forEach(savedKey=>{
+            const s=String(savedKey||'');
+            if(s.startsWith(section+':')&&s.endsWith(':'+blockTitle))current.delete(savedKey)
+          })
+        }
         writeAdminCollapsedBlocks(current);
         updateAdminCollapseButton(block)
       })
     }
-    block.classList.toggle('is-manual-collapsed',saved.has(key));
+    block.classList.toggle('is-manual-collapsed',shouldCollapse);
     updateAdminCollapseButton(block)
-  })
+  });
+  writeAdminCollapsedBlocks(migrated)
 }
 function syncPortfolioCategoryCollapse(){
   const button=$('togglePortfolioCats'),body=$('portfolioCatsBody');
@@ -839,33 +876,69 @@ function syncPortfolioCategoryCollapse(){
 }
 
 function syncAdminVisibilityCollapse(){
+  // Restore manual state first. Initial rendering must never erase it.
+  syncAdminManualCollapsers();
   const ids=['workStatusEnabled','authorEnabled','eventsEnabled','presetEnabled','scheduleEnabled'];
   ids.forEach(id=>{
     const input=$(id);if(!input)return;
     const block=input.closest('.admin-block');if(!block)return;
     const isSchedule=id==='scheduleEnabled';
-    const apply=()=>{
+    const apply=(fromUser=false)=>{
       const collapsed=!input.checked;
       block.classList.toggle('is-visibility-collapsed',collapsed&&!isSchedule);
       block.classList.toggle('is-schedule-visibility-collapsed',collapsed&&isSchedule);
 
-      // Turning a section back on always opens it immediately.
-      if(!collapsed){
+      // Only an explicit user action that turns a disabled section back on opens it.
+      // Initial page load/render preserves the user's previously saved manual collapse state.
+      if(fromUser&&!collapsed){
         block.classList.remove('is-manual-collapsed');
         const current=readAdminCollapsedBlocks();
-        current.delete(block.dataset.adminCollapseKey||'');
+        const key=block.dataset.adminCollapseKey||'';
+        if(key)current.delete(key);
         writeAdminCollapsedBlocks(current)
       }
       updateAdminCollapseButton(block)
     };
     if(input.dataset.visibilityCollapseBound!=='1'){
       input.dataset.visibilityCollapseBound='1';
-      input.addEventListener('change',apply)
+      input.addEventListener('change',()=>apply(true))
     }
-    apply()
+    apply(false)
   })
-  syncAdminManualCollapsers()
 }
+function readAdminDetailsState(){
+  try{
+    const value=JSON.parse(localStorage.getItem(ADMIN_DETAILS_STORAGE_KEY)||'{}');
+    return value&&typeof value==='object'&&!Array.isArray(value)?value:{}
+  }catch{return{}}
+}
+function writeAdminDetailsState(state){
+  try{localStorage.setItem(ADMIN_DETAILS_STORAGE_KEY,JSON.stringify(state||{}))}catch{}
+}
+function adminDetailsKey(details,index){
+  const explicit=String(details.dataset.adminPersistKey||'').trim();
+  if(explicit)return explicit;
+  const section=adminCollapseToken(details.closest('[data-section]')?.dataset.section||'page');
+  const summary=adminCollapseToken(details.querySelector('summary')?.textContent||('details-'+index));
+  return section+':details:'+summary
+}
+function syncAdminDetailsPersistence(root=document){
+  const state=readAdminDetailsState();
+  root.querySelectorAll('details').forEach((details,index)=>{
+    const key=adminDetailsKey(details,index);
+    details.dataset.adminPersistKey=key;
+    if(Object.prototype.hasOwnProperty.call(state,key))details.open=state[key]===true;
+    if(details.dataset.adminPersistBound!=='1'){
+      details.dataset.adminPersistBound='1';
+      details.addEventListener('toggle',()=>{
+        const next=readAdminDetailsState();
+        next[details.dataset.adminPersistKey||key]=details.open;
+        writeAdminDetailsState(next)
+      })
+    }
+  })
+}
+
 function syncBannerTypeAdminUI(){
   const on=S?.bannerTypeEnabled!==false,toggle=$('bannerTypeEnabled'),details=$('bannerTypeAdminDetails');
   if(toggle){
@@ -1713,7 +1786,8 @@ function quoteAdminRow(group,key,item,opt={}){
  '</div>'
 }
 function quoteStructureSection(title,body,note=''){
- return '<details class="quote-structure-section" open><summary><strong>'+adminEsc(title)+'</strong>'+(note?'<span>'+adminEsc(note)+'</span>':'')+'</summary><div class="quote-structure-body">'+body+'</div></details>'
+ const key='quote:'+adminCollapseToken(title);
+ return '<details class="quote-structure-section" data-admin-persist-key="'+adminEsc(key)+'" open><summary><strong>'+adminEsc(title)+'</strong>'+(note?'<span>'+adminEsc(note)+'</span>':'')+'</summary><div class="quote-structure-body">'+body+'</div></details>'
 }
 function renderQuoteAdmin(){
   if(!$('quotePricing'))return;
@@ -1762,6 +1836,7 @@ function renderQuoteAdmin(){
   if($('quoteCopyTotalSuffix'))$('quoteCopyTotalSuffix').value=String(q.copyTotalSuffix||'');
   if($('quoteCopyClosing'))$('quoteCopyClosing').value=String(q.copyClosingText||'');
   bindQuoteConfigInputs();
+  syncAdminDetailsPersistence($('quotePricing'));
   renderQuoteBuilder()
 }
 function quoteObjectFor(group,key){
