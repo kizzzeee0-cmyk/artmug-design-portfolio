@@ -1605,6 +1605,7 @@ function ensureQuoteConfig(){
   if(q.copyTotalPrefix==null)q.copyTotalPrefix='총 금액';
   if(q.copyTotalSuffix==null)q.copyTotalSuffix='원입니다!';
   if(q.copyClosingText==null)q.copyClosingText='작업 일정 확인 후 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!';
+  if(!Array.isArray(q.builderOrder))q.builderOrder=[];
 
   if(!q.priceItems||typeof q.priceItems!=='object'||Array.isArray(q.priceItems))q.priceItems={};
   if(!Array.isArray(q.priceItems.design))q.priceItems.design=[];
@@ -1900,7 +1901,7 @@ function bindQuoteConfigInputs(){
   })
 }
 
-function quoteItems(){
+function quoteItemsUnordered(){
   const p=ensureQuoteConfig().pricingV2,out=[];
   ['topBanner','floatingBanner'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
   ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
@@ -1913,11 +1914,60 @@ function quoteItems(){
   (p.standaloneItems||[]).forEach(x=>out.push({key:'standalone:'+x.id,label:x.label||'이름 없는 독립 항목',price:quotePriceValue(x.price)}));
   return out
 }
+function quoteItems(){
+  const q=ensureQuoteConfig(),items=quoteItemsUnordered(),byKey=new Map(items.map(x=>[x.key,x]));
+  const ordered=[],seen=new Set();
+  (q.builderOrder||[]).forEach(key=>{
+    const item=byKey.get(String(key));
+    if(item&&!seen.has(item.key)){ordered.push(item);seen.add(item.key)}
+  });
+  items.forEach(item=>{if(!seen.has(item.key)){ordered.push(item);seen.add(item.key)}});
+  const normalized=ordered.map(x=>x.key);
+  if(normalized.join('|')!==(q.builderOrder||[]).join('|'))q.builderOrder=normalized;
+  return ordered
+}
+async function persistQuoteBuilderOrder(){
+  const order=[...(ensureQuoteConfig().builderOrder||[])];
+  try{
+    await queueSettingsMutation(latest=>{
+      if(!latest.quoteConfig||typeof latest.quoteConfig!=='object')latest.quoteConfig={};
+      latest.quoteConfig.builderOrder=[...order]
+    });
+    showToast('견적 작성 순서가 저장되었습니다.')
+  }catch(e){
+    showToast('순서 저장에 실패했습니다.','error')
+  }
+}
+function moveQuoteBuilderItem(key,dir){
+  const q=ensureQuoteConfig(),arr=quoteItems().map(x=>x.key),i=arr.indexOf(String(key)),j=i+Number(dir||0);
+  if(i<0||j<0||j>=arr.length)return;
+  [arr[i],arr[j]]=[arr[j],arr[i]];
+  q.builderOrder=arr;
+  renderQuoteBuilder();
+  persistQuoteBuilderOrder()
+}
 function renderQuoteBuilder(){
   if(!$('quoteBuilder'))return;
   const arr=quoteItems();
-  $('quoteBuilder').innerHTML=arr.map(x=>{const n=Math.max(0,Number(quoteState[x.key]||0));return `<div class="quote-select-row ${n?'is-selected':''}"><div class="quote-select-name"><strong>${x.label}</strong><span>${x.price.toLocaleString('ko-KR')}원</span></div><div class="qty-control"><button type="button" data-qty-key="${x.key}" data-delta="-1">−</button><b>${n}</b><button type="button" data-qty-key="${x.key}" data-delta="1">+</button></div></div>`}).join('');
-  document.querySelectorAll('[data-qty-key]').forEach(b=>b.onclick=()=>{const k=b.dataset.qtyKey,d=Number(b.dataset.delta||0);quoteState[k]=Math.max(0,Number(quoteState[k]||0)+d);renderQuoteBuilder()});
+  $('quoteBuilder').innerHTML=arr.map((x,i)=>{
+    const n=Math.max(0,Number(quoteState[x.key]||0));
+    return '<div class="quote-select-row '+(n?'is-selected':'')+'" data-quote-builder-key="'+adminEsc(x.key)+'">'+
+      '<div class="quote-select-order" aria-label="순서 변경">'+
+        '<button type="button" data-quote-order-key="'+adminEsc(x.key)+'" data-order-dir="-1" '+(i===0?'disabled':'')+' title="앞으로 이동" aria-label="'+adminEsc(x.label)+' 앞으로 이동">↑</button>'+
+        '<button type="button" data-quote-order-key="'+adminEsc(x.key)+'" data-order-dir="1" '+(i===arr.length-1?'disabled':'')+' title="뒤로 이동" aria-label="'+adminEsc(x.label)+' 뒤로 이동">↓</button>'+
+      '</div>'+
+      '<div class="quote-select-name"><strong>'+adminEsc(x.label)+'</strong><span>'+x.price.toLocaleString('ko-KR')+'원</span></div>'+
+      '<div class="qty-control"><button type="button" data-qty-key="'+adminEsc(x.key)+'" data-delta="-1">−</button><b>'+n+'</b><button type="button" data-qty-key="'+adminEsc(x.key)+'" data-delta="1">+</button></div>'+
+    '</div>'
+  }).join('');
+  $('quoteBuilder').querySelectorAll('[data-qty-key]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.qtyKey,d=Number(b.dataset.delta||0);
+    quoteState[k]=Math.max(0,Number(quoteState[k]||0)+d);
+    renderQuoteBuilder()
+  });
+  $('quoteBuilder').querySelectorAll('[data-quote-order-key]').forEach(b=>b.onclick=()=>{
+    moveQuoteBuilderItem(b.dataset.quoteOrderKey,Number(b.dataset.orderDir||0))
+  });
   renderQuotePreview()
 }
 function renderQuotePreview(){
