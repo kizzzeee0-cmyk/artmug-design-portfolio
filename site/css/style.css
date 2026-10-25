@@ -8352,3 +8352,106 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     font-size:13px!important;
   }
 }
+
+
+/* 2026-10-26 inquiry interaction polish v3 */
+/* Required badges are intentionally removed; all fields may be copied while partially filled. */
+.form-card .required-badge{
+  display:none!important;
+}
+
+/* Remove inherited double-pill selected styling and use the exact primary action treatment. */
+.request-card-v3 .choice-pill,
+.request-card-v3 .choice-pill:has(input:checked),
+.request-card-v3 .request-type-option,
+.request-card-v3 .request-type-option:has(input:checked){
+  border:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  box-shadow:none!important;
+}
+.request-card-v3 .request-type-option input:checked+span,
+.request-card-v3 .choice-pill>input:checked+span{
+  border-color:var(--primary-action,#327CAA)!important;
+  background:var(--primary-action,#327CAA)!important;
+  color:#fff!important;
+  box-shadow:none!important;
+  font-weight:600!important;
+}
+.request-card-v3 .choice-pill>input:checked+span::before{
+  border-color:#fff!important;
+  background:#fff!important;
+  color:var(--primary-action,#327CAA)!important;
+}
+.request-card-v3 .choice-pill>input:not(:checked)+span::before{
+  border-color:#b9c9d5!important;
+  background:#fff!important;
+}
+
+/* Detail heading follows the same title-to-content rhythm as the other sections. */
+.inquiry-v3-detail-heading{
+  margin-bottom:6px!important;
+}
+.inquiry-design-cards{
+  margin-top:0!important;
+}
+
+/* Give profile detail content clear vertical breathing room. */
+[data-v3-profile-slot]{
+  display:grid!important;
+  gap:18px!important;
+  min-width:0;
+}
+.profile-mode-subcard{
+  gap:17px!important;
+}
+.profile-mode-fields,
+.fixed-inquiry-fields,
+.profile-common-fields{
+  row-gap:18px!important;
+}
+.inquiry-design-detail-card{
+  gap:18px!important;
+}
+.inquiry-v3-field-grid{
+  row-gap:18px!important;
+}
+.inquiry-v3-design-options{
+  gap:10px!important;
+}
+.profile-shared-change-options,
+.profile-reorder-only{
+  display:grid;
+  gap:10px;
+  padding-top:1px;
+}
+.profile-shared-change-options .profile-change-options,
+.profile-reorder-only .profile-change-options{
+  gap:9px!important;
+}
+
+/* Estimate title is not numbered. */
+.inquiry-estimate-head-title{
+  gap:0!important;
+}
+
+@media(max-width:680px){
+  [data-v3-profile-slot]{
+    gap:15px!important;
+  }
+  .profile-mode-subcard{
+    gap:14px!important;
+  }
+  .profile-mode-fields,
+  .fixed-inquiry-fields,
+  .profile-common-fields,
+  .inquiry-v3-field-grid{
+    row-gap:14px!important;
+  }
+  .inquiry-design-detail-card{
+    gap:15px!important;
+  }
+  .inquiry-v3-detail-heading{
+    margin-bottom:5px!important;
+  }
+}
