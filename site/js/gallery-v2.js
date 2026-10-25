@@ -665,6 +665,8 @@ function normalizePublicFixedProduct(x){
    required:v?.required===true,
    enabled:v?.enabled!==false,
    placeholder:String(v?.placeholder||''),
+   conditionKey:String(v?.conditionKey||''),
+   conditionValue:String(v?.conditionValue||''),
    options:Array.isArray(v?.options)?v.options.map(o=>typeof o==='object'?{label:String(o.label??o.value??''),value:String(o.value??o.label??'')}:String(o)):[]
   })).filter(v=>v.enabled!==false),
   previews:(Array.isArray(x?.previews)?x.previews:[]).map(normalizePublicFixedPreview).filter(v=>v.file&&v.enabled!==false)
@@ -1161,6 +1163,13 @@ function v3ProfileFieldValue(card,key,fallback=''){
 function v3ProfileRequired(required){return required?'<small class="required-badge">필수</small>':''}
 function v3ProfileFieldHtml(card,field,prefix){
  if(!field||field.enabled===false)return'';
+ const conditionKey=String(field.conditionKey||''),conditionValue=String(field.conditionValue||'');
+ if(conditionKey&&conditionValue){
+  const stateMap={...(card.__v3State||{}),...(window.readV3Map?window.readV3Map(card):{})};
+  const actual=conditionKey==='profileModes'?selectedProfileModes(card):stateMap[conditionKey];
+  const visible=Array.isArray(actual)?actual.map(String).includes(conditionValue):String(actual??'')===conditionValue;
+  if(!visible)return''
+ }
  const key=prefix+'.'+String(field.id||'field'),type=String(field.type||'text'),label=String(field.label||'항목'),value=v3ProfileFieldValue(card,key,'');
  if(type==='radio'||type==='multi'){
   const opts=Array.isArray(field.options)?field.options:[];
