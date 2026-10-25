@@ -775,7 +775,7 @@ function v3DesignCardHead(label){
   return '<div class="inquiry-design-card-head"><strong>'+htmlAttr(label)+'</strong></div>'
 }
 function renderV3BannerCard(card,design,state){
-  const rid=card.dataset.requestId||'0',kinds=Array.isArray(design.bannerKinds)?design.bannerKinds:[],selected=v3Array(state,'bannerKinds');
+  const rid=card.dataset.requestId||'0',kinds=(Array.isArray(design.bannerKinds)?design.bannerKinds:[]).filter(x=>x.enabled!==false),selected=v3Array(state,'bannerKinds');
   const selectedBottom=selected.includes('bottomBanner'),bottomTypes=['bottom1','bottom3','bottom6'].map(k=>inquiryBottomType(k,k));
   let html='<section class="inquiry-design-detail-card" data-design-card="soopBanner">'+v3DesignCardHead(design.label||'SOOP 배너')+
     '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>배너 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
@@ -803,7 +803,7 @@ function renderV3BannerCard(card,design,state){
   return html+'</section>'
 }
 function renderV3FourCutCard(card,design,state){
-  const rid=card.dataset.requestId||'0',types=Array.isArray(design.types)?design.types:[],value=String(v3Value(state,'fourCut.type',''));
+  const rid=card.dataset.requestId||'0',types=(Array.isArray(design.types)?design.types:[]).filter(x=>x.enabled!==false),value=String(v3Value(state,'fourCut.type',''));
   let html='<section class="inquiry-design-detail-card" data-design-card="fourCut">'+v3DesignCardHead(design.label||'인생네컷')+
     '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>인생네컷 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
       types.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="fourCut.type" data-v3-rerender="1" name="v3-fourcut-'+rid+'" value="'+htmlAttr(x.id)+'" '+(value===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
@@ -814,7 +814,7 @@ function renderV3FourCutCard(card,design,state){
   return html+'</section>'
 }
 function renderV3SignatureCard(card,design,state){
-  const rid=card.dataset.requestId||'0',counts=Array.isArray(design.counts)?design.counts:[],modes=Array.isArray(design.modes)?design.modes:[],count=String(v3Value(state,'signature.count','')),mode=String(v3Value(state,'signature.mode',''));
+  const rid=card.dataset.requestId||'0',counts=(Array.isArray(design.counts)?design.counts:[]).filter(x=>x.enabled!==false),modes=(Array.isArray(design.modes)?design.modes:[]).filter(x=>x.enabled!==false),count=String(v3Value(state,'signature.count','')),mode=String(v3Value(state,'signature.mode',''));
   let html='<section class="inquiry-design-detail-card" data-design-card="signature">'+v3DesignCardHead(design.label||'시그풍')+
     '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>시그풍 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
       counts.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="signature.count" data-v3-rerender="1" name="v3-sign-count-'+rid+'" value="'+htmlAttr(x.id)+'" '+(count===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
