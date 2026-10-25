@@ -357,7 +357,8 @@ function availabilityStatusMeta(status){
   return {
     available:{label:'접수 가능',className:'is-available'},
     closed:{label:'마감',className:'is-closed'},
-    off:{label:'휴무',className:'is-off'}
+    off:{label:'휴무',className:'is-off'},
+    reserved:{label:'예약',className:'is-reserved'}
   }[status]||null
 }
 function renderAvailabilityCalendar(s){
@@ -378,7 +379,7 @@ function renderAvailabilityCalendar(s){
   for(let day=1;day<=days;day++){
     const ymd=availabilityMonthKey(view)+'-'+String(day).padStart(2,'0');
     const savedStatus=dates[ymd];
-    const resolvedStatus=['available','closed','off'].includes(savedStatus)?savedStatus:(ymd<today?'closed':'available');
+    const resolvedStatus=ymd<today?'closed':(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:'available');
     const meta=availabilityStatusMeta(resolvedStatus);
     cells.push(
       '<div class="availability-day '+meta.className+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+' '+meta.label)+'">'+
@@ -396,11 +397,7 @@ function renderAvailabilityCalendar(s){
         '<strong>'+view.year+'.'+String(view.month).padStart(2,'0')+'</strong>'+
         '<button type="button" data-availability-shift="1" aria-label="다음 달">›</button>'+
       '</div>'+
-      '<div class="availability-legend">'+
-        '<span><i class="is-available"></i>접수 가능</span>'+
-        '<span><i class="is-closed"></i>마감</span>'+
-        '<span><i class="is-off"></i>휴무</span>'+
-      '</div>'+
+
       '<div class="availability-weekdays">'+weekdayLabels.map((x,i)=>'<span class="'+(i===0?'is-sunday':i===6?'is-saturday':'')+'">'+x+'</span>').join('')+'</div>'+
       '<div class="availability-days">'+cells.join('')+'</div>'+
     '</div>';
