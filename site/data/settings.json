@@ -894,7 +894,30 @@
           "price": 11000
         }
       }
-    }
+    },
+    "builderOrder": [
+      "design:topBanner",
+      "design:floatingBanner",
+      "profileMode:custom",
+      "profileMode:fixed",
+      "bottomType:bottom1",
+      "profileMode:preset",
+      "bottomType:bottom3",
+      "bottomType:bottom6",
+      "fourCutType:large",
+      "fourCutType:small",
+      "signatureType:one",
+      "signatureType:three",
+      "signatureType:six",
+      "signatureType:direct",
+      "option:nameOnlyChange",
+      "option:profileChange",
+      "option:textImageChange",
+      "option:sameDesignColorChange",
+      "option:sameDay",
+      "option:fast",
+      "option:private"
+    ]
   },
   "presetGroups": [
     {
