@@ -861,7 +861,7 @@ function renderRequestFieldsV3(card,typeIds,prev){
   html+='<section class="inquiry-v3-common-section inquiry-v3-extra-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">4</span><div><strong>'+htmlAttr(common.extraLabel||'추가 요청사항')+'</strong><small>선택한 모든 디자인에 공통으로 전달할 내용을 작성해주세요.</small></div></div>'+
     '<textarea data-field="extra" data-v3-field="extraRequest" placeholder="'+htmlAttr(common.extraPlaceholder||'')+'">'+htmlAttr(v3Value(state,'extraRequest',''))+'</textarea></section>';
   const optionOrder=Array.isArray(common.optionOrder)?common.optionOrder:['sameDay','fast','private'];
-  const checkboxOptions=optionOrder.map(k=>inquiryOption(k,k)).concat(inquiryCustomOptions().map(x=>({id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true})));
+  const checkboxOptions=optionOrder.map(k=>inquiryOption(k,k)).filter(o=>o.enabledInInquiry!==false).concat(inquiryCustomOptions().map(x=>({id:String(x.id||''),label:String(x.label||'추가 옵션'),price:inquiryPrice(x.price),custom:true,enabledInInquiry:x.enabledInInquiry!==false})));
   html+='<section class="inquiry-v3-common-section inquiry-v3-option-section"><div class="inquiry-v3-step-heading"><span class="inquiry-v3-step-number">5</span><div><strong>추가 옵션</strong><small>필요한 공통 옵션을 선택해주세요.</small></div></div><div class="check-grid">'+
     checkboxOptions.map(o=>'<label class="choice-pill"><input data-field="extraOption" data-quote-option-id="'+htmlAttr(o.id)+'" type="checkbox" value="'+htmlAttr(o.label)+'" '+((prev.optionIds||[]).includes(o.id)||(prev.options||[]).includes(o.label)?'checked':'')+'><span>'+htmlAttr(o.label)+'</span></label>').join('')+
   '</div></section>';
