@@ -3185,3 +3185,53 @@
     width:100%!important;
   }
 }
+
+
+/* 2026-10-26 quote builder order controls */
+.quote-select-row{
+  position:relative;
+}
+.quote-select-order{
+  display:grid;
+  grid-template-rows:repeat(2,18px);
+  gap:3px;
+  flex:0 0 auto;
+}
+.quote-select-order button{
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:18px;
+  min-width:20px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--surface);
+  color:var(--muted);
+  font-size:9px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+}
+.quote-select-order button:hover:not(:disabled){
+  border-color:rgba(147,137,222,.45);
+  background:var(--accent-soft);
+  color:var(--accent);
+}
+.quote-select-order button:disabled{
+  opacity:.28;
+  cursor:default;
+}
+.quote-select-name{
+  flex:1 1 auto;
+}
+@media(max-width:560px){
+  .quote-select-order{
+    grid-template-columns:repeat(2,22px);
+    grid-template-rows:22px;
+  }
+  .quote-select-order button{
+    width:22px;
+    height:22px;
+  }
+}
