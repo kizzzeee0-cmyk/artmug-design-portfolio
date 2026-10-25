@@ -1225,13 +1225,6 @@ function requestText(card){
   const optionLines=[];
   v.options.forEach(x=>optionLines.push(x+': 선택'));
   if(optionLines.length)blocks.push('[추가 옵션]\n'+optionLines.join('\n'));
-  const rows=selectedInquiryEstimateRows(card),estimateLines=[];let total=0,hasInquiryOnly=false;
-  rows.forEach(x=>{
-    if(x.price>0){total+=x.price*x.qty;estimateLines.push(x.label+': '+x.price.toLocaleString('ko-KR')+'원'+(x.qty>1?' × '+x.qty+'개':''))}
-    else{hasInquiryOnly=true;estimateLines.push(x.label+': 별도 문의'+(x.qty>1?' × '+x.qty+'개':'') )}
-  });
-  estimateLines.push('총 예상 금액: '+total.toLocaleString('ko-KR')+'원'+(hasInquiryOnly?' (별도 문의 항목 제외)':''));
-  blocks.push('[예상 견적]\n'+estimateLines.join('\n'));
   return blocks.join('\n\n')
 }
 function buildInquiryText(){
