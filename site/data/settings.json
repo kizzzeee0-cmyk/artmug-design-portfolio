@@ -915,8 +915,8 @@
       "option:sameDesignColorChange",
       "option:sameDay",
       "option:fast",
-      "signatureType:direct",
-      "option:private"
+      "option:private",
+      "signatureType:direct"
     ]
   },
   "presetGroups": [
