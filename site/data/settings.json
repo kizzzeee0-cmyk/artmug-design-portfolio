@@ -798,18 +798,6 @@
         }
       },
       "options": {
-        "nameChange": {
-          "id": "nameChange",
-          "label": "이름 변경",
-          "price": 2000,
-          "quantityField": "nameChangeQty"
-        },
-        "gifChange": {
-          "id": "gifChange",
-          "label": "움짤 변경",
-          "price": 1000,
-          "quantityField": "gifChangeQty"
-        },
         "textImageChange": {
           "id": "textImageChange",
           "label": "텍스트/이미지 변경",
@@ -839,6 +827,12 @@
           "label": "포트폴리오 비공개",
           "price": 20000,
           "checkboxValue": "포트폴리오 비공개"
+        },
+        "profileChange": {
+          "id": "profileChange",
+          "label": "이름/움짤 변경",
+          "price": 3000,
+          "quantityField": "profileChangeQty"
         }
       },
       "customOptions": [],
