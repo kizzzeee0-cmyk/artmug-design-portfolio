@@ -584,7 +584,7 @@ function inquiryTypes(){
     const designs=v.designs||{};
     return (Array.isArray(v.designOrder)?v.designOrder:Object.keys(designs))
       .map(id=>designs[id])
-      .filter(Boolean)
+      .filter(x=>x&&(x.enabled!==false||x.comingSoon===true))
       .map(x=>({...x,disabled:x.enabled===false,displayLabel:x.enabled===false&&x.comingSoon?String(x.label||x.id)+' (추가예정)':String(x.label||x.id)}))
   }
   return visibleCats((S&&S.designTypes)||[])
@@ -734,8 +734,15 @@ function v3Checked(state,key,value){
   return v3Array(state,key).map(String).includes(String(value))
 }
 function v3RequiredMark(required){return required?'<small class="required-badge">필수</small>':''}
+function v3FieldVisible(field,state){
+  if(!field||field.enabled===false)return false;
+  const key=String(field.conditionKey||''),expected=String(field.conditionValue||'');
+  if(!key||!expected)return true;
+  const actual=state?.[key];
+  return Array.isArray(actual)?actual.map(String).includes(expected):String(actual??'')===expected
+}
 function v3FieldHtml(field,prefix,rid,state){
-  if(!field||field.enabled===false)return'';
+  if(!v3FieldVisible(field,state))return'';
   const key=prefix+'.'+String(field.id||'field'),label=String(field.label||'항목'),type=String(field.type||'text'),value=v3Value(state,key,'');
   const cls='inquiry-v3-field '+(field.wide?'is-wide':'')+(field.required?' is-required':'');
   if(type==='radio'||type==='multi'){
@@ -1126,7 +1133,7 @@ function v3FormatValue(value){
 }
 function v3FieldLines(fields,prefix,state){
   const out=[];
-  (Array.isArray(fields)?fields:[]).filter(f=>f&&f.enabled!==false).forEach(f=>{
+  (Array.isArray(fields)?fields:[]).filter(f=>v3FieldVisible(f,state)).forEach(f=>{
     const value=v3FormatValue(state[prefix+'.'+f.id]);
     if(value)out.push(String(f.label||f.id)+': '+value)
   });
