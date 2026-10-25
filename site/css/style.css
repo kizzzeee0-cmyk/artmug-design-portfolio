@@ -7865,3 +7865,28 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     padding:7px 9px;
   }
 }
+
+
+/* 2026-10-26 INQUIRY V3 VALIDATION */
+.inquiry-inline-error{
+  display:block;
+  width:100%;
+  margin:5px 0 0;
+  color:#b96868;
+  font-size:9.5px;
+  font-weight:650;
+  line-height:1.35;
+}
+.request-type-selector.is-required-missing{
+  padding:8px!important;
+  border:1px solid #e2b1b1!important;
+  border-radius:11px;
+  background:#fffafa!important;
+}
+.inquiry-broadcast-grid input.is-required-missing{
+  border-color:#d99a9a!important;
+  background:#fffafa!important;
+}
+@media(max-width:680px){
+  .inquiry-inline-error{font-size:9px}
+}
