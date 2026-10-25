@@ -828,7 +828,7 @@ function renderV3SignatureCard(card,design,state){
       v3FieldHtml({id:'content',label:'시그풍 숫자 및 내용',type:'textarea',required:true,placeholder:'숫자와 문구를 여러 줄로 작성해주세요',wide:true},'signature',rid,state)+
       (mode==='omakase'
         ?v3FieldHtml({id:'colors',label:'색상 입력',type:'textarea',required:true,placeholder:'원하는 색상 / 싫어하는 색상을 작성해주세요',wide:true},'signature',rid,state)
-        :v3FieldHtml({id:'concept',label:'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:'원하는 컨셉과 색상을 작성해주세요',wide:true},'signature',rid,state))+
+        :v3FieldHtml({id:'concept',label:'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:'원하는 분위기, 키워드, 색상을 작성해주세요',wide:true},'signature',rid,state))+
     '</div>'
   }
   (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'signature.custom',rid,state)});
