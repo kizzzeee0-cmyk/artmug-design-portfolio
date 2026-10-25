@@ -1131,7 +1131,7 @@ function v2Pricing(){
 }
 function v2ProfileMode(key,fallback){
  const x=v2Pricing()?.profileModes?.[key]||{};
- return {id:String(x.id||key),label:String(x.label||fallback||key),price:Math.max(0,Number(x.price||0))}
+ return {id:String(x.id||key),label:String(x.label||fallback||key),price:Math.max(0,Number(x.price||0)),enabledInInquiry:x.enabledInInquiry!==false}
 }
 function selectedPresetProduct(card){
  const file=String(card.dataset.selectedPresetFile||'');
