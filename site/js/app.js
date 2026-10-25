@@ -1166,22 +1166,38 @@ function requestText(card){
     if(type.id==='profile'){
       const modes=Array.isArray(v2.profileModes)?v2.profileModes:inquiryProfileModesFromCard(card);
       if(modes.length)lines.push('신청 방식: '+modes.map(mode=>inquiryProfileMode(mode,mode).label).join(', '));
-      if(modes.includes('custom'))lines.push(...v3FieldLines((design.modeFields?.custom||[]).filter(f=>f.id!=='frameKeep'),'profile.custom',state));
+      let profileGroupCount=0;
+      const addProfileGroup=group=>{
+        const items=(group||[]).filter(Boolean);
+        if(!items.length)return;
+        if(profileGroupCount>0)lines.push('');
+        lines.push(...items);
+        profileGroupCount++
+      };
+      if(modes.includes('custom')){
+        addProfileGroup(v3FieldLines((design.modeFields?.custom||[]).filter(f=>f.id!=='frameKeep'),'profile.custom',state))
+      }
       if(modes.includes('fixed')){
-        if(v2.selectedFixedProductName)lines.push('고정틀 선택: '+v2.selectedFixedProductName);
+        const fixedLines=[];
+        if(v2.selectedFixedProductName)fixedLines.push('고정틀 선택: '+v2.selectedFixedProductName);
         const product=(S.fixedProducts||[]).find(x=>String(x.id)===String(v2.selectedFixedProductId||''));
-        lines.push(...v3FieldLines((product?.inquiryFields||[]).filter(f=>f.id!=='frameKeep'),'profile.fixed.'+String(v2.selectedFixedProductId||''),state))
+        fixedLines.push(...v3FieldLines((product?.inquiryFields||[]).filter(f=>f.id!=='frameKeep'),'profile.fixed.'+String(v2.selectedFixedProductId||''),state));
+        addProfileGroup(fixedLines)
       }
       if(modes.includes('preset')){
-        if(v2.selectedPresetName)lines.push('프리셋 선택: '+v2.selectedPresetName);
-        if(v2.selectedPresetNeedsColor&&v2.selectedPresetColorName)lines.push('색상 선택: '+v2.selectedPresetColorName);
-        lines.push(...v3FieldLines((design.modeFields?.preset||[]).filter(f=>f.id!=='frameKeep'),'profile.preset',state))
+        const presetLines=[];
+        if(v2.selectedPresetName)presetLines.push('프리셋 선택: '+v2.selectedPresetName);
+        if(v2.selectedPresetNeedsColor&&v2.selectedPresetColorName)presetLines.push('색상 선택: '+v2.selectedPresetColorName);
+        presetLines.push(...v3FieldLines((design.modeFields?.preset||[]).filter(f=>f.id!=='frameKeep'),'profile.preset',state));
+        addProfileGroup(presetLines)
+      }
+      if(modes.includes('change')){
+        addProfileGroup(v3FieldLines(design.modeFields?.change,'profile.change',state))
       }
       if(modes.some(mode=>mode!=='change')){
         const frameKeep=v3FormatValue(state['profile.common.frameKeep']);
         if(frameKeep)lines.push('움짤프사 파일 보관 여부: '+frameKeep)
       }
-      if(modes.includes('change'))lines.push(...v3FieldLines(design.modeFields?.change,'profile.change',state));
       if(v.nameOnlyChangeQty>0)lines.push(inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label+': × '+v.nameOnlyChangeQty+'개');
       if(v.profileChangeQty>0)lines.push(inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label+': × '+v.profileChangeQty+'개');
     }else if(type.id==='soopBanner'){
