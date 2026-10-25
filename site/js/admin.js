@@ -883,14 +883,151 @@ function syncBannerTypeAdminUI(){
   if(details)details.hidden=!on
 }
 
+
+function ensureInquiryV3(target=S){
+ if(!target.inquiryV3||typeof target.inquiryV3!=='object'||Array.isArray(target.inquiryV3)){
+  target.inquiryV3={version:3,enabled:true,broadcast:{nicknameLabel:'방송 닉네임',nicknamePlaceholder:'방송 닉네임을 입력해주세요',addressLabel:'방송 주소',addressPlaceholder:'https://...'},designTypeLabel:'신청하시는 디자인 종류',designOrder:[],designs:{},common:{extraLabel:'추가 요청사항',extraPlaceholder:'',optionOrder:['sameDay','fast','private']}}
+ }
+ const v=target.inquiryV3;v.version=3;if(v.enabled==null)v.enabled=true;
+ if(!v.broadcast||typeof v.broadcast!=='object')v.broadcast={};
+ v.broadcast.nicknameLabel=String(v.broadcast.nicknameLabel||'방송 닉네임');
+ v.broadcast.nicknamePlaceholder=String(v.broadcast.nicknamePlaceholder||'');
+ v.broadcast.addressLabel=String(v.broadcast.addressLabel||'방송 주소');
+ v.broadcast.addressPlaceholder=String(v.broadcast.addressPlaceholder||'https://...');
+ if(!v.designs||typeof v.designs!=='object'||Array.isArray(v.designs))v.designs={};
+ if(!Array.isArray(v.designOrder))v.designOrder=Object.keys(v.designs);
+ Object.keys(v.designs).forEach(id=>{if(!v.designOrder.includes(id))v.designOrder.push(id)});
+ if(!v.common||typeof v.common!=='object')v.common={};
+ if(!Array.isArray(v.common.optionOrder))v.common.optionOrder=['sameDay','fast','private'];
+ return v
+}
+function inquiryV3FieldAdminHtml(field,pathKey,index){
+ const optionText=(field.options||[]).map(v=>typeof v==='object'?String(v.value??v.label??''):String(v)).join(', ');
+ return '<div class="inquiry-v3-admin-field-row" data-inquiry-v3-field-row="'+adminEsc(pathKey)+':'+index+'">'+
+  '<label>항목명<input data-iq3-field-label="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(field.label||'')+'"></label>'+
+  '<label>입력 방식<select data-iq3-field-type="'+adminEsc(pathKey)+':'+index+'">'+
+   [['text','한 줄 텍스트'],['textarea','여러 줄 텍스트'],['radio','단일 선택'],['multi','다중 선택'],['number','숫자 입력']].map(([v,l])=>'<option value="'+v+'" '+(field.type===v?'selected':'')+'>'+l+'</option>').join('')+
+  '</select></label>'+
+  '<label>플레이스홀더<input data-iq3-field-placeholder="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(field.placeholder||'')+'"></label>'+
+  '<label class="wide">선택지 · 쉼표로 구분<input data-iq3-field-options="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(optionText)+'" placeholder="단일/다중 선택일 때 사용"></label>'+
+  '<div class="inquiry-v3-admin-field-flags">'+
+   '<label class="mini-toggle"><input type="checkbox" data-iq3-field-required="'+adminEsc(pathKey)+':'+index+'" '+(field.required?'checked':'')+'> 필수</label>'+
+   '<label class="mini-toggle"><input type="checkbox" data-iq3-field-enabled="'+adminEsc(pathKey)+':'+index+'" '+(field.enabled!==false?'checked':'')+'> 공개</label>'+
+   '<label class="mini-toggle"><input type="checkbox" data-iq3-field-wide="'+adminEsc(pathKey)+':'+index+'" '+(field.wide?'checked':'')+'> 전체 너비</label>'+
+  '</div>'+
+  '<div class="inquiry-v3-admin-field-actions">'+
+   '<button type="button" class="ghost cat-order-button" data-iq3-field-move="'+adminEsc(pathKey)+':'+index+'" data-dir="-1" '+(index===0?'disabled':'')+'>↑</button>'+
+   '<button type="button" class="ghost cat-order-button" data-iq3-field-move="'+adminEsc(pathKey)+':'+index+'" data-dir="1">↓</button>'+
+   '<button type="button" class="danger admin-compact" data-iq3-field-delete="'+adminEsc(pathKey)+':'+index+'">삭제</button>'+
+  '</div>'+
+ '</div>'
+}
+function inquiryV3FieldArrayByPath(path,target=S){
+ const v=ensureInquiryV3(target),parts=String(path||'').split('.'),design=v.designs[parts[0]];if(!design)return null;
+ if(parts[1]==='modeFields'){
+  if(!design.modeFields||typeof design.modeFields!=='object')design.modeFields={};
+  if(!Array.isArray(design.modeFields[parts[2]]))design.modeFields[parts[2]]=[];
+  return design.modeFields[parts[2]]
+ }
+ if(!Array.isArray(design.customFields))design.customFields=[];
+ return design.customFields
+}
+function collectInquiryV3Admin(){
+ const v=ensureInquiryV3(),root=$('inquiryV3Admin');if(!root)return;
+ const nickLabel=$('iq3NicknameLabel'),nickPlaceholder=$('iq3NicknamePlaceholder'),addressLabel=$('iq3AddressLabel'),addressPlaceholder=$('iq3AddressPlaceholder'),designTypeLabel=$('iq3DesignTypeLabel');
+ if(nickLabel)v.broadcast.nicknameLabel=nickLabel.value;
+ if(nickPlaceholder)v.broadcast.nicknamePlaceholder=nickPlaceholder.value;
+ if(addressLabel)v.broadcast.addressLabel=addressLabel.value;
+ if(addressPlaceholder)v.broadcast.addressPlaceholder=addressPlaceholder.value;
+ if(designTypeLabel)v.designTypeLabel=designTypeLabel.value;
+ v.designOrder.forEach(id=>{
+  const d=v.designs[id];if(!d)return;
+  const label=root.querySelector('[data-iq3-design-label="'+CSS.escape(id)+'"]');
+  const enabled=root.querySelector('[data-iq3-design-enabled="'+CSS.escape(id)+'"]');
+  const coming=root.querySelector('[data-iq3-design-coming="'+CSS.escape(id)+'"]');
+  if(label)d.label=label.value.trim()||d.label;
+  if(enabled)d.enabled=enabled.checked;
+  if(coming)d.comingSoon=coming.checked
+ });
+ root.querySelectorAll('[data-iq3-field-label]').forEach(input=>{
+  const token=input.dataset.iq3FieldLabel,cut=token.lastIndexOf(':'),path=token.slice(0,cut),index=Number(token.slice(cut+1)),arr=inquiryV3FieldArrayByPath(path);if(!arr?.[index])return;
+  const q=key=>root.querySelector('['+key+'="'+CSS.escape(token)+'"]'),field=arr[index];
+  field.label=input.value.trim()||field.label;
+  field.type=q('data-iq3-field-type')?.value||field.type;
+  field.placeholder=q('data-iq3-field-placeholder')?.value||'';
+  field.options=(q('data-iq3-field-options')?.value||'').split(',').map(v=>v.trim()).filter(Boolean);
+  field.required=q('data-iq3-field-required')?.checked===true;
+  field.enabled=q('data-iq3-field-enabled')?.checked!==false;
+  field.wide=q('data-iq3-field-wide')?.checked===true
+ })
+}
+function inquiryV3FieldsPanel(title,path,fields,note=''){
+ return '<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>'+adminEsc(title)+'</h5>'+(note?'<p class="muted">'+adminEsc(note)+'</p>':'')+'</div><button type="button" class="ghost admin-compact" data-iq3-field-add="'+adminEsc(path)+'">+ 입력 항목 추가</button></div>'+
+  '<div class="inquiry-v3-admin-fields-list">'+((fields||[]).length?(fields||[]).map((field,i)=>inquiryV3FieldAdminHtml(normalizeInquiryField(field),path,i)).join(''):'<p class="muted">추가 입력 항목이 없습니다.</p>')+'</div></section>'
+}
+function renderInquiryV3DesignCard(id,d,index,total){
+ const builtIn=['profile','soopBanner','fourCut','signature'].includes(id);
+ let body='';
+ if(id==='profile'){
+  const mf=d.modeFields||{};
+  body+=inquiryV3FieldsPanel('맞춤제작 상세 입력','profile.modeFields.custom',mf.custom||[],'맞춤제작을 선택했을 때만 표시');
+  body+=inquiryV3FieldsPanel('프리셋 구매 상세 입력','profile.modeFields.preset',mf.preset||[],'프리셋 구매를 선택했을 때만 표시');
+  body+=inquiryV3FieldsPanel('(재주문) 이름/움짤만 변경 상세 입력','profile.modeFields.change',mf.change||[],'재주문을 선택했을 때만 표시');
+  body+='<p class="muted inquiry-v3-admin-link-note">고정틀 구매 전용 항목은 ‘고정틀 상품 관리 → 문의 양식 입력 항목’에서 상품별로 설정합니다.</p>'
+ }else{
+  body+=inquiryV3FieldsPanel('추가 상세 입력 항목',id+'.customFields',d.customFields||[],'이 디자인을 선택했을 때 추가로 표시')
+ }
+ const price=ensureQuoteConfig().pricingV2?.designs?.[id];
+ const priceHtml=!builtIn?'<label class="inquiry-v3-custom-design-price">기본 가격<input type="number" min="0" step="100" data-iq3-design-price="'+adminEsc(id)+'" value="'+quotePriceValue(price?.price||0)+'"></label>':'';
+ return '<article class="inquiry-v3-admin-design-card" data-iq3-design-card="'+adminEsc(id)+'">'+
+  '<div class="inquiry-v3-admin-design-head">'+
+   '<div class="inquiry-v3-admin-design-title"><strong>'+adminEsc(d.label||id)+'</strong><small>ID: '+adminEsc(id)+'</small></div>'+
+   '<label>표시 이름<input data-iq3-design-label="'+adminEsc(id)+'" value="'+adminEsc(d.label||id)+'"></label>'+
+   priceHtml+
+   '<label class="mini-toggle"><input type="checkbox" data-iq3-design-enabled="'+adminEsc(id)+'" '+(d.enabled!==false?'checked':'')+'> 공개</label>'+
+   '<label class="mini-toggle"><input type="checkbox" data-iq3-design-coming="'+adminEsc(id)+'" '+(d.comingSoon?'checked':'')+'> 추가예정</label>'+
+   '<div class="inquiry-v3-admin-design-actions"><button type="button" class="ghost cat-order-button" data-iq3-design-move="'+adminEsc(id)+'" data-dir="-1" '+(index===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-design-move="'+adminEsc(id)+'" data-dir="1" '+(index===total-1?'disabled':'')+'>↓</button>'+(builtIn?'':'<button type="button" class="danger admin-compact" data-iq3-design-delete="'+adminEsc(id)+'">삭제</button>')+'</div>'+
+  '</div>'+
+  '<div class="inquiry-v3-admin-design-body">'+body+'</div>'+
+ '</article>'
+}
+function renderInquiryV3Admin(){
+ const root=$('inquiryV3Admin');if(!root)return;
+ const v=ensureInquiryV3(),order=v.designOrder.filter(id=>v.designs[id]);
+ root.innerHTML='<div class="inquiry-v3-admin-broadcast">'+
+   '<div class="head"><div><h5>방송 정보</h5><p class="muted">공개 문의 양식 맨 위에 표시되는 필수 입력 항목입니다.</p></div></div>'+
+   '<div class="fields">'+
+    '<label>닉네임 항목<input id="iq3NicknameLabel" value="'+adminEsc(v.broadcast.nicknameLabel)+'"></label>'+
+    '<label>닉네임 placeholder<input id="iq3NicknamePlaceholder" value="'+adminEsc(v.broadcast.nicknamePlaceholder)+'"></label>'+
+    '<label>방송 주소 항목<input id="iq3AddressLabel" value="'+adminEsc(v.broadcast.addressLabel)+'"></label>'+
+    '<label>방송 주소 placeholder<input id="iq3AddressPlaceholder" value="'+adminEsc(v.broadcast.addressPlaceholder)+'"></label>'+
+    '<label class="wide">디자인 종류 제목<input id="iq3DesignTypeLabel" value="'+adminEsc(v.designTypeLabel||'신청하시는 디자인 종류')+'"></label>'+
+   '</div></div>'+
+   '<div class="inquiry-v3-admin-design-list">'+order.map((id,i)=>renderInquiryV3DesignCard(id,v.designs[id],i,order.length)).join('')+'</div>';
+ root.querySelectorAll('[data-iq3-design-move]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const id=b.dataset.iq3DesignMove,i=v.designOrder.indexOf(id),j=i+Number(b.dataset.dir);if(i<0||j<0||j>=v.designOrder.length)return;[v.designOrder[i],v.designOrder[j]]=[v.designOrder[j],v.designOrder[i]];renderInquiryV3Admin()});
+ root.querySelectorAll('[data-iq3-design-delete]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const id=b.dataset.iq3DesignDelete;if(!confirm('이 디자인 종류와 연결된 상세 입력 항목을 삭제할까요?'))return;delete v.designs[id];v.designOrder=v.designOrder.filter(x=>x!==id);delete ensureQuoteConfig().pricingV2.designs[id];renderInquiryV3Admin();renderQuoteAdmin()});
+ root.querySelectorAll('[data-iq3-field-add]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const arr=inquiryV3FieldArrayByPath(b.dataset.iq3FieldAdd);if(!arr)return;arr.push(normalizeInquiryField({label:'새 입력 항목',type:'text',enabled:true}));renderInquiryV3Admin()});
+ root.querySelectorAll('[data-iq3-field-delete]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const token=b.dataset.iq3FieldDelete,cut=token.lastIndexOf(':'),path=token.slice(0,cut),index=Number(token.slice(cut+1)),arr=inquiryV3FieldArrayByPath(path);if(!arr)return;arr.splice(index,1);renderInquiryV3Admin()});
+ root.querySelectorAll('[data-iq3-field-move]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const token=b.dataset.iq3FieldMove,cut=token.lastIndexOf(':'),path=token.slice(0,cut),index=Number(token.slice(cut+1)),arr=inquiryV3FieldArrayByPath(path),j=index+Number(b.dataset.dir);if(!arr||j<0||j>=arr.length)return;[arr[index],arr[j]]=[arr[j],arr[index]];renderInquiryV3Admin()});
+ root.querySelectorAll('[data-iq3-design-price]').forEach(input=>input.oninput=()=>{const id=input.dataset.iq3DesignPrice,p=ensureQuoteConfig().pricingV2;if(!p.designs[id])p.designs[id]={id,label:v.designs[id]?.label||id,price:0};p.designs[id].price=quotePriceValue(input.value);renderQuoteBuilder()});
+}
+function addInquiryV3Design(){
+ collectInquiryV3Admin();
+ const v=ensureInquiryV3(),id='custom-'+Date.now();
+ v.designs[id]={id,label:'새 디자인',enabled:true,comingSoon:false,customFields:[]};
+ v.designOrder.push(id);
+ const p=ensureQuoteConfig().pricingV2;p.designs[id]={id,label:'새 디자인',price:0};
+ renderInquiryV3Admin();renderQuoteAdmin()
+}
+
 function render(){
 renderScheduleAdmin();
 renderAvailabilityCalendarAdmin();
 $('noticeFields').innerHTML=input('공지 제목','noticeTitle',S.noticeTitle)+area('공지 안내 문구','noticeText',S.noticeText,true);
-$('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('닉네임 항목','nicknameLabel',S.nicknameLabel)+input('닉네임 placeholder','nicknamePlaceholder',S.nicknamePlaceholder)+input('디자인 종류 항목','designTypeLabel',S.designTypeLabel)+input('틀 보관 항목','frameKeepLabel',S.frameKeepLabel)+area('틀 보관 설명','frameKeepDescription',S.frameKeepDescription,true)+input('컨셉 및 색상 항목','conceptLabel',S.conceptLabel||'원하는 디자인 컨셉 및 색상')+input('컨셉 및 색상 placeholder','conceptPlaceholder',S.conceptPlaceholder||'예: 하트, 귀여운 느낌, 민트·화이트·라벤더 조합')+area('내용 입력 placeholder','bannerTextPlaceholder',S.bannerTextPlaceholder||'예: 상단 배너 - 칠공\n플로팅 배너 - 노래책, 유튜브, 팬카페',true)+input('추가 요청 항목','extraLabel',S.extraLabel)+input('추가 요청 placeholder','extraPlaceholder',S.extraPlaceholder)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess)+input('움짤 틀 보관 O','frameKeepYes',S.frameKeepYes)+input('움짤 틀 보관 X','frameKeepNo',S.frameKeepNo)+input('시그풍 숫자 항목','signatureNumberLabel',S.signatureNumberLabel)+input('시그풍 숫자 placeholder','signatureNumberPlaceholder',S.signatureNumberPlaceholder)+input('시그풍 내용 항목','signatureContentLabel',S.signatureContentLabel)+input('시그풍 내용 placeholder','signatureContentPlaceholder',S.signatureContentPlaceholder);
+$('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess);
 $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
 $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
-renderNotices();renderTypes();renderCats();renderPresetCats();renderFixedAdmin();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
+renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderPresetCats();renderFixedAdmin();renderPresetGroups();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();$('presetEnabled').checked=!!S.presetEnabled;$('presetTitle').value=S.presetTitle||'프리셋';$('presetNotice').value=S.presetNotice||'';if($('showcaseInitialDesktop'))$('showcaseInitialDesktop').value=Math.min(5,Number(S.showcaseInitialDesktop||5));if($('showcaseInitialMobile'))$('showcaseInitialMobile').value=Math.min(4,Number(S.showcaseInitialMobile||4));if($('showcasePresetEnabled'))$('showcasePresetEnabled').checked=S.showcasePresetEnabled!==false;if($('showcasePresetExpandEnabled'))$('showcasePresetExpandEnabled').checked=S.showcasePresetExpandEnabled!==false;$('authorEnabled').checked=!!S.authorEnabled;if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';$('authorText').value=S.authorText||'';$('authorFontSize').value=S.authorFontSize||15;$('eventsEnabled').checked=!!S.eventsEnabled;$('eventsKicker').value=S.eventsKicker||'REVIEW EVENT';$('eventsTitle').value=S.eventsTitle||'이벤트 안내';$('eventsText').value=S.eventsText||'';$('eventsNote').value=S.eventsNote||'※ 움짤프사 + 상단배너 둘 다 주문해도 중복 할인은 적용되지 않습니다.';$('eventsTitleFontSize').value=S.eventsTitleFontSize||22;$('eventsFontSize').value=S.eventsFontSize||15;$('api').textContent=API;syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems();}
 const noticeSelectionRanges=new Map();
 const noticeColorTargets=new Map();
 function normalizeHex6(value){
@@ -1619,7 +1756,7 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);collectNotices();(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
-  collect();collectWorkStatusAdmin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
+  collect();collectInquiryV3Admin();collectWorkStatusAdmin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
   S.bannerTypeEnabled=$('bannerTypeEnabled')?$('bannerTypeEnabled').checked:(S.bannerTypeEnabled!==false);
   S.presetEnabled=$('presetEnabled').checked;
   S.presetTitle=$('presetTitle').value;
@@ -3055,7 +3192,7 @@ async function migrateLegacyFixedProducts(){
 }
 
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=stripSeasonData(d.settings||{});render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
-$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const p=ensureQuoteConfig().pricingV2;p.standaloneItems.push({id:'qstand-'+Date.now(),label:'새 독립 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 디자인 종류',enabled:true});renderFixedCats();renderFixedItems()};if($('addFixedProduct'))$('addFixedProduct').onclick=()=>addFixedProduct().catch(e=>alert('고정틀 추가 실패: '+e.message));if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};if($('addInquiryV3Design'))$('addInquiryV3Design').onclick=addInquiryV3Design;$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const p=ensureQuoteConfig().pricingV2;p.standaloneItems.push({id:'qstand-'+Date.now(),label:'새 독립 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 디자인 종류',enabled:true});renderFixedCats();renderFixedItems()};if($('addFixedProduct'))$('addFixedProduct').onclick=()=>addFixedProduct().catch(e=>alert('고정틀 추가 실패: '+e.message));if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
