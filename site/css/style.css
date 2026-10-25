@@ -7327,3 +7327,41 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     font-weight:600!important;
   }
 }
+
+
+/* 2026-10-25 AVAILABILITY TITLE + CALENDAR TYPE MATCH */
+/* Keep all main section titles visually identical. */
+.schedule-heading h2,
+.notice-card .notice-heading h2,
+.availability-calendar-heading h2{
+  font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif!important;
+  font-size:clamp(20px,2.4vw,25px)!important;
+  font-weight:800!important;
+  letter-spacing:-.025em!important;
+  line-height:1.2!important;
+  color:#3d5666!important;
+}
+
+/* Calendar-only desktop type refinements. */
+@media(min-width:681px){
+  .availability-calendar-nav strong{
+    color:var(--primary-action)!important;
+    font-size:17px!important;
+    font-weight:800!important;
+  }
+  .availability-weekdays span{
+    font-size:11.5px!important;
+    font-weight:700!important;
+  }
+}
+
+/* Preserve the current mobile calendar sizing. */
+@media(max-width:680px){
+  .availability-calendar-nav strong{
+    color:var(--primary-action)!important;
+    font-size:13px!important;
+  }
+  .availability-weekdays span{
+    font-size:8.5px!important;
+  }
+}
