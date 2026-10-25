@@ -1097,11 +1097,6 @@ function renderInquiryEstimate(){
     '<div class="inquiry-estimate-body">'+(rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'<p class="inquiry-estimate-empty">선택된 가격 항목이 없습니다.</p>')+
     (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 별도 문의 항목은 총 금액에서 제외됩니다.</p>':'')+'</div></details>';
   const details=box.querySelector('details');if(details)details.ontoggle=()=>{box.dataset.open=details.open?'1':'0'};
-  box.querySelectorAll('[data-estimate-qty-key]').forEach(button=>button.onclick=()=>{
-    const key=String(button.dataset.estimateQtyKey||''),delta=Number(button.dataset.estimateDelta||0);
-    publicQuoteQty[key]=Math.max(1,Math.floor(Number(publicQuoteQty[key]||1))+delta);
-    renderInquiryEstimate()
-  });
   box.hidden=false
 }
 let inquiryEstimateObserver=null;
