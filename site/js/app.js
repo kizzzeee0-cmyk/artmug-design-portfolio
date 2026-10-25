@@ -761,7 +761,7 @@ function v3FieldHtml(field,prefix,rid,state){
   if(type==='number'){
     return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="number" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+htmlAttr(field.min??0)+'" step="'+htmlAttr(field.step??1)+'" value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'">'+helpHtml+'</label>'
   }
-  return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="text" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'"></label>'
+  return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="text" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'">'+helpHtml+'</label>'
 }
 function v3QtyHtml(fieldKey,label,value){
   const n=Math.max(0,Math.floor(Number(value||0)));
