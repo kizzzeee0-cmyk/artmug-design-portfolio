@@ -807,13 +807,13 @@
       "options": {
         "textImageChange": {
           "id": "textImageChange",
-          "label": "텍스트/이미지 변경",
+          "label": "배너 · 텍스트/이미지 변경",
           "price": 3000,
           "quantityField": "textChangeQty"
         },
         "sameDesignColorChange": {
           "id": "sameDesignColorChange",
-          "label": "색상 변경",
+          "label": "동일 디자인 · 색상 변경",
           "price": 3000,
           "quantityField": "sameDesignColorChangeQty"
         },
