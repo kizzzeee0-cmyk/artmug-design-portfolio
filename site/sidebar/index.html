@@ -2513,6 +2513,7 @@ function listFrom(d){
  const list=[
   {label:'공지사항',target:'notice'}
  ];
+ if(d.hasAvailability)list.push({label:'일정 확인',target:'calendar'});
  if(d.hasFixed||d.hasPreset)list.push({label:'고정틀 · 프리셋',target:'showcase'});
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
@@ -2560,6 +2561,7 @@ function summaryFromNav(d){
  return {
   hasPreset:!!d?.hasPreset,
   hasFixed:!!d?.hasFixed,
+  hasAvailability:d?.hasAvailability===true,
   hasBanner:cats.some(c=>c.banner),
   bannerIds:cats.filter(c=>c.banner).map(c=>c.id),
   profile:profile?{id:profile.id,label:'움짤프사'}:null,
@@ -2590,6 +2592,7 @@ function mergeFrameNavData(d){
   ...currentSummary,
   hasPreset:currentSummary?.hasPreset===true||frame.hasPreset===true,
   hasFixed:currentSummary?.hasFixed===true||frame.hasFixed===true,
+  hasAvailability:currentSummary?.hasAvailability===true||frame.hasAvailability===true,
   hasBanner:currentSummary?.hasBanner===true||frame.hasBanner===true,
   bannerIds:[...new Set([...(currentSummary?.bannerIds||[]),...(frame.bannerIds||[])])],
   profile:frame.profile||currentSummary?.profile||null,
@@ -2633,7 +2636,7 @@ async function init(){
  }catch{
   if(old)renderSummary(old);
   else renderSummary({
-   hasPreset:false,hasFixed:false,hasBanner:false,bannerIds:[],
+   hasPreset:false,hasFixed:false,hasAvailability:false,hasBanner:false,bannerIds:[],
    profile:null,fourCut:null,extraCategories:[],
    workStatus:{enabled:false,mode:'working',description:''}
   })
