@@ -1616,6 +1616,9 @@ async function saveSettings(){
     $('saveStatus').textContent='저장 중…';
     const saved=await queueSettingsMutation(latest=>{stripSeasonData(latest);Object.assign(latest,stripSeasonData(snapshot))});
     S=saved;
+    availabilityAdminDirty=false;
+    const availabilitySaveState=$('availabilityCalendarSaveState');
+    if(availabilitySaveState){availabilitySaveState.textContent='저장됨';availabilitySaveState.dataset.state='saved'}
     try{localStorage.removeItem('artmug-nav-summary-v11')}catch{}
     $('saveStatus').textContent='저장되었습니다.';
     showToast('저장되었습니다.')
