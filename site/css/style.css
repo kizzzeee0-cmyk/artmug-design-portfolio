@@ -8455,3 +8455,65 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     margin-bottom:5px!important;
   }
 }
+
+
+/* 2026-10-26 exact inquiry heading gaps + estimate arrow */
+.request-card-v3{
+  --inquiry-heading-content-gap:12px;
+}
+.request-card-v3 .request-type-selector{
+  gap:var(--inquiry-heading-content-gap)!important;
+}
+.request-card-v3 .request-fields{
+  gap:var(--inquiry-heading-content-gap)!important;
+}
+.request-card-v3 .inquiry-v3-detail-heading{
+  margin:0!important;
+}
+.request-card-v3 .inquiry-v3-common-section{
+  gap:var(--inquiry-heading-content-gap)!important;
+}
+/* Keep the selected fixed-template fields in a deliberate 2-col / full-row / last-row rhythm. */
+.fixed-inquiry-fields .inquiry-v3-field.is-wide{
+  grid-column:1/-1!important;
+}
+
+/* Estimate: amount stays readable, chevron is large and anchored to the far-right edge. */
+.inquiry-estimate-head{
+  width:100%!important;
+}
+.inquiry-estimate-head-total{
+  display:grid!important;
+  grid-template-columns:max-content 30px!important;
+  align-items:center!important;
+  justify-content:end!important;
+  gap:12px!important;
+  margin-left:auto!important;
+}
+.inquiry-estimate-chevron{
+  display:block!important;
+  width:30px!important;
+  margin:0!important;
+  color:#6f9fb8!important;
+  font-size:24px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  text-align:right!important;
+  transform-origin:center!important;
+}
+.inquiry-estimate-details[open] .inquiry-estimate-chevron{
+  transform:rotate(180deg)!important;
+}
+@media(max-width:680px){
+  .request-card-v3{
+    --inquiry-heading-content-gap:11px;
+  }
+  .inquiry-estimate-head-total{
+    grid-template-columns:max-content 26px!important;
+    gap:9px!important;
+  }
+  .inquiry-estimate-chevron{
+    width:26px!important;
+    font-size:22px!important;
+  }
+}
