@@ -1107,7 +1107,7 @@ function renderInquiryEstimate(){
   const emptyText=types.length?'선택된 가격 항목이 없습니다.':'디자인 종류를 선택하면 예상 견적이 표시됩니다.';
   const wasOpen=box.dataset.open==='1';
   box.innerHTML='<details class="inquiry-estimate-details" '+(wasOpen?'open':'')+'>'+
-    '<summary class="inquiry-estimate-head"><div class="inquiry-estimate-head-title"><strong>예상 견적</strong></div><div class="inquiry-estimate-head-total"><b>'+total.toLocaleString('ko-KR')+'원</b><span class="inquiry-estimate-chevron">⌄</span></div></summary>'+
+    '<summary class="inquiry-estimate-head"><div class="inquiry-estimate-head-title"><strong>예상 견적</strong></div><div class="inquiry-estimate-head-total"><b>'+total.toLocaleString('ko-KR')+'원</b><span class="inquiry-estimate-chevron" aria-hidden="true">▾</span></div></summary>'+
     '<div class="inquiry-estimate-body">'+(rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'<p class="inquiry-estimate-empty">'+emptyText+'</p>')+
     (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 별도 문의 항목은 총 금액에서 제외됩니다.</p>':'')+'</div></details>';
   const details=box.querySelector('details');if(details)details.ontoggle=()=>{box.dataset.open=details.open?'1':'0'};
@@ -1181,6 +1181,7 @@ function requestText(card){
         const frameKeep=v3FormatValue(state['profile.common.frameKeep']);
         if(frameKeep)lines.push('움짤프사 파일 보관 여부: '+frameKeep)
       }
+      if(modes.includes('change'))lines.push(...v3FieldLines(design.modeFields?.change,'profile.change',state));
       if(v.nameOnlyChangeQty>0)lines.push(inquiryOption('nameOnlyChange','움짤프사 · 이름 변경').label+': × '+v.nameOnlyChangeQty+'개');
       if(v.profileChangeQty>0)lines.push(inquiryOption('profileChange','움짤프사 · 이름/움짤 변경').label+': × '+v.profileChangeQty+'개');
     }else if(type.id==='soopBanner'){
