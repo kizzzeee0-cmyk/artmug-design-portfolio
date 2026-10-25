@@ -569,10 +569,10 @@ function renderAvailabilityCalendarAdmin(){
   const cells=[];
   for(let i=0;i<first;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
   for(let day=1;day<=days;day++){
-    const ymd=key+'-'+String(day).padStart(2,'0'),meta=adminAvailabilityMeta(cfg.dates[ymd]),selected=availabilityAdminSelected.has(ymd);
+    const ymd=key+'-'+String(day).padStart(2,'0'),savedStatus=cfg.dates[ymd],resolvedStatus=['available','closed','off'].includes(savedStatus)?savedStatus:(ymd<today?'closed':'available'),meta=adminAvailabilityMeta(resolvedStatus),selected=availabilityAdminSelected.has(ymd);
     cells.push(
-      '<button type="button" class="availability-admin-day '+(meta?meta.className:'is-unset')+' '+(selected?'is-selected':'')+' '+(ymd===today?'is-today':'')+'" data-availability-date="'+ymd+'">'+
-        '<span>'+day+'</span>'+(meta?'<small>'+meta.label+'</small>':'<small>미등록</small>')+
+      '<button type="button" class="availability-admin-day '+meta.className+' '+(selected?'is-selected':'')+' '+(ymd===today?'is-today':'')+'" data-availability-date="'+ymd+'">'+
+        '<span>'+day+'</span><small>'+meta.label+'</small>'+
       '</button>'
     )
   }
