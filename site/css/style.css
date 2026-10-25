@@ -7030,3 +7030,19 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   }
 }
 
+
+
+/* 2026-10-25 PROFILE MODE MULTISELECT */
+.v2-mode-field .choice-pill.is-disabled,
+.v2-mode-field .choice-pill:has(input:disabled){
+  opacity:.48;
+  cursor:not-allowed;
+  background:#f7fafc!important;
+  border-color:#e1ebf1!important;
+}
+.v2-mode-field .choice-pill:has(input:disabled) span{
+  color:#9aabb5!important;
+}
+.v2-mode-field .choice-pill input:disabled{
+  cursor:not-allowed;
+}
