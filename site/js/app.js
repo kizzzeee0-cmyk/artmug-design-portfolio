@@ -803,14 +803,14 @@ function renderV3BannerCard(card,design,state){
   return html+'</section>'
 }
 function renderV3FourCutCard(card,design,state){
-  const rid=card.dataset.requestId||'0',types=(Array.isArray(design.types)?design.types:[]).filter(x=>x.enabled!==false),value=String(v3Value(state,'fourCut.type',''));
+  const rid=card.dataset.requestId||'0',types=(Array.isArray(design.types)?design.types:[]).filter(x=>x.enabled!==false),selected=v3Array(state,'fourCut.type').map(String);
   let html='<section class="inquiry-design-detail-card" data-design-card="fourCut">'+v3DesignCardHead(design.label||'인생네컷')+
-    '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>인생네컷 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
-      types.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="fourCut.type" data-v3-rerender="1" name="v3-fourcut-'+rid+'" value="'+htmlAttr(x.id)+'" '+(value===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+    '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>인생네컷 종류</legend><div class="choice-row">'+
+      types.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="fourCut.type" data-v3-rerender="1" value="'+htmlAttr(x.id)+'" '+(selected.includes(String(x.id))?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
     '</div></fieldset>'+
-    '<div class="inquiry-v3-field-grid">'+v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:S?.conceptPlaceholder||'',wide:true},'fourCut',rid,state)+'</div>'+
+    '<div class="inquiry-v3-field-grid">'+v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:false,placeholder:S?.conceptPlaceholder||'',wide:true},'fourCut',rid,state)+'</div>'+
     '<div class="inquiry-v3-design-options">'+v3QtyHtml('sameDesignColorChangeQty',design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label,v3Value(state,'fourCut.colorChangeQty',0))+'</div>';
-  (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'fourCut.custom',rid,state)});
+  (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml({...field,required:false},'fourCut.custom',rid,state)});
   return html+'</section>'
 }
 function renderV3SignatureCard(card,design,state){
@@ -1050,9 +1050,11 @@ function selectedInquiryEstimateRows(card){
       return
     }
     if(t.id==='fourCut'){
-      const id=String(v3Value(state,'fourCut.type',''));if(!id)return;
-      const x=inquiryFourCutType(id,id),key='fourCut:'+id;
-      rows.push({key,label:x.label,price:x.price,qty:estimateQty(key),adjustable:true});
+      const ids=v3Array(state,'fourCut.type').map(String);
+      ids.forEach(id=>{
+        const x=inquiryFourCutType(id,id),key='fourCut:'+id;
+        rows.push({key,label:x.label,price:x.price,qty:estimateQty(key),adjustable:true})
+      });
       return
     }
     if(t.id==='signature'){
@@ -1105,7 +1107,7 @@ function renderInquiryEstimate(){
   const emptyText=types.length?'선택된 가격 항목이 없습니다.':'디자인 종류를 선택하면 예상 견적이 표시됩니다.';
   const wasOpen=box.dataset.open==='1';
   box.innerHTML='<details class="inquiry-estimate-details" '+(wasOpen?'open':'')+'>'+
-    '<summary class="inquiry-estimate-head"><div class="inquiry-estimate-head-title"><span class="inquiry-v3-step-number">6</span><strong>예상 견적</strong></div><div class="inquiry-estimate-head-total"><b>'+total.toLocaleString('ko-KR')+'원</b><span class="inquiry-estimate-chevron">⌄</span></div></summary>'+
+    '<summary class="inquiry-estimate-head"><div class="inquiry-estimate-head-title"><strong>예상 견적</strong></div><div class="inquiry-estimate-head-total"><b>'+total.toLocaleString('ko-KR')+'원</b><span class="inquiry-estimate-chevron">⌄</span></div></summary>'+
     '<div class="inquiry-estimate-body">'+(rowHtml?'<div class="inquiry-estimate-list">'+rowHtml+'</div>':'<p class="inquiry-estimate-empty">'+emptyText+'</p>')+
     (hasInquiryOnly?'<p class="inquiry-estimate-note">※ 별도 문의 항목은 총 금액에서 제외됩니다.</p>':'')+'</div></details>';
   const details=box.querySelector('details');if(details)details.ontoggle=()=>{box.dataset.open=details.open?'1':'0'};
@@ -1201,8 +1203,8 @@ function requestText(card){
       if(v.textChangeQty>0)lines.push((design.textChangeLabel||inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label)+': × '+v.textChangeQty+'개');
       lines.push(...v3FieldLines(design.customFields,'banner.custom',state))
     }else if(type.id==='fourCut'){
-      const id=v3FormatValue(state['fourCut.type']),def=(design.types||[]).find(x=>String(x.id)===id);
-      if(id)lines.push('인생네컷 종류: '+(def?.label||id));
+      const ids=v3Array(state,'fourCut.type').map(String);
+      if(ids.length)lines.push('인생네컷 종류: '+ids.map(id=>(design.types||[]).find(x=>String(x.id)===id)?.label||id).join(', '));
       const concept=v3FormatValue(state['fourCut.concept']);
       if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
       if(v.sameDesignColorChangeQty>0)lines.push((design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label)+': × '+v.sameDesignColorChangeQty+'개');
@@ -1296,22 +1298,18 @@ function inquiryValidationState(mark){
   return {ok:!firstMissing,first:firstMissing,message}
 }
 function validateRequiredInquiryFields(){
-  const r=inquiryValidationState(true);
-  if(!r.ok){
-    $('copyStatus').textContent=r.message||'필수 항목을 확인해주세요.';
-    if(typeof r.first?.focus==='function')r.first.focus();
-    r.first?.scrollIntoView?.({behavior:'smooth',block:'center'});
-    return false
-  }
-  $('copyStatus').textContent='';return true
+  $('copyStatus').textContent='';
+  document.querySelectorAll('.inquiry-inline-error').forEach(el=>el.remove());
+  document.querySelectorAll('.is-required-missing').forEach(el=>el.classList.remove('is-required-missing'));
+  document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.setAttribute('aria-invalid','false'));
+  return true
 }
-function allRequiredInquiryFieldsFilled(){return inquiryValidationState(false).ok}
+function allRequiredInquiryFieldsFilled(){return true}
 function clearRequiredMessageIfComplete(){
- if(!allRequiredInquiryFieldsFilled())return;
- $('copyStatus').textContent='';
- document.querySelectorAll('.inquiry-inline-error').forEach(el=>el.remove());
- document.querySelectorAll('.is-required-missing').forEach(el=>el.classList.remove('is-required-missing'));
- document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.setAttribute('aria-invalid','false'))
+  $('copyStatus').textContent='';
+  document.querySelectorAll('.inquiry-inline-error').forEach(el=>el.remove());
+  document.querySelectorAll('.is-required-missing').forEach(el=>el.classList.remove('is-required-missing'));
+  document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.setAttribute('aria-invalid','false'))
 }
 
 function parsePresetOriginalName(name){
@@ -1578,7 +1576,6 @@ async function copyText(text){
 }
 $('lightboxClose').onclick=()=>$('lightbox').close();
 $('copyButton').onclick=async()=>{
-  if(!validateRequiredInquiryFields())return;
   const btn=$('copyButton'),ok=await copyText(buildInquiryText());
   if(ok){$('copyStatus').textContent='';showCopied(btn)}
   else{$('copyStatus').textContent='복사에 실패했습니다.'}
