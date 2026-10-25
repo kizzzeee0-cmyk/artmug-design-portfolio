@@ -582,18 +582,22 @@ function renderAvailabilityCalendarAdmin(){
     const meta=adminAvailabilityMeta(status);
     return '<button type="button" class="availability-admin-status '+meta.className+' '+(availabilityAdminStatus===status?'is-active':'')+'" data-availability-status="'+status+'">'+meta.label+'</button>'
   }).join('');
+  const singleStatusButtons=['available','closed','off'].map(status=>{
+    const meta=adminAvailabilityMeta(status);
+    return '<button type="button" class="availability-admin-status '+meta.className+'" data-availability-single-status="'+status+'">'+meta.label+'</button>'
+  }).join('');
   root.innerHTML=
     '<div class="availability-admin-toolbar">'+
       '<div class="availability-admin-nav"><button type="button" data-availability-admin-shift="-1">‹</button><strong>'+view.year+'.'+String(view.month).padStart(2,'0')+'</strong><button type="button" data-availability-admin-shift="1">›</button></div>'+
       '<div class="availability-admin-mode-row"><button type="button" id="availabilityMultiToggle" class="ghost admin-compact '+(availabilityAdminMulti?'is-active':'')+'">'+(availabilityAdminMulti?'여러 날짜 선택 중':'여러 날짜 선택')+'</button><span id="availabilitySelectedCount">'+availabilityAdminSelected.size+'개 선택</span></div>'+
-      '<div class="availability-admin-status-row">'+statusButtons+'<button type="button" class="availability-admin-status is-unset '+(availabilityAdminStatus==='unset'?'is-active':'')+'" data-availability-status="unset">미등록</button><button type="button" id="availabilityApplySelected" class="primary admin-compact" '+(!availabilityAdminSelected.size?'disabled':'')+'>선택한 날짜에 적용</button></div>'+
+      '<div class="availability-admin-status-row">'+statusButtons+'<button type="button" class="availability-admin-status is-unset '+(availabilityAdminStatus==='unset'?'is-active':'')+'" data-availability-status="unset">미등록</button><button type="button" id="availabilityApplySelected" class="primary-button admin-compact" '+(!availabilityAdminSelected.size?'disabled':'')+'>선택한 날짜에 적용</button></div>'+
       '<div class="availability-admin-quick-row"><button type="button" class="ghost admin-compact" data-availability-select="all">이번 달 전체</button><button type="button" class="ghost admin-compact" data-availability-select="weekdays">평일만</button><button type="button" class="ghost admin-compact" data-availability-select="weekends">주말만</button><button type="button" class="ghost admin-compact" data-availability-select="clear">선택 해제</button><button type="button" class="ghost admin-compact" id="availabilityUndo" '+(availabilityAdminUndo?'':'disabled')+'>이전 상태</button></div>'+
       '<div class="availability-admin-range"><label>범위 시작<input id="availabilityRangeStart" type="date"></label><span>~</span><label>범위 끝<input id="availabilityRangeEnd" type="date"></label><button type="button" class="ghost admin-compact" id="availabilitySelectRange">범위 선택</button></div>'+
     '</div>'+
     '<div class="availability-admin-weekdays">'+['일','월','화','수','목','금','토'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+
     '<div class="availability-admin-days">'+cells.join('')+'</div>'+
-    (selectedOne?'<div class="availability-single-editor"><strong>'+selectedOne+'</strong><span>상태 변경</span>'+statusButtons+'<button type="button" class="availability-admin-status is-unset" data-availability-single-status="unset">미등록</button></div>':'')+
-    '<div class="availability-admin-save-row"><span id="availabilityCalendarSaveState" data-state="'+(availabilityAdminDirty?'dirty':'saved')+'">'+(availabilityAdminDirty?'저장 전 변경사항':'저장됨')+'</span><button type="button" id="saveAvailabilityCalendar" class="primary admin-compact">일정 저장</button></div>';
+    (selectedOne?'<div class="availability-single-editor"><strong>'+selectedOne+'</strong><span>상태 변경</span>'+singleStatusButtons+'<button type="button" class="availability-admin-status is-unset" data-availability-single-status="unset">미등록</button></div>':'')+
+    '<div class="availability-admin-save-row"><span id="availabilityCalendarSaveState" data-state="'+(availabilityAdminDirty?'dirty':'saved')+'">'+(availabilityAdminDirty?'저장 전 변경사항':'저장됨')+'</span><button type="button" id="saveAvailabilityCalendar" class="primary-button admin-compact">일정 저장</button></div>';
 
   root.querySelectorAll('[data-availability-admin-shift]').forEach(b=>b.onclick=()=>{availabilityAdminView=adminAvailabilityShift(view,Number(b.dataset.availabilityAdminShift||0));renderAvailabilityCalendarAdmin()});
   root.querySelectorAll('[data-availability-date]').forEach(b=>b.onclick=()=>{
