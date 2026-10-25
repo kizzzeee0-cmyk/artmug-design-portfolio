@@ -912,8 +912,8 @@
       "signatureType:six",
       "option:nameOnlyChange",
       "option:profileChange",
-      "signatureType:direct",
       "option:sameDesignColorChange",
+      "signatureType:direct",
       "option:sameDay",
       "option:fast",
       "option:private"
