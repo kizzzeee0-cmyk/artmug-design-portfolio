@@ -950,6 +950,15 @@ function collectInquiryV3Admin(){
  if(addressLabel)v.broadcast.addressLabel=addressLabel.value;
  if(addressPlaceholder)v.broadcast.addressPlaceholder=addressPlaceholder.value;
  if(designTypeLabel)v.designTypeLabel=designTypeLabel.value;
+ const extraLabel=$('iq3ExtraLabel'),extraPlaceholder=$('iq3ExtraPlaceholder');
+ if(extraLabel)v.common.extraLabel=extraLabel.value;
+ if(extraPlaceholder)v.common.extraPlaceholder=extraPlaceholder.value;
+ root.querySelectorAll('[data-iq3-common-option-label]').forEach(input=>{
+   const key=input.dataset.iq3CommonOptionLabel,o=ensureQuoteConfig().pricingV2.options?.[key];if(!o)return;
+   o.label=input.value.trim()||o.label;
+   const enabled=root.querySelector('[data-iq3-common-option-enabled="'+CSS.escape(key)+'"]');
+   if(enabled)o.enabledInInquiry=enabled.checked
+ });
  v.designOrder.forEach(id=>{
   const d=v.designs[id];if(!d)return;
   const label=root.querySelector('[data-iq3-design-label="'+CSS.escape(id)+'"]');
@@ -1006,7 +1015,7 @@ function renderInquiryV3DesignCard(id,d,index,total){
  if(id==='profile'){
   const mf=d.modeFields||{},modes=ensureQuoteConfig().pricingV2.profileModes||{};
   body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>움짤프사 신청 방식</h5><p class="muted">표시 이름과 공개 여부를 관리합니다.</p></div></div><div class="inquiry-v3-mode-admin-list">'+
-   ['custom','fixed','preset','change'].map(key=>{const m=modes[key]||{label:key};return '<div class="inquiry-v3-mode-admin-row"><label>표시 이름<input data-iq3-profile-mode-label="'+key+'" value="'+adminEsc(m.label||key)+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-profile-mode-enabled="'+key+'" '+(m.enabledInInquiry!==false?'checked':'')+'> 공개</label></div>'}).join('')+
+   (Array.isArray(d.modeOrder)?d.modeOrder:['custom','fixed','preset','change']).map((key,j,arr)=>{const m=modes[key]||{label:key};return '<div class="inquiry-v3-mode-admin-row"><label>표시 이름<input data-iq3-profile-mode-label="'+key+'" value="'+adminEsc(m.label||key)+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-profile-mode-enabled="'+key+'" '+(m.enabledInInquiry!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-profile-mode-move="'+key+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-profile-mode-move="'+key+'" data-dir="1" '+(j===arr.length-1?'disabled':'')+'>↓</button></div></div>'}).join('')+
   '</div></section>';
   body+=inquiryV3FieldsPanel('맞춤제작 상세 입력','profile.modeFields.custom',mf.custom||[],'맞춤제작을 선택했을 때만 표시');
   body+=inquiryV3FieldsPanel('프리셋 구매 상세 입력','profile.modeFields.preset',mf.preset||[],'프리셋 구매를 선택했을 때만 표시');
@@ -1015,7 +1024,7 @@ function renderInquiryV3DesignCard(id,d,index,total){
  }else{
   if(id==='soopBanner'){
    body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>SOOP 배너 기본 항목</h5><p class="muted">종류 이름과 공통 입력 항목명을 수정합니다.</p></div></div><div class="fields">'+
-    (d.bannerKinds||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>배너 종류 '+(j+1)+'<input data-iq3-array-label="soopBanner:bannerKinds:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="soopBanner:bannerKinds:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label></div>').join('')+
+    (d.bannerKinds||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>배너 종류 '+(j+1)+'<input data-iq3-array-label="soopBanner:bannerKinds:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="soopBanner:bannerKinds:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-array-move="soopBanner:bannerKinds:'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-array-move="soopBanner:bannerKinds:'+j+'" data-dir="1" '+(j===(d.bannerKinds||[]).length-1?'disabled':'')+'>↓</button></div></div>').join('')+
     '<label>컨셉 항목명<input data-iq3-setting="soopBanner:conceptLabel" value="'+adminEsc(d.conceptLabel||'')+'"></label>'+
     '<label>내용 항목명<input data-iq3-setting="soopBanner:contentLabel" value="'+adminEsc(d.contentLabel||'')+'"></label>'+
     '<label>변경 옵션명<input data-iq3-setting="soopBanner:textChangeLabel" value="'+adminEsc(d.textChangeLabel||'')+'"></label>'+
@@ -1023,15 +1032,15 @@ function renderInquiryV3DesignCard(id,d,index,total){
   }
   if(id==='fourCut'){
    body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>인생네컷 기본 항목</h5><p class="muted">대형·소형 이름과 공통 항목명을 수정합니다.</p></div></div><div class="fields">'+
-    (d.types||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>종류 '+(j+1)+'<input data-iq3-array-label="fourCut:types:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="fourCut:types:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label></div>').join('')+
+    (d.types||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>종류 '+(j+1)+'<input data-iq3-array-label="fourCut:types:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="fourCut:types:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-array-move="fourCut:types:'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-array-move="fourCut:types:'+j+'" data-dir="1" '+(j===(d.types||[]).length-1?'disabled':'')+'>↓</button></div></div>').join('')+
     '<label>컨셉 항목명<input data-iq3-setting="fourCut:conceptLabel" value="'+adminEsc(d.conceptLabel||'')+'"></label>'+
     '<label>색상 변경 옵션명<input data-iq3-setting="fourCut:colorChangeLabel" value="'+adminEsc(d.colorChangeLabel||'')+'"></label>'+
    '</div></section>'
   }
   if(id==='signature'){
    body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>시그풍 기본 항목</h5><p class="muted">개수 종류와 신청 방식의 표시 이름을 수정합니다.</p></div></div><div class="fields">'+
-    (d.counts||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>개수 항목 '+(j+1)+'<input data-iq3-array-label="signature:counts:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="signature:counts:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label></div>').join('')+
-    (d.modes||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>신청 방식 '+(j+1)+'<input data-iq3-array-label="signature:modes:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="signature:modes:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label></div>').join('')+
+    (d.counts||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>개수 항목 '+(j+1)+'<input data-iq3-array-label="signature:counts:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="signature:counts:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-array-move="signature:counts:'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-array-move="signature:counts:'+j+'" data-dir="1" '+(j===(d.counts||[]).length-1?'disabled':'')+'>↓</button></div></div>').join('')+
+    (d.modes||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>신청 방식 '+(j+1)+'<input data-iq3-array-label="signature:modes:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="signature:modes:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-array-move="signature:modes:'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-array-move="signature:modes:'+j+'" data-dir="1" '+(j===(d.modes||[]).length-1?'disabled':'')+'>↓</button></div></div>').join('')+
    '</div></section>'
   }
   body+=inquiryV3FieldsPanel('추가 상세 입력 항목',id+'.customFields',d.customFields||[],'이 디자인을 선택했을 때 추가로 표시')
@@ -1062,7 +1071,13 @@ function renderInquiryV3Admin(){
     '<label>방송 주소 placeholder<input id="iq3AddressPlaceholder" value="'+adminEsc(v.broadcast.addressPlaceholder)+'"></label>'+
     '<label class="wide">디자인 종류 제목<input id="iq3DesignTypeLabel" value="'+adminEsc(v.designTypeLabel||'신청하시는 디자인 종류')+'"></label>'+
    '</div></div>'+
+   '<div class="inquiry-v3-admin-broadcast inquiry-v3-admin-common"><div class="head"><div><h5>추가 요청사항 및 공통 옵션</h5><p class="muted">공통 입력 문구와 추가 옵션 표시 순서를 관리합니다.</p></div></div>'+
+    '<div class="fields"><label>추가 요청 항목명<input id="iq3ExtraLabel" value="'+adminEsc(v.common.extraLabel||'추가 요청사항')+'"></label><label class="wide">추가 요청 placeholder<input id="iq3ExtraPlaceholder" value="'+adminEsc(v.common.extraPlaceholder||'')+'"></label></div>'+
+    '<div class="inquiry-v3-common-option-admin-list">'+(v.common.optionOrder||[]).map((key,j,arr)=>{const o=ensureQuoteConfig().pricingV2.options?.[key];if(!o)return'';return '<div class="inquiry-v3-mode-admin-row"><label>옵션명<input data-iq3-common-option-label="'+key+'" value="'+adminEsc(o.label||key)+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-common-option-enabled="'+key+'" '+(o.enabledInInquiry!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-common-option-move="'+key+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-common-option-move="'+key+'" data-dir="1" '+(j===arr.length-1?'disabled':'')+'>↓</button></div></div>'}).join('')+'</div></div>'+
    '<div class="inquiry-v3-admin-design-list">'+order.map((id,i)=>renderInquiryV3DesignCard(id,v.designs[id],i,order.length)).join('')+'</div>';
+ root.querySelectorAll('[data-iq3-profile-mode-move]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const d=v.designs.profile;if(!d)return;const arr=Array.isArray(d.modeOrder)?d.modeOrder:(d.modeOrder=['custom','fixed','preset','change']),i=arr.indexOf(b.dataset.iq3ProfileModeMove),j=i+Number(b.dataset.dir);if(i<0||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];renderInquiryV3Admin()});
+ root.querySelectorAll('[data-iq3-array-move]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const token=b.dataset.iq3ArrayMove,parts=token.split(':'),id=parts[0],key=parts[1],i=Number(parts[2]),arr=v.designs?.[id]?.[key],j=i+Number(b.dataset.dir);if(!Array.isArray(arr)||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];renderInquiryV3Admin()});
+ root.querySelectorAll('[data-iq3-common-option-move]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const arr=v.common.optionOrder||[],i=arr.indexOf(b.dataset.iq3CommonOptionMove),j=i+Number(b.dataset.dir);if(i<0||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];renderInquiryV3Admin()});
  root.querySelectorAll('[data-iq3-design-move]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const id=b.dataset.iq3DesignMove,i=v.designOrder.indexOf(id),j=i+Number(b.dataset.dir);if(i<0||j<0||j>=v.designOrder.length)return;[v.designOrder[i],v.designOrder[j]]=[v.designOrder[j],v.designOrder[i]];renderInquiryV3Admin()});
  root.querySelectorAll('[data-iq3-design-delete]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const id=b.dataset.iq3DesignDelete;if(!confirm('이 디자인 종류와 연결된 상세 입력 항목을 삭제할까요?'))return;delete v.designs[id];v.designOrder=v.designOrder.filter(x=>x!==id);delete ensureQuoteConfig().pricingV2.designs[id];renderInquiryV3Admin();renderQuoteAdmin()});
  root.querySelectorAll('[data-iq3-field-add]').forEach(b=>b.onclick=()=>{collectInquiryV3Admin();const arr=inquiryV3FieldArrayByPath(b.dataset.iq3FieldAdd);if(!arr)return;arr.push(normalizeInquiryField({label:'새 입력 항목',type:'text',enabled:true}));renderInquiryV3Admin()});
