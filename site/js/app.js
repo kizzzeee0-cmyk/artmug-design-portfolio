@@ -536,8 +536,7 @@ function inquiryCustomOptions(){
 }
 function inquiryQuantityOptions(t){
   if(isProfileInquiryType(t))return [
-    {key:'nameChangeQty',label:inquiryOption('nameChange','이름 변경').label},
-    {key:'gifChangeQty',label:inquiryOption('gifChange','움짤 변경').label}
+    {key:'profileChangeQty',label:inquiryOption('profileChange','이름/움짤 변경').label}
   ];
   if(isFourCutInquiryType(t))return [
     {key:'sameDesignColorChangeQty',label:inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label}
@@ -685,8 +684,7 @@ function readRequestValues(card){
     bannerText:(q('[data-field="bannerText"]')||{}).value||'',
     banners:qa('input[data-field="bannerType"]:checked').map(function(x){return x.value}),
     bannerIds:qa('input[data-field="bannerType"]:checked').map(function(x){return x.dataset.quoteBottomId||''}).filter(Boolean),
-    nameChangeQty:Math.max(0,Number((q('[data-field="nameChangeQty"]')||{}).value||0)),
-    gifChangeQty:Math.max(0,Number((q('[data-field="gifChangeQty"]')||{}).value||0)),
+    profileChangeQty:Math.max(0,Number((q('[data-field="profileChangeQty"]')||{}).value||0)),
     textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||0)),
     sameDesignColorChangeQty:Math.max(0,Number((q('[data-field="sameDesignColorChangeQty"]')||{}).value||0)),
     options:qa('input[data-field="extraOption"]:checked').map(function(x){return x.value}),
@@ -811,9 +809,12 @@ function renderRequestFields(card,typeIds,prev){
   if(q('[data-field="extra"]'))q('[data-field="extra"]').value=prev.extra||'';
   if(q('[data-field="bannerText"]'))q('[data-field="bannerText"]').value=prev.bannerText||'';
 
-  ['nameChangeQty','gifChangeQty','textChangeQty','sameDesignColorChangeQty'].forEach(function(key){
+  ['profileChangeQty','textChangeQty','sameDesignColorChangeQty'].forEach(function(key){
     var el=q('[data-field="'+key+'"]');
-    if(el)el.value=String(Math.max(0,Math.floor(Number(prev[key]||0))))
+    if(!el)return;
+    var saved=prev[key];
+    if(key==='profileChangeQty'&&saved==null)saved=Math.max(Number(prev.nameChangeQty||0),Number(prev.gifChangeQty||0));
+    el.value=String(Math.max(0,Math.floor(Number(saved||0))))
   });
 
   qa('[data-qty-field]').forEach(function(btn){
@@ -902,8 +903,7 @@ function selectedInquiryEstimateRows(card){
     rows.push({key,label:String(d.label||t.label||''),price:inquiryPrice(d.price),qty:estimateQty(key),adjustable:true})
   });
   [
-    ['nameChange','nameChangeQty'],
-    ['gifChange','gifChangeQty'],
+    ['profileChange','profileChangeQty'],
     ['textImageChange','textChangeQty'],
     ['sameDesignColorChange','sameDesignColorChangeQty']
   ].forEach(function(pair){
@@ -1012,8 +1012,7 @@ function requestText(card){
   // Group 4: additional request and selected options.
   var additional=[(S.extraLabel||'추가 요청사항')+': '+v.extra];
   var extraOptions=[];
-  if(v.nameChangeQty>0)extraOptions.push(inquiryOption('nameChange','이름 변경').label+' '+v.nameChangeQty+'개');
-  if(v.gifChangeQty>0)extraOptions.push(inquiryOption('gifChange','움짤 변경').label+' '+v.gifChangeQty+'개');
+  if(v.profileChangeQty>0)extraOptions.push(inquiryOption('profileChange','이름/움짤 변경').label+' '+v.profileChangeQty+'개');
   if(v.textChangeQty>0)extraOptions.push(inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label+' '+v.textChangeQty+'개');
   if(v.sameDesignColorChangeQty>0)extraOptions.push(inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label+' '+v.sameDesignColorChangeQty+'개');
   extraOptions.push.apply(extraOptions,v.options);
