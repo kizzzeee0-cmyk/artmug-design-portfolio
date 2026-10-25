@@ -8517,3 +8517,25 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     font-size:22px!important;
   }
 }
+
+
+/* 2026-10-26 compact concept/request inputs */
+/* Short free-text fields: keep the page compact while preserving textarea behavior. */
+textarea[data-v3-field$=".concept"],
+textarea[data-v3-field="profile.preset.request"],
+textarea[data-v3-field="extraRequest"]{
+  min-height:44px!important;
+  height:44px!important;
+  padding:10px 13px!important;
+  resize:vertical!important;
+  overflow:auto!important;
+}
+@media(max-width:680px){
+  textarea[data-v3-field$=".concept"],
+  textarea[data-v3-field="profile.preset.request"],
+  textarea[data-v3-field="extraRequest"]{
+    min-height:42px!important;
+    height:42px!important;
+    padding:9px 11px!important;
+  }
+}
