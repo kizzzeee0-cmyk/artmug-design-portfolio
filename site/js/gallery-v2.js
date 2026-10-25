@@ -665,6 +665,7 @@ function normalizePublicFixedProduct(x){
    required:v?.required===true,
    enabled:v?.enabled!==false,
    placeholder:String(v?.placeholder||''),
+   help:String(v?.help||''),
    conditionKey:String(v?.conditionKey||''),
    conditionValue:String(v?.conditionValue||''),
    options:Array.isArray(v?.options)?v.options.map(o=>typeof o==='object'?{label:String(o.label??o.value??''),value:String(o.value??o.label??'')}:String(o)):[]
