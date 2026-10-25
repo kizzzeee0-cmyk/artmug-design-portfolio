@@ -776,7 +776,7 @@ function v3DesignCardHead(label){
 }
 function renderV3BannerCard(card,design,state){
   const rid=card.dataset.requestId||'0',kinds=(Array.isArray(design.bannerKinds)?design.bannerKinds:[]).filter(x=>x.enabled!==false),selected=v3Array(state,'bannerKinds');
-  const selectedBottom=selected.includes('bottomBanner'),bottomTypes=['bottom1','bottom3','bottom6'].map(k=>inquiryBottomType(k,k));
+  const selectedBottom=selected.includes('bottomBanner'),bottomTypes=['bottom1','bottom3','bottom6'].map(k=>inquiryBottomType(k,k)).filter(x=>x.enabledInInquiry!==false);
   let html='<section class="inquiry-design-detail-card" data-design-card="soopBanner">'+v3DesignCardHead(design.label||'SOOP 배너')+
     '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>배너 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
       kinds.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="bannerKinds" data-v3-rerender="1" value="'+htmlAttr(x.id)+'" '+(selected.includes(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
