@@ -3149,3 +3149,39 @@
   .inquiry-v3-nested-choice-row{align-items:center}
   .quote-apply-mode{min-width:0;width:100%}
 }
+
+
+/* 2026-10-26 QUOTE APPLY MODE LAYOUT */
+.quote-structure-row.has-apply-mode{
+  grid-template-columns:minmax(170px,1fr) 138px 132px auto!important;
+}
+.inquiry-v3-nested-actions{
+  display:flex;
+  align-items:center;
+  gap:3px;
+  flex:0 0 auto;
+}
+.inquiry-v3-common-option-admin-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:9px;
+}
+@media(max-width:900px){
+  .quote-structure-row.has-apply-mode{
+    grid-template-columns:minmax(0,1fr) 128px!important;
+  }
+  .quote-structure-row.has-apply-mode .quote-apply-mode{
+    grid-column:1/-1;
+  }
+}
+@media(max-width:620px){
+  .inquiry-v3-common-option-admin-list{grid-template-columns:1fr}
+  .quote-structure-row.has-apply-mode{
+    grid-template-columns:1fr!important;
+  }
+  .quote-structure-row.has-apply-mode .quote-structure-price,
+  .quote-structure-row.has-apply-mode .quote-apply-mode{
+    width:100%!important;
+  }
+}
