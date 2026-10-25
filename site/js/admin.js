@@ -1714,9 +1714,9 @@ function renderQuoteAdmin(){
     quoteAdminRow('profileModes','preset',p.profileModes.preset,{tag:'개별 프리셋 가격 우선'})+
     quoteAdminRow('profileModes','change',p.profileModes.change,{locked:true,note:'추가 옵션에서 계산'});
   const bottomRows=
-    quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1)+
-    quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3)+
-    quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6);
+    quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1,{visibility:true})+
+    quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3,{visibility:true})+
+    quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6,{visibility:true});
   const fourCutRows=
     quoteAdminRow('fourCutTypes','large',p.fourCutTypes.large)+
     quoteAdminRow('fourCutTypes','small',p.fourCutTypes.small);
