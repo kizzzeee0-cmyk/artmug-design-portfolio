@@ -7195,6 +7195,11 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
   background:#f3f5f6;
   color:#929da3;
 }
+.availability-day.is-reserved{
+  background:var(--primary-action);
+  border-color:var(--primary-action);
+  color:#fff;
+}
 .availability-day.is-unset{
   background:#fbfcfd;
   color:#9ba7ad;
