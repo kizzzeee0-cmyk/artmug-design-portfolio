@@ -1319,14 +1319,15 @@
   "availabilityCalendar": {
     "enabled": true,
     "dates": {
-      "2026-10-25": "reserved",
+      "2026-10-25": "off",
       "2026-10-26": "reserved",
       "2026-10-27": "reserved",
       "2026-10-29": "reserved",
-      "2026-10-31": "available",
+      "2026-10-31": "off",
       "2026-10-30": "reserved",
       "2026-11-05": "available",
       "2026-10-28": "off"
-    }
+    },
+    "weekendsDefaultOff": true
   }
 }
