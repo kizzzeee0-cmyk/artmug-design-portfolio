@@ -479,6 +479,7 @@ function ensureScheduleExtras(){
 function ensureAvailabilityCalendar(target=S){
   if(!target.availabilityCalendar||typeof target.availabilityCalendar!=='object'||Array.isArray(target.availabilityCalendar))target.availabilityCalendar={};
   if(target.availabilityCalendar.enabled==null)target.availabilityCalendar.enabled=true;
+  if(target.availabilityCalendar.weekendsDefaultOff==null)target.availabilityCalendar.weekendsDefaultOff=true;
   if(!target.availabilityCalendar.dates||typeof target.availabilityCalendar.dates!=='object'||Array.isArray(target.availabilityCalendar.dates))target.availabilityCalendar.dates={};
   return target.availabilityCalendar
 }
@@ -570,7 +571,7 @@ function renderAvailabilityCalendarAdmin(){
   const cells=[];
   for(let i=0;i<first;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
   for(let day=1;day<=days;day++){
-    const ymd=key+'-'+String(day).padStart(2,'0'),savedStatus=cfg.dates[ymd],dow=new Date(Date.UTC(view.year,view.month-1,day)).getUTCDay(),isWeekend=dow===0||dow===6,resolvedStatus=ymd<today?'closed':(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:(isWeekend?'off':'available')),meta=adminAvailabilityMeta(resolvedStatus),selected=availabilityAdminSelected.has(ymd);
+    const ymd=key+'-'+String(day).padStart(2,'0'),savedStatus=cfg.dates[ymd],dow=new Date(Date.UTC(view.year,view.month-1,day)).getUTCDay(),isWeekend=dow===0||dow===6,weekendsDefaultOff=cfg.weekendsDefaultOff!==false,resolvedStatus=ymd<today?'closed':(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:((weekendsDefaultOff&&isWeekend)?'off':'available')),meta=adminAvailabilityMeta(resolvedStatus),selected=availabilityAdminSelected.has(ymd);
     cells.push(
       '<button type="button" class="availability-admin-day '+meta.className+' '+(selected?'is-selected':'')+' '+(ymd===today?'is-today':'')+'" data-availability-date="'+ymd+'">'+
         '<span>'+day+'</span><small>'+meta.label+'</small>'+
