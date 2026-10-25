@@ -1160,6 +1160,7 @@ function ensureQuoteConfig(){
         bottom6:{id:'bottom6',label:'하단 6칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom6','6칸')}
       },
       options:{
+        nameOnlyChange:{id:'nameOnlyChange',label:'이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
         profileChange:{id:'profileChange',label:'이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
         textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:Number(textLegacy?.price||0),quantityField:'textChangeQty'},
         sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
@@ -1203,6 +1204,7 @@ function ensureQuoteConfig(){
   };
   Object.entries(bottomDefaults).forEach(([k,d])=>{p.bottomTypes[k]={...d,...(p.bottomTypes[k]||{})}});
   const optionDefaults={
+    nameOnlyChange:{id:'nameOnlyChange',label:'이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
     profileChange:{id:'profileChange',label:'이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
     textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:0,quantityField:'textChangeQty'},
     sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
@@ -1297,7 +1299,7 @@ function renderQuoteAdmin(){
     quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1)+
     quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3)+
     quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6);
-  let optionRows=['profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
+  let optionRows=['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
     .map(k=>quoteAdminRow('options',k,p.options[k])).join('');
   optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가'})).join('');
   optionRows+='<button type="button" class="ghost admin-compact quote-add-inline" data-add-qv2-custom>+ 추가 옵션 등록</button>';
@@ -1372,7 +1374,7 @@ function quoteItems(){
   ['topBanner','floatingBanner','fourCut'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
   ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
   ['bottom1','bottom3','bottom6'].forEach(k=>{const x=p.bottomTypes[k];out.push({key:'bottomType:'+k,label:'하단배너 · '+x.label,price:quotePriceValue(x.price)})});
-  ['profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  ['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
   (p.customOptions||[]).forEach(x=>out.push({key:'customOption:'+x.id,label:x.label||'이름 없는 추가 옵션',price:quotePriceValue(x.price)}));
   (p.standaloneItems||[]).forEach(x=>out.push({key:'standalone:'+x.id,label:x.label||'이름 없는 독립 항목',price:quotePriceValue(x.price)}));
   return out
