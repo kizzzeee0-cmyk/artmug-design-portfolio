@@ -891,7 +891,7 @@
         "direct": {
           "id": "direct",
           "label": "직접 입력",
-          "price": 11000
+          "price": 0
         }
       }
     },
