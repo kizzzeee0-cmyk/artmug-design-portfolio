@@ -366,6 +366,8 @@ function renderAvailabilityCalendar(s){
   const root=$('availabilityCalendar');
   if(!card||!root)return;
   const cfg=s?.availabilityCalendar&&typeof s.availabilityCalendar==='object'?s.availabilityCalendar:{enabled:false,dates:{}};
+  const scheduleDateColor=/^#[0-9a-f]{6}$/i.test(String(s?.scheduleDateColor||''))?String(s.scheduleDateColor).toUpperCase():'#4E9BC6';
+  card.style.setProperty('--schedule-date-color',scheduleDateColor);
   const enabled=cfg.enabled===true;
   card.hidden=!enabled;
   if(!enabled){root.innerHTML='';return}
