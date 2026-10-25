@@ -1349,6 +1349,8 @@ function ensureQuoteConfig(){
   if(!p.designs||typeof p.designs!=='object')p.designs={};
   if(!p.profileModes||typeof p.profileModes!=='object')p.profileModes={};
   if(!p.bottomTypes||typeof p.bottomTypes!=='object')p.bottomTypes={};
+  if(!p.fourCutTypes||typeof p.fourCutTypes!=='object')p.fourCutTypes={};
+  if(!p.signatureTypes||typeof p.signatureTypes!=='object')p.signatureTypes={};
   if(!p.options||typeof p.options!=='object')p.options={};
   if(!Array.isArray(p.customOptions))p.customOptions=[];
   if(!Array.isArray(p.standaloneItems))p.standaloneItems=[];
@@ -1358,7 +1360,8 @@ function ensureQuoteConfig(){
     topBanner:{id:'topBanner',label:'상단배너',typeId:'banner',price:0},
     floatingBanner:{id:'floatingBanner',label:'플로팅배너',typeId:'',price:0},
     bottomBanner:{id:'bottomBanner',label:'하단배너',typeId:'',pricing:'bottomType'},
-    fourCut:{id:'fourCut',label:'인생네컷',typeId:'',price:0}
+    fourCut:{id:'fourCut',label:'인생네컷',typeId:'',pricing:'fourCutType',price:0},
+    signature:{id:'signature',label:'시그풍',typeId:'signature-style',pricing:'signatureType'}
   };
   Object.entries(designDefaults).forEach(([k,d])=>{p.designs[k]={...d,...(p.designs[k]||{})}});
   Object.values(p.designs).forEach(d=>{const t=(S.designTypes||[]).find(x=>String(x.id)===String(d.typeId||''));if(t?.label)d.label=String(t.label)});
@@ -1375,6 +1378,23 @@ function ensureQuoteConfig(){
     bottom6:{id:'bottom6',label:'하단 6칸',price:0}
   };
   Object.entries(bottomDefaults).forEach(([k,d])=>{p.bottomTypes[k]={...d,...(p.bottomTypes[k]||{})}});
+  const fourBase=quotePriceValue(p.designs.fourCut?.price||0);
+  const fourCutDefaults={
+    large:{id:'large',label:'인생네컷 대형 (2×2)',price:fourBase},
+    small:{id:'small',label:'인생네컷 소형 (1×4)',price:fourBase}
+  };
+  Object.entries(fourCutDefaults).forEach(([k,d])=>{p.fourCutTypes[k]={...d,...(p.fourCutTypes[k]||{})}});
+  const standaloneByLabel=(part,fallback)=>{
+    const x=(p.standaloneItems||[]).find(v=>String(v.label||'').includes(part));
+    return x?quotePriceValue(x.price):fallback
+  };
+  const signatureDefaults={
+    one:{id:'one',label:'시그풍 1개',price:standaloneByLabel('1개',11000)},
+    three:{id:'three',label:'시그풍 3개 세트',price:standaloneByLabel('3개',30000)},
+    six:{id:'six',label:'시그풍 6개 세트',price:standaloneByLabel('6개',55000)},
+    direct:{id:'direct',label:'시그풍 직접 수량 · 개당',price:standaloneByLabel('1개',11000)}
+  };
+  Object.entries(signatureDefaults).forEach(([k,d])=>{p.signatureTypes[k]={...d,...(p.signatureTypes[k]||{})}});
   const optionDefaults={
     nameOnlyChange:{id:'nameOnlyChange',label:'움짤프사 · 이름만 변경',price:3000,quantityField:'nameOnlyChangeQty'},
     profileChange:{id:'profileChange',label:'움짤프사 · 이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
@@ -1404,7 +1424,7 @@ function syncQuoteLegacyMirrors(q=ensureQuoteConfig()){
  quoteUpsertLegacy(q.priceItems.banner,'bottom1','1칸',p.bottomTypes.bottom1.price);
  quoteUpsertLegacy(q.priceItems.banner,'bottom3','3칸',p.bottomTypes.bottom3.price);
  quoteUpsertLegacy(q.priceItems.banner,'bottom6','6칸',p.bottomTypes.bottom6.price);
- let four=(q.priceItems.banner||[]).find(x=>/인생네컷/.test(String(x.name||'')));if(four)four.price=quotePriceValue(p.designs.fourCut.price);
+ let four=(q.priceItems.banner||[]).find(x=>/인생네컷/.test(String(x.name||'')));if(four)four.price=quotePriceValue(p.fourCutTypes?.large?.price||p.designs.fourCut.price);
  quoteUpsertLegacy(q.priceItems.option,'sameDay','당일마감',p.options.sameDay.price);
  quoteUpsertLegacy(q.priceItems.option,'fast','빠른',p.options.fast.price);
  quoteUpsertLegacy(q.priceItems.option,'private','비공개',p.options.private.price);
@@ -1461,7 +1481,8 @@ function renderQuoteAdmin(){
     quoteAdminRow('designs','topBanner',p.designs.topBanner,{editable:false})+
     quoteAdminRow('designs','floatingBanner',p.designs.floatingBanner,{editable:false})+
     quoteAdminRow('designs','bottomBanner',p.designs.bottomBanner,{locked:true,note:'하단배너 종류에서 계산',editable:false})+
-    quoteAdminRow('designs','fourCut',p.designs.fourCut,{editable:false});
+    quoteAdminRow('designs','fourCut',p.designs.fourCut,{locked:true,note:'인생네컷 종류에서 계산',editable:false})+
+    quoteAdminRow('designs','signature',p.designs.signature,{locked:true,note:'시그풍 종류/수량에서 계산',editable:false});
   const profileRows=
     quoteAdminRow('profileModes','custom',p.profileModes.custom)+
     quoteAdminRow('profileModes','fixed',p.profileModes.fixed,{tag:'개별 고정틀 가격 우선'})+
@@ -1471,6 +1492,14 @@ function renderQuoteAdmin(){
     quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1)+
     quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3)+
     quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6);
+  const fourCutRows=
+    quoteAdminRow('fourCutTypes','large',p.fourCutTypes.large)+
+    quoteAdminRow('fourCutTypes','small',p.fourCutTypes.small);
+  const signatureRows=
+    quoteAdminRow('signatureTypes','one',p.signatureTypes.one)+
+    quoteAdminRow('signatureTypes','three',p.signatureTypes.three)+
+    quoteAdminRow('signatureTypes','six',p.signatureTypes.six)+
+    quoteAdminRow('signatureTypes','direct',p.signatureTypes.direct,{note:'갯수 직접입력 시 개당 가격'});
   let optionRows=['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
     .map(k=>quoteAdminRow('options',k,p.options[k])).join('');
   optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가'})).join('');
@@ -1479,6 +1508,8 @@ function renderQuoteAdmin(){
     quoteStructureSection('신청하시는 디자인 종류',designRows,'상위 종류와 하위 가격이 중복되지 않도록 계산')+
     quoteStructureSection('움짤프사 신청 방식',profileRows,'움짤프사는 이 단가만 적용')+
     quoteStructureSection('하단배너 종류',bottomRows,'선택한 칸 종류의 단가만 적용')+
+    quoteStructureSection('인생네컷 종류',fourCutRows,'대형·소형 중 실제 선택한 종류만 적용')+
+    quoteStructureSection('시그풍',signatureRows,'세트 가격과 직접 수량 개당 가격을 구분')+
     quoteStructureSection('추가 옵션',optionRows,'수량형 옵션은 개당 가격 × 선택 수량');
 
   const stand=p.standaloneItems||[];
@@ -1543,9 +1574,11 @@ function bindQuoteConfigInputs(){
 
 function quoteItems(){
   const p=ensureQuoteConfig().pricingV2,out=[];
-  ['topBanner','floatingBanner','fourCut'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  ['topBanner','floatingBanner'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
   ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
   ['bottom1','bottom3','bottom6'].forEach(k=>{const x=p.bottomTypes[k];out.push({key:'bottomType:'+k,label:'하단배너 · '+x.label,price:quotePriceValue(x.price)})});
+  ['large','small'].forEach(k=>{const x=p.fourCutTypes[k];out.push({key:'fourCutType:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  ['one','three','six','direct'].forEach(k=>{const x=p.signatureTypes[k];out.push({key:'signatureType:'+k,label:x.label,price:quotePriceValue(x.price)})});
   ['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
   (p.customOptions||[]).forEach(x=>out.push({key:'customOption:'+x.id,label:x.label||'이름 없는 추가 옵션',price:quotePriceValue(x.price)}));
   (p.standaloneItems||[]).forEach(x=>out.push({key:'standalone:'+x.id,label:x.label||'이름 없는 독립 항목',price:quotePriceValue(x.price)}));
