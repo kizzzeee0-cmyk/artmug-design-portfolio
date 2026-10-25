@@ -1247,17 +1247,21 @@ function injectInquiryV3(card){
  let html='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">'+
    modeDefs.map(([value,m,disabled])=>modeChoice(value,m.label,disabled)).join('')+
  '</div></fieldset>';
- if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
- if(profileModes.includes('fixed')){
-  html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('fixed','고정틀 구매').label)+'</strong>'+fixedSelectionHtml(card)+v3FixedInquiryFields(card)+'</div>'
- }
- if(profileModes.includes('preset')){
-  html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('preset','프리셋 구매').label)+'</strong>'+selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)+v3ProfileModeFields(card,'preset')+'</div>'
- }
  if(profileModes.includes('change')){
-  html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('change','(재주문) 이름/움짤만 변경').label)+'</strong>'+v3ProfileModeFields(card,'change')+v3ProfileChangeQtyHtml(card)+'</div>'
+  html+='<div class="profile-reorder-only">'+v3ProfileChangeQtyHtml(card)+'</div>'
+ }else{
+  if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
+  if(profileModes.includes('fixed')){
+   html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('fixed','고정틀 구매').label)+'</strong>'+fixedSelectionHtml(card)+v3FixedInquiryFields(card)+'</div>'
+  }
+  if(profileModes.includes('preset')){
+   html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('preset','프리셋 구매').label)+'</strong>'+selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)+v3ProfileModeFields(card,'preset')+'</div>'
+  }
+  if(profileModes.length){
+   html+='<div class="profile-shared-change-options">'+v3ProfileChangeQtyHtml(card)+'</div>';
+   html+=v3ProfileFrameKeepField(card,profileModes)
+  }
  }
- html+=v3ProfileFrameKeepField(card,profileModes);
  if(slot.dataset.renderSignature!==html){slot.innerHTML=html;slot.dataset.renderSignature=html}
  slot.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
   if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
