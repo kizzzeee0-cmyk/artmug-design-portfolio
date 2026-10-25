@@ -1191,7 +1191,7 @@ function v3FixedInquiryFields(card){
  const p=selectedFixedProduct(card);if(!p)return'';
  const fields=Array.isArray(p.inquiryFields)?p.inquiryFields:[];
  if(!fields.length)return'<p class="field-help">이 고정틀은 별도의 추가 입력 항목이 없습니다.</p>';
- return '<div class="inquiry-v3-field-grid fixed-inquiry-fields" data-fixed-inquiry-product="'+esc(p.id)+'">'+fields.map(field=>v3ProfileFieldHtml(card,field,'profile.fixed')).join('')+'</div>'
+ return '<div class="inquiry-v3-field-grid fixed-inquiry-fields" data-fixed-inquiry-product="'+esc(p.id)+'">'+fields.map(field=>v3ProfileFieldHtml(card,field,'profile.fixed.'+p.id)).join('')+'</div>'
 }
 function v3ProfileChangeQtyHtml(card){
  const p=v2Pricing(),name=p?.options?.nameOnlyChange||{},full=p?.options?.profileChange||{};
