@@ -898,8 +898,8 @@
     "builderOrder": [
       "design:topBanner",
       "design:floatingBanner",
-      "profileMode:custom",
       "bottomType:bottom1",
+      "profileMode:custom",
       "profileMode:fixed",
       "profileMode:preset",
       "bottomType:bottom3",
