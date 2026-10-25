@@ -1174,10 +1174,11 @@ function v3ProfileFieldHtml(card,field,prefix){
  if(type==='radio'||type==='multi'){
   const opts=Array.isArray(field.options)?field.options:[];
   const selected=Array.isArray(value)?value.map(String):[String(value||'')];
+  const help=String(field.help||(field.id==='frameKeep'?state.settings?.frameKeepDescription||'':'')).trim();
   return '<fieldset class="inquiry-v3-field inquiry-v3-choice-field '+(field.wide?'is-wide':'')+'"><legend>'+esc(label)+v3ProfileRequired(field.required)+'</legend><div class="choice-row">'+opts.map(opt=>{
    const raw=typeof opt==='object'?String(opt.value??opt.label??''):String(opt),text=typeof opt==='object'?String(opt.label??opt.value??''):String(opt),inputType=type==='multi'?'checkbox':'radio';
    return '<label class="choice-pill"><input type="'+inputType+'" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'name="v3-profile-'+esc(card.dataset.requestId||'0')+'-'+esc(key)+'" value="'+esc(raw)+'" '+(selected.includes(raw)?'checked':'')+'><span>'+esc(text)+'</span></label>'
-  }).join('')+'</div></fieldset>'
+  }).join('')+'</div>'+(help?'<small class="field-help">'+esc(help)+'</small>':'')+'</fieldset>'
  }
  if(type==='textarea')return '<label class="inquiry-v3-field is-wide"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><textarea data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'placeholder="'+esc(field.placeholder||'')+'">'+esc(value)+'</textarea></label>';
  if(type==='number')return '<label class="inquiry-v3-field"><span class="inquiry-field-title">'+esc(label)+v3ProfileRequired(field.required)+'</span><input type="number" data-v3-field="'+esc(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+esc(field.min??0)+'" step="'+esc(field.step??1)+'" value="'+esc(value)+'" placeholder="'+esc(field.placeholder||'')+'"></label>';
