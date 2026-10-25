@@ -1160,8 +1160,7 @@ function ensureQuoteConfig(){
         bottom6:{id:'bottom6',label:'하단 6칸',price:quoteLegacyFindPrice(q.priceItems.banner,'bottom6','6칸')}
       },
       options:{
-        nameChange:{id:'nameChange',label:'이름 변경',price:Number(nameLegacy?.price||0),quantityField:'nameChangeQty'},
-        gifChange:{id:'gifChange',label:'움짤 변경',price:Number(gifLegacy?.price||0),quantityField:'gifChangeQty'},
+        profileChange:{id:'profileChange',label:'이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
         textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:Number(textLegacy?.price||0),quantityField:'textChangeQty'},
         sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
         sameDay:{id:'sameDay',label:'당일마감',price:quoteLegacyFindPrice(q.priceItems.option,'sameDay','당일'),checkboxValue:'당일마감'},
@@ -1204,8 +1203,7 @@ function ensureQuoteConfig(){
   };
   Object.entries(bottomDefaults).forEach(([k,d])=>{p.bottomTypes[k]={...d,...(p.bottomTypes[k]||{})}});
   const optionDefaults={
-    nameChange:{id:'nameChange',label:'이름 변경',price:0,quantityField:'nameChangeQty'},
-    gifChange:{id:'gifChange',label:'움짤 변경',price:0,quantityField:'gifChangeQty'},
+    profileChange:{id:'profileChange',label:'이름/움짤 변경',price:3000,quantityField:'profileChangeQty'},
     textImageChange:{id:'textImageChange',label:'배너 · 텍스트/이미지 변경',price:0,quantityField:'textChangeQty'},
     sameDesignColorChange:{id:'sameDesignColorChange',label:'동일 디자인 · 색상 변경',price:0,quantityField:'sameDesignColorChangeQty'},
     sameDay:{id:'sameDay',label:'당일마감',price:0,checkboxValue:'당일마감'},
@@ -1240,7 +1238,7 @@ function syncQuoteLegacyMirrors(q=ensureQuoteConfig()){
   const x=(q.customItems||[]).find(v=>String(v.name||'').replace(/\s/g,'').includes(part.replace(/\s/g,'')));
   if(x)x.price=quotePriceValue(item.price)
  };
- syncCustom('이름 변경',p.options.nameChange);syncCustom('움짤 변경',p.options.gifChange);syncCustom('텍스트/이미지 변경',p.options.textImageChange);
+ syncCustom('텍스트/이미지 변경',p.options.textImageChange);
  return q
 }
 
@@ -1299,7 +1297,7 @@ function renderQuoteAdmin(){
     quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1)+
     quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3)+
     quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6);
-  let optionRows=['nameChange','gifChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
+  let optionRows=['profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
     .map(k=>quoteAdminRow('options',k,p.options[k])).join('');
   optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가'})).join('');
   optionRows+='<button type="button" class="ghost admin-compact quote-add-inline" data-add-qv2-custom>+ 추가 옵션 등록</button>';
@@ -1374,7 +1372,7 @@ function quoteItems(){
   ['topBanner','floatingBanner','fourCut'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
   ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
   ['bottom1','bottom3','bottom6'].forEach(k=>{const x=p.bottomTypes[k];out.push({key:'bottomType:'+k,label:'하단배너 · '+x.label,price:quotePriceValue(x.price)})});
-  ['nameChange','gifChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  ['profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
   (p.customOptions||[]).forEach(x=>out.push({key:'customOption:'+x.id,label:x.label||'이름 없는 추가 옵션',price:quotePriceValue(x.price)}));
   (p.standaloneItems||[]).forEach(x=>out.push({key:'standalone:'+x.id,label:x.label||'이름 없는 독립 항목',price:quotePriceValue(x.price)}));
   return out
