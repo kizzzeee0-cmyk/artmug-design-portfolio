@@ -384,7 +384,11 @@ function renderAvailabilityCalendar(s){
   for(let day=1;day<=days;day++){
     const ymd=availabilityMonthKey(view)+'-'+String(day).padStart(2,'0');
     const savedStatus=dates[ymd];
-    const resolvedStatus=ymd<today?'closed':(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:'available');
+    const dayOfWeek=new Date(Date.UTC(view.year,view.month-1,day)).getUTCDay();
+    const isWeekend=dayOfWeek===0||dayOfWeek===6;
+    const resolvedStatus=ymd<today
+      ?'closed'
+      :(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:(isWeekend?'off':'available'));
     const meta=availabilityStatusMeta(resolvedStatus);
     cells.push(
       '<div class="availability-day '+meta.className+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+' '+meta.label)+'">'+
