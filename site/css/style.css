@@ -7256,3 +7256,74 @@ body.artmug-part-inquiry .inquiry-form-footer .form-actions{
     letter-spacing:-.03em;
   }
 }
+
+
+/* 2026-10-25 AVAILABILITY CALENDAR PC REFINEMENT */
+.availability-calendar-heading h2{
+  margin:0 0 8px!important;
+  color:#3d5666!important;
+  font-family:'Sandoll Odongtong Basic','Sandoll 오동통 basic','낭만있구미체','NanumSquareRound','Noto Sans KR',sans-serif!important;
+  font-size:clamp(20px,2.4vw,25px)!important;
+  font-weight:800!important;
+  letter-spacing:-.025em!important;
+  line-height:1.2!important;
+}
+@media(min-width:681px){
+  .availability-calendar-card{
+    padding:22px 24px 26px!important;
+  }
+  .availability-calendar-heading{
+    margin-bottom:14px!important;
+  }
+  .availability-calendar-inner{
+    width:min(100%,900px)!important;
+  }
+  .availability-calendar-nav{
+    grid-template-columns:34px 1fr 34px!important;
+    margin-bottom:9px!important;
+  }
+  .availability-calendar-nav button{
+    width:32px!important;
+    height:32px!important;
+  }
+  .availability-calendar-nav strong{
+    font-size:15px!important;
+  }
+  .availability-legend{
+    margin-bottom:9px!important;
+    gap:7px 16px!important;
+    font-size:10.5px!important;
+    font-weight:600!important;
+  }
+  .availability-weekdays,
+  .availability-days{
+    gap:5px!important;
+  }
+  .availability-weekdays{
+    margin-bottom:5px!important;
+  }
+  .availability-weekdays span{
+    font-size:10px!important;
+  }
+  .availability-day{
+    height:43px!important;
+    border-radius:10px!important;
+  }
+  .availability-day-number{
+    font-size:12.5px!important;
+  }
+  .availability-day-status{
+    font-size:9.5px!important;
+    font-weight:700!important;
+    line-height:1.15!important;
+  }
+}
+@media(max-width:680px){
+  .availability-calendar-heading h2{
+    font-size:clamp(20px,2.4vw,25px)!important;
+  }
+  .availability-day-status{
+    font-size:7.5px!important;
+    font-weight:600!important;
+  }
+}
