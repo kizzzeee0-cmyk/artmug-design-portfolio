@@ -2466,6 +2466,18 @@ function normalizeFixedPreview(x){
   enabled:x?.enabled!==false
  }
 }
+function normalizeInquiryField(x){
+ return {
+  id:String(x?.id||('field-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7))),
+  label:String(x?.label||'새 입력 항목'),
+  type:['text','textarea','radio','multi','number'].includes(String(x?.type||''))?String(x.type):'text',
+  required:x?.required===true,
+  enabled:x?.enabled!==false,
+  wide:x?.wide===true,
+  placeholder:String(x?.placeholder||''),
+  options:Array.isArray(x?.options)?x.options.map(v=>typeof v==='object'?String(v.value??v.label??''):String(v)).filter(Boolean):[]
+ }
+}
 function normalizeFixedProduct(x){
  return {
   id:String(x?.id||makeFixedId('product')),
@@ -2482,6 +2494,7 @@ function normalizeFixedProduct(x){
   priceVisible:x?.priceVisible!==false,
   priceNote:String(x?.priceNote||''),
   priceScope:String(x?.priceScope||''),
+  inquiryFields:(Array.isArray(x?.inquiryFields)?x.inquiryFields:[]).map(normalizeInquiryField),
   previews:(Array.isArray(x?.previews)?x.previews:[]).map(normalizeFixedPreview).filter(v=>v.file)
  }
 }
@@ -2524,6 +2537,24 @@ function collectFixedProductFromDom(i){
  p.priceVisible=q('[data-fp-price-visible="'+i+'"]')?.checked!==false;
  p.priceNote=String(val('price-note',p.priceNote));
  p.priceScope=String(val('price-scope',p.priceScope));
+ p.inquiryFields=(p.inquiryFields||[]).map((field,j)=>{
+   const label=q('[data-fp-inquiry-label="'+i+':'+j+'"]');
+   const type=q('[data-fp-inquiry-type="'+i+':'+j+'"]');
+   const placeholder=q('[data-fp-inquiry-placeholder="'+i+':'+j+'"]');
+   const options=q('[data-fp-inquiry-options="'+i+':'+j+'"]');
+   const required=q('[data-fp-inquiry-required="'+i+':'+j+'"]');
+   const enabled=q('[data-fp-inquiry-enabled="'+i+':'+j+'"]');
+   const wide=q('[data-fp-inquiry-wide="'+i+':'+j+'"]');
+   return normalizeInquiryField({...field,
+     label:label?label.value:field.label,
+     type:type?type.value:field.type,
+     placeholder:placeholder?placeholder.value:field.placeholder,
+     options:options?options.value.split(',').map(v=>v.trim()).filter(Boolean):field.options,
+     required:required?required.checked:field.required,
+     enabled:enabled?enabled.checked:field.enabled,
+     wide:wide?wide.checked:field.wide
+   })
+ });
  p.previews.forEach((v,j)=>{
    const name=q('[data-fp-preview-name="'+i+':'+j+'"]');
    const cat=q('[data-fp-preview-cat="'+i+':'+j+'"]');
@@ -2610,6 +2641,27 @@ function fixedPreviewAdminHtml(v,i,j){
   '</div>'+
  '</div>'
 }
+function fixedInquiryFieldAdminHtml(field,i,j){
+ const options=(field.options||[]).join(', ');
+ return '<div class="fixed-inquiry-field-admin-row">'+
+  '<label>항목명<input data-fp-inquiry-label="'+i+':'+j+'" value="'+adminEsc(field.label)+'"></label>'+
+  '<label>입력 방식<select data-fp-inquiry-type="'+i+':'+j+'">'+
+   [['text','한 줄 텍스트'],['textarea','여러 줄 텍스트'],['radio','단일 선택'],['multi','다중 선택'],['number','숫자 입력']].map(([v,l])=>'<option value="'+v+'" '+(field.type===v?'selected':'')+'>'+l+'</option>').join('')+
+  '</select></label>'+
+  '<label>플레이스홀더<input data-fp-inquiry-placeholder="'+i+':'+j+'" value="'+adminEsc(field.placeholder||'')+'"></label>'+
+  '<label class="wide">선택지 · 쉼표로 구분<input data-fp-inquiry-options="'+i+':'+j+'" value="'+adminEsc(options)+'" placeholder="O, X 또는 선택지 입력"></label>'+
+  '<div class="fixed-inquiry-field-flags">'+
+   '<label class="mini-toggle"><input type="checkbox" data-fp-inquiry-required="'+i+':'+j+'" '+(field.required?'checked':'')+'> 필수</label>'+
+   '<label class="mini-toggle"><input type="checkbox" data-fp-inquiry-enabled="'+i+':'+j+'" '+(field.enabled!==false?'checked':'')+'> 공개</label>'+
+   '<label class="mini-toggle"><input type="checkbox" data-fp-inquiry-wide="'+i+':'+j+'" '+(field.wide?'checked':'')+'> 전체 너비</label>'+
+  '</div>'+
+  '<div class="fixed-inquiry-field-actions">'+
+   '<button type="button" class="ghost cat-order-button" data-fp-inquiry-move="'+i+':'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button>'+
+   '<button type="button" class="ghost cat-order-button" data-fp-inquiry-move="'+i+':'+j+'" data-dir="1" '+(j===(p=>p)(ensureFixedProducts()[i]?.inquiryFields||[]).length-1?'disabled':'')+'>↓</button>'+
+   '<button type="button" class="danger admin-compact" data-fp-inquiry-delete="'+i+':'+j+'">삭제</button>'+
+  '</div>'+
+ '</div>'
+}
 function fixedProductAdminCard(p,i){
  const open=fixedProductOpenIds.has(p.id),first=p.previews.find(v=>v.enabled!==false)||p.previews[0];
  const price=p.price>0?p.price.toLocaleString('ko-KR')+'원':'가격 문의';
@@ -2635,6 +2687,8 @@ function fixedProductAdminCard(p,i){
     '<div class="fixed-preview-admin-list">'+(p.previews.length?p.previews.map((v,j)=>fixedPreviewAdminHtml(v,i,j)).join(''):'<p class="muted">등록된 미리보기가 없습니다.</p>')+'</div>'+
    '</div>'+
    '<div class="fixed-product-subsection fixed-product-bottom-copy-admin"><div class="head"><div><h5>하단 안내 문구</h5><p class="muted">고정틀 카드 하단 중앙에 한 문장으로 표시됩니다.</p></div></div><input data-fp-note="'+i+'" value="'+adminEsc(p.note)+'" placeholder="예: 배경 디자인 외의 모든 부분은 자유롭게 변경하실 수 있습니다"></div>'+
+   '<div class="fixed-product-subsection fixed-inquiry-fields-admin"><div class="head"><div><h5>문의 양식 입력 항목</h5><p class="muted">이 상품을 선택했을 때만 공개 문의 양식에 표시됩니다. 상품명 대신 고유 ID로 연결됩니다.</p></div><button type="button" class="ghost admin-compact" data-fp-inquiry-add="'+i+'">+ 입력 항목 추가</button></div>'+
+    '<div class="fixed-inquiry-fields-admin-list">'+((p.inquiryFields||[]).length?(p.inquiryFields||[]).map((field,j)=>fixedInquiryFieldAdminHtml(field,i,j)).join(''):'<p class="muted">등록된 문의 입력 항목이 없습니다.</p>')+'</div></div>'+
    '<div class="fields fixed-product-price-fields">'+
     '<label>상품 가격<input data-fp-price="'+i+'" type="number" min="0" step="100" value="'+p.price+'"></label>'+
     '<label class="mini-toggle"><input type="checkbox" data-fp-price-visible="'+i+'" '+(p.priceVisible?'checked':'')+'> 가격 공개</label>'+
@@ -2657,6 +2711,19 @@ function bindFixedProductAdminEvents(){
  root.querySelectorAll('[data-fp-preview-move]').forEach(b=>{const [i,j]=b.dataset.fpPreviewMove.split(':').map(Number);b.onclick=()=>moveFixedPreview(i,j,Number(b.dataset.dir))});
  root.querySelectorAll('[data-fp-preview-replace]').forEach(b=>{const [i,j]=b.dataset.fpPreviewReplace.split(':').map(Number);b.onclick=()=>replaceFixedProductPreview(i,j)});
  root.querySelectorAll('[data-fp-preview-delete]').forEach(b=>{const [i,j]=b.dataset.fpPreviewDelete.split(':').map(Number);b.onclick=()=>deleteFixedProductPreview(i,j)});
+ root.querySelectorAll('[data-fp-inquiry-add]').forEach(b=>b.onclick=()=>{
+   const i=Number(b.dataset.fpInquiryAdd),p=ensureFixedProducts()[i];if(!p)return;
+   collectFixedProductFromDom(i);p.inquiryFields.push(normalizeInquiryField({label:'새 입력 항목',type:'text',enabled:true}));renderFixedItems()
+ });
+ root.querySelectorAll('[data-fp-inquiry-move]').forEach(b=>b.onclick=()=>{
+   const [i,j]=b.dataset.fpInquiryMove.split(':').map(Number),p=ensureFixedProducts()[i];if(!p)return;
+   collectFixedProductFromDom(i);const k=j+Number(b.dataset.dir);if(k<0||k>=p.inquiryFields.length)return;
+   [p.inquiryFields[j],p.inquiryFields[k]]=[p.inquiryFields[k],p.inquiryFields[j]];renderFixedItems()
+ });
+ root.querySelectorAll('[data-fp-inquiry-delete]').forEach(b=>b.onclick=()=>{
+   const [i,j]=b.dataset.fpInquiryDelete.split(':').map(Number),p=ensureFixedProducts()[i];if(!p)return;
+   collectFixedProductFromDom(i);p.inquiryFields.splice(j,1);renderFixedItems()
+ });
 }
 function renderFixedItems(){
  const root=$('fixedItems');if(!root)return;
