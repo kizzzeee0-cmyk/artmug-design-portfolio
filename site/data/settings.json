@@ -1740,7 +1740,7 @@
         "id": "signature",
         "label": "시그풍",
         "enabled": false,
-        "comingSoon": true,
+        "comingSoon": false,
         "icon": "signature",
         "counts": [
           {
