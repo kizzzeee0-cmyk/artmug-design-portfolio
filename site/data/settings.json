@@ -698,7 +698,7 @@
         {
           "id": "qg-banner-1791294560673",
           "name": "인생네컷 대형",
-          "price": 23000
+          "price": 27000
         }
       ],
       "option": [
@@ -754,7 +754,7 @@
           "id": "fourCut",
           "label": "인생네컷",
           "typeId": "type-1792042352882",
-          "price": 23000
+          "price": 27000
         }
       },
       "profileModes": {
