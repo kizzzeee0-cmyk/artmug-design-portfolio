@@ -1212,12 +1212,14 @@ function injectInquiryV3(card){
  if(!hasProfile){slot.innerHTML='';return}
  const profileModes=selectedProfileModes(card),hasChange=profileModes.includes('change'),hasOrderMode=profileModes.some(x=>x!=='change');
  const modeChoice=(value,label,disabled)=>'<label class="choice-pill '+(disabled?'is-disabled':'')+'"><input type="checkbox" data-v2-mode="profile" data-v3-field="profileModes" value="'+value+'" '+(profileModes.includes(value)?'checked':'')+' '+(disabled?'disabled':'')+'><span>'+esc(label)+'</span></label>';
- const modeDefs=[
-   ['custom',v2ProfileMode('custom','맞춤제작'),hasChange],
-   ['fixed',v2ProfileMode('fixed','고정틀 구매'),hasChange],
-   ['preset',v2ProfileMode('preset','프리셋 구매'),hasChange],
-   ['change',v2ProfileMode('change','(재주문) 이름/움짤만 변경'),hasOrderMode]
- ].filter(([,m])=>m.enabledInInquiry!==false);
+ const modeMap={
+   custom:['custom',v2ProfileMode('custom','맞춤제작'),hasChange],
+   fixed:['fixed',v2ProfileMode('fixed','고정틀 구매'),hasChange],
+   preset:['preset',v2ProfileMode('preset','프리셋 구매'),hasChange],
+   change:['change',v2ProfileMode('change','(재주문) 이름/움짤만 변경'),hasOrderMode]
+ };
+ const modeOrder=state.settings?.inquiryV3?.designs?.profile?.modeOrder||['custom','fixed','preset','change'];
+ const modeDefs=modeOrder.map(key=>modeMap[key]).filter(Boolean).filter(([,m])=>m.enabledInInquiry!==false);
  let html='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">'+
    modeDefs.map(([value,m,disabled])=>modeChoice(value,m.label,disabled)).join('')+
  '</div></fieldset>';
