@@ -918,6 +918,7 @@ function inquiryV3FieldAdminHtml(field,pathKey,index){
    [['text','한 줄 텍스트'],['textarea','여러 줄 텍스트'],['radio','단일 선택'],['multi','다중 선택'],['number','숫자 입력']].map(([v,l])=>'<option value="'+v+'" '+(field.type===v?'selected':'')+'>'+l+'</option>').join('')+
   '</select></label>'+
   '<label>플레이스홀더<input data-iq3-field-placeholder="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(field.placeholder||'')+'"></label>'+
+  '<label>안내 문구<input data-iq3-field-help="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(field.help||'')+'" placeholder="입력 항목 아래에 표시"></label>'+
   '<label>표시 조건<select data-iq3-field-condition="'+adminEsc(pathKey)+':'+index+'">'+inquiryV3ConditionOptions(pathKey,field)+'</select></label>'+
   '<label class="wide">선택지 · 쉼표로 구분<input data-iq3-field-options="'+adminEsc(pathKey)+':'+index+'" value="'+adminEsc(optionText)+'" placeholder="단일/다중 선택일 때 사용"></label>'+
   '<div class="inquiry-v3-admin-field-flags">'+
@@ -996,6 +997,7 @@ function collectInquiryV3Admin(){
   field.label=input.value.trim()||field.label;
   field.type=q('data-iq3-field-type')?.value||field.type;
   field.placeholder=q('data-iq3-field-placeholder')?.value||'';
+  field.help=q('data-iq3-field-help')?.value||'';
   const condition=q('data-iq3-field-condition')?.value||'',conditionParts=condition.split(':');
   field.conditionKey=conditionParts.shift()||'';
   field.conditionValue=conditionParts.join(':')||'';
@@ -2740,6 +2742,7 @@ function normalizeInquiryField(x){
   enabled:x?.enabled!==false,
   wide:x?.wide===true,
   placeholder:String(x?.placeholder||''),
+  help:String(x?.help||''),
   conditionKey:String(x?.conditionKey||''),
   conditionValue:String(x?.conditionValue||''),
   options:Array.isArray(x?.options)?x.options.map(v=>typeof v==='object'?String(v.value??v.label??''):String(v)).filter(Boolean):[]
@@ -2808,6 +2811,7 @@ function collectFixedProductFromDom(i){
    const label=q('[data-fp-inquiry-label="'+i+':'+j+'"]');
    const type=q('[data-fp-inquiry-type="'+i+':'+j+'"]');
    const placeholder=q('[data-fp-inquiry-placeholder="'+i+':'+j+'"]');
+   const help=q('[data-fp-inquiry-help="'+i+':'+j+'"]');
    const options=q('[data-fp-inquiry-options="'+i+':'+j+'"]');
    const required=q('[data-fp-inquiry-required="'+i+':'+j+'"]');
    const enabled=q('[data-fp-inquiry-enabled="'+i+':'+j+'"]');
@@ -2816,6 +2820,7 @@ function collectFixedProductFromDom(i){
      label:label?label.value:field.label,
      type:type?type.value:field.type,
      placeholder:placeholder?placeholder.value:field.placeholder,
+     help:help?help.value:field.help,
      options:options?options.value.split(',').map(v=>v.trim()).filter(Boolean):field.options,
      required:required?required.checked:field.required,
      enabled:enabled?enabled.checked:field.enabled,
@@ -2916,6 +2921,7 @@ function fixedInquiryFieldAdminHtml(field,i,j){
    [['text','한 줄 텍스트'],['textarea','여러 줄 텍스트'],['radio','단일 선택'],['multi','다중 선택'],['number','숫자 입력']].map(([v,l])=>'<option value="'+v+'" '+(field.type===v?'selected':'')+'>'+l+'</option>').join('')+
   '</select></label>'+
   '<label>플레이스홀더<input data-fp-inquiry-placeholder="'+i+':'+j+'" value="'+adminEsc(field.placeholder||'')+'"></label>'+
+  '<label>안내 문구<input data-fp-inquiry-help="'+i+':'+j+'" value="'+adminEsc(field.help||'')+'" placeholder="항목 아래 도움말"></label>'+
   '<label class="wide">선택지 · 쉼표로 구분<input data-fp-inquiry-options="'+i+':'+j+'" value="'+adminEsc(options)+'" placeholder="O, X 또는 선택지 입력"></label>'+
   '<div class="fixed-inquiry-field-flags">'+
    '<label class="mini-toggle"><input type="checkbox" data-fp-inquiry-required="'+i+':'+j+'" '+(field.required?'checked':'')+'> 필수</label>'+
