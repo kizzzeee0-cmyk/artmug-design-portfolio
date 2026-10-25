@@ -743,7 +743,7 @@ function v3FieldVisible(field,state){
 }
 function v3FieldHtml(field,prefix,rid,state){
   if(!v3FieldVisible(field,state))return'';
-  const key=prefix+'.'+String(field.id||'field'),label=String(field.label||'항목'),type=String(field.type||'text'),value=v3Value(state,key,'');
+  const key=prefix+'.'+String(field.id||'field'),label=String(field.label||'항목'),type=String(field.type||'text'),value=v3Value(state,key,''),help=String(field.help||'').trim(),helpHtml=help?'<small class="field-help">'+htmlAttr(help)+'</small>':'';
   const cls='inquiry-v3-field '+(field.wide?'is-wide':'')+(field.required?' is-required':'');
   if(type==='radio'||type==='multi'){
     const opts=Array.isArray(field.options)?field.options:[];
@@ -753,13 +753,13 @@ function v3FieldHtml(field,prefix,rid,state){
       const inputType=type==='multi'?'checkbox':'radio';
       const checked=type==='multi'?v3Checked(state,key,raw):String(value)===raw;
       return '<label class="choice-pill"><input type="'+inputType+'" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'name="v3-'+htmlAttr(rid)+'-'+htmlAttr(key)+'" value="'+htmlAttr(raw)+'" '+(checked?'checked':'')+'><span>'+htmlAttr(text)+'</span></label>'
-    }).join('')+'</div></fieldset>'
+    }).join('')+'</div>'+helpHtml+'</fieldset>'
   }
   if(type==='textarea'){
-    return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><textarea data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'placeholder="'+htmlAttr(field.placeholder||'')+'">'+htmlAttr(value)+'</textarea></label>'
+    return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><textarea data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'placeholder="'+htmlAttr(field.placeholder||'')+'">'+htmlAttr(value)+'</textarea>'+helpHtml+'</label>'
   }
   if(type==='number'){
-    return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="number" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+htmlAttr(field.min??0)+'" step="'+htmlAttr(field.step??1)+'" value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'"></label>'
+    return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="number" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'min="'+htmlAttr(field.min??0)+'" step="'+htmlAttr(field.step??1)+'" value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'">'+helpHtml+'</label>'
   }
   return '<label class="'+cls+'"><span class="inquiry-field-title">'+htmlAttr(label)+v3RequiredMark(field.required)+'</span><input type="text" data-v3-field="'+htmlAttr(key)+'" '+(field.required?'data-v3-required="1" ':'')+'value="'+htmlAttr(value)+'" placeholder="'+htmlAttr(field.placeholder||'')+'"></label>'
 }
