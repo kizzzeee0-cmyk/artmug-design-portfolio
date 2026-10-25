@@ -957,7 +957,15 @@ function collectInquiryV3Admin(){
   const coming=root.querySelector('[data-iq3-design-coming="'+CSS.escape(id)+'"]');
   if(label)d.label=label.value.trim()||d.label;
   if(enabled)d.enabled=enabled.checked;
-  if(coming)d.comingSoon=coming.checked
+  if(coming)d.comingSoon=coming.checked;
+  const priceDesign=ensureQuoteConfig().pricingV2.designs?.[id];if(priceDesign)priceDesign.label=d.label
+ });
+ root.querySelectorAll('[data-iq3-setting]').forEach(input=>{
+   const [id,key]=String(input.dataset.iq3Setting||'').split(':'),d=v.designs[id];if(d&&key)d[key]=input.value
+ });
+ root.querySelectorAll('[data-iq3-array-label]').forEach(input=>{
+   const token=String(input.dataset.iq3ArrayLabel||''),parts=token.split(':'),id=parts[0],key=parts[1],index=Number(parts[2]),d=v.designs[id],arr=d?.[key];
+   if(Array.isArray(arr)&&arr[index])arr[index].label=input.value.trim()||arr[index].label
  });
  root.querySelectorAll('[data-iq3-field-label]').forEach(input=>{
   const token=input.dataset.iq3FieldLabel,cut=token.lastIndexOf(':'),path=token.slice(0,cut),index=Number(token.slice(cut+1)),arr=inquiryV3FieldArrayByPath(path);if(!arr?.[index])return;
@@ -988,6 +996,27 @@ function renderInquiryV3DesignCard(id,d,index,total){
   body+=inquiryV3FieldsPanel('(재주문) 이름/움짤만 변경 상세 입력','profile.modeFields.change',mf.change||[],'재주문을 선택했을 때만 표시');
   body+='<p class="muted inquiry-v3-admin-link-note">고정틀 구매 전용 항목은 ‘고정틀 상품 관리 → 문의 양식 입력 항목’에서 상품별로 설정합니다.</p>'
  }else{
+  if(id==='soopBanner'){
+   body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>SOOP 배너 기본 항목</h5><p class="muted">종류 이름과 공통 입력 항목명을 수정합니다.</p></div></div><div class="fields">'+
+    (d.bannerKinds||[]).map((x,j)=>'<label>배너 종류 '+(j+1)+'<input data-iq3-array-label="soopBanner:bannerKinds:'+j+'" value="'+adminEsc(x.label||'')+'"></label>').join('')+
+    '<label>컨셉 항목명<input data-iq3-setting="soopBanner:conceptLabel" value="'+adminEsc(d.conceptLabel||'')+'"></label>'+
+    '<label>내용 항목명<input data-iq3-setting="soopBanner:contentLabel" value="'+adminEsc(d.contentLabel||'')+'"></label>'+
+    '<label>변경 옵션명<input data-iq3-setting="soopBanner:textChangeLabel" value="'+adminEsc(d.textChangeLabel||'')+'"></label>'+
+   '</div></section>'
+  }
+  if(id==='fourCut'){
+   body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>인생네컷 기본 항목</h5><p class="muted">대형·소형 이름과 공통 항목명을 수정합니다.</p></div></div><div class="fields">'+
+    (d.types||[]).map((x,j)=>'<label>종류 '+(j+1)+'<input data-iq3-array-label="fourCut:types:'+j+'" value="'+adminEsc(x.label||'')+'"></label>').join('')+
+    '<label>컨셉 항목명<input data-iq3-setting="fourCut:conceptLabel" value="'+adminEsc(d.conceptLabel||'')+'"></label>'+
+    '<label>색상 변경 옵션명<input data-iq3-setting="fourCut:colorChangeLabel" value="'+adminEsc(d.colorChangeLabel||'')+'"></label>'+
+   '</div></section>'
+  }
+  if(id==='signature'){
+   body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>시그풍 기본 항목</h5><p class="muted">개수 종류와 신청 방식의 표시 이름을 수정합니다.</p></div></div><div class="fields">'+
+    (d.counts||[]).map((x,j)=>'<label>개수 항목 '+(j+1)+'<input data-iq3-array-label="signature:counts:'+j+'" value="'+adminEsc(x.label||'')+'"></label>').join('')+
+    (d.modes||[]).map((x,j)=>'<label>신청 방식 '+(j+1)+'<input data-iq3-array-label="signature:modes:'+j+'" value="'+adminEsc(x.label||'')+'"></label>').join('')+
+   '</div></section>'
+  }
   body+=inquiryV3FieldsPanel('추가 상세 입력 항목',id+'.customFields',d.customFields||[],'이 디자인을 선택했을 때 추가로 표시')
  }
  const price=ensureQuoteConfig().pricingV2?.designs?.[id];
