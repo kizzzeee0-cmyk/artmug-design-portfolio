@@ -20,9 +20,9 @@
     {
       "icon": "🎞️",
       "title": "움짤 프사 파일 전달",
-      "description": "움짤프사 제작에 사용될 영상은 3초 이상 5초 이내로 준비해 주시고, GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
+      "description": "움짤프사 제작에 사용될 영상은 GIF가 아닌 MP4 동영상 파일로 전달해 주세요.",
       "enabled": true,
-      "descriptionRich": "움짤프사 제작에 사용될 영상은 <span style=\"color:rgb(105, 173, 210)\"><strong>3초 이상 5초 이내</strong></span>로 준비해 주시고, <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">GIF가 아닌 MP4 동영상 파일로 전달</span></span></strong>해 주세요.",
+      "descriptionRich": "움짤프사 제작에 사용될 영상은 <strong><span style=\"color:rgb(95, 189, 236)\"><span style=\"color:rgb(105, 173, 210)\">GIF가 아닌 MP4 동영상 파일로 전달</span></span></strong>해 주세요.",
       "editorColor": "#69ADD2"
     },
     {
@@ -754,8 +754,8 @@
           "id": "fourCut",
           "label": "인생네컷",
           "typeId": "type-1792042352882",
-          "price": 27000,
-          "pricing": "fourCutType"
+          "pricing": "fourCutType",
+          "price": 27000
         },
         "signature": {
           "id": "signature",
@@ -768,23 +768,27 @@
         "custom": {
           "id": "custom",
           "label": "맞춤제작",
-          "price": 20000
+          "price": 20000,
+          "enabledInInquiry": true
         },
         "fixed": {
           "id": "fixed",
           "label": "고정틀 구매",
-          "price": 15000
+          "price": 15000,
+          "enabledInInquiry": true
         },
         "preset": {
           "id": "preset",
           "label": "프리셋 구매",
-          "price": 20000
+          "price": 20000,
+          "enabledInInquiry": true
         },
         "change": {
           "id": "change",
           "label": "(재주문) 이름/움짤만 변경",
           "price": null,
-          "calculatedByOptions": true
+          "calculatedByOptions": true,
+          "enabledInInquiry": true
         }
       },
       "bottomTypes": {
@@ -822,21 +826,24 @@
           "label": "당일마감",
           "price": 10000,
           "checkboxValue": "당일마감",
-          "applyMode": "order"
+          "applyMode": "order",
+          "enabledInInquiry": true
         },
         "fast": {
           "id": "fast",
           "label": "빠른 마감",
           "price": 5000,
           "checkboxValue": "빠른 마감",
-          "applyMode": "order"
+          "applyMode": "order",
+          "enabledInInquiry": true
         },
         "private": {
           "id": "private",
           "label": "포트폴리오 비공개",
           "price": 20000,
           "checkboxValue": "포트폴리오 비공개",
-          "applyMode": "order"
+          "applyMode": "order",
+          "enabledInInquiry": true
         },
         "profileChange": {
           "id": "profileChange",
@@ -883,7 +890,7 @@
         },
         "direct": {
           "id": "direct",
-          "label": "시그풍 직접 수량 · 개당",
+          "label": "직접 입력",
           "price": 11000
         }
       }
@@ -1227,6 +1234,79 @@
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
+      "inquiryFields": [
+        {
+          "id": "lace",
+          "label": "레이스 여부",
+          "type": "radio",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": [
+            "O",
+            "X"
+          ]
+        },
+        {
+          "id": "backgroundPatternColor",
+          "label": "배경 & 패턴 색상",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "원하는 색상을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "frameBorder",
+          "label": "원형 프레임 테두리 디자인",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "원하는 테두리 디자인을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "name",
+          "label": "이름 입력",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "적용할 이름을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "frameKeep",
+          "label": "움짤프사 파일 보관 여부",
+          "type": "radio",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": [
+            "O",
+            "X"
+          ]
+        }
+      ],
       "previews": [
         {
           "id": "preview-mvb5arkc-tdfosv",
@@ -1268,54 +1348,6 @@
           "description": "",
           "enabled": true
         }
-      ],
-      "inquiryFields": [
-        {
-          "id": "lace",
-          "label": "레이스 여부",
-          "type": "radio",
-          "required": true,
-          "options": [
-            "O",
-            "X"
-          ],
-          "enabled": true
-        },
-        {
-          "id": "backgroundPatternColor",
-          "label": "배경 & 패턴 색상",
-          "type": "text",
-          "required": true,
-          "placeholder": "원하는 색상을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "frameBorder",
-          "label": "원형 프레임 테두리 디자인",
-          "type": "text",
-          "required": true,
-          "placeholder": "원하는 테두리 디자인을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "name",
-          "label": "이름 입력",
-          "type": "text",
-          "required": true,
-          "placeholder": "적용할 이름을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "frameKeep",
-          "label": "움짤프사 파일 보관 여부",
-          "type": "radio",
-          "required": true,
-          "options": [
-            "O",
-            "X"
-          ],
-          "enabled": true
-        }
       ]
     },
     {
@@ -1333,6 +1365,63 @@
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
+      "inquiryFields": [
+        {
+          "id": "checkColor",
+          "label": "체크 패턴 색상",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "원하는 색상을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "frameBorder",
+          "label": "원형 프레임 테두리 디자인",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "원하는 테두리 디자인을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "name",
+          "label": "이름 입력",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "적용할 이름을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "frameKeep",
+          "label": "움짤프사 파일 보관 여부",
+          "type": "radio",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": [
+            "O",
+            "X"
+          ]
+        }
+      ],
       "previews": [
         {
           "id": "preview-mvfoktmm-ypqslm",
@@ -1356,43 +1445,6 @@
           "category": "profile",
           "name": "핑크",
           "description": "",
-          "enabled": true
-        }
-      ],
-      "inquiryFields": [
-        {
-          "id": "checkColor",
-          "label": "체크 패턴 색상",
-          "type": "text",
-          "required": true,
-          "placeholder": "원하는 색상을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "frameBorder",
-          "label": "원형 프레임 테두리 디자인",
-          "type": "text",
-          "required": true,
-          "placeholder": "원하는 테두리 디자인을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "name",
-          "label": "이름 입력",
-          "type": "text",
-          "required": true,
-          "placeholder": "적용할 이름을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "frameKeep",
-          "label": "움짤프사 파일 보관 여부",
-          "type": "radio",
-          "required": true,
-          "options": [
-            "O",
-            "X"
-          ],
           "enabled": true
         }
       ]
@@ -1419,6 +1471,34 @@
       "priceVisible": true,
       "priceNote": "",
       "priceScope": "",
+      "inquiryFields": [
+        {
+          "id": "backgroundColor",
+          "label": "배경 색상",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "원하는 배경 색상을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        },
+        {
+          "id": "name",
+          "label": "이름 입력",
+          "type": "text",
+          "required": true,
+          "enabled": true,
+          "wide": false,
+          "placeholder": "적용할 이름을 입력해주세요",
+          "help": "",
+          "conditionKey": "",
+          "conditionValue": "",
+          "options": []
+        }
+      ],
       "previews": [
         {
           "id": "preview-mve3uuw2-o8cp3r",
@@ -1426,24 +1506,6 @@
           "category": "profile",
           "name": "",
           "description": "",
-          "enabled": true
-        }
-      ],
-      "inquiryFields": [
-        {
-          "id": "backgroundColor",
-          "label": "배경 색상",
-          "type": "text",
-          "required": true,
-          "placeholder": "원하는 배경 색상을 입력해주세요",
-          "enabled": true
-        },
-        {
-          "id": "name",
-          "label": "이름 입력",
-          "type": "text",
-          "required": true,
-          "placeholder": "적용할 이름을 입력해주세요",
           "enabled": true
         }
       ]
@@ -1501,14 +1563,25 @@
               "type": "textarea",
               "required": true,
               "placeholder": "원하는 분위기, 컨셉, 색상을 작성해주세요",
-              "wide": true
+              "wide": true,
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "options": [],
+              "enabled": true
             },
             {
               "id": "name",
               "label": "이름 입력",
               "type": "text",
               "required": true,
-              "placeholder": "움짤프사에 적용할 이름을 입력해주세요"
+              "placeholder": "움짤프사에 적용할 이름을 입력해주세요",
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "options": [],
+              "enabled": true,
+              "wide": false
             },
             {
               "id": "frameKeep",
@@ -1518,7 +1591,13 @@
               "options": [
                 "O",
                 "X"
-              ]
+              ],
+              "placeholder": "",
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "enabled": true,
+              "wide": false
             }
           ],
           "preset": [
@@ -1528,14 +1607,25 @@
               "type": "textarea",
               "required": false,
               "placeholder": "원하는 수정 내용을 입력해주세요",
-              "wide": true
+              "wide": true,
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "options": [],
+              "enabled": true
             },
             {
               "id": "name",
               "label": "이름 입력",
               "type": "text",
               "required": true,
-              "placeholder": "움짤프사에 적용할 이름을 입력해주세요"
+              "placeholder": "움짤프사에 적용할 이름을 입력해주세요",
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "options": [],
+              "enabled": true,
+              "wide": false
             },
             {
               "id": "frameKeep",
@@ -1545,7 +1635,13 @@
               "options": [
                 "O",
                 "X"
-              ]
+              ],
+              "placeholder": "",
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "enabled": true,
+              "wide": false
             }
           ],
           "change": [
@@ -1554,11 +1650,18 @@
               "label": "이름 입력",
               "type": "text",
               "required": true,
-              "placeholder": "변경할 이름을 입력해주세요"
+              "placeholder": "변경할 이름을 입력해주세요",
+              "help": "",
+              "conditionKey": "",
+              "conditionValue": "",
+              "options": [],
+              "enabled": true,
+              "wide": false
             }
           ]
         },
-        "customFields": []
+        "customFields": [],
+        "comingSoon": false
       },
       "soopBanner": {
         "id": "soopBanner",
@@ -1568,21 +1671,25 @@
         "bannerKinds": [
           {
             "id": "topBanner",
-            "label": "상단배너"
+            "label": "상단배너",
+            "enabled": true
           },
           {
             "id": "floatingBanner",
-            "label": "플로팅배너"
+            "label": "플로팅배너",
+            "enabled": true
           },
           {
             "id": "bottomBanner",
-            "label": "하단배너"
+            "label": "하단배너",
+            "enabled": true
           }
         ],
         "conceptLabel": "원하는 디자인 컨셉 및 색상",
         "contentLabel": "내용 입력",
         "textChangeLabel": "배너 · 텍스트/이미지 변경",
-        "customFields": []
+        "customFields": [],
+        "comingSoon": false
       },
       "fourCut": {
         "id": "fourCut",
@@ -1592,16 +1699,19 @@
         "types": [
           {
             "id": "large",
-            "label": "인생네컷 대형 (2×2)"
+            "label": "인생네컷 대형 (2×2)",
+            "enabled": true
           },
           {
             "id": "small",
-            "label": "인생네컷 소형 (1×4)"
+            "label": "인생네컷 소형 (1×4)",
+            "enabled": true
           }
         ],
         "conceptLabel": "원하는 디자인 컨셉 및 색상",
         "colorChangeLabel": "동일 디자인 · 색상 변경",
-        "customFields": []
+        "customFields": [],
+        "comingSoon": false
       },
       "signature": {
         "id": "signature",
@@ -1613,32 +1723,38 @@
           {
             "id": "one",
             "label": "시그풍 1개",
-            "count": 1
+            "count": 1,
+            "enabled": true
           },
           {
             "id": "three",
             "label": "시그풍 3개 세트",
-            "count": 3
+            "count": 3,
+            "enabled": true
           },
           {
             "id": "six",
             "label": "시그풍 6개 세트",
-            "count": 6
+            "count": 6,
+            "enabled": true
           },
           {
             "id": "custom",
             "label": "갯수 직접입력",
-            "count": null
+            "count": null,
+            "enabled": true
           }
         ],
         "modes": [
           {
             "id": "omakase",
-            "label": "오마카세"
+            "label": "오마카세",
+            "enabled": true
           },
           {
             "id": "direct",
-            "label": "직접 입력"
+            "label": "직접 입력",
+            "enabled": true
           }
         ],
         "customFields": []
