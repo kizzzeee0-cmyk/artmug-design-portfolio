@@ -783,7 +783,7 @@ function renderV3BannerCard(card,design,state){
     '</div></fieldset>';
   if(selectedBottom){
     html+='<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>하단배너 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
-      bottomTypes.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="bottomTypes" value="'+htmlAttr(x.id)+'" '+(v3Checked(state,'bottomTypes',x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+      bottomTypes.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="bottomTypes" data-v3-rerender="1" value="'+htmlAttr(x.id)+'" '+(v3Checked(state,'bottomTypes',x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
     '</div></fieldset>'
   }
   if(S?.bannerTypeEnabled!==false&&selected.length){
@@ -806,7 +806,7 @@ function renderV3FourCutCard(card,design,state){
   const rid=card.dataset.requestId||'0',types=Array.isArray(design.types)?design.types:[],value=String(v3Value(state,'fourCut.type',''));
   let html='<section class="inquiry-design-detail-card" data-design-card="fourCut">'+v3DesignCardHead(design.label||'인생네컷')+
     '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>인생네컷 종류'+v3RequiredMark(true)+'</legend><div class="choice-row">'+
-      types.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="fourCut.type" name="v3-fourcut-'+rid+'" value="'+htmlAttr(x.id)+'" '+(value===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
+      types.map(x=>'<label class="choice-pill"><input type="radio" data-v3-field="fourCut.type" data-v3-rerender="1" name="v3-fourcut-'+rid+'" value="'+htmlAttr(x.id)+'" '+(value===String(x.id)?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
     '</div></fieldset>'+
     '<div class="inquiry-v3-field-grid">'+v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:S?.conceptPlaceholder||'',wide:true},'fourCut',rid,state)+'</div>'+
     '<div class="inquiry-v3-design-options">'+v3QtyHtml('sameDesignColorChangeQty',design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label,v3Value(state,'fourCut.colorChangeQty',0))+'</div>';
@@ -1067,9 +1067,11 @@ function selectedInquiryEstimateRows(card){
     const o=inquiryOption(pair[0],pair[0]),qty=Math.max(0,Number(v[pair[1]]||0));
     if(qty>0)rows.push({key:'option:'+o.id,label:o.label,price:o.price,qty,adjustable:false})
   });
+  const workCount=Math.max(1,rows.filter(x=>!String(x.key||'').startsWith('option:')).reduce((sum,x)=>sum+Math.max(1,Number(x.qty||1)),0));
   card.querySelectorAll('input[data-field="extraOption"]:checked').forEach(input=>{
     const id=String(input.dataset.quoteOptionId||''),built=p.options?.[id],custom=(p.customOptions||[]).find(x=>String(x.id)===id),o=built||custom;
-    rows.push({key:'option:'+id,label:String(o?.label||input.value||'추가 옵션'),price:inquiryPrice(o?.price),qty:1,adjustable:false})
+    const qty=o?.applyMode==='perItem'?workCount:1;
+    rows.push({key:'option:'+id,label:String(o?.label||input.value||'추가 옵션'),price:inquiryPrice(o?.price),qty,adjustable:false})
   });
   return rows
 }
