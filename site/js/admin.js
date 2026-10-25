@@ -1734,14 +1734,12 @@ function renderQuoteAdmin(){
     quoteAdminRow('bottomTypes','bottom1',p.bottomTypes.bottom1,{visibility:true})+
     quoteAdminRow('bottomTypes','bottom3',p.bottomTypes.bottom3,{visibility:true})+
     quoteAdminRow('bottomTypes','bottom6',p.bottomTypes.bottom6,{visibility:true});
-  const fourCutRows=
-    quoteAdminRow('fourCutTypes','large',p.fourCutTypes.large)+
-    quoteAdminRow('fourCutTypes','small',p.fourCutTypes.small);
-  const signatureRows=
-    quoteAdminRow('signatureTypes','one',p.signatureTypes.one)+
-    quoteAdminRow('signatureTypes','three',p.signatureTypes.three)+
-    quoteAdminRow('signatureTypes','six',p.signatureTypes.six)+
-    quoteAdminRow('signatureTypes','direct',p.signatureTypes.direct,{note:'갯수 직접입력 시 개당 가격'});
+  const fourCutOrder=(ensureInquiryV3().designs?.fourCut?.types||[]).map(x=>String(x.id||'')).filter(Boolean);
+  const fourCutKeys=[...new Set([...fourCutOrder,...Object.keys(p.fourCutTypes||{})])];
+  const fourCutRows=fourCutKeys.map(k=>quoteAdminRow('fourCutTypes',k,p.fourCutTypes[k]||{id:k,label:k,price:0})).join('');
+  const signatureOrder=(ensureInquiryV3().designs?.signature?.counts||[]).map(x=>String(x.id||'')).filter(Boolean).filter(k=>k!=='custom');
+  const signatureKeys=[...new Set([...signatureOrder,'direct',...Object.keys(p.signatureTypes||{})])];
+  const signatureRows=signatureKeys.map(k=>quoteAdminRow('signatureTypes',k,p.signatureTypes[k]||{id:k,label:k,price:0},{note:k==='direct'?'갯수 직접입력 시 개당 가격':''})).join('');
   let optionRows=['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private']
     .map(k=>quoteAdminRow('options',k,p.options[k],{applyMode:['sameDay','fast','private'].includes(k)})).join('');
   optionRows+=(p.customOptions||[]).map((x,i)=>quoteAdminRow('customOptions',String(i),x,{deleteIndex:i,tag:'사용자 추가',applyMode:true,visibility:true})).join('');
@@ -1826,9 +1824,9 @@ function quoteItems(){
   const p=ensureQuoteConfig().pricingV2,out=[];
   ['topBanner','floatingBanner'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
   ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
-  ['bottom1','bottom3','bottom6'].forEach(k=>{const x=p.bottomTypes[k];out.push({key:'bottomType:'+k,label:'하단배너 · '+x.label,price:quotePriceValue(x.price)})});
-  ['large','small'].forEach(k=>{const x=p.fourCutTypes[k];out.push({key:'fourCutType:'+k,label:x.label,price:quotePriceValue(x.price)})});
-  ['one','three','six','direct'].forEach(k=>{const x=p.signatureTypes[k];out.push({key:'signatureType:'+k,label:x.label,price:quotePriceValue(x.price)})});
+  Object.entries(p.bottomTypes||{}).forEach(([k,x])=>out.push({key:'bottomType:'+k,label:'하단배너 · '+String(x?.label||k),price:quotePriceValue(x?.price)}));
+  Object.entries(p.fourCutTypes||{}).forEach(([k,x])=>out.push({key:'fourCutType:'+k,label:String(x?.label||k),price:quotePriceValue(x?.price)}));
+  Object.entries(p.signatureTypes||{}).forEach(([k,x])=>out.push({key:'signatureType:'+k,label:String(x?.label||k),price:quotePriceValue(x?.price)}));
   Object.entries(p.designs||{}).filter(([k])=>!['profile','topBanner','floatingBanner','bottomBanner','fourCut','signature'].includes(k)).forEach(([k,x])=>out.push({key:'design:'+k,label:x.label||k,price:quotePriceValue(x.price)}));
   ['nameOnlyChange','profileChange','textImageChange','sameDesignColorChange','sameDay','fast','private'].forEach(k=>{const x=p.options[k];out.push({key:'option:'+k,label:x.label,price:quotePriceValue(x.price)})});
   (p.customOptions||[]).forEach(x=>out.push({key:'customOption:'+x.id,label:x.label||'이름 없는 추가 옵션',price:quotePriceValue(x.price)}));
