@@ -8663,3 +8663,121 @@ textarea[data-v3-field="extraRequest"]{
     --iq-help-size:11.5px;
   }
 }
+
+
+/* 2026-10-27 inquiry header + mobile nesting polish */
+/* Inquiry header follows the same centered major-section system as notice / portfolio. */
+.form-card .section-heading.inquiry-heading,
+.form-card .section-heading.inquiry-heading>div,
+.form-card .section-heading.inquiry-heading .section-heading-copy{
+  display:grid!important;
+  justify-items:center!important;
+  width:100%!important;
+  padding-left:0!important;
+  text-align:center!important;
+}
+.form-card .section-heading.inquiry-heading .section-heading-copy::before{
+  content:none!important;
+  display:none!important;
+}
+.form-card #formTitle{
+  width:100%!important;
+  margin:0!important;
+  color:#3d5666!important;
+  font-family:"Paperlogy",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif!important;
+  font-size:clamp(20px,2.4vw,25px)!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  letter-spacing:-.025em!important;
+  text-align:center!important;
+}
+.form-card #formDescription{
+  display:block!important;
+  width:100%!important;
+  max-width:760px!important;
+  margin:10px auto 0!important;
+  padding:0!important;
+  color:#6f7f89!important;
+  font-size:13px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+  text-align:center!important;
+  white-space:pre-line!important;
+}
+
+/* Empty legacy question numbers must not leave a blue dot before fixed/preset selection. */
+.form-card .v2-fixed-product-select>legend[data-question-title]::before,
+.form-card .v2-product-select[data-product-kind="preset"]>legend[data-question-title]::before{
+  content:none!important;
+  display:none!important;
+}
+.form-card .v2-fixed-product-select>legend[data-question-title],
+.form-card .v2-product-select[data-product-kind="preset"]>legend[data-question-title]{
+  column-gap:0!important;
+}
+
+/* Mobile: remove one visual nesting layer so detail fields keep usable horizontal width. */
+@media(max-width:680px){
+  .form-card #formTitle{
+    font-size:20px!important;
+  }
+  .form-card #formDescription{
+    margin-top:8px!important;
+    font-size:12px!important;
+    line-height:1.5!important;
+  }
+  .inquiry-design-detail-card{
+    padding:12px 9px 13px!important;
+  }
+  [data-v3-profile-slot]{
+    gap:13px!important;
+  }
+  [data-v3-profile-slot]>.profile-mode-subcard{
+    padding:11px 0 0!important;
+    border:0!important;
+    border-top:1px solid #e3eef4!important;
+    border-radius:0!important;
+    background:transparent!important;
+  }
+  [data-v3-profile-slot]>.profile-mode-subcard:first-child{
+    padding-top:0!important;
+    border-top:0!important;
+  }
+  .profile-mode-fields,
+  .fixed-inquiry-fields,
+  .profile-common-fields,
+  .inquiry-v3-field-grid{
+    column-gap:10px!important;
+    row-gap:12px!important;
+  }
+  .choice-row,
+  .v2-fixed-product-grid,
+  .request-type-options{
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  .request-card-v3 .choice-pill,
+  .request-card-v3 .request-type-option,
+  .contact-form .v2-fixed-product-grid .v2-fixed-product-choice{
+    max-width:100%!important;
+    min-width:0!important;
+  }
+  .request-card-v3 .choice-pill>span,
+  .request-card-v3 .request-type-option span,
+  .contact-form .v2-fixed-product-grid .v2-fixed-product-choice,
+  .contact-form .v2-fixed-product-grid .v2-fixed-product-choice>span{
+    max-width:100%!important;
+    white-space:normal!important;
+    word-break:keep-all!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* File-retention helper sits closer to O / X choices on mobile. */
+  .profile-common-fields .inquiry-v3-choice-field{
+    gap:5px!important;
+  }
+  .profile-common-fields .field-help{
+    margin:0!important;
+    line-height:1.35!important;
+  }
+}
