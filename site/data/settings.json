@@ -1659,7 +1659,7 @@
               "label": "프리셋 수정 요청사항",
               "type": "textarea",
               "required": false,
-              "placeholder": "원하시는 수정 사항이 있으시면 작성해 주세요",
+              "placeholder": "원하는 수정 사항이 있으면 작성해 주세요",
               "wide": true,
               "help": "",
               "conditionKey": "",
