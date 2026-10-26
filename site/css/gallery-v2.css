@@ -4558,3 +4558,14 @@ body.v2-fixed-detail-open{
     font-size:9.5px;
   }
 }
+
+
+/* 2026-10-27 inquiry title-description spacing */
+#inquirySection #formDescription{
+  margin-top:4px!important;
+}
+@media(max-width:680px){
+  #inquirySection #formDescription{
+    margin-top:5px!important;
+  }
+}
