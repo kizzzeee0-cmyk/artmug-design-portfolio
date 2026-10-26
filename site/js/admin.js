@@ -1734,6 +1734,15 @@ function quoteUpsertLegacy(arr,id,name,price){
  if(x){x.price=quotePriceValue(price);return x}
  const n={id,name,price:quotePriceValue(price)};(arr||[]).push(n);return n
 }
+function syncQuoteInquiryOptionLabels(target=S){
+ const q=target?.quoteConfig?.pricingV2||ensureQuoteConfig().pricingV2;
+ const v=ensureInquiryV3(target);
+ const banner=q?.options?.textImageChange?.label;
+ const four=q?.options?.sameDesignColorChange?.label;
+ if(v.designs?.soopBanner&&banner)v.designs.soopBanner.textChangeLabel=String(banner);
+ if(v.designs?.fourCut&&four)v.designs.fourCut.colorChangeLabel=String(four);
+ return target
+}
 function syncQuoteLegacyMirrors(q=ensureQuoteConfig()){
  const p=q.pricingV2;
  quoteUpsertLegacy(q.priceItems.design,'profile-a','움짤프사',p.profileModes.custom.price);
@@ -1865,7 +1874,11 @@ function bindQuoteConfigInputs(){
   });
   document.querySelectorAll('[data-qv2-label]').forEach(e=>e.oninput=()=>{
     const [group,key]=e.dataset.qv2Label.split(':'),x=quoteObjectFor(group,key);
-    if(x){x.label=e.value;renderQuoteBuilder()}
+    if(x){
+      x.label=e.value;
+      if(group==='options'&&['textImageChange','sameDesignColorChange'].includes(key))syncQuoteInquiryOptionLabels();
+      renderQuoteBuilder()
+    }
   });
   document.querySelectorAll('[data-add-qv2-custom]').forEach(b=>b.onclick=()=>{
     const p=ensureQuoteConfig().pricingV2;
@@ -2039,6 +2052,7 @@ async function saveSettings(){
   S.eventsFontSize=Number($('eventsFontSize').value||15);
   collectCats(S.presetCategories||[],'preset');collectPresetGroups();capturePresetEditorValues();collectFixedAdmin();ensureFixedProducts().forEach((_,i)=>collectFixedProductFromDom(i));
   syncQuoteLegacyMirrors(ensureQuoteConfig());
+  syncQuoteInquiryOptionLabels(S);
   const snapshot=JSON.parse(JSON.stringify(S));
   try{
     $('saveStatus').textContent='저장 중…';
