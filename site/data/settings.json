@@ -1589,8 +1589,8 @@
     "version": 3,
     "enabled": true,
     "broadcast": {
-      "nicknameLabel": "방송 닉네임",
-      "nicknamePlaceholder": "방송 닉네임을 입력해주세요",
+      "nicknameLabel": "방송 닉네임 및 주소",
+      "nicknamePlaceholder": "방송 닉네임과 주소를 입력해주세요",
       "addressLabel": "방송 주소",
       "addressPlaceholder": "https://..."
     },
