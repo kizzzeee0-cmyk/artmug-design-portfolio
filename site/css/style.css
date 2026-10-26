@@ -8807,3 +8807,36 @@ textarea[data-v3-field="extraRequest"]{
     line-height:1.12!important;
   }
 }
+
+
+/* 2026-10-27 mobile resizable name + compact textarea centering */
+/* Compact resizable textareas: initial one-line state is vertically centered. */
+textarea[data-v3-field$=".concept"],
+textarea[data-v3-field="profile.preset.request"],
+textarea[data-v3-field="extraRequest"]{
+  box-sizing:border-box!important;
+  line-height:20px!important;
+  padding-top:11px!important;
+  padding-bottom:11px!important;
+}
+
+@media(max-width:680px){
+  textarea[data-v3-field$=".concept"],
+  textarea[data-v3-field="profile.preset.request"],
+  textarea[data-v3-field="extraRequest"],
+  textarea.mobile-resizable-name-input{
+    box-sizing:border-box!important;
+    min-height:42px!important;
+    height:42px!important;
+    padding-top:10px!important;
+    padding-bottom:10px!important;
+    line-height:20px!important;
+    resize:vertical!important;
+    overflow:auto!important;
+  }
+  textarea.mobile-resizable-name-input{
+    width:100%!important;
+    padding-left:11px!important;
+    padding-right:11px!important;
+  }
+}
