@@ -1176,10 +1176,9 @@ function v3ProfileFieldHtml(card,field,prefix){
  let helpHtml='';
  if(help){
   if(field.id==='frameKeep'){
-   const parts=help.match(/^(.*?)(\s*\(X 선택 시 작업 파일 미보관\))$/);
-   helpHtml=parts
-    ?'<small class="field-help frame-retention-help"><span>'+esc(parts[1].trim())+'</span><span>'+esc(parts[2].trim())+'</span></small>'
-    :'<small class="field-help frame-retention-help">'+esc(help)+'</small>'
+   const first='추후 이름 · 움짤 변경을 원하시면 O를 선택해 주세요';
+   const second='(X 선택 시 작업 파일 미보관)';
+   helpHtml='<small class="field-help frame-retention-help"><span>'+esc(first)+'</span><span>'+esc(second)+'</span></small>'
   }else{
    helpHtml='<small class="field-help">'+esc(help)+'</small>'
   }
