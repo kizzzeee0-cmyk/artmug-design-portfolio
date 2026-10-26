@@ -387,9 +387,11 @@ function publicReservationInitials(text){
 function publicReservationWorkLabel(value){
   const text=String(value||'').trim();
   if(!text)return'';
-  const m=text.match(/^(.*?)(님\s*작업.*)$/);
-  if(m)return publicReservationInitials(m[1].trim())+m[2];
-  return publicReservationInitials(text)
+  return text.split(/\s*\/\s*/).filter(Boolean).map(part=>{
+    const item=part.trim();
+    const m=item.match(/^(.*?)(님\s*작업.*)$/);
+    return m?publicReservationInitials(m[1].trim())+m[2]:publicReservationInitials(item)
+  }).join(' / ')
 }
 function availabilityPublicDateLabel(ymd){
   const m=String(ymd||'').match(/^\d{4}-(\d{2})-(\d{2})$/);
