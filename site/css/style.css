@@ -8880,3 +8880,12 @@ textarea[data-v3-field="extraRequest"]{
     margin-top:0!important;
   }
 }
+
+
+/* 2026-10-27 restore mobile frame-retention control gap */
+@media(max-width:680px){
+  .profile-common-fields .frame-retention-help{
+    margin-top:5px!important;
+    margin-bottom:0!important;
+  }
+}
