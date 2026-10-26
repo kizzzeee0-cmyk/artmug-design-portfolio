@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0,publicQuoteQty={},availabilityCalendarView=null;const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
+const C=window.ARTMUG_CONFIG||{};const API=C.API_BASE||'';const PER=Number(C.ITEMS_PER_PAGE||30);let S=null,portfolioState={category:'',page:1},presetState={category:'',page:1},requestSeq=0,scheduleCutoffTimer=0,publicQuoteQty={},availabilityCalendarView=null,availabilitySelectedReservationDate='';const portfolioCache=new Map(),presetCache=new Map();const $=id=>document.getElementById(id);const esc=s=>String(s??'');
 function initArtmugEmbedMode(){
   // Report content height for both the complete public page and split embed pages.
   if(window.parent===window)return;
@@ -303,6 +303,14 @@ function armScheduleCutoffRefresh(){
     armScheduleCutoffRefresh();
   },msUntilNextKorea22())
 }
+function availabilityAutoScheduleDate(s,minimumDate){
+  const dates=s?.availabilityCalendar?.dates;
+  if(!dates||typeof dates!=='object'||Array.isArray(dates))return'';
+  const reserved=Object.keys(dates)
+    .filter(ymd=>/^\d{4}-\d{2}-\d{2}$/.test(ymd)&&dates[ymd]==='reserved'&&ymd>=minimumDate)
+    .sort();
+  return reserved.length?addDaysYmd(reserved[reserved.length-1],1):''
+}
 function renderSchedule(s){
   const card=document.querySelector('.schedule-card');
   const dateColor=/^#[0-9a-f]{6}$/i.test(String(s.scheduleDateColor||''))?String(s.scheduleDateColor).toUpperCase():'#4E9BC6';
@@ -314,8 +322,9 @@ function renderSchedule(s){
   const now=koreaNowParts();
   const today=now.date;
   const minimumDate=now.hour>=22?addDaysYmd(today,1):today;
+  const autoReservedDate=availabilityAutoScheduleDate(s,minimumDate);
   const savedDate=/^\d{4}-\d{2}-\d{2}$/.test(s.scheduleDate||'')?s.scheduleDate:minimumDate;
-  const chosen=savedDate<minimumDate?minimumDate:savedDate;
+  const chosen=autoReservedDate||(savedDate<minimumDate?minimumDate:savedDate);
   const [,m,d]=chosen.split('-');
   const dateLabel=`${Number(m)}월 ${Number(d)}일`;
   const mode=['start','deadline','custom'].includes(s.scheduleMode)?s.scheduleMode:'start';
@@ -367,6 +376,25 @@ function availabilityStatusMeta(status){
     reserved:{label:'예약',className:'is-reserved'}
   }[status]||null
 }
+function publicReservationInitials(text){
+  const initials='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+  return Array.from(String(text||'')).map(ch=>{
+    const code=ch.charCodeAt(0);
+    if(code>=0xAC00&&code<=0xD7A3)return initials[Math.floor((code-0xAC00)/588)]||ch;
+    return ch
+  }).join('')
+}
+function publicReservationWorkLabel(value){
+  const text=String(value||'').trim();
+  if(!text)return'';
+  const m=text.match(/^(.*?)(님\s*작업.*)$/);
+  if(m)return publicReservationInitials(m[1].trim())+m[2];
+  return publicReservationInitials(text)
+}
+function availabilityPublicDateLabel(ymd){
+  const m=String(ymd||'').match(/^\d{4}-(\d{2})-(\d{2})$/);
+  return m?Number(m[1])+'월 '+Number(m[2])+'일':''
+}
 function renderAvailabilityCalendar(s){
   const card=document.querySelector('.availability-calendar-card');
   const root=$('availabilityCalendar');
@@ -376,11 +404,12 @@ function renderAvailabilityCalendar(s){
   card.style.setProperty('--schedule-date-color',scheduleDateColor);
   const enabled=cfg.enabled===true;
   card.hidden=!enabled;
-  if(!enabled){root.innerHTML='';return}
+  if(!enabled){root.innerHTML='';availabilitySelectedReservationDate='';return}
   const today=koreaDate();
   if(!availabilityCalendarView)availabilityCalendarView=availabilityMonthFromYmd(today)||{year:new Date().getUTCFullYear(),month:new Date().getUTCMonth()+1};
   const view=availabilityCalendarView,days=availabilityDaysInMonth(view.year,view.month),first=availabilityFirstDay(view.year,view.month);
   const dates=cfg.dates&&typeof cfg.dates==='object'&&!Array.isArray(cfg.dates)?cfg.dates:{};
+  const reservationNotes=cfg.reservationNotes&&typeof cfg.reservationNotes==='object'&&!Array.isArray(cfg.reservationNotes)?cfg.reservationNotes:{};
   const weekdayLabels=['일','월','화','수','목','금','토'];
   const cells=[];
   for(let i=0;i<first;i++)cells.push('<span class="availability-day is-empty" aria-hidden="true"></span>');
@@ -394,15 +423,26 @@ function renderAvailabilityCalendar(s){
       ?'closed'
       :(['available','closed','off','reserved'].includes(savedStatus)?savedStatus:((weekendsDefaultOff&&isWeekend)?'off':'available'));
     const meta=availabilityStatusMeta(resolvedStatus);
+    const isReserved=resolvedStatus==='reserved';
+    const tag=isReserved?'button':'div';
+    const attrs=isReserved?' type="button" data-reservation-date="'+htmlAttr(ymd)+'"':'';
     cells.push(
-      '<div class="availability-day '+meta.className+' '+(ymd===today?'is-today':'')+'" aria-label="'+htmlAttr(ymd+' '+meta.label)+'">'+
+      '<'+tag+' class="availability-day '+meta.className+' '+(ymd===today?'is-today':'')+'"'+attrs+' aria-label="'+htmlAttr(ymd+' '+meta.label)+'">'+
         '<span class="availability-day-number">'+day+'</span>'+
         '<span class="availability-day-status">'+meta.label+'</span>'+
-      '</div>'
+      '</'+tag+'>'
     )
   }
   const remainder=cells.length%7;
   if(remainder)for(let i=remainder;i<7;i++)cells.push('<span class="availability-day is-empty" aria-hidden="true"></span>');
+
+  const selected=availabilitySelectedReservationDate;
+  const selectedVisible=selected&&selected.startsWith(availabilityMonthKey(view)+'-')&&dates[selected]==='reserved';
+  const selectedNote=selectedVisible?publicReservationWorkLabel(reservationNotes[selected]||''):'';
+  const detail=selectedVisible
+    ?'<div class="availability-reservation-detail" role="status"><strong>'+htmlAttr(availabilityPublicDateLabel(selected))+' 예약</strong><span>'+htmlAttr(selectedNote||'예약된 작업입니다.')+'</span></div>'
+    :'';
+
   root.innerHTML=
     '<div class="availability-calendar-inner">'+
       '<div class="availability-calendar-nav">'+
@@ -410,12 +450,20 @@ function renderAvailabilityCalendar(s){
         '<strong>'+view.year+'.'+String(view.month).padStart(2,'0')+'</strong>'+
         '<button type="button" data-availability-shift="1" aria-label="다음 달">›</button>'+
       '</div>'+
-
       '<div class="availability-weekdays">'+weekdayLabels.map((x,i)=>'<span class="'+(i===0?'is-sunday':i===6?'is-saturday':'')+'">'+x+'</span>').join('')+'</div>'+
       '<div class="availability-days">'+cells.join('')+'</div>'+
+      detail+
     '</div>';
+
   root.querySelectorAll('[data-availability-shift]').forEach(button=>button.onclick=()=>{
     availabilityCalendarView=availabilityMonthShift(availabilityCalendarView,Number(button.dataset.availabilityShift||0));
+    availabilitySelectedReservationDate='';
+    renderAvailabilityCalendar(S||s);
+    requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
+  });
+  root.querySelectorAll('[data-reservation-date]').forEach(button=>button.onclick=()=>{
+    const date=String(button.dataset.reservationDate||'');
+    availabilitySelectedReservationDate=availabilitySelectedReservationDate===date?'':date;
     renderAvailabilityCalendar(S||s);
     requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
   });
