@@ -1578,7 +1578,8 @@
       "2026-11-05": "available",
       "2026-10-28": "off"
     },
-    "weekendsDefaultOff": true
+    "weekendsDefaultOff": true,
+    "reservationNotes": {}
   },
   "inquiryV3": {
     "version": 3,
