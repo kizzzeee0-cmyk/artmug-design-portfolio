@@ -1172,7 +1172,18 @@ function v3ProfileFieldHtml(card,field,prefix){
   if(!visible)return''
  }
  const key=prefix+'.'+String(field.id||'field'),type=String(field.type||'text'),label=String(field.label||'항목'),value=v3ProfileFieldValue(card,key,'');
- const help=String(field.help||(field.id==='frameKeep'?state.settings?.frameKeepDescription||'':'')).trim(),helpHtml=help?'<small class="field-help">'+esc(help)+'</small>':'';
+ const help=String(field.help||(field.id==='frameKeep'?state.settings?.frameKeepDescription||'':'')).trim();
+ let helpHtml='';
+ if(help){
+  if(field.id==='frameKeep'){
+   const parts=help.match(/^(.*?)(\s*\(X 선택 시 작업 파일 미보관\))$/);
+   helpHtml=parts
+    ?'<small class="field-help frame-retention-help"><span>'+esc(parts[1].trim())+'</span><span>'+esc(parts[2].trim())+'</span></small>'
+    :'<small class="field-help frame-retention-help">'+esc(help)+'</small>'
+  }else{
+   helpHtml='<small class="field-help">'+esc(help)+'</small>'
+  }
+ }
  if(type==='radio'||type==='multi'){
   const opts=Array.isArray(field.options)?field.options:[];
   const selected=Array.isArray(value)?value.map(String):[String(value||'')];
