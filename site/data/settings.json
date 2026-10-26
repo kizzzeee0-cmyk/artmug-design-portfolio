@@ -811,13 +811,13 @@
       "options": {
         "textImageChange": {
           "id": "textImageChange",
-          "label": "배너 · 텍스트/이미지 변경",
+          "label": "텍스트/이미지 변경",
           "price": 3000,
           "quantityField": "textChangeQty"
         },
         "sameDesignColorChange": {
           "id": "sameDesignColorChange",
-          "label": "동일 디자인 · 색상 변경",
+          "label": "색상 변경",
           "price": 3000,
           "quantityField": "sameDesignColorChangeQty"
         },
@@ -847,13 +847,13 @@
         },
         "profileChange": {
           "id": "profileChange",
-          "label": "움짤프사 · 이름/움짤 변경",
+          "label": "이름/움짤 변경",
           "price": 3000,
           "quantityField": "profileChangeQty"
         },
         "nameOnlyChange": {
           "id": "nameOnlyChange",
-          "label": "움짤프사 · 이름만 변경",
+          "label": "이름만 변경",
           "price": 3000,
           "quantityField": "nameOnlyChangeQty"
         }
