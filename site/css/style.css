@@ -8781,3 +8781,16 @@ textarea[data-v3-field="extraRequest"]{
     line-height:1.35!important;
   }
 }
+
+
+/* 2026-10-27 tighter mobile frame-retention helper */
+@media(max-width:680px){
+  .profile-common-fields .inquiry-v3-choice-field{
+    gap:3px!important;
+  }
+  .profile-common-fields .field-help{
+    margin-top:-1px!important;
+    margin-bottom:0!important;
+    line-height:1.3!important;
+  }
+}
