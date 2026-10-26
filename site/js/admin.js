@@ -140,7 +140,7 @@ function isSettingsConflict(err){
 }
 const settingsDelay=ms=>new Promise(r=>setTimeout(r,ms));
 async function fetchFreshSettings(){
-  const d=await api('/api/public/settings?fresh='+Date.now());
+  const d=await api('/api/admin/settings?fresh='+Date.now());
   return d.settings||{}
 }
 function queueSettingsMutation(mutator){
@@ -481,6 +481,7 @@ function ensureAvailabilityCalendar(target=S){
   if(target.availabilityCalendar.enabled==null)target.availabilityCalendar.enabled=true;
   if(target.availabilityCalendar.weekendsDefaultOff==null)target.availabilityCalendar.weekendsDefaultOff=true;
   if(!target.availabilityCalendar.dates||typeof target.availabilityCalendar.dates!=='object'||Array.isArray(target.availabilityCalendar.dates))target.availabilityCalendar.dates={};
+  if(!target.availabilityCalendar.reservationNotes||typeof target.availabilityCalendar.reservationNotes!=='object'||Array.isArray(target.availabilityCalendar.reservationNotes))target.availabilityCalendar.reservationNotes={};
   return target.availabilityCalendar
 }
 function adminKoreaDate(){
@@ -528,10 +529,18 @@ function collectAvailabilityCalendarAdmin(){
 function applyAvailabilityStatus(status,dates=[...availabilityAdminSelected]){
   const cfg=ensureAvailabilityCalendar();
   if(!dates.length)return;
-  availabilityAdminUndo=JSON.parse(JSON.stringify(cfg.dates||{}));
+  availabilityAdminUndo={
+    dates:JSON.parse(JSON.stringify(cfg.dates||{})),
+    reservationNotes:JSON.parse(JSON.stringify(cfg.reservationNotes||{}))
+  };
   dates.forEach(date=>{
-    if(status==='unset')delete cfg.dates[date];
-    else if(['available','closed','off','reserved'].includes(status))cfg.dates[date]=status
+    if(status==='unset'){
+      delete cfg.dates[date];
+      delete cfg.reservationNotes[date]
+    }else if(['available','closed','off','reserved'].includes(status)){
+      cfg.dates[date]=status;
+      if(status!=='reserved')delete cfg.reservationNotes[date]
+    }
   });
   markAvailabilityDirty();
   renderAvailabilityCalendarAdmin()
@@ -580,6 +589,8 @@ function renderAvailabilityCalendarAdmin(){
   }
   const rem=cells.length%7;if(rem)for(let i=rem;i<7;i++)cells.push('<span class="availability-admin-day is-empty"></span>');
   const selectedOne=!availabilityAdminMulti&&availabilityAdminSelected.size===1?[...availabilityAdminSelected][0]:'';
+  const selectedStoredStatus=selectedOne?String(cfg.dates[selectedOne]||''):'';
+  const selectedReservationNote=selectedOne?String(cfg.reservationNotes[selectedOne]||''):'';
   const statusButtons=['available','closed','off','reserved'].map(status=>{
     const meta=adminAvailabilityMeta(status);
     return '<button type="button" class="availability-admin-status '+meta.className+' '+(availabilityAdminStatus===status?'is-active':'')+'" data-availability-status="'+status+'">'+meta.label+'</button>'
@@ -598,7 +609,7 @@ function renderAvailabilityCalendarAdmin(){
     '</div>'+
     '<div class="availability-admin-weekdays">'+['일','월','화','수','목','금','토'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+
     '<div class="availability-admin-days">'+cells.join('')+'</div>'+
-    (selectedOne?'<div class="availability-single-editor"><strong>'+selectedOne+'</strong><span>상태 변경</span>'+singleStatusButtons+'<button type="button" class="availability-admin-status is-unset" data-availability-single-status="unset">미등록</button></div>':'')+
+    (selectedOne?'<div class="availability-single-editor"><div class="availability-single-status-line"><strong>'+selectedOne+'</strong><span>상태 변경</span>'+singleStatusButtons+'<button type="button" class="availability-admin-status is-unset" data-availability-single-status="unset">미등록</button></div>'+(selectedStoredStatus==='reserved'?'<label class="availability-reservation-note-editor"><span>예약 작업명 (관리자 전용)</span><input id="availabilityReservationNote" type="text" value="'+adminEsc(selectedReservationNote)+'" placeholder="예: 키제님 작업"><small>공개 사이트에는 이름을 초성으로 변환해 표시합니다.</small></label>':'')+'</div>':'')+
     '<div class="availability-admin-save-row"><span id="availabilityCalendarSaveState" data-state="'+(availabilityAdminDirty?'dirty':'saved')+'">'+(availabilityAdminDirty?'저장 전 변경사항':'저장됨')+'</span><button type="button" id="saveAvailabilityCalendar" class="primary-button admin-compact">일정 저장</button></div>';
 
   root.querySelectorAll('[data-availability-admin-shift]').forEach(b=>b.onclick=()=>{availabilityAdminView=adminAvailabilityShift(view,Number(b.dataset.availabilityAdminShift||0));renderAvailabilityCalendarAdmin()});
@@ -636,12 +647,25 @@ function renderAvailabilityCalendarAdmin(){
   };
   $('availabilityUndo').onclick=()=>{
     if(!availabilityAdminUndo)return;
-    const current=JSON.parse(JSON.stringify(cfg.dates||{}));
-    cfg.dates=JSON.parse(JSON.stringify(availabilityAdminUndo));
+    const current={
+      dates:JSON.parse(JSON.stringify(cfg.dates||{})),
+      reservationNotes:JSON.parse(JSON.stringify(cfg.reservationNotes||{}))
+    };
+    cfg.dates=JSON.parse(JSON.stringify(availabilityAdminUndo.dates||{}));
+    cfg.reservationNotes=JSON.parse(JSON.stringify(availabilityAdminUndo.reservationNotes||{}));
     availabilityAdminUndo=current;
     markAvailabilityDirty();
     renderAvailabilityCalendarAdmin()
   };
+  const reservationNoteInput=$('availabilityReservationNote');
+  if(reservationNoteInput&&selectedOne){
+    reservationNoteInput.oninput=()=>{
+      const value=reservationNoteInput.value;
+      if(value.trim())cfg.reservationNotes[selectedOne]=value;
+      else delete cfg.reservationNotes[selectedOne];
+      markAvailabilityDirty()
+    }
+  }
   $('saveAvailabilityCalendar').onclick=()=>saveAvailabilityCalendar();
   syncAdminVisibilityCollapse()
 }
@@ -669,7 +693,7 @@ function renderScheduleAdmin(){
     <div class="wide schedule-admin-top">
       <label class="toggle schedule-enabled-toggle"><input id="scheduleEnabled" type="checkbox" ${S.scheduleEnabled!==false?'checked':''}> 작업 일정 안내 표시</label>
     </div>
-    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"><small class="field-note">공개 페이지는 한국 시간 기준 밤 10시 전에는 오늘, 밤 10시 이후에는 다음날보다 과거인 날짜를 자동으로 보정해 표시합니다.</small></label>
+    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"><small class="field-note">공개 페이지는 한국 시간 기준 밤 10시 전에는 오늘, 밤 10시 이후에는 다음날보다 과거인 날짜를 자동으로 보정해 표시합니다. 일정 달력에 예약이 있으면 가장 마지막 예약일의 다음 날이 작업 시작일로 자동 우선 적용됩니다.</small></label>
     <div class="wide schedule-date-color-admin">
       <div class="schedule-date-color-controls">
         <label class="schedule-date-color-picker">날짜 강조 색상 <input id="scheduleDateColorPicker" type="color" value="${scheduleDateColor.toLowerCase()}"></label>
@@ -3467,7 +3491,7 @@ async function migrateLegacyFixedProducts(){
  return true
 }
 
-async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/public/settings');S=stripSeasonData(d.settings||{});render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
+async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/admin/settings');S=stripSeasonData(d.settings||{});render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};if($('addInquiryV3Design'))$('addInquiryV3Design').onclick=addInquiryV3Design;$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const p=ensureQuoteConfig().pricingV2;p.standaloneItems.push({id:'qstand-'+Date.now(),label:'새 독립 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('quoteOrderEdit'))$('quoteOrderEdit').onclick=toggleQuoteOrderEditing;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 디자인 종류',enabled:true});renderFixedCats();renderFixedItems()};if($('addFixedProduct'))$('addFixedProduct').onclick=()=>addFixedProduct().catch(e=>alert('고정틀 추가 실패: '+e.message));if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
