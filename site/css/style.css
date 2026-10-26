@@ -8858,3 +8858,25 @@ textarea[data-v3-field="extraRequest"]{
     margin-top:0!important;
   }
 }
+
+
+/* 2026-10-27 frame-retention exact mobile line break v2 */
+@media(max-width:680px){
+  .profile-common-fields .frame-retention-help{
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+    white-space:pre-line!important;
+    line-height:1!important;
+  }
+  .profile-common-fields .frame-retention-help>span{
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  .profile-common-fields .frame-retention-help>span+span{
+    margin-top:0!important;
+  }
+}
