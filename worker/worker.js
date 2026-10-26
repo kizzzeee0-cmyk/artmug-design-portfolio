@@ -84,9 +84,11 @@ function maskReservationInitials(text){
 function maskReservationWorkLabel(value){
   const text=String(value||'').trim();
   if(!text)return'';
-  const m=text.match(/^(.*?)(님\s*작업.*)$/);
-  if(m)return maskReservationInitials(m[1].trim())+m[2];
-  return maskReservationInitials(text)
+  return text.split(/\s*\/\s*/).filter(Boolean).map(part=>{
+    const item=part.trim();
+    const m=item.match(/^(.*?)(님\s*작업.*)$/);
+    return m?maskReservationInitials(m[1].trim())+m[2]:maskReservationInitials(item)
+  }).join(' / ')
 }
 function sanitizePublicSettings(settings){
   const out=JSON.parse(JSON.stringify(settings||{}));
