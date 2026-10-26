@@ -8840,3 +8840,21 @@ textarea[data-v3-field="extraRequest"]{
     padding-right:11px!important;
   }
 }
+
+
+/* 2026-10-27 exact mobile frame-retention two-line layout */
+.frame-retention-help>span{
+  display:inline;
+}
+@media(max-width:680px){
+  .frame-retention-help{
+    display:block!important;
+    line-height:1.02!important;
+  }
+  .frame-retention-help>span{
+    display:block!important;
+  }
+  .frame-retention-help>span+span{
+    margin-top:0!important;
+  }
+}
