@@ -4569,3 +4569,18 @@ body.v2-fixed-detail-open{
     margin-top:5px!important;
   }
 }
+
+
+/* 2026-10-27 combined broadcast field */
+#inquirySection .inquiry-broadcast-combined-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;
+}
+#inquirySection .inquiry-broadcast-combined-field{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#inquirySection .inquiry-broadcast-combined-field>input{
+  width:100%!important;
+}
