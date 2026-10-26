@@ -4450,3 +4450,30 @@ body.v2-fixed-detail-open{
     margin-top:8px!important;
   }
 }
+
+
+/* 2026-10-27 inquiry description responsive lines */
+#inquirySection #formDescription{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:10px auto 0!important;
+  text-align:center!important;
+  text-align-last:center!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+}
+@media(max-width:680px){
+  #inquirySection #formDescription{
+    width:100%!important;
+    max-width:100%!important;
+    margin:8px auto 0!important;
+    padding:0!important;
+    text-align:center!important;
+    text-align-last:center!important;
+    white-space:pre-line!important;
+    overflow-wrap:anywhere!important;
+    word-break:keep-all!important;
+  }
+}
