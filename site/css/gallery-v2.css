@@ -4399,3 +4399,54 @@ body.v2-fixed-detail-open{
     overflow-wrap:anywhere!important;
   }
 }
+
+
+/* 2026-10-27 force inquiry header true center */
+/* Use the whole inquiry card width, not a form/grid column, for the title block. */
+#inquirySection > .inquiry-heading{
+  grid-column:1/-1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0 auto!important;
+  padding:0!important;
+  text-align:center!important;
+}
+#inquirySection > .inquiry-heading > .section-heading-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0 auto!important;
+  padding:0!important;
+  text-align:center!important;
+}
+#inquirySection > .inquiry-heading > .section-heading-copy::before{
+  content:none!important;
+  display:none!important;
+}
+#inquirySection #formTitle{
+  display:block!important;
+  width:100%!important;
+  margin:0 auto!important;
+  text-align:center!important;
+}
+#inquirySection #formDescription{
+  display:block!important;
+  width:100%!important;
+  max-width:760px!important;
+  margin:10px auto 0!important;
+  text-align:center!important;
+  white-space:pre-line!important;
+}
+@media(max-width:680px){
+  #inquirySection #formDescription{
+    max-width:100%!important;
+    margin-top:8px!important;
+  }
+}
