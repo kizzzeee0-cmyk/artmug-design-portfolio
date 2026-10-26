@@ -4477,3 +4477,30 @@ body.v2-fixed-detail-open{
     word-break:keep-all!important;
   }
 }
+
+
+/* 2026-10-27 frame retention spacing final */
+@media(max-width:680px){
+  /* Explicit spacing: controls -> helper = 6px, helper line 1 -> line 2 = 2px. */
+  #inquirySection .profile-common-fields .inquiry-v3-choice-field > .choice-row + .frame-retention-help{
+    display:grid!important;
+    row-gap:2px!important;
+    width:100%!important;
+    margin:6px 0 0!important;
+    padding:0!important;
+    line-height:1.12!important;
+    white-space:normal!important;
+  }
+  #inquirySection .profile-common-fields .frame-retention-help > span{
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+    line-height:1.12!important;
+  }
+  #inquirySection .profile-common-fields .frame-retention-help > span:first-child{
+    white-space:nowrap!important;
+  }
+  #inquirySection .profile-common-fields .frame-retention-help > span + span{
+    margin-top:0!important;
+  }
+}
