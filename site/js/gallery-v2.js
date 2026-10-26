@@ -1235,6 +1235,19 @@ function v3ProfileChangeQtyHtml(card){
   row('profileChangeQty','profile.change.fullQty',String(full.label||'움짤프사 · 이름/움짤 변경'),n2)+
  '</div>'
 }
+function upgradeMobileProfileNameInputs(root){
+ if(!root||!window.matchMedia?.('(max-width:680px)').matches)return;
+ root.querySelectorAll('input[type="text"][data-v3-field$=".name"]').forEach(input=>{
+  const textarea=document.createElement('textarea');
+  textarea.className='mobile-resizable-name-input';
+  textarea.rows=1;
+  textarea.value=input.value||'';
+  ['data-v3-field','data-v3-required','placeholder','aria-required','aria-label'].forEach(name=>{
+   if(input.hasAttribute(name))textarea.setAttribute(name,input.getAttribute(name))
+  });
+  input.replaceWith(textarea)
+ })
+}
 function injectInquiryV3(card){
  const slot=card.querySelector('[data-v3-profile-slot]');if(!slot)return;
  const types=selectedTypeInputs(card),hasProfile=types.some(x=>x.id==='profile'||/움짤\s*프사/.test(x.label));
@@ -1270,6 +1283,7 @@ function injectInquiryV3(card){
   }
  }
  if(slot.dataset.renderSignature!==html){slot.innerHTML=html;slot.dataset.renderSignature=html}
+ upgradeMobileProfileNameInputs(slot);
  slot.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
   if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
   let modes=selectedProfileModes(card),value=i.value;
