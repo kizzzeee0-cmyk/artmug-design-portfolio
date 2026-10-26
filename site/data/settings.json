@@ -1740,7 +1740,7 @@
         ],
         "conceptLabel": "원하는 디자인 컨셉 및 색상",
         "contentLabel": "내용 입력",
-        "textChangeLabel": "배너 · 텍스트/이미지 변경",
+        "textChangeLabel": "텍스트/이미지 변경",
         "customFields": [],
         "comingSoon": false
       },
@@ -1762,7 +1762,7 @@
           }
         ],
         "conceptLabel": "원하는 디자인 컨셉 및 색상",
-        "colorChangeLabel": "동일 디자인 · 색상 변경",
+        "colorChangeLabel": "색상 변경",
         "customFields": [],
         "comingSoon": false
       },
