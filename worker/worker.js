@@ -4,7 +4,7 @@ const enc=new TextEncoder(),dec=new TextDecoder();
 export default {async fetch(req,env,ctx){try{if(req.method==='OPTIONS')return cors(new Response(null,{status:204}),req,env);const u=new URL(req.url),p=u.pathname;
 if(p==='/health')return cors(json({ok:true,version:'1.1.0',vars:{owner:!!env.GITHUB_OWNER,repo:!!env.GITHUB_REPO,branch:!!env.GITHUB_BRANCH,password:!!env.ADMIN_PASSWORD,session:!!env.SESSION_SECRET,token:!!env.GITHUB_TOKEN}}),req,env);
 if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='/auth/logout'&&req.method==='POST')return logout(req,env);
-if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings},200,{'Cache-Control':'no-store'}),req,env);}
+if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings:sanitizePublicSettings(settings)},200,{'Cache-Control':'no-store'}),req,env);}
 if(p==='/api/public/catalog')return cors(await publicCatalog(env),req,env);
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
@@ -73,6 +73,34 @@ function ext(p){return (p.split('.').pop()||'').toLowerCase()}
 function item(file,cat,c={}){const name=file.split('/').pop();const m=name.match(/^(\d{14})-/);return{id:`file-${encodeURIComponent(file)}`,category:cat,file,originalName:name,alt:name.replace(/\.[^.]+$/,''),createdAt:m?m[1]:'',width:Number(c.displayWidth||0),height:Number(c.displayHeight||0)}}
 async function listItems(env,token,cat){const s=await publicJson(env,SETTINGS),cats=s.portfolioCategories||[];const use=cat?[...cats.filter(c=>c.id===cat)]:cats;const out=[];for(const c of use){const fs=await publicList(env,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path)))out.push(item(f.path,c.id,c))}}return out.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))}
 async function adminPortfolio(env,token){return listItems(env,token,'')}
+function maskReservationInitials(text){
+  const initials='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+  return Array.from(String(text||'')).map(ch=>{
+    const code=ch.charCodeAt(0);
+    if(code>=0xAC00&&code<=0xD7A3)return initials[Math.floor((code-0xAC00)/588)]||ch;
+    return ch
+  }).join('')
+}
+function maskReservationWorkLabel(value){
+  const text=String(value||'').trim();
+  if(!text)return'';
+  const m=text.match(/^(.*?)(님\s*작업.*)$/);
+  if(m)return maskReservationInitials(m[1].trim())+m[2];
+  return maskReservationInitials(text)
+}
+function sanitizePublicSettings(settings){
+  const out=JSON.parse(JSON.stringify(settings||{}));
+  const cfg=out.availabilityCalendar;
+  if(cfg&&cfg.reservationNotes&&typeof cfg.reservationNotes==='object'&&!Array.isArray(cfg.reservationNotes)){
+    const masked={};
+    Object.entries(cfg.reservationNotes).forEach(([date,note])=>{
+      const value=maskReservationWorkLabel(note);
+      if(value)masked[date]=value
+    });
+    cfg.reservationNotes=masked
+  }
+  return out
+}
 async function publicCatalog(env){
   const token=env.GITHUB_TOKEN||'';
   const [settings,portfolioIndex,presetIndex]=await Promise.all([
@@ -81,7 +109,7 @@ async function publicCatalog(env){
     token?ghJson(env,token,PRESETS).catch(()=>publicJson(env,PRESETS).catch(()=>[])):publicJson(env,PRESETS).catch(()=>[])
   ]);
   return json({
-    settings:settings||{},
+    settings:sanitizePublicSettings(settings||{}),
     portfolioIndex:Array.isArray(portfolioIndex)?portfolioIndex:[],
     presetIndex:Array.isArray(presetIndex)?presetIndex:[]
   },200,{'Cache-Control':'public, max-age=15, stale-while-revalidate=60'})
