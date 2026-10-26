@@ -952,22 +952,22 @@ function renderRequestFieldsV3(card,typeIds,prev){
 }
 function renderInquiryForm(){
   const schema=inquirySchema(),broadcast=schema?.broadcast||{};
-  set('nicknameLabel',broadcast.nicknameLabel||S.nicknameLabel||'방송 닉네임');
-  set('broadcastAddressLabel',broadcast.addressLabel||'방송 주소');
-  const nickname=$('nicknameInput'),address=$('broadcastAddressInput');
-  nickname.placeholder=broadcast.nicknamePlaceholder||S.nicknamePlaceholder||'';
-  if(address)address.placeholder=broadcast.addressPlaceholder||'https://...';
-  nickname.value='';if(address)address.value='';
-  [nickname,address].filter(Boolean).forEach(el=>{el.classList.remove('is-required-missing');el.setAttribute('aria-invalid','false')});
+  const nickname=$('nicknameInput');
+  if(nickname){
+    nickname.placeholder=broadcast.nicknamePlaceholder||S.nicknamePlaceholder||'방송 닉네임과 주소를 입력해주세요';
+    nickname.value='';
+    nickname.classList.remove('is-required-missing');
+    nickname.setAttribute('aria-invalid','false')
+  }
   const container=$('requestsContainer');container.innerHTML='';requestSeq=0;
   const types=inquiryTypes();
   if(!types.length){container.innerHTML='<div class="request-empty">현재 신청 가능한 디자인 종류가 없습니다.</div>';return}
   addRequest([]);
   initInquiryEstimate();
-  [nickname,address].filter(Boolean).forEach(el=>el.oninput=()=>{
-    if(String(el.value||'').trim()){el.classList.remove('is-required-missing');el.setAttribute('aria-invalid','false')}
+  if(nickname)nickname.oninput=()=>{
+    if(String(nickname.value||'').trim()){nickname.classList.remove('is-required-missing');nickname.setAttribute('aria-invalid','false')}
     clearRequiredMessageIfComplete()
-  });
+  };
   requestAnimationFrame(updateInquiryQuestionNumbers)
 }
 function requestTypeOptions(selectedIds){
@@ -1319,11 +1319,10 @@ function requestText(card){
   return blocks.join('\n\n')
 }
 function buildInquiryText(){
-  const schema=inquirySchema(),nickname=String($('nicknameInput')?.value||'').trim(),address=String($('broadcastAddressInput')?.value||'').trim(),card=document.querySelector('.request-card'),request=card?requestText(card):'';
+  const schema=inquirySchema(),combined=String($('nicknameInput')?.value||'').trim(),card=document.querySelector('.request-card'),request=card?requestText(card):'';
   const b=schema?.broadcast||{};
   return [
-    (b.nicknameLabel||'방송 닉네임')+': '+nickname,
-    (b.addressLabel||'방송 주소')+': '+address,
+    (b.nicknameLabel||S.nicknameLabel||'방송 닉네임 및 주소')+': '+combined,
     request
   ].filter(Boolean).join('\n\n')
 }
@@ -1338,10 +1337,9 @@ function inquiryValidationState(mark){
     el.classList.toggle('is-required-missing',!!missing);
     if(el.matches?.('input,textarea,select'))el.setAttribute('aria-invalid',missing?'true':'false')
   };
-  const nickname=$('nicknameInput'),address=$('broadcastAddressInput'),nicknameMissing=!String(nickname?.value||'').trim(),addressValue=String(address?.value||'').trim(),addressMissing=!addressValue||!validBroadcastUrl(addressValue);
-  if(mark){markEl(nickname,nicknameMissing);markEl(address,addressMissing)}
-  if(nicknameMissing){firstMissing=nickname;message='방송 닉네임을 입력해주세요.'}
-  else if(addressMissing){firstMissing=address;message=addressValue?'방송 주소를 올바른 URL 형식으로 입력해주세요.':'방송 주소를 입력해주세요.'}
+  const nickname=$('nicknameInput'),nicknameMissing=!String(nickname?.value||'').trim();
+  if(mark)markEl(nickname,nicknameMissing);
+  if(nicknameMissing){firstMissing=nickname;message='방송 닉네임 및 주소를 입력해주세요.'}
   const card=document.querySelector('.request-card');
   if(!card)return {ok:false,first:firstMissing||nickname,message:message||'신청 정보를 확인해주세요.'};
   const selector=card.querySelector('.request-type-selector'),types=selectedInquiryTypes(card),typeMissing=!types.length;
