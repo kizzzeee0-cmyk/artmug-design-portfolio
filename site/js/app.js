@@ -798,7 +798,7 @@ function renderV3BannerCard(card,design,state){
     v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:S?.conceptPlaceholder||'',wide:true},'banner',rid,state)+
     v3FieldHtml({id:'content',label:design.contentLabel||'내용 입력',type:'textarea',required:true,placeholder:S?.bannerTextPlaceholder||'',wide:true},'banner',rid,state)+
   '</div>';
-  html+='<div class="inquiry-v3-design-options">'+v3QtyHtml('textChangeQty',design.textChangeLabel||inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label,v3Value(state,'banner.textChangeQty',0))+'</div>';
+  html+='<div class="inquiry-v3-design-options">'+v3QtyHtml('textChangeQty',inquiryOption('textImageChange',design.textChangeLabel||'배너 · 텍스트/이미지 변경').label,v3Value(state,'banner.textChangeQty',0))+'</div>';
   (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'banner.custom',rid,state)});
   return html+'</section>'
 }
@@ -809,7 +809,7 @@ function renderV3FourCutCard(card,design,state){
       types.map(x=>'<label class="choice-pill"><input type="checkbox" data-v3-field="fourCut.type" data-v3-rerender="1" value="'+htmlAttr(x.id)+'" '+(selected.includes(String(x.id))?'checked':'')+'><span>'+htmlAttr(x.label)+'</span></label>').join('')+
     '</div></fieldset>'+
     '<div class="inquiry-v3-field-grid">'+v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:false,placeholder:S?.conceptPlaceholder||'',wide:true},'fourCut',rid,state)+'</div>'+
-    '<div class="inquiry-v3-design-options">'+v3QtyHtml('sameDesignColorChangeQty',design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label,v3Value(state,'fourCut.colorChangeQty',0))+'</div>';
+    '<div class="inquiry-v3-design-options">'+v3QtyHtml('sameDesignColorChangeQty',inquiryOption('sameDesignColorChange',design.colorChangeLabel||'동일 디자인 · 색상 변경').label,v3Value(state,'fourCut.colorChangeQty',0))+'</div>';
   (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml({...field,required:false},'fourCut.custom',rid,state)});
   return html+'</section>'
 }
@@ -1223,7 +1223,7 @@ function requestText(card){
       const concept=v3FormatValue(state['banner.concept']),content=v3FormatValue(state['banner.content']);
       if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
       if(content)lines.push((design.contentLabel||'내용 입력')+': '+content);
-      if(v.textChangeQty>0)lines.push((design.textChangeLabel||inquiryOption('textImageChange','배너 · 텍스트/이미지 변경').label)+': × '+v.textChangeQty+'개');
+      if(v.textChangeQty>0)lines.push((inquiryOption('textImageChange',design.textChangeLabel||'배너 · 텍스트/이미지 변경').label)+': × '+v.textChangeQty+'개');
       lines.push(...v3FieldLines(design.customFields,'banner.custom',state));
       const header='['+(design.label||type.label||'SOOP 배너')+']'+(kindLabels.length?' - '+kindLabels.join(', '):'');
       blocks.push(header+(lines.length?'\n'+lines.join('\n'):''));
@@ -1236,7 +1236,7 @@ function requestText(card){
       const lines=[];
       const concept=v3FormatValue(state['fourCut.concept']);
       if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
-      if(v.sameDesignColorChangeQty>0)lines.push((design.colorChangeLabel||inquiryOption('sameDesignColorChange','동일 디자인 · 색상 변경').label)+': × '+v.sameDesignColorChangeQty+'개');
+      if(v.sameDesignColorChangeQty>0)lines.push((inquiryOption('sameDesignColorChange',design.colorChangeLabel||'동일 디자인 · 색상 변경').label)+': × '+v.sameDesignColorChangeQty+'개');
       lines.push(...v3FieldLines(design.customFields,'fourCut.custom',state));
       const header='['+(design.label||type.label||'인생네컷')+']'+(typeLabels.length?' - '+typeLabels.join(', '):'');
       blocks.push(header+(lines.length?'\n'+lines.join('\n'):''));
