@@ -8794,3 +8794,16 @@ textarea[data-v3-field="extraRequest"]{
     line-height:1.3!important;
   }
 }
+
+
+/* 2026-10-27 mobile frame-retention line spacing fix */
+@media(max-width:680px){
+  /* Keep normal spacing from O/X controls; only tighten the wrapped helper's own two-line leading. */
+  .profile-common-fields .inquiry-v3-choice-field{
+    gap:5px!important;
+  }
+  .profile-common-fields .field-help{
+    margin:0!important;
+    line-height:1.12!important;
+  }
+}
