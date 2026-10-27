@@ -1586,7 +1586,6 @@ async function loadPortfolio(){
     if(!portfolioCache.has(allKey))$('portfolioStatus').textContent='불러오는 중…';
     let all=await fetchAllPortfolio(portfolioState.category);
     all=[...all].sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
-    all=applyManualOrder(all,S?.portfolioOrder);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,portfolioState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     portfolioState.page=page;
     grid(items,portfolioState.category);
