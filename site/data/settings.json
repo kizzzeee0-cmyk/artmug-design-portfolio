@@ -1093,7 +1093,6 @@
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
-    "portfolio/bottom-banner/20261027092930-1pi0b29odj6t4-_________.png",
     "portfolio/profile/20261027092256-5ts5ie1961pua-_______.gif",
     "portfolio/bottom-split/20261026091742-77ms6d1yewgbz-________.png",
     "portfolio/bottom-split/20261026091727-xxff631sjsdwd-_______.png",
@@ -1263,10 +1262,6 @@
     },
     "portfolio/profile/20261027092256-5ts5ie1961pua-_______.gif": {
       "enabled": true
-    },
-    "portfolio/bottom-banner/20261027092930-1pi0b29odj6t4-_________.png": {
-      "enabled": true,
-      "bannerType": "B"
     }
   },
   "bannerTypeEnabled": false,
@@ -1583,15 +1578,14 @@
       "2026-10-27": "reserved",
       "2026-10-29": "reserved",
       "2026-10-31": "available",
-      "2026-10-30": "reserved",
+      "2026-10-30": "available",
       "2026-11-05": "available",
       "2026-10-28": "off"
     },
     "weekendsDefaultOff": true,
     "reservationNotes": {
       "2026-10-27": "유지현님 작업 / 히히수님 작업",
-      "2026-10-29": "류아님 작업",
-      "2026-10-30": "ㅅㅁㅌ님 작업"
+      "2026-10-29": "류아님 작업 / 송민트님 작업"
     }
   },
   "inquiryV3": {
