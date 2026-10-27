@@ -76,6 +76,9 @@ function applyOrder(items,order){
  const pos=new Map((order||[]).map((x,i)=>[x,i]));
  return [...items].sort((a,b)=>(pos.get(a.file)??1e9)-(pos.get(b.file)??1e9))
 }
+function portfolioNewestFirst(items){
+ return [...(items||[])].sort((a,b)=>String(b?.createdAt||'').localeCompare(String(a?.createdAt||'')))
+}
 function pmeta(x){
  const m=state.settings?.portfolioMeta?.[x.file]||{};
  return {
@@ -451,7 +454,7 @@ function arrangeSplit(root){
 }
 async function loadRemotePortfolioPage(data){
  const cfg=catConfig(data.cat),res=await fetchPortfolioPage(data.cat.id,data.page||1,cfg.perPage,data.filter||'ALL');
- data.items=applyOrder(res.items||[],state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+ data.items=portfolioNewestFirst(res.items||[]).filter(x=>pmeta(x).enabled);
  data.total=Number(res.total||data.items.length);
  data.totalPages=Math.max(1,Number(res.totalPages||1));
  data.availableFilters=Array.isArray(res.availableFilters)?res.availableFilters:[];
@@ -478,7 +481,6 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  }else{
   items=(data.items||[]).filter(x=>pmeta(x).enabled);
   if(typeOn&&(data.filter==='A'||data.filter==='B'))items=items.filter(x=>pmeta(x).bannerType===data.filter);
-  else if(typeOn)items=mixAB(items);
   const presentTypes=typeOn?['A','B'].filter(t=>(data.items||[]).some(x=>pmeta(x).bannerType===t)):[];
   filterValues=typeOn?['ALL',...presentTypes]:[];
   pages=Math.max(1,Math.ceil(items.length/cfg.perPage));
@@ -560,7 +562,7 @@ async function renderPortfolio(){
     }else{
      items=state.portfolioIndex.filter(x=>x.category===cat.id)
     }
-    items=applyOrder(items,state.settings.portfolioOrder).filter(x=>pmeta(x).enabled);
+    items=portfolioNewestFirst(items).filter(x=>pmeta(x).enabled);
     if(!items.length){if(sec)sec.hidden=true;continue}
     state.portfolio.set(cat.id,{cat,items,page:1,filter:'ALL',remote:false});
    }else{
