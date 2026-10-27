@@ -148,11 +148,8 @@ async function publicPortfolio(u,env){
   if(isFloating&&all.some(x=>classOf(x)==='FIXED'))availableFilters.push('FIXED');
   if(['A','B','FIXED'].includes(filter))all=all.filter(x=>classOf(x)===filter);
 
-  const order=new Map((Array.isArray(s.portfolioOrder)?s.portfolioOrder:[]).map((x,i)=>[x,i]));
-  all.sort((a,b)=>{
-    const ai=order.has(a.file)?order.get(a.file):1e9,bi=order.has(b.file)?order.get(b.file):1e9;
-    return ai!==bi?ai-bi:String(b.createdAt||'').localeCompare(String(a.createdAt||''))
-  });
+  // Regular portfolio is always newest upload first. Fixed/preset ordering is handled separately.
+  all.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
   const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);
   return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'no-store'})
 }
