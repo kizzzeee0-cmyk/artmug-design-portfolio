@@ -1262,6 +1262,10 @@
     },
     "portfolio/profile/20261027092256-5ts5ie1961pua-_______.gif": {
       "enabled": true
+    },
+    "portfolio/bottom-banner/20261027092930-1pi0b29odj6t4-_________.png": {
+      "enabled": true,
+      "bannerType": "B"
     }
   },
   "bannerTypeEnabled": false,
