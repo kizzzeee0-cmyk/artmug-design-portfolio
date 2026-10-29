@@ -945,59 +945,22 @@ async function renderFixed(){
 async function renderShowcase(){
  const root=$('#showcaseSectionV2');if(!root)return;
  const fixed=state.settings?.fixedEnabled===false?[]:(state.showcase.fixed||[]);
- const presetOn=state.settings?.presetEnabled!==false&&state.settings?.showcasePresetEnabled!==false;
- const cats=presetOn?(state.settings.presetCategories||[]).filter(c=>c.enabled!==false):[];
- const allowed=new Set(cats.map(c=>c.id));
- let source=[];
- if(presetOn){
-  if(Array.isArray(state.presetIndex))source=state.presetIndex.filter(x=>allowed.has(x.category));
-  else{
-   const batches=await Promise.all(cats.map(cat=>fetchAll('preset',cat.id).catch(()=>[])));
-   source=batches.flat()
-  }
- }
- const orderedPresets=applyOrder(source,state.settings?.presetOrder).filter(x=>{
-  if(!presetRegistered(x))return false;
-  const m=smeta(x);return m.showcaseKind!=='fixed'&&!m.pairChild
- });
- const all=collapsePresetProducts(orderedPresets).filter(x=>smeta(x).enabled);
- state.showcase.preset=all;
- const designWithItems=cats.filter(cat=>all.some(x=>x.category===cat.id));
- let activeCat=null,ordered=[];
- if(designWithItems.length){
-  const activeId=state.presetFilter?.kind==='design'&&designWithItems.some(x=>x.id===state.presetFilter.id)?state.presetFilter.id:designWithItems[0].id;
-  state.presetFilter={kind:'design',id:activeId};
-  activeCat=designWithItems.find(x=>x.id===activeId)||designWithItems[0];
-  const filtered=all.filter(x=>x.category===activeCat.id);
-  ordered=[...filtered.filter(x=>smeta(x).featured),...filtered.filter(x=>!smeta(x).featured)]
- }
- if(!fixed.length&&!ordered.length){root.hidden=true;root.innerHTML='';return}
- const limits=combinedShowcaseLimits(fixed.length,ordered.length);
- const fixedData=fixed.length?showcasePageData(fixed,limits.fixed||1,'fixed'):{page:1,pages:1,shown:[]};
- const presetData=ordered.length?showcasePageData(ordered,limits.preset||1,'preset'):{page:1,pages:1,shown:[]};
- const filters=designWithItems.length>1?'<div class="v2-preset-filters v2-unified-preset-filters"><div class="v2-preset-filter-group is-design-only"><div class="v2-preset-filter-buttons">'+designWithItems.map(cat=>'<button type="button" class="v2-preset-filter-button '+(activeCat?.id===cat.id?'is-active':'')+'" data-preset-filter-id="'+esc(cat.id)+'">'+esc(cat.label||cat.id)+'</button>').join('')+'</div></div></div>':'';
+ state.showcase.preset=[];
+ if(!fixed.length){root.hidden=true;root.innerHTML='';return}
+ const visibleCount=state.mobile?(innerWidth>=520?3:2):(innerWidth>=1180?6:5);
+ const fixedData=showcasePageData(fixed,Math.max(1,Math.min(visibleCount,fixed.length)),'fixed');
  const fixedNotice=String(state.settings?.fixedNotice??'배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.').trim();
- const presetNotice=String(state.settings?.presetNotice??'아직 판매되지 않은 작업물입니다.\n그대로 제작을 원하시면 문의 시 말씀해주세요').trim();
- const fixedGroup=fixed.length?'<section class="v2-unified-group is-fixed" style="--group-weight:'+Math.max(1,fixedData.shown.length)+';--group-cols:'+Math.max(1,fixedData.shown.length)+'">'+
-  '<header class="v2-unified-group-head"><h3>고정틀</h3>'+(fixedNotice?'<p>'+esc(fixedNotice)+'</p>':'')+'</header>'+
-  '<div class="v2-unified-grid">'+fixedData.shown.map(fixedProductPublicCard).join('')+'</div>'+
-  pagination('showcase-fixed',fixedData.pages,fixedData.page)+
- '</section>':'';
- const presetGroup=ordered.length?'<section class="v2-unified-group is-preset" style="--group-weight:'+Math.max(1,presetData.shown.length)+';--group-cols:'+Math.max(1,presetData.shown.length)+'">'+
-  '<header class="v2-unified-group-head"><h3>프리셋</h3>'+(presetNotice?'<p>'+esc(presetNotice)+'</p>':'')+'</header>'+
-  filters+
-  '<div class="v2-unified-grid '+(activeCat&&layoutKey(activeCat)==='profile'?'is-profile-category':'is-media-category')+'">'+presetData.shown.map(presetCard).join('')+'</div>'+
-  pagination('showcase-preset',presetData.pages,presetData.page)+
- '</section>':'';
  root.hidden=false;
- root.innerHTML='<h2>고정틀 · 프리셋</h2><div class="v2-unified-showcase '+((fixed.length&&ordered.length)?'is-dual':'is-single')+'">'+fixedGroup+presetGroup+'</div>';
- root.querySelectorAll('[data-preset-filter-id]').forEach(b=>b.onclick=()=>{state.presetFilter={kind:'design',id:b.dataset.presetFilterId||''};state.showcasePage.preset=1;renderShowcase();requestHeight()});
- root.querySelectorAll('[data-preset-color-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetColorPopover(b)});
- root.querySelectorAll('[data-preset-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPresetDetailModal(b.dataset.presetDetailOpen,b)});
+ root.innerHTML='<h2>고정틀</h2><div class="v2-unified-showcase is-single">'+
+  '<section class="v2-unified-group is-fixed" style="--group-weight:'+Math.max(1,fixedData.shown.length)+';--group-cols:'+Math.max(1,fixedData.shown.length)+'">'+
+   '<header class="v2-unified-group-head"><h3>고정틀</h3>'+(fixedNotice?'<p>'+esc(fixedNotice)+'</p>':'')+'</header>'+
+   '<div class="v2-unified-grid">'+fixedData.shown.map(fixedProductPublicCard).join('')+'</div>'+
+   pagination('showcase-fixed',fixedData.pages,fixedData.page)+
+  '</section>'+
+ '</div>';
  root.querySelectorAll('[data-fixed-variant-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedVariantPopover(b)});
  root.querySelectorAll('[data-fixed-detail-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openFixedDetailModal(b.dataset.fixedDetailOpen,b)});
  root.querySelectorAll('[data-v2-page^="showcase-fixed:"]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop(),cur=state.showcasePage.fixed||1;state.showcasePage.fixed=token==='prev'?cur-1:token==='next'?cur+1:Number(token);renderShowcase();requestHeight()});
- root.querySelectorAll('[data-v2-page^="showcase-preset:"]').forEach(b=>b.onclick=()=>{const token=b.dataset.v2Page.split(':').pop(),cur=state.showcasePage.preset||1;state.showcasePage.preset=token==='prev'?cur-1:token==='next'?cur+1:Number(token);renderShowcase();requestHeight()});
  root.querySelectorAll('img').forEach(img=>{img.draggable=false;img.setAttribute('draggable','false');if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  manageAnimatedMedia(root);
  requestHeight()
@@ -1150,7 +1113,7 @@ function selectedProfileModes(card){
  return legacy?[legacy]:[]
 }
 function setSelectedProfileModes(card,modes){
- const list=[...new Set((modes||[]).filter(x=>['custom','fixed','preset','change'].includes(x)))];
+ const list=[...new Set((modes||[]).filter(x=>['custom','fixed','change'].includes(x)))];
  card.dataset.profileModes=list.join(',');
  if(list.length===1)card.dataset.profileMode=list[0];else delete card.dataset.profileMode;
  return list
@@ -1340,9 +1303,8 @@ function injectInquiry(card){
  if(hasProfile){
   const modeChoice=(value,label,disabled)=>'<label class="choice-pill '+(disabled?'is-disabled':'')+'"><input type="checkbox" data-v2-mode="profile" value="'+value+'" '+(profileModes.includes(value)?'checked':'')+' '+(disabled?'disabled':'')+'><span>'+esc(label)+'</span></label>';
   html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>움짤프사 신청 방식</legend><div class="choice-row">'+
-   modeChoice('custom',v2ProfileMode('custom','맞춤제작').label,hasChange)+modeChoice('fixed',v2ProfileMode('fixed','고정틀 구매').label,hasChange)+modeChoice('preset',v2ProfileMode('preset','프리셋 구매').label,hasChange)+modeChoice('change',v2ProfileMode('change','(재주문) 이름/움짤만 변경').label,hasOrderMode)+'</div></fieldset>';
-  if(profileModes.includes('fixed'))html+=fixedSelectionHtml(card);
-  if(profileModes.includes('preset'))html+=selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)
+   modeChoice('custom',v2ProfileMode('custom','맞춤제작').label,hasChange)+modeChoice('fixed',v2ProfileMode('fixed','고정틀 구매').label,hasChange)+modeChoice('change',v2ProfileMode('change','(재주문) 이름/움짤만 변경').label,hasOrderMode)+'</div></fieldset>';
+  if(profileModes.includes('fixed'))html+=fixedSelectionHtml(card)
  }
  if(bannerTypeEnabled()&&banners.length){
   html+='<div class="v2-banner-type-fields">'+banners.map((x,i)=>{const val=card.dataset['bannerType'+i]||'B';return '<fieldset class="v2-mode-field choice-field inquiry-plain-choice"><legend data-question-title>'+esc(x.label)+' TYPE</legend><div class="choice-row">'+['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v2-banner-index="'+i+'" name="v2-banner-'+card.dataset.requestId+'-'+i+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+'</div></fieldset>'}).join('')+'</div>'
@@ -1432,8 +1394,6 @@ window.__ARTMUG_V2__={
   if(d.profileSelected&&!modes.length)return {ok:false,message:'움짤프사 신청 방식을 선택해주세요.'};
   if(modes.includes('change')&&modes.length>1)return {ok:false,message:'(재주문) 이름/움짤만 변경은 다른 신청 방식과 함께 선택할 수 없습니다.'};
   if(modes.includes('fixed')&&!d.selectedFixedProductName)return {ok:false,message:'구매할 고정틀을 선택해주세요.'};
-  if(modes.includes('preset')&&!d.selectedPresetFile)return {ok:false,message:'구매할 프리셋을 선택해주세요.'};
-  if(modes.includes('preset')&&d.selectedPresetNeedsColor&&!d.selectedPresetColorFile)return {ok:false,message:'구매할 프리셋의 색상을 선택해주세요.'};
   if(modes.includes('change')){
    const nameQty=Math.max(0,Number(card.querySelector('[data-field="nameOnlyChangeQty"]')?.value||0));
    const fullQty=Math.max(0,Number(card.querySelector('[data-field="profileChangeQty"]')?.value||0));
@@ -1444,13 +1404,9 @@ window.__ARTMUG_V2__={
  inquiryLines(card){
   const d=this.inquiryData(card),out=[],modes=d.profileModes||[];
   if(d.profileSelected&&modes.length){
-   const labels=modes.map(mode=>v2ProfileMode(mode,mode==='fixed'?'고정틀 구매':mode==='preset'?'프리셋 구매':mode==='change'?'(재주문) 이름/움짤만 변경':'맞춤제작').label);
+   const labels=modes.map(mode=>v2ProfileMode(mode,mode==='fixed'?'고정틀 구매':mode==='change'?'(재주문) 이름/움짤만 변경':'맞춤제작').label);
    out.push('움짤프사 신청 방식: '+labels.join(', '));
    if(modes.includes('fixed')&&d.selectedFixedProductName)out.push('선택 고정틀: '+d.selectedFixedProductName);
-   if(modes.includes('preset')&&d.selectedPresetName){
-    out.push('선택 프리셋: '+d.selectedPresetName);
-    if(d.selectedPresetNeedsColor&&d.selectedPresetColorName)out.push('선택 색상: '+d.selectedPresetColorName)
-   }
   }
   d.bannerTypes.forEach(x=>out.push(x.label+' TYPE: '+x.type));
   return out
