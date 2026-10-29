@@ -227,7 +227,7 @@ async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 const MEDIA_VERSION='20261015-live-media-v1';
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:''}
-function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);renderAvailabilityCalendar(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();renderPreset(s);requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
+function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);renderAvailabilityCalendar(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
 function renderWorkStatus(s){
   const box=$('workStatus');
   const enabled=s.workStatusEnabled===true;
@@ -565,7 +565,7 @@ function guideDefaults(){
     enabled:true,kicker:'PROFILE OPTIONS',title:'움짤 프사 옵션 구성',subtitle:'',
     options:[
       {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
-      {key:'b',badge:'B',title:'심플형 움짤 프사',description:'체크, 도트, 땡땡이, 그라데이션 등 비교적 간단한 패턴 배경이나 직접 제작한 고정형 프리셋을 활용해 제작하는 방식입니다.',details:['색상은 원하는 분위기에 맞게 자유롭게 변경 가능합니다.'],note:'프리셋에 없는 무늬나 패턴도 원하시는 느낌이 있다면 편하게 문의해 주세요.',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'preset',targetCategory:'profile'}
+      {key:'b',badge:'B',title:'고정틀형 움짤 프사',description:'준비된 고정틀 디자인을 바탕으로 색상과 이름 등을 변경해 제작하는 방식입니다.',details:['고정틀별 변경 가능한 항목은 상품 안내에서 확인할 수 있습니다.'],note:'',referenceImage:'',buttonLabel:'고정틀 보러가기',targetKind:'fixed',targetCategory:'profile'}
     ]
   }
 }
@@ -581,8 +581,8 @@ function renderBackgroundGuide(s){
   const grid=$('backgroundTypeGrid');
   grid.innerHTML=g.options.map((x,i)=>{
     const details=(Array.isArray(x.details)?x.details:[]).filter(Boolean);
-    const targetAvailable=x.targetKind==='preset'
-      ? !!s.presetEnabled&&visibleCats(s.presetCategories||[]).some(c=>c.id===x.targetCategory)
+    const targetAvailable=x.targetKind==='fixed'
+      ? !!s.fixedEnabled&&Array.isArray(s.fixedProducts)&&s.fixedProducts.some(p=>p&&p.enabled!==false&&Array.isArray(p.previews)&&p.previews.some(v=>v&&v.file&&v.enabled!==false))
       : visiblePortfolioCats(s.portfolioCategories||[]).some(c=>c.id===x.targetCategory);
     const referencePath=x.referenceImage||(i===0?s.comparisonAImage:s.comparisonBImage)||'';
     const reference=referencePath?`<div class="background-type-reference"><img src="${esc(media(referencePath))}" alt="${htmlAttr(x.title||'')} 참고 움" loading="lazy"></div>`:'';
@@ -603,12 +603,8 @@ function renderBackgroundGuide(s){
   grid.querySelectorAll('[data-guide-kind]').forEach(b=>b.onclick=()=>jumpToGuideTarget(b.dataset.guideKind,b.dataset.guideCategory))
 }
 function jumpToGuideTarget(kind,category){
-  if(kind==='preset'){
-    const cats=visibleCats(S?.presetCategories||[]);
-    if(!cats.some(c=>c.id===category)||!S?.presetEnabled)return;
-    presetState.category=category;presetState.page=1;
-    renderPresetTabs(cats);loadPresets();
-    requestAnimationFrame(()=>$('presetSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  if(kind==='fixed'){
+    requestAnimationFrame(()=>document.getElementById('showcaseSectionV2')?.scrollIntoView({behavior:'smooth',block:'start'}));
     return
   }
   if(kind==='portfolio'){
@@ -1015,7 +1011,7 @@ function readRequestValues(card){
     typeIds:qa('input[data-field="requestType"]:checked').map(x=>x.value),
     signatureNumber:String(v3['signature.content']||''),
     signatureContent:String(v3['signature.content']||''),
-    frameKeep:String(v3['profile.common.frameKeep']||v3['profile.custom.frameKeep']||v3['profile.preset.frameKeep']||'O'),
+    frameKeep:String(v3['profile.common.frameKeep']||v3['profile.custom.frameKeep']||'O'),
     concept:String(v3['banner.concept']||v3['fourCut.concept']||v3['profile.custom.concept']||''),
     extra:String(v3.extraRequest||(q('[data-field="extra"]')||{}).value||''),
     bannerText:String(v3['banner.content']||''),
