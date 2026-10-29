@@ -719,7 +719,7 @@
         }
       ]
     },
-    "copyIntroText": "안녕하세요 문의주셔서 감사드립니다!",
+    "copyIntroText": "안녕하세요 문의주셔서 감사드립니다!\n\n[ 견적 안내 ]\n",
     "copyTotalPrefix": "총 금액",
     "copyTotalSuffix": "원입니다!",
     "copyClosingText": "일정 확인해보시고 괜찮으시다면 위 내용대로 주문 넣어주시면 됩니당!",
@@ -1093,7 +1093,6 @@
     "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
   ],
   "portfolioOrder": [
-    "portfolio/floating-banner/20261029101655-1m4s7w10f4nyj-________.png",
     "portfolio/profile/20261027092256-5ts5ie1961pua-_______.gif",
     "portfolio/bottom-split/20261026091742-77ms6d1yewgbz-________.png",
     "portfolio/bottom-split/20261026091727-xxff631sjsdwd-_______.png",
@@ -1265,10 +1264,6 @@
       "enabled": true
     },
     "portfolio/bottom-banner/20261027092930-1pi0b29odj6t4-_________.png": {
-      "enabled": true,
-      "bannerType": "B"
-    },
-    "portfolio/floating-banner/20261029101655-1m4s7w10f4nyj-________.png": {
       "enabled": true,
       "bannerType": "B"
     }
