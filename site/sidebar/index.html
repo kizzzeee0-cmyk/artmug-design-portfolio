@@ -2514,7 +2514,7 @@ function listFrom(d){
  const list=[];
  if(d.hasSchedule)list.push({label:'작업 일정 안내',target:'schedule'});
  list.push({label:'공지사항',target:'notice'});
- if(d.hasFixed||d.hasPreset)list.push({label:'고정틀 · 프리셋',target:'showcase'});
+ if(d.hasFixed)list.push({label:'고정틀',target:'showcase'});
  if(d.profile)list.push({label:'움짤프사',target:'portfolio:'+d.profile.id});
  if(d.hasBanner)list.push({label:'SOOP 배너',target:'banner:all'});
  if(d.fourCut)list.push({label:'인생네컷',target:'portfolio:'+d.fourCut.id});
@@ -2559,7 +2559,7 @@ function summaryFromNav(d){
  const profile=nonBanner.find(c=>c.kind==='profile');
  const fourCut=nonBanner.find(c=>c.kind==='four-cut');
  return {
-  hasPreset:!!d?.hasPreset,
+  hasPreset:false,
   hasFixed:!!d?.hasFixed,
   hasSchedule:d?.hasSchedule===true,
   hasAvailability:d?.hasAvailability===true,
@@ -2591,7 +2591,7 @@ function mergeFrameNavData(d){
  (Array.isArray(frame.extraCategories)?frame.extraCategories:[]).forEach(x=>extras.set(x.id,x));
  return {
   ...currentSummary,
-  hasPreset:currentSummary?.hasPreset===true||frame.hasPreset===true,
+  hasPreset:false,
   hasFixed:currentSummary?.hasFixed===true||frame.hasFixed===true,
   hasSchedule:currentSummary?.hasSchedule===true||frame.hasSchedule===true,
   hasAvailability:currentSummary?.hasAvailability===true||frame.hasAvailability===true,
