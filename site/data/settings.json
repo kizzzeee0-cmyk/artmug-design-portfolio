@@ -33,6 +33,15 @@
       "descriptionRich": "모든 작업물은 포트폴리오에 활용될 수 있으며, 비공개를 원하실 경우 추가금이 발생합니다."
     },
     {
+      "icon": "",
+      "title": "",
+      "description": "움짤프사는 제작 방식 특성상 디자인 틀만 별도로 제공해 드릴 수 없는 점 양해 부탁드립니다.",
+      "enabled": true,
+      "titleRich": "",
+      "descriptionRich": "움짤프사는 제작 방식 특성상 <strong><span style=\"color:rgb(50, 124, 170)\"><span style=\"color:rgb(105, 173, 210)\">디자인 틀만 별도로 제공해 드릴 수 없는 점</span></span></strong> 양해 부탁드립니다.",
+      "editorColor": "#69ADD2"
+    },
+    {
       "icon": "📆",
       "title": "작업 일정",
       "description": "작업 기간은 작업 시작일 기준 최대 7일 이내 완료됩니다.",
