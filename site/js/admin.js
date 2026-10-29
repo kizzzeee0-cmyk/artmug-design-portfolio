@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={},quoteOrderEditing=false;let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1;let availabilityAdminView=null,availabilityAdminSelected=new Set(),availabilityAdminMulti=false,availabilityAdminStatus='available',availabilityAdminDirty=false,availabilityAdminUndo=null;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
+const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',ADMIN_API='/admin-api';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={},quoteOrderEditing=false;let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1;let availabilityAdminView=null,availabilityAdminSelected=new Set(),availabilityAdminMulti=false,availabilityAdminStatus='available',availabilityAdminDirty=false,availabilityAdminUndo=null;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
 const ADMIN_PAUSED_GIF='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 let adminGifObserver=null;
@@ -88,7 +88,7 @@ async function uploadMediaWithRetry(endpoint,cat,file,status){
     fd.append('file',file);
     fd.append('uploadId',uploadId);
     try{
-      const r=await fetch(API+endpoint,{method:'POST',credentials:'include',body:fd});
+      const r=await fetch(ADMIN_API+endpoint,{method:'POST',credentials:'include',body:fd});
       const d=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
       return d
@@ -98,7 +98,7 @@ async function uploadMediaWithRetry(endpoint,cat,file,status){
       if(!network||attempt===1)throw e;
       let retrySafe=false;
       try{
-        const hr=await fetch(API+'/health',{credentials:'include',cache:'no-store'});
+        const hr=await fetch(ADMIN_API+'/health',{credentials:'include',cache:'no-store'});
         const hd=await hr.json().catch(()=>({}));
         retrySafe=hr.ok&&hd.version==='1.1.0'
       }catch{}
@@ -132,7 +132,7 @@ function showToast(message,type='success'){
   el.className='admin-toast is-show '+(type==='error'?'is-error':'is-success');
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>{el.classList.remove('is-show')},2200);
-}const api=(p,o={})=>fetch(API+p,{...o,credentials:'include',headers:{'Content-Type':'application/json',...(o.headers||{})}}).then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});
+}const api=(p,o={})=>fetch(ADMIN_API+p,{...o,credentials:'include',headers:{'Content-Type':'application/json',...(o.headers||{})}}).then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});
 let settingsWriteQueue=Promise.resolve();
 function isSettingsConflict(err){
   const m=String(err?.message||err||'');
@@ -339,7 +339,7 @@ async function uploadBannerTypeGuideImage(t){
   const current=ensureBannerTypeGuide()[t],old=String(current.referenceImage||''),description=String(current.description||'');
   const fd=new FormData();fd.append('category','type-guide-assets');fd.append('file',file);
   try{
-    const r=await fetch(API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+    const r=await fetch(ADMIN_API+'/api/admin/upload',{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
     const path=String(d.path||'');if(!path)throw new Error('업로드 경로를 확인하지 못했습니다.');
     const saved=await queueSettingsMutation(latest=>{
@@ -2384,7 +2384,7 @@ async function replaceMediaFile(kind,index){
   let newPath='',metadataMoved=false;
   try{
     showToast('새 파일을 업로드하고 있습니다.');
-    const r=await fetch(API+endpoint,{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
+    const r=await fetch(ADMIN_API+endpoint,{method:'POST',credentials:'include',body:fd}),d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
     newPath=String(d.path||'');if(!newPath)throw new Error('새 파일 경로를 확인하지 못했습니다.');
 
@@ -3493,7 +3493,7 @@ async function migrateLegacyFixedProducts(){
 
 async function init(){let loggedIn=false;try{const s=await api('/api/admin/session');loggedIn=true;$('login').hidden=true;$('panel').hidden=false;$('userBox').hidden=false;$('userName').textContent=s.user.login;$('githubUser').textContent=s.user.login;try{const d=await api('/api/admin/settings');S=stripSeasonData(d.settings||{});render()}catch(e){$('saveStatus').textContent='설정을 불러오지 못했습니다: '+e.message}}catch(e){$('login').hidden=false;$('panel').hidden=true}$('health').textContent='확인 중…';try{$('health').textContent=(await api('/health')).ok?'정상':'오류'}catch(e){$('health').textContent='연결 오류'}}
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login',{method:'POST',body:JSON.stringify({password:$('adminPassword').value})});location.reload()}catch(err){$('loginError').textContent=err.message}};$('logout').onclick=async()=>{await api('/auth/logout',{method:'POST'}).catch(()=>{});location.reload()};document.querySelectorAll('.admin-tabs .tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-tabs .tab').forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');document.querySelectorAll('[data-section]').forEach(x=>x.hidden=x.dataset.section!==b.dataset.panel)});$('save').onclick=saveSettings;$('reload').onclick=loadItems;$('addNotice').onclick=()=>{collectNotices();S.noticeItems=[...(S.noticeItems||[]),{icon:'',title:'',description:'새 공지 내용을 입력해 주세요.',enabled:true,titleRich:'',descriptionRich:''}];renderNotices()};if($('addEventItem'))$('addEventItem').onclick=()=>{collectEventItems();S.eventsItems=[...ensureEventItems(),{label:'',oldPrice:0,newPrice:0}];renderEventItems()};$('addType').onclick=()=>{S.designTypes=[...(S.designTypes||[]),{id:'type-'+Date.now(),label:'새 디자인',enabled:true,showFrameRetention:false,showSignatureFields:false,showBannerFields:false,showBannerTextField:false}];renderTypes()};if($('addInquiryV3Design'))$('addInquiryV3Design').onclick=addInquiryV3Design;$('addCat').onclick=()=>{S.portfolioCategories=[...(S.portfolioCategories||[]),{id:'category-'+Date.now(),label:'새 카테고리',enabled:true,displayWidth:200,displayHeight:200,pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10,strictSize:false,uploadWidth:0,uploadHeight:0,formats:['png','jpeg','gif','webp'],emptyText:'등록된 작업물이 아직 없습니다.'}];renderCats()};$('addPresetCat').onclick=()=>{S.presetCategories=[...(S.presetCategories||[]),{id:'preset-'+Date.now(),label:'새 프리셋 카테고리',enabled:true,displayWidth:240,displayHeight:240,formats:['png','jpeg','gif','webp']}];renderPresetCats()};$('saveCats').onclick=saveSettings;$('savePresetCats').onclick=saveSettings;if($('saveQuoteConfig'))$('saveQuoteConfig').onclick=saveSettings;if($('addQuoteItem'))$('addQuoteItem').onclick=()=>{const p=ensureQuoteConfig().pricingV2;p.standaloneItems.push({id:'qstand-'+Date.now(),label:'새 독립 항목',price:0});renderQuoteAdmin()};if($('copyQuote'))$('copyQuote').onclick=copyQuote;if($('quoteOrderEdit'))$('quoteOrderEdit').onclick=toggleQuoteOrderEditing;if($('addFixedCat'))$('addFixedCat').onclick=()=>{collectFixedAdmin();S.fixedCategories.push({id:'fixed-'+Date.now(),label:'새 디자인 종류',enabled:true});renderFixedCats();renderFixedItems()};if($('addFixedProduct'))$('addFixedProduct').onclick=()=>addFixedProduct().catch(e=>alert('고정틀 추가 실패: '+e.message));if($('saveFixedSettings'))$('saveFixedSettings').onclick=()=>saveFixedSettings().catch(e=>alert('고정틀 설정 저장 실패: '+e.message));$('upload').onclick=()=>uploadFiles('portfolio');$('uploadPreset').onclick=()=>uploadFiles('preset');
-async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
+async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(ADMIN_API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
 init();
