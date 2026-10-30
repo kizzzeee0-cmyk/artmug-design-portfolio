@@ -3362,8 +3362,8 @@
   font-size:17px;
   font-weight:800;
   line-height:1;
-  letter-spacing:-4px;
-  transform:translateX(-2px) rotate(90deg);
+  letter-spacing:-3px;
+  transform:translateX(-1px);
   pointer-events:none;
 }
 .admin-sortable-item{
