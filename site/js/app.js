@@ -1462,6 +1462,24 @@ function portfolioMetaForItem(x){
   const saved=(S?.portfolioMeta&&S.portfolioMeta[x.file])||{};
   return {profileType:['A','B'].includes(saved.profileType)?saved.profileType:''}
 }
+function portfolioUploadStamp(x){
+  const created=String(x?.createdAt||'').replace(/\D/g,'');
+  if(created)return created;
+  const name=String(x?.file||'').split('/').pop()||'';
+  return name.match(/^(\d{14,17})-/)?.[1]||''
+}
+function portfolioNewestFirst(items){
+  const order=Array.isArray(S?.portfolioOrder)?S.portfolioOrder:[];
+  const pos=new Map(order.map((file,i)=>[file,i]));
+  return [...(items||[])].sort((a,b)=>{
+    const at=portfolioUploadStamp(a),bt=portfolioUploadStamp(b);
+    if(at!==bt)return bt.localeCompare(at);
+    const ap=pos.has(a.file)?pos.get(a.file):Number.MAX_SAFE_INTEGER;
+    const bp=pos.has(b.file)?pos.get(b.file):Number.MAX_SAFE_INTEGER;
+    if(ap!==bp)return ap-bp;
+    return String(b?.file||'').localeCompare(String(a?.file||''))
+  })
+}
 function applyManualOrder(items,order){
   if(!Array.isArray(order)||!order.length)return [...items];
   const pos=new Map(order.map((file,i)=>[file,i]));
@@ -1581,7 +1599,7 @@ async function loadPortfolio(){
     const allKey='all::'+portfolioState.category;
     if(!portfolioCache.has(allKey))$('portfolioStatus').textContent='불러오는 중…';
     let all=await fetchAllPortfolio(portfolioState.category);
-    all=[...all].sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+    all=portfolioNewestFirst(all);
     const total=all.length,totalPages=Math.max(1,Math.ceil(total/PER)),page=Math.min(Math.max(1,portfolioState.page),totalPages),items=all.slice((page-1)*PER,page*PER);
     portfolioState.page=page;
     grid(items,portfolioState.category);
