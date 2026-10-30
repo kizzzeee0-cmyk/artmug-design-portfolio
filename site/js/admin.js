@@ -1953,7 +1953,7 @@ function bindQuoteConfigInputs(){
 function quoteItemsUnordered(){
   const p=ensureQuoteConfig().pricingV2,out=[];
   ['topBanner','floatingBanner'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
-  ['custom','fixed','preset'].forEach(k=>{const x=p.profileModes[k];out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
+  ['custom','fixed'].forEach(k=>{const x=p.profileModes[k];if(x)out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
   Object.entries(p.bottomTypes||{}).forEach(([k,x])=>out.push({key:'bottomType:'+k,label:'하단배너 · '+String(x?.label||k),price:quotePriceValue(x?.price)}));
   Object.entries(p.fourCutTypes||{}).forEach(([k,x])=>out.push({key:'fourCutType:'+k,label:String(x?.label||k),price:quotePriceValue(x?.price)}));
   Object.entries(p.signatureTypes||{}).forEach(([k,x])=>out.push({key:'signatureType:'+k,label:String(x?.label||k),price:quotePriceValue(x?.price)}));
