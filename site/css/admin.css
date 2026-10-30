@@ -3319,3 +3319,92 @@
     grid-column:1;
   }
 }
+
+
+/* =========================================================
+   2026-10-31 LONG-PRESS DRAG SORTING
+   ========================================================= */
+.cat-order-button[data-dir],
+[data-quote-order-key][data-order-dir]{
+  display:none!important;
+}
+.admin-drag-handle{
+  width:34px;
+  min-width:34px;
+  height:34px;
+  min-height:34px;
+  padding:0!important;
+  display:inline-grid!important;
+  place-items:center;
+  flex:0 0 34px;
+  border:1px solid #cfe3ee!important;
+  border-radius:10px!important;
+  background:#f8fcfe!important;
+  color:#6e8c9b!important;
+  box-shadow:none!important;
+  cursor:grab!important;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.admin-drag-handle:hover{
+  border-color:#9ecde4!important;
+  background:#eef8fd!important;
+  color:#4e87a6!important;
+}
+.admin-drag-handle:active,
+.admin-sort-active .admin-drag-handle{
+  cursor:grabbing!important;
+}
+.admin-drag-handle>span{
+  display:block;
+  font-size:17px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:-4px;
+  transform:translateX(-2px) rotate(90deg);
+  pointer-events:none;
+}
+.admin-sortable-item{
+  transition:box-shadow .14s ease,opacity .14s ease,transform .14s ease;
+}
+.admin-sortable-item.is-admin-sorting{
+  position:relative;
+  z-index:30;
+  opacity:.82;
+  transform:scale(1.008);
+  outline:2px solid rgba(105,173,210,.35);
+  outline-offset:2px;
+  box-shadow:0 12px 28px rgba(70,126,158,.18)!important;
+}
+body.admin-sort-active,
+body.admin-sort-active *{
+  cursor:grabbing!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+}
+body.admin-sort-active input,
+body.admin-sort-active textarea,
+body.admin-sort-active select,
+body.admin-sort-active button:not(.admin-drag-handle){
+  pointer-events:none!important;
+}
+.quote-select-order .admin-drag-handle{
+  display:none!important;
+}
+#quoteBuilder.is-order-editing .quote-select-order .admin-drag-handle{
+  display:inline-grid!important;
+}
+@media(max-width:720px){
+  .admin-drag-handle{
+    width:38px;
+    min-width:38px;
+    height:38px;
+    min-height:38px;
+    flex-basis:38px;
+  }
+  .admin-drag-handle>span{
+    font-size:18px;
+  }
+}
