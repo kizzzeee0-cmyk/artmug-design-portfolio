@@ -76,8 +76,23 @@ function applyOrder(items,order){
  const pos=new Map((order||[]).map((x,i)=>[x,i]));
  return [...items].sort((a,b)=>(pos.get(a.file)??1e9)-(pos.get(b.file)??1e9))
 }
+function portfolioUploadStamp(x){
+ const created=String(x?.createdAt||'').replace(/\D/g,'');
+ if(created)return created;
+ const name=String(x?.file||'').split('/').pop()||'';
+ return name.match(/^(\d{14,17})-/)?.[1]||''
+}
 function portfolioNewestFirst(items){
- return [...(items||[])].sort((a,b)=>String(b?.createdAt||'').localeCompare(String(a?.createdAt||'')))
+ const order=Array.isArray(state.settings?.portfolioOrder)?state.settings.portfolioOrder:[];
+ const pos=new Map(order.map((file,i)=>[file,i]));
+ return [...(items||[])].sort((a,b)=>{
+  const at=portfolioUploadStamp(a),bt=portfolioUploadStamp(b);
+  if(at!==bt)return bt.localeCompare(at);
+  const ap=pos.has(a.file)?pos.get(a.file):Number.MAX_SAFE_INTEGER;
+  const bp=pos.has(b.file)?pos.get(b.file):Number.MAX_SAFE_INTEGER;
+  if(ap!==bp)return ap-bp;
+  return String(b?.file||'').localeCompare(String(a?.file||''))
+ })
 }
 function pmeta(x){
  const m=state.settings?.portfolioMeta?.[x.file]||{};
