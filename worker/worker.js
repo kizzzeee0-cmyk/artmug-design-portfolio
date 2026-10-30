@@ -195,10 +195,7 @@ async function publicNavSummary(env){
     const m=pm[x.file]||{};
     return x.enabled!==false&&m.enabled!==false
   });
-  const hasPreset=s.presetEnabled!==false&&s.showcasePresetEnabled!==false&&presetItems.some(x=>{
-    const m=pm[x.file]||{};
-    return (['preset','fixed'].includes(m.showcaseKind)?m.showcaseKind:(x.category==='floating-banner'?'fixed':'preset'))!=='fixed'
-  });
+  const hasPreset=false;
   const fixedProductVisible=Array.isArray(s.fixedProducts)&&s.fixedProducts.some(p=>
     p&&p.enabled!==false&&Array.isArray(p.previews)&&p.previews.some(v=>v&&v.file&&v.enabled!==false)
   );
