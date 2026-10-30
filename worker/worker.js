@@ -14,7 +14,7 @@ if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
 if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
 if(p==='/api/admin/settings'&&req.method==='PUT'){try{return cors(await saveSettings(req,env,s),req,env)}catch(e){console.error(e);return cors(json({error:`설정 저장 실패: ${String(e.message||e)}`},500),req,env)}}
-if(p==='/api/admin/portfolio'&&req.method==='GET'){const token=env.GITHUB_TOKEN||s.token;const st=await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS));const cats=Array.isArray(st.portfolioCategories)?st.portfolioCategories:[];const idx=await ghJson(env,token,INDEX).catch(()=>[]);const meta=new Map((Array.isArray(idx)?idx:[]).map(x=>[x.file,x]));const all=[];for(const c of cats){const fs=await ghList(env,token,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path))){const base=item(f.path,c.id,c),m=meta.get(f.path);all.push(m?{...base,...m,category:c.id,file:f.path}:base)}}}all.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));return cors(json({items:all},200,{'Cache-Control':'no-store'}),req,env)}
+if(p==='/api/admin/portfolio'&&req.method==='GET'){const token=env.GITHUB_TOKEN||s.token;const st=await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS));const cats=Array.isArray(st.portfolioCategories)?st.portfolioCategories:[];const idx=await ghJson(env,token,INDEX).catch(()=>[]);const meta=new Map((Array.isArray(idx)?idx:[]).map(x=>[x.file,x]));const all=[];for(const c of cats){const fs=await ghList(env,token,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path))){const base=item(f.path,c.id,c),m=meta.get(f.path);all.push(m?{...base,...m,category:c.id,file:f.path}:base)}}}sortPortfolioNewestFirst(all,idx);return cors(json({items:sortPortfolioNewestFirst(all,idx)},200,{'Cache-Control':'no-store'}),req,env)}
 if(p==='/api/admin/presets'&&req.method==='GET')return cors(json({items:await ghJson(env,env.GITHUB_TOKEN||s.token,PRESETS).catch(()=>[])},200,{'Cache-Control':'no-store'}),req,env);
 if(p==='/api/admin/presets'&&req.method==='PUT')return cors(await savePresetsMetadata(req,env,s),req,env);
 if(p==='/api/admin/upload'&&req.method==='POST')return cors(await upload(req,env,s,false),req,env);
@@ -70,8 +70,10 @@ async function publicJson(env,path){const r=await fetch(`https://raw.githubuserc
 async function ghList(env,token,path){const r=await fetch(ghUrl(env,path),{headers:ghHeaders(token)});const d=await r.json();if(!r.ok)throw new Error(`GitHub ${r.status}: ${d.message||path}`);return Array.isArray(d)?d:[]}
 async function publicList(env,path){const r=await fetch(`https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${path}?ref=${env.GITHUB_BRANCH||'main'}`,{headers:{Accept:'application/vnd.github+json','User-Agent':'artmug-public'}});if(!r.ok)return [];const d=await r.json();return Array.isArray(d)?d:[]}
 function ext(p){return (p.split('.').pop()||'').toLowerCase()}
-function item(file,cat,c={}){const name=file.split('/').pop();const m=name.match(/^(\d{14})-/);return{id:`file-${encodeURIComponent(file)}`,category:cat,file,originalName:name,alt:name.replace(/\.[^.]+$/,''),createdAt:m?m[1]:'',width:Number(c.displayWidth||0),height:Number(c.displayHeight||0)}}
-async function listItems(env,token,cat){const s=await publicJson(env,SETTINGS),cats=s.portfolioCategories||[];const use=cat?[...cats.filter(c=>c.id===cat)]:cats;const out=[];for(const c of use){const fs=await publicList(env,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path)))out.push(item(f.path,c.id,c))}}return out.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))}
+function item(file,cat,c={}){const name=file.split('/').pop();const m=name.match(/^(\d{14,17})-/);return{id:`file-${encodeURIComponent(file)}`,category:cat,file,originalName:name,alt:name.replace(/\.[^.]+$/,''),createdAt:m?m[1]:'',width:Number(c.displayWidth||0),height:Number(c.displayHeight||0)}}
+function portfolioUploadStamp(x){const created=String(x?.createdAt||'').replace(/\D/g,'');if(created)return created;const name=String(x?.file||'').split('/').pop()||'';return name.match(/^(\d{14,17})-/)?.[1]||''}
+function sortPortfolioNewestFirst(items,indexOrder=[]){const pos=new Map((Array.isArray(indexOrder)?indexOrder:[]).map((x,i)=>[String(x?.file||x||''),i]));return [...(items||[])].sort((a,b)=>{const at=portfolioUploadStamp(a),bt=portfolioUploadStamp(b);if(at!==bt)return bt.localeCompare(at);const ap=pos.has(a.file)?pos.get(a.file):-1,bp=pos.has(b.file)?pos.get(b.file):-1;if(ap!==bp)return bp-ap;return String(b?.file||'').localeCompare(String(a?.file||''))})}
+async function listItems(env,token,cat){const s=await publicJson(env,SETTINGS),cats=s.portfolioCategories||[];const use=cat?[...cats.filter(c=>c.id===cat)]:cats;const out=[];for(const c of use){const fs=await publicList(env,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path)))out.push(item(f.path,c.id,c))}}return sortPortfolioNewestFirst(out)}
 async function adminPortfolio(env,token){return listItems(env,token,'')}
 function maskReservationInitials(text){
   const initials='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
@@ -149,7 +151,7 @@ async function publicPortfolio(u,env){
   if(['A','B','FIXED'].includes(filter))all=all.filter(x=>classOf(x)===filter);
 
   // Regular portfolio is always newest upload first. Fixed/preset ordering is handled separately.
-  all.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+  all=sortPortfolioNewestFirst(all,idx);
   const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);
   return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'no-store'})
 }
@@ -344,7 +346,7 @@ function validateConfiguredSize(bytes,extn,c){
     throw uploadError(`이미지 크기는 ${expected}만 가능합니다.${d?` 선택한 파일: ${d.width} × ${d.height}px`:" 이미지 크기를 읽을 수 없습니다."}`)
   }
 }
-async function upload(req,env,s,isPreset){const token=env.GITHUB_TOKEN||s.token;if(!token)throw uploadError('GitHub 저장 연결을 확인해주세요.',503);const f=await req.formData(),file=f.get('file'),cat=String(f.get('category')||''),uploadId=String(f.get('uploadId')||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,48);if(!(file instanceof File)||!cat)throw uploadError('파일 또는 카테고리가 없습니다.');if(file.size<=0)throw uploadError('빈 파일은 업로드할 수 없습니다.');const extn=ext(file.name);if(!['gif','png','jpg','jpeg','webp'].includes(extn))throw uploadError('지원하지 않는 파일 형식입니다.');const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
+async function upload(req,env,s,isPreset){const token=env.GITHUB_TOKEN||s.token;if(!token)throw uploadError('GitHub 저장 연결을 확인해주세요.',503);const f=await req.formData(),file=f.get('file'),cat=String(f.get('category')||''),uploadId=String(f.get('uploadId')||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,48);if(!(file instanceof File)||!cat)throw uploadError('파일 또는 카테고리가 없습니다.');if(file.size<=0)throw uploadError('빈 파일은 업로드할 수 없습니다.');const extn=ext(file.name);if(!['gif','png','jpg','jpeg','webp'].includes(extn))throw uploadError('지원하지 않는 파일 형식입니다.');const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,17);
 if(isPreset){
   const settings=await ghJson(env,token,SETTINGS);
   const pc=(settings.presetCategories||[]).find(x=>x.id===cat);
