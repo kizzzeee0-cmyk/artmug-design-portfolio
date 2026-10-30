@@ -2110,6 +2110,23 @@ function applyAdminOrder(list,order){
     return ai-bi
   })
 }
+function portfolioUploadStamp(x){
+  const created=String(x?.createdAt||'').replace(/\D/g,'');
+  if(created)return created;
+  const name=String(x?.file||'').split('/').pop()||'';
+  return name.match(/^(\d{14,17})-/)?.[1]||''
+}
+function portfolioNewestFirstAdmin(list,order=[]){
+  const manualPos=new Map((Array.isArray(order)?order:[]).map((file,i)=>[file,i]));
+  return (Array.isArray(list)?list:[]).map((x,index)=>({x,index})).sort((a,b)=>{
+    const at=portfolioUploadStamp(a.x),bt=portfolioUploadStamp(b.x);
+    if(at!==bt)return bt.localeCompare(at);
+    const ap=manualPos.has(a.x.file)?manualPos.get(a.x.file):Number.MAX_SAFE_INTEGER;
+    const bp=manualPos.has(b.x.file)?manualPos.get(b.x.file):Number.MAX_SAFE_INTEGER;
+    if(ap!==bp)return ap-bp;
+    return b.index-a.index
+  }).map(v=>v.x)
+}
 function presetAutoName(number){
   return '프리셋 '+String(Math.max(1,Number(number)||1)).padStart(2,'0')
 }
@@ -2311,7 +2328,7 @@ async function loadItems(){
       api('/api/admin/portfolio'),
       loadPresetItemsOnly()
     ]);
-    items=applyAdminOrder((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
+    items=portfolioNewestFirstAdmin((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
     renderItems();renderBannerTypeGuideAdmin()
   }catch(e){$('uploadStatus').textContent=e.message}
 }
@@ -2756,7 +2773,7 @@ function renderItems(){
   const start=(portfolioAdminPage-1)*ADMIN_PAGE_SIZE;
   const pageItems=items.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>({x,i:start+local}));
   $('items').innerHTML=pageItems.map(({x,i})=>{
-    const logical=logicalPortfolioCategory(x.category),same=items.filter(v=>logicalPortfolioCategory(v.category)===logical),samePos=same.findIndex(v=>v.file===x.file);
+    const logical=logicalPortfolioCategory(x.category);
     const isProfile=logical==='profile',isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category),meta=portfolioMetaFor(x),cat=(S.portfolioCategories||[]).find(c=>c.id===x.category);
     return `<div class="item portfolio-admin-item">
       ${adminMediaImg(x.file,x.originalName||'')}
@@ -2769,14 +2786,12 @@ function renderItems(){
         </div>
       </div>
       <div class="item-actions">
-        <div class="media-order-controls"><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="-1" ${samePos<=0?'disabled':''}>↑</button><button type="button" class="ghost cat-order-button" data-move-portfolio-item="${i}" data-dir="1" ${samePos>=same.length-1?'disabled':''}>↓</button></div>
         <button class="ghost admin-compact" data-replace-portfolio="${i}">파일 수정</button>
         <button class="danger admin-compact" data-delete="${encodeURIComponent(x.file)}">삭제</button>
       </div>
     </div>`
   }).join('');
   bindAdminPagination('itemsPagination','portfolio',portfolioAdminPage,totalPages);
-  document.querySelectorAll('[data-move-portfolio-item]').forEach(b=>b.onclick=()=>moveMediaItem('portfolio',+b.dataset.movePortfolioItem,Number(b.dataset.dir)));
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
   document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
   document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{bannerType:el.value}));
@@ -2843,7 +2858,7 @@ async function uploadFiles(kind){
       S.portfolioOrder=saved.portfolioOrder||S.portfolioOrder||[];
       S.portfolioMeta=saved.portfolioMeta||S.portfolioMeta||{}
     }
-    status.textContent='업로드가 완료되었습니다.';fileInput.value='';await loadItems();showToast('업로드되었습니다.')
+    status.textContent='업로드가 완료되었습니다.';fileInput.value='';portfolioAdminPage=1;await loadItems();showToast('업로드되었습니다.')
   }catch(e){status.textContent=e.message;alert('업로드에 실패했습니다.\n'+e.message)}
 }
 
