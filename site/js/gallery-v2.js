@@ -86,11 +86,11 @@ function portfolioNewestFirst(items){
  const order=Array.isArray(state.settings?.portfolioOrder)?state.settings.portfolioOrder:[];
  const pos=new Map(order.map((file,i)=>[file,i]));
  return [...(items||[])].sort((a,b)=>{
-  const at=portfolioUploadStamp(a),bt=portfolioUploadStamp(b);
-  if(at!==bt)return bt.localeCompare(at);
   const ap=pos.has(a.file)?pos.get(a.file):Number.MAX_SAFE_INTEGER;
   const bp=pos.has(b.file)?pos.get(b.file):Number.MAX_SAFE_INTEGER;
   if(ap!==bp)return ap-bp;
+  const at=portfolioUploadStamp(a),bt=portfolioUploadStamp(b);
+  if(at!==bt)return bt.localeCompare(at);
   return String(b?.file||'').localeCompare(String(a?.file||''))
  })
 }
