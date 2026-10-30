@@ -949,11 +949,12 @@ async function renderShowcase(){
  if(!fixed.length){root.hidden=true;root.innerHTML='';return}
  const visibleCount=state.mobile?(innerWidth>=520?3:2):(innerWidth>=1180?6:5);
  const fixedData=showcasePageData(fixed,Math.max(1,Math.min(visibleCount,fixed.length)),'fixed');
+ const fixedTitle=String(state.settings?.fixedTitle||'고정틀').trim()||'고정틀';
  const fixedNotice=String(state.settings?.fixedNotice??'배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.').trim();
  root.hidden=false;
- root.innerHTML='<h2>고정틀</h2><div class="v2-unified-showcase is-single">'+
+ root.innerHTML='<h2>'+esc(fixedTitle)+'</h2><div class="v2-unified-showcase is-single">'+
   '<section class="v2-unified-group is-fixed" style="--group-weight:'+Math.max(1,fixedData.shown.length)+';--group-cols:'+Math.max(1,fixedData.shown.length)+'">'+
-   '<header class="v2-unified-group-head"><h3>고정틀</h3>'+(fixedNotice?'<p>'+esc(fixedNotice)+'</p>':'')+'</header>'+
+   (fixedNotice?'<header class="v2-unified-group-head"><p>'+esc(fixedNotice)+'</p></header>':'')+
    '<div class="v2-unified-grid">'+fixedData.shown.map(fixedProductPublicCard).join('')+'</div>'+
    pagination('showcase-fixed',fixedData.pages,fixedData.page)+
   '</section>'+
