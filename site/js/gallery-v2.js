@@ -1052,7 +1052,7 @@ function announceNavData(){
    hasA:filters?filters.includes('A'):(d.items||[]).some(x=>pmeta(x).bannerType==='A'),
    hasB:filters?filters.includes('B'):(d.items||[]).some(x=>pmeta(x).bannerType==='B')}
  });
- const payload={type:'nav-data',preset:state.showcase.preset.length>0,fixed:state.showcase.fixed.length>0,categories:cats};
+ const payload={type:'nav-data',preset:false,fixed:state.showcase.fixed.length>0,categories:cats};
  try{window.__v2nav?.postMessage(payload)}catch{}
 }
 function initNav(){
