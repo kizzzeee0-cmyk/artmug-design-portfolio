@@ -4585,18 +4585,71 @@ body.v2-fixed-detail-open{
   width:100%!important;
 }
 
-
-/* 2026-10-30 fixed notice typography matches inquiry description */
-.v2-unified-group-head p{
+/* 2026-10-30 fixed notice + spacing + copy-button final alignment */
+.showcase-section-v2{
+  padding:clamp(22px,3vw,34px)!important;
+}
+.showcase-section-v2>h2{
+  margin:0!important;
+}
+.showcase-section-v2>h2+.v2-unified-showcase{
+  margin-top:4px!important;
+}
+.showcase-section-v2 .v2-unified-group-head{
+  margin-top:0!important;
+}
+.showcase-section-v2 .v2-fixed-notice{
+  margin:0 auto!important;
+  padding:0!important;
   color:#6f7f89!important;
-  font-size:12.5px!important;
+  font-family:var(--font-paperlogy,'Paperlogy',sans-serif)!important;
+  font-size:13px!important;
   font-weight:400!important;
   line-height:1.55!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:keep-all!important;
 }
+.v2-fixed-notice-line{
+  display:block;
+}
+.v2-fixed-notice-line.is-desktop-only{
+  display:block;
+}
+
+/* Keep the copy label mathematically centered inside the button box. */
+#inquirySection .inquiry-form-footer #copyButton{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:48px!important;
+  min-height:48px!important;
+  padding:0 22px!important;
+  line-height:1!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+
 @media(max-width:680px){
-  .v2-unified-group-head p{
-    font-size:12.5px!important;
-    font-weight:400!important;
-    line-height:1.55!important;
+  .showcase-section-v2{
+    padding:22px!important;
+  }
+  .showcase-section-v2>h2+.v2-unified-showcase{
+    margin-top:5px!important;
+  }
+  .showcase-section-v2 .v2-fixed-notice{
+    font-size:12px!important;
+    line-height:1.5!important;
+  }
+  .v2-fixed-notice-line.is-desktop-only{
+    display:none!important;
+  }
+  #inquirySection .inquiry-form-footer #copyButton{
+    height:46px!important;
+    min-height:46px!important;
+    padding:0 20px!important;
+    line-height:1!important;
   }
 }
