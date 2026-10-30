@@ -4584,3 +4584,19 @@ body.v2-fixed-detail-open{
 #inquirySection .inquiry-broadcast-combined-field>input{
   width:100%!important;
 }
+
+
+/* 2026-10-30 fixed notice typography matches inquiry description */
+.v2-unified-group-head p{
+  color:#6f7f89!important;
+  font-size:12.5px!important;
+  font-weight:400!important;
+  line-height:1.55!important;
+}
+@media(max-width:680px){
+  .v2-unified-group-head p{
+    font-size:12.5px!important;
+    font-weight:400!important;
+    line-height:1.55!important;
+  }
+}
