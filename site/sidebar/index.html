@@ -2488,8 +2488,8 @@ function iconSvg(item){
  /* 고정틀: frame / crop-frame style icon */
  if(t==='fixed')return '<svg viewBox="0 0 24 24"><path d="M8 5H5v3M16 5h3v3M8 19H5v-3M16 19h3v-3"/><rect x="8" y="8" width="8" height="8" rx="1.4"/></svg>';
 
- /* 프리셋: paint palette */
- if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="10.5" cy="17" r="1.7"/></svg>';
+ /* 고정틀 쇼케이스: frame / crop-frame */
+ if(t==='showcase')return '<svg viewBox="0 0 24 24"><path d="M8 5H5v3M16 5h3v3M8 19H5v-3M16 19h3v-3"/><rect x="8" y="8" width="8" height="8" rx="1.4"/></svg>';
 
  /* 움짤프사: default profile/avatar silhouette */
  if(t.startsWith('portfolio:')&&String(item?.label||'').includes('움짤'))return '<svg viewBox="0 0 24 24"><rect x="4.7" y="5.7" width="14.6" height="12.6" rx="2.6"/><path d="m10.2 9.2 4.8 2.8-4.8 2.8z"/></svg>';
