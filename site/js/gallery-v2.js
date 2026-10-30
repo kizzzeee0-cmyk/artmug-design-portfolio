@@ -951,10 +951,12 @@ async function renderShowcase(){
  const fixedData=showcasePageData(fixed,Math.max(1,Math.min(visibleCount,fixed.length)),'fixed');
  const fixedTitle=String(state.settings?.fixedTitle||'고정틀').trim()||'고정틀';
  const fixedNotice=String(state.settings?.fixedNotice??'배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.\n※ 완성된 틀만 별도로 판매하는 방식이 아닌, 해당 디자인을 기반으로 제작해드리는 상품입니다.').trim();
+ const fixedNoticeLines=fixedNotice.split(/\\r?\\n/).map(line=>line.trim()).filter(Boolean);
+ const fixedNoticeHtml=fixedNoticeLines.map((line,index)=>'<span class="v2-fixed-notice-line '+(index===0?'is-primary':'is-desktop-only')+'">'+esc(line)+'</span>').join('');
  root.hidden=false;
  root.innerHTML='<h2>'+esc(fixedTitle)+'</h2><div class="v2-unified-showcase is-single">'+
   '<section class="v2-unified-group is-fixed" style="--group-weight:'+Math.max(1,fixedData.shown.length)+';--group-cols:'+Math.max(1,fixedData.shown.length)+'">'+
-   (fixedNotice?'<header class="v2-unified-group-head"><p>'+esc(fixedNotice)+'</p></header>':'')+
+   (fixedNoticeHtml?'<header class="v2-unified-group-head"><p class="v2-fixed-notice">'+fixedNoticeHtml+'</p></header>':'')+
    '<div class="v2-unified-grid">'+fixedData.shown.map(fixedProductPublicCard).join('')+'</div>'+
    pagination('showcase-fixed',fixedData.pages,fixedData.page)+
   '</section>'+
