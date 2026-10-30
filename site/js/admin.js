@@ -2127,6 +2127,324 @@ function portfolioNewestFirstAdmin(list,order=[]){
     return b.index-a.index
   }).map(v=>v.x)
 }
+
+/* =========================================================
+   2026-10-31 LONG-PRESS DRAG SORTING
+   All admin lists that previously used up/down arrows are
+   sortable by holding the grip and dragging to a new position.
+   ========================================================= */
+let adminSortGroupSeq=0;
+let adminSortObserver=null;
+let adminSortInstallQueued=false;
+
+function adminReorderSlots(arr,orderedOriginalIndexes){
+  if(!Array.isArray(arr)||!Array.isArray(orderedOriginalIndexes)||orderedOriginalIndexes.length<2)return arr;
+  const source=[...arr];
+  const indexes=orderedOriginalIndexes.map(Number).filter(i=>Number.isInteger(i)&&i>=0&&i<source.length);
+  const slots=[...indexes].sort((a,b)=>a-b);
+  const values=indexes.map(i=>source[i]);
+  slots.forEach((slot,i)=>{if(i<values.length)arr[slot]=values[i]});
+  return arr
+}
+function adminSortHandleHost(item){
+  const arrow=item.querySelector('.cat-order-button[data-dir], [data-quote-order-key][data-order-dir]');
+  if(arrow)return arrow.parentElement;
+  return item.querySelector('.item-actions,.preset-admin-actions,.fixed-product-summary-actions,.fixed-preview-admin-actions,.fixed-inquiry-field-actions,.inquiry-v3-admin-design-actions,.inquiry-v3-nested-actions,.notice-admin-order,.type-order-controls,.cat-order-controls,.quote-select-order')||item
+}
+function bindAdminDragGroup(rawItems,onCommit,options={}){
+  const items=[...rawItems].filter(Boolean);
+  if(items.length<2)return;
+  const parent=items[0].parentElement;
+  if(!parent||items.some(item=>item.parentElement!==parent))return;
+  if(items.every(item=>item.dataset.adminSortBound))return;
+  const group='admin-sort-'+(++adminSortGroupSeq);
+  items.forEach(item=>{
+    item.dataset.adminSortBound=group;
+    item.classList.add('admin-sortable-item');
+    const host=(typeof options.host==='function'?options.host(item):null)||adminSortHandleHost(item);
+    if(!host)return;
+    let handle=host.querySelector(':scope > .admin-drag-handle');
+    if(!handle){
+      handle=document.createElement('button');
+      handle.type='button';
+      handle.className='admin-drag-handle';
+      handle.setAttribute('aria-label','꾹 눌러 순서 이동');
+      handle.title='꾹 눌러 원하는 위치로 이동';
+      handle.innerHTML='<span aria-hidden="true">⋮⋮</span>';
+      const arrow=host.querySelector('.cat-order-button[data-dir], [data-quote-order-key][data-order-dir]');
+      host.insertBefore(handle,arrow||host.firstChild)
+    }
+    handle.onpointerdown=e=>{
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      e.preventDefault();
+      e.stopPropagation();
+      const pointerId=e.pointerId,startX=e.clientX,startY=e.clientY;
+      let active=false,moved=false,lastY=e.clientY,timer=0;
+      const activate=()=>{
+        if(active)return;
+        active=true;
+        item.classList.add('is-admin-sorting');
+        document.body.classList.add('admin-sort-active');
+        try{handle.setPointerCapture(pointerId)}catch{}
+      };
+      timer=window.setTimeout(activate,e.pointerType==='touch'?220:120);
+      const move=ev=>{
+        if(ev.pointerId!==pointerId)return;
+        lastY=ev.clientY;
+        const dist=Math.hypot(ev.clientX-startX,ev.clientY-startY);
+        if(!active&&dist>7)activate();
+        if(!active)return;
+        ev.preventDefault();
+        const hit=document.elementFromPoint(ev.clientX,ev.clientY);
+        const target=hit?.closest?.('[data-admin-sort-bound="'+group+'"]');
+        if(target&&target!==item&&target.parentElement===parent){
+          const rect=target.getBoundingClientRect();
+          const before=ev.clientY<rect.top+rect.height/2;
+          const ref=before?target:target.nextSibling;
+          if(ref!==item&&item.nextSibling!==ref){
+            parent.insertBefore(item,ref);
+            moved=true
+          }
+        }
+        if(lastY<72)window.scrollBy(0,-14);
+        else if(lastY>window.innerHeight-72)window.scrollBy(0,14)
+      };
+      const finish=ev=>{
+        if(ev.pointerId!==pointerId)return;
+        clearTimeout(timer);
+        window.removeEventListener('pointermove',move);
+        window.removeEventListener('pointerup',finish);
+        window.removeEventListener('pointercancel',cancel);
+        if(active){
+          item.classList.remove('is-admin-sorting');
+          document.body.classList.remove('admin-sort-active');
+          try{handle.releasePointerCapture(pointerId)}catch{}
+          if(moved){
+            const ordered=[...parent.children].filter(el=>el.dataset?.adminSortBound===group);
+            Promise.resolve(onCommit(ordered)).catch(err=>{
+              console.error(err);
+              showToast('순서 저장에 실패했습니다.','error')
+            })
+          }
+        }
+      };
+      const cancel=ev=>{
+        if(ev.pointerId!==pointerId)return;
+        clearTimeout(timer);
+        window.removeEventListener('pointermove',move);
+        window.removeEventListener('pointerup',finish);
+        window.removeEventListener('pointercancel',cancel);
+        item.classList.remove('is-admin-sorting');
+        document.body.classList.remove('admin-sort-active')
+      };
+      window.addEventListener('pointermove',move,{passive:false});
+      window.addEventListener('pointerup',finish);
+      window.addEventListener('pointercancel',cancel)
+    }
+  })
+}
+function adminRowsByDirectChild(root,selector){
+  return root?[...root.children].filter(el=>el.matches?.(selector)):[]
+}
+function installAdminDragSorters(){
+  if(!S)return;
+
+  const notices=$('notices');
+  bindAdminDragGroup(adminRowsByDirectChild(notices,'.notice-admin-card'),rows=>{
+    collectNotices();
+    const indexes=rows.map(row=>Number(row.querySelector('[data-notice-enabled]')?.dataset.noticeEnabled));
+    adminReorderSlots(S.noticeItems,indexes);
+    renderNotices()
+  });
+
+  const types=$('types');
+  bindAdminDragGroup(adminRowsByDirectChild(types,'.type-edit'),rows=>{
+    collect();
+    const indexes=rows.map(row=>Number(row.querySelector('[data-type-label]')?.dataset.typeLabel));
+    adminReorderSlots(S.designTypes,indexes);
+    renderTypes()
+  });
+
+  const cats=$('cats');
+  bindAdminDragGroup(adminRowsByDirectChild(cats,'.cat-row'),rows=>{
+    collectCats(S.portfolioCategories||[],'cat');
+    const indexes=rows.map(row=>Number(row.querySelector('[data-cat-label]')?.dataset.catLabel));
+    adminReorderSlots(S.portfolioCategories,indexes);
+    renderCats()
+  });
+
+  const presetCats=$('presetCats');
+  bindAdminDragGroup(adminRowsByDirectChild(presetCats,'.cat-row'),rows=>{
+    collectCats(S.presetCategories||[],'preset');
+    const indexes=rows.map(row=>Number(row.querySelector('[data-preset-label]')?.dataset.presetLabel));
+    adminReorderSlots(S.presetCategories,indexes);
+    renderPresetCats()
+  });
+
+  const portfolioRoot=$('items');
+  bindAdminDragGroup(adminRowsByDirectChild(portfolioRoot,'.portfolio-admin-item'),async rows=>{
+    const indexes=rows.map(row=>Number(row.querySelector('[data-replace-portfolio]')?.dataset.replacePortfolio));
+    adminReorderSlots(items,indexes);
+    await saveMediaOrder('portfolio');
+    renderItems()
+  });
+
+  const presetRoot=$('presetItems');
+  bindAdminDragGroup(adminRowsByDirectChild(presetRoot,'.preset-admin-item-v2'),async rows=>{
+    const indexes=rows.map(row=>Number(row.querySelector('[data-replace-preset]')?.dataset.replacePreset));
+    adminReorderSlots(presetItems,indexes);
+    await saveMediaOrder('preset');
+    renderPresetItems()
+  });
+
+  document.querySelectorAll('.preset-color-list').forEach(list=>{
+    const rows=adminRowsByDirectChild(list,'.preset-color-row');
+    bindAdminDragGroup(rows,async ordered=>{
+      const token=ordered[0]?.querySelector('[data-preset-color-name]')?.dataset.presetColorName||'';
+      const i=Number(token.split(':')[0]),x=presetItems[i];if(!x)return;
+      const group=ensurePresetColorGroupForProduct(x);if(!group)return;
+      ordered.forEach(row=>{
+        const t=row.querySelector('[data-preset-color-name]')?.dataset.presetColorName||'';
+        const j=Number(t.split(':')[1]),input=row.querySelector('[data-preset-color-name]');
+        if(group.variants[j]&&input)group.variants[j].name=input.value.trim()||group.variants[j].name
+      });
+      const byFile=new Map(group.variants.map(v=>[v.file,v]));
+      group.variants=ordered.map(row=>byFile.get(row.dataset.colorFile)).filter(Boolean);
+      await persistPresetColorGroups('색상 순서가 저장되었습니다.');
+      presetColorOpenIds.add(group.id);
+      renderPresetItems()
+    })
+  });
+
+  const fixedCats=$('fixedCats');
+  bindAdminDragGroup(adminRowsByDirectChild(fixedCats,'.seasonal-fixed-cat-row'),rows=>{
+    collectFixedAdmin();
+    const arr=ensureFixedCategories();
+    const indexes=rows.map(row=>Number(row.querySelector('[data-fixed-cat-name]')?.dataset.fixedCatName));
+    adminReorderSlots(arr,indexes);
+    renderFixedCats();renderFixedItems()
+  });
+
+  const fixedRoot=$('fixedItems');
+  bindAdminDragGroup(adminRowsByDirectChild(fixedRoot,'.fixed-product-admin-card'),async rows=>{
+    const arr=ensureFixedProducts();
+    rows.forEach(row=>{
+      const id=String(row.dataset.fixedProductId||''),i=arr.findIndex(p=>String(p.id||'')===id);
+      if(i>=0)collectFixedProductFromDom(i)
+    });
+    const indexes=rows.map(row=>arr.findIndex(p=>String(p.id||'')===String(row.dataset.fixedProductId||''))).filter(i=>i>=0);
+    adminReorderSlots(arr,indexes);
+    await persistFixedProducts('상품 공개 순서가 저장되었습니다.');
+    renderFixedItems()
+  });
+
+  document.querySelectorAll('.fixed-preview-admin-list').forEach(list=>{
+    const rows=adminRowsByDirectChild(list,'.fixed-preview-admin-row');
+    bindAdminDragGroup(rows,async ordered=>{
+      const token=ordered[0]?.querySelector('[data-fp-preview-name]')?.dataset.fpPreviewName||'';
+      const [i]=token.split(':').map(Number),p=collectFixedProductFromDom(i);if(!p)return;
+      const indexes=ordered.map(row=>Number((row.querySelector('[data-fp-preview-name]')?.dataset.fpPreviewName||'0:0').split(':')[1]));
+      adminReorderSlots(p.previews,indexes);
+      fixedProductOpenIds.add(p.id);
+      await persistFixedProducts('디자인 공개 순서가 저장되었습니다.');
+      renderFixedItems()
+    })
+  });
+
+  document.querySelectorAll('.fixed-inquiry-fields-admin-list').forEach(list=>{
+    const rows=adminRowsByDirectChild(list,'.fixed-inquiry-field-admin-row');
+    bindAdminDragGroup(rows,ordered=>{
+      const token=ordered[0]?.querySelector('[data-fp-inquiry-label]')?.dataset.fpInquiryLabel||'';
+      const [i]=token.split(':').map(Number),p=collectFixedProductFromDom(i);if(!p)return;
+      const indexes=ordered.map(row=>Number((row.querySelector('[data-fp-inquiry-label]')?.dataset.fpInquiryLabel||'0:0').split(':')[1]));
+      adminReorderSlots(p.inquiryFields,indexes);
+      fixedProductOpenIds.add(p.id);
+      renderFixedItems()
+    })
+  });
+
+  const inquiryRoot=$('inquiryV3Admin');
+  if(inquiryRoot){
+    const designList=inquiryRoot.querySelector('.inquiry-v3-admin-design-list');
+    bindAdminDragGroup(adminRowsByDirectChild(designList,'.inquiry-v3-admin-design-card'),rows=>{
+      collectInquiryV3Admin();
+      const v=ensureInquiryV3(),ordered=rows.map(row=>String(row.dataset.iq3DesignCard||'')).filter(Boolean);
+      const rest=v.designOrder.filter(id=>!ordered.includes(id));
+      v.designOrder=[...ordered,...rest];
+      renderInquiryV3Admin();renderQuoteAdmin();renderQuoteBuilder()
+    });
+
+    const commonList=inquiryRoot.querySelector('.inquiry-v3-common-option-admin-list');
+    bindAdminDragGroup(adminRowsByDirectChild(commonList,'.inquiry-v3-mode-admin-row'),rows=>{
+      collectInquiryV3Admin();
+      const v=ensureInquiryV3(),ordered=rows.map(row=>row.querySelector('[data-iq3-common-option-label]')?.dataset.iq3CommonOptionLabel).filter(Boolean);
+      const rest=(v.common.optionOrder||[]).filter(key=>!ordered.includes(key));
+      v.common.optionOrder=[...ordered,...rest];
+      renderInquiryV3Admin()
+    });
+
+    inquiryRoot.querySelectorAll('.inquiry-v3-mode-admin-list').forEach(list=>{
+      const rows=adminRowsByDirectChild(list,'.inquiry-v3-mode-admin-row').filter(row=>row.querySelector('[data-iq3-profile-mode-label]'));
+      bindAdminDragGroup(rows,ordered=>{
+        collectInquiryV3Admin();
+        const d=ensureInquiryV3().designs.profile;if(!d)return;
+        const arr=Array.isArray(d.modeOrder)?d.modeOrder:(d.modeOrder=['custom','fixed','preset','change']);
+        const indexes=ordered.map(row=>arr.indexOf(row.querySelector('[data-iq3-profile-mode-label]')?.dataset.iq3ProfileModeLabel)).filter(i=>i>=0);
+        adminReorderSlots(arr,indexes);
+        renderInquiryV3Admin()
+      })
+    });
+
+    const arrayGroups=new Map();
+    inquiryRoot.querySelectorAll('.inquiry-v3-nested-choice-row').forEach(row=>{
+      const token=row.querySelector('[data-iq3-array-label]')?.dataset.iq3ArrayLabel||'';
+      const parts=token.split(':'),key=parts.length>=3?parts.slice(0,2).join(':'):'';
+      if(!key)return;
+      if(!arrayGroups.has(key))arrayGroups.set(key,[]);
+      arrayGroups.get(key).push(row)
+    });
+    arrayGroups.forEach((rows,key)=>bindAdminDragGroup(rows,ordered=>{
+      collectInquiryV3Admin();
+      const [id,prop]=key.split(':'),arr=ensureInquiryV3().designs?.[id]?.[prop];if(!Array.isArray(arr))return;
+      const indexes=ordered.map(row=>Number((row.querySelector('[data-iq3-array-label]')?.dataset.iq3ArrayLabel||'0:0:0').split(':')[2]));
+      adminReorderSlots(arr,indexes);
+      renderInquiryV3Admin();renderQuoteAdmin();renderQuoteBuilder()
+    }));
+
+    inquiryRoot.querySelectorAll('.inquiry-v3-admin-fields-list').forEach(list=>{
+      const rows=adminRowsByDirectChild(list,'.inquiry-v3-admin-field-row');
+      bindAdminDragGroup(rows,ordered=>{
+        collectInquiryV3Admin();
+        const first=ordered[0]?.dataset.inquiryV3FieldRow||'',cut=first.lastIndexOf(':'),path=first.slice(0,cut),arr=inquiryV3FieldArrayByPath(path);if(!arr)return;
+        const indexes=ordered.map(row=>Number(String(row.dataset.inquiryV3FieldRow||'').slice(String(row.dataset.inquiryV3FieldRow||'').lastIndexOf(':')+1)));
+        adminReorderSlots(arr,indexes);
+        renderInquiryV3Admin()
+      })
+    })
+  }
+
+  const quoteBuilder=$('quoteBuilder');
+  bindAdminDragGroup(adminRowsByDirectChild(quoteBuilder,'.quote-select-row'),async rows=>{
+    const q=ensureQuoteConfig();
+    q.builderOrder=rows.map(row=>String(row.dataset.quoteBuilderKey||'')).filter(Boolean);
+    renderQuoteBuilder();
+    await persistQuoteBuilderOrder()
+  },{host:item=>item.querySelector('.quote-select-order')});
+
+  document.querySelectorAll('.cat-order-button[data-dir],[data-quote-order-key][data-order-dir]').forEach(button=>button.setAttribute('aria-hidden','true'))
+}
+function scheduleAdminDragSorters(){
+  if(adminSortInstallQueued)return;
+  adminSortInstallQueued=true;
+  requestAnimationFrame(()=>{adminSortInstallQueued=false;installAdminDragSorters()})
+}
+function startAdminDragSorterObserver(){
+  if(adminSortObserver)return;
+  adminSortObserver=new MutationObserver(scheduleAdminDragSorters);
+  adminSortObserver.observe(document.body,{childList:true,subtree:true});
+  scheduleAdminDragSorters()
+}
+
 function presetAutoName(number){
   return '프리셋 '+String(Math.max(1,Number(number)||1)).padStart(2,'0')
 }
@@ -2328,7 +2646,7 @@ async function loadItems(){
       api('/api/admin/portfolio'),
       loadPresetItemsOnly()
     ]);
-    items=portfolioNewestFirstAdmin((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
+    items=applyAdminOrder((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
     renderItems();renderBannerTypeGuideAdmin()
   }catch(e){$('uploadStatus').textContent=e.message}
 }
@@ -3510,4 +3828,5 @@ $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent
 async function siteUpload(kind,inputId){const file=$(inputId).files[0];if(!file)return;const fd=new FormData();fd.append('file',file);fd.append('kind',kind);try{await fetch(ADMIN_API+'/api/admin/site-image',{method:'POST',credentials:'include',body:fd}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d});const d=await api('/api/admin/settings');S=d.settings;render();showToast('이미지가 업로드되었습니다.')}catch(e){alert(e.message)}}
 async function siteDelete(kind){if(!confirm('등록된 이미지를 삭제할까요?'))return;try{const d=await api('/api/admin/site-image/delete',{method:'POST',body:JSON.stringify({kind})});S=d.settings||S;render()}catch(e){alert(e.message)}}
 $('uploadAbout').onclick=()=>siteUpload('about','aboutFile');$('deleteAbout').onclick=()=>siteDelete('about');
+startAdminDragSorterObserver();
 init();
