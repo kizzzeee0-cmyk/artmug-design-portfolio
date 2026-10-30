@@ -74,7 +74,7 @@ document.addEventListener('visibilitychange',()=>{
   })
 });
 function createUploadId(){
-  const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
+  const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,17);
   const rand=new Uint32Array(2);
   crypto.getRandomValues(rand);
   return stamp+'-'+Array.from(rand,n=>n.toString(36)).join('');
