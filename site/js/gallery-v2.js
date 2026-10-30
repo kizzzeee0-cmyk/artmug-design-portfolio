@@ -950,7 +950,7 @@ async function renderShowcase(){
  const visibleCount=state.mobile?(innerWidth>=520?3:2):(innerWidth>=1180?6:5);
  const fixedData=showcasePageData(fixed,Math.max(1,Math.min(visibleCount,fixed.length)),'fixed');
  const fixedTitle=String(state.settings?.fixedTitle||'고정틀').trim()||'고정틀';
- const fixedNotice=String(state.settings?.fixedNotice??'배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.').trim();
+ const fixedNotice=String(state.settings?.fixedNotice??'배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.\n※ 완성된 틀만 별도로 판매하는 방식이 아닌, 해당 디자인을 기반으로 제작해드리는 상품입니다.').trim();
  root.hidden=false;
  root.innerHTML='<h2>'+esc(fixedTitle)+'</h2><div class="v2-unified-showcase is-single">'+
   '<section class="v2-unified-group is-fixed" style="--group-weight:'+Math.max(1,fixedData.shown.length)+';--group-cols:'+Math.max(1,fixedData.shown.length)+'">'+
