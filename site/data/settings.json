@@ -1016,15 +1016,6 @@
       "fixedPreviewCategory": "profile",
       "colorChangeAvailable": false
     },
-    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif": {
-      "name": "",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mve3thwn-ti6e2f",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261019195717-803ogyd94gpn-___________.gif": {
       "name": "노랑",
       "description": "",
@@ -1098,8 +1089,7 @@
     "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
     "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif",
     "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
-    "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif",
-    "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif"
+    "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
   ],
   "portfolioOrder": [
     "portfolio/profile/20261030231926-g12v5f1vdmnwf-____.gif",
@@ -1524,67 +1514,6 @@
           "file": "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif",
           "category": "profile",
           "name": "핑크",
-          "description": "",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": "product-mve3thwn-ti6e2f",
-      "name": "할로윈 고정틀",
-      "description": "",
-      "enabled": true,
-      "pcColumns": 6,
-      "mobileColumns": 2,
-      "showPreviewNames": true,
-      "changeableOptions": [
-        {
-          "id": "opt-mve62j14-2ysg73",
-          "label": "미리보기에 없는 색상으로도 변경 가능합니다",
-          "detail": "",
-          "choices": []
-        }
-      ],
-      "fixedOptions": [],
-      "note": "색상 자유롭게 변경 가능합니다",
-      "price": 10000,
-      "priceVisible": true,
-      "priceNote": "",
-      "priceScope": "",
-      "inquiryFields": [
-        {
-          "id": "backgroundColor",
-          "label": "배경 색상",
-          "type": "text",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "원하는 배경 색상을 입력해주세요",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": []
-        },
-        {
-          "id": "name",
-          "label": "이름 입력",
-          "type": "text",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "프사에 적용할 이름을 모두 입력해주세요",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": []
-        }
-      ],
-      "previews": [
-        {
-          "id": "preview-mve3uuw2-o8cp3r",
-          "file": "preset/fixed-store-profile/20261018173419-1v3icyh1xmk3es-background__2__.gif",
-          "category": "profile",
-          "name": "",
           "description": "",
           "enabled": true
         }
