@@ -1469,16 +1469,15 @@ function portfolioUploadStamp(x){
   return name.match(/^(\d{14,17})-/)?.[1]||''
 }
 function portfolioNewestFirst(items){
-  const order=Array.isArray(S?.portfolioOrder)?S.portfolioOrder:[];
-  const pos=new Map(order.map((file,i)=>[file,i]));
-  return [...(items||[])].sort((a,b)=>{
-    const ap=pos.has(a.file)?pos.get(a.file):Number.MAX_SAFE_INTEGER;
-    const bp=pos.has(b.file)?pos.get(b.file):Number.MAX_SAFE_INTEGER;
-    if(ap!==bp)return ap-bp;
-    const at=portfolioUploadStamp(a),bt=portfolioUploadStamp(b);
-    if(at!==bt)return bt.localeCompare(at);
-    return String(b?.file||'').localeCompare(String(a?.file||''))
-  })
+  const source=[...(items||[])],order=Array.isArray(S?.portfolioOrder)?S.portfolioOrder:[];
+  const byFile=new Map(source.map(x=>[String(x?.file||''),x])),seen=new Set();
+  const merged=order.map(String).filter(file=>byFile.has(file)&&!seen.has(file)&&seen.add(file));
+  source.filter(x=>x?.file&&!seen.has(String(x.file))).sort((a,b)=>portfolioUploadStamp(b).localeCompare(portfolioUploadStamp(a))).forEach(x=>{
+    const stamp=portfolioUploadStamp(x);let at=merged.findIndex(file=>portfolioUploadStamp(byFile.get(file))<stamp);
+    if(at<0)at=merged.length;merged.splice(at,0,String(x.file));seen.add(String(x.file))
+  });
+  const pos=new Map(merged.map((file,i)=>[file,i]));
+  return source.sort((a,b)=>(pos.get(a.file)??Number.MAX_SAFE_INTEGER)-(pos.get(b.file)??Number.MAX_SAFE_INTEGER))
 }
 function applyManualOrder(items,order){
   if(!Array.isArray(order)||!order.length)return [...items];
