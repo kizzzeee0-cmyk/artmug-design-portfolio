@@ -2116,6 +2116,25 @@ function portfolioUploadStamp(x){
   const name=String(x?.file||'').split('/').pop()||'';
   return name.match(/^(\d{14,17})-/)?.[1]||''
 }
+function portfolioEffectiveOrder(list,order=[]){
+  const source=Array.isArray(list)?list:[];
+  const byFile=new Map(source.map(x=>[String(x?.file||''),x]));
+  const seen=new Set();
+  const merged=(Array.isArray(order)?order:[]).map(String).filter(file=>byFile.has(file)&&!seen.has(file)&&seen.add(file));
+  const missing=source.filter(x=>x?.file&&!seen.has(String(x.file))).sort((a,b)=>portfolioUploadStamp(b).localeCompare(portfolioUploadStamp(a)));
+  missing.forEach(x=>{
+    const stamp=portfolioUploadStamp(x);
+    let at=merged.findIndex(file=>portfolioUploadStamp(byFile.get(file))<stamp);
+    if(at<0)at=merged.length;
+    merged.splice(at,0,String(x.file));
+    seen.add(String(x.file))
+  });
+  return merged
+}
+function applyPortfolioAdminOrder(list,order=[]){
+  const effective=portfolioEffectiveOrder(list,order),pos=new Map(effective.map((file,i)=>[file,i]));
+  return [...(list||[])].sort((a,b)=>(pos.get(a.file)??Number.MAX_SAFE_INTEGER)-(pos.get(b.file)??Number.MAX_SAFE_INTEGER))
+}
 function portfolioNewestFirstAdmin(list,order=[]){
   const manualPos=new Map((Array.isArray(order)?order:[]).map((file,i)=>[file,i]));
   return (Array.isArray(list)?list:[]).map((x,index)=>({x,index})).sort((a,b)=>{
@@ -2646,7 +2665,7 @@ async function loadItems(){
       api('/api/admin/portfolio'),
       loadPresetItemsOnly()
     ]);
-    items=applyAdminOrder((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
+    items=applyPortfolioAdminOrder((d.items||[]).filter(x=>x.category!=='type-guide-assets'),S?.portfolioOrder);
     renderItems();renderBannerTypeGuideAdmin()
   }catch(e){$('uploadStatus').textContent=e.message}
 }
