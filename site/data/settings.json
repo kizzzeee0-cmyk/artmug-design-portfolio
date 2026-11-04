@@ -337,6 +337,27 @@
         "webp"
       ],
       "emptyText": ""
+    },
+    {
+      "id": "cheki",
+      "label": "체키틀",
+      "enabled": true,
+      "displayWidth": 1800,
+      "displayHeight": 2400,
+      "pcColumns": 5,
+      "pcPerPage": 20,
+      "mobileColumns": 2,
+      "mobilePerPage": 10,
+      "strictSize": false,
+      "uploadWidth": 0,
+      "uploadHeight": 0,
+      "formats": [
+        "png",
+        "jpeg",
+        "gif",
+        "webp"
+      ],
+      "emptyText": "등록된 작업물이 아직 없습니다."
     }
   ],
   "aboutImage": "site-assets/about/1791830216080-KuSSBg0-__.png",
@@ -594,6 +615,21 @@
     {
       "id": "fixed-store-four-cut",
       "label": "고정틀 저장 · 인생네컷",
+      "enabled": false,
+      "hiddenLegacy": true,
+      "displayWidth": 200,
+      "displayHeight": 200,
+      "strictSize": false,
+      "formats": [
+        "gif",
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
+    {
+      "id": "fixed-store-fixed-1793813697654",
+      "label": "고정틀 저장 · 새 디자인 종류",
       "enabled": false,
       "hiddenLegacy": true,
       "displayWidth": 200,
@@ -913,7 +949,6 @@
       "option:textImageChange",
       "profileMode:custom",
       "profileMode:fixed",
-      "profileMode:preset",
       "option:nameOnlyChange",
       "option:profileChange",
       "fourCutType:large",
