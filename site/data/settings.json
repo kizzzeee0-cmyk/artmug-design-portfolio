@@ -743,7 +743,7 @@
         {
           "id": "qg-banner-1791294560673",
           "name": "인생네컷 대형",
-          "price": 27000
+          "price": 25000
         }
       ],
       "option": [
@@ -909,7 +909,7 @@
         "large": {
           "id": "large",
           "label": "인생네컷 대형 (2×2)",
-          "price": 27000
+          "price": 25000
         },
         "small": {
           "id": "small",
