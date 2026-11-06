@@ -1122,8 +1122,8 @@
     "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
     "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
     "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
-    "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
     "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif",
+    "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
     "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
   ],
   "portfolioOrder": [
@@ -1151,7 +1151,6 @@
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png",
     "portfolio/top-banner/20261021145517-9vqR9XZU-___y2k2.png",
     "portfolio/bottom-split/20261013090930-mvmy3iat8o59-____.png",
-    "portfolio/floating-banner/20261013090907-a70kro1mdlg6c-_______.png",
     "portfolio/profile/20261012022933-LHOOp_VP-_________.gif",
     "portfolio/profile/20261013093918-pmbDUNSg-______.gif",
     "portfolio/floating-banner/20261009202139-xpi4OrF_-_____.png",
@@ -1231,10 +1230,6 @@
     },
     "portfolio/profile/20261012022933-LHOOp_VP-_________.gif": {
       "enabled": true
-    },
-    "portfolio/floating-banner/20261013090907-a70kro1mdlg6c-_______.png": {
-      "enabled": true,
-      "bannerType": "B"
     },
     "portfolio/bottom-split/20261013090930-mvmy3iat8o59-____.png": {
       "enabled": true,
@@ -1541,18 +1536,18 @@
       ],
       "previews": [
         {
-          "id": "preview-mvfolyg9-sigiwh",
-          "file": "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
-          "category": "profile",
-          "name": "보라",
-          "description": "",
-          "enabled": true
-        },
-        {
           "id": "preview-mvfoktmm-ypqslm",
           "file": "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif",
           "category": "profile",
           "name": "노랑",
+          "description": "",
+          "enabled": true
+        },
+        {
+          "id": "preview-mvfolyg9-sigiwh",
+          "file": "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
+          "category": "profile",
+          "name": "보라",
           "description": "",
           "enabled": true
         },
