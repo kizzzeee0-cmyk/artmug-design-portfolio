@@ -738,7 +738,7 @@
         {
           "id": "bottom6",
           "name": "하단배너 6칸",
-          "price": 25000
+          "price": 20000
         },
         {
           "id": "qg-banner-1791294560673",
@@ -850,7 +850,7 @@
         "bottom6": {
           "id": "bottom6",
           "label": "하단 6칸",
-          "price": 25000
+          "price": 20000
         }
       },
       "options": {
