@@ -106,5 +106,14 @@
     "description": "",
     "enabled": true,
     "createdAt": "20261019200325"
+  },
+  {
+    "id": "preset-xT0IT38QjnM",
+    "category": "fixed-store-profile",
+    "file": "preset/fixed-store-profile/20261106235959894-1e7x94kcv2pe4-_______.gif",
+    "originalName": "딴지 움짤프사.gif",
+    "description": "",
+    "enabled": true,
+    "createdAt": "20261107000001017"
   }
 ]
