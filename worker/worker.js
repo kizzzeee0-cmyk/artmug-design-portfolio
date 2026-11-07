@@ -14,7 +14,7 @@ if(p.startsWith('/api/admin/')){const s=await session(req,env);if(!s)return cors
 if(p==='/api/admin/session')return cors(json({user:{login:s.login,avatar:s.avatar||''}}),req,env);
 if(p==='/api/admin/settings'&&req.method==='GET')return cors(json({settings:await publicJson(env,SETTINGS)}),req,env);
 if(p==='/api/admin/settings'&&req.method==='PUT'){try{return cors(await saveSettings(req,env,s),req,env)}catch(e){console.error(e);return cors(json({error:`설정 저장 실패: ${String(e.message||e)}`},500),req,env)}}
-if(p==='/api/admin/portfolio'&&req.method==='GET'){const token=env.GITHUB_TOKEN||s.token;const st=await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS));const cats=Array.isArray(st.portfolioCategories)?st.portfolioCategories:[];const idx=await ghJson(env,token,INDEX).catch(()=>[]);const meta=new Map((Array.isArray(idx)?idx:[]).map(x=>[x.file,x]));const all=[];for(const c of cats){const fs=await ghList(env,token,`portfolio/${c.id}`).catch(()=>[]);for(const f of fs){if(f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path))){const base=item(f.path,c.id,c),m=meta.get(f.path);all.push(m?{...base,...m,category:c.id,file:f.path}:base)}}}return cors(json({items:sortPortfolioBySavedOrder(all,st.portfolioOrder,idx)},200,{'Cache-Control':'no-store'}),req,env)}
+if(p==='/api/admin/portfolio'&&req.method==='GET'){const token=env.GITHUB_TOKEN||s.token;const st=await ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS));const cats=Array.isArray(st.portfolioCategories)?st.portfolioCategories:[],catMap=new Map(cats.map(c=>[String(c.id||''),c]));const idx=await ghJson(env,token,INDEX).catch(()=>[]);const all=(Array.isArray(idx)?idx:[]).filter(x=>x&&x.file&&x.category&&['gif','png','jpg','jpeg','webp'].includes(ext(x.file))).map(x=>{const c=catMap.get(String(x.category||''))||{};return {...x,width:Number(x.width||c.displayWidth||0),height:Number(x.height||c.displayHeight||0)}});return cors(json({items:sortPortfolioBySavedOrder(all,st.portfolioOrder,idx)},200,{'Cache-Control':'no-store'}),req,env)}
 if(p==='/api/admin/presets'&&req.method==='GET')return cors(json({items:await ghJson(env,env.GITHUB_TOKEN||s.token,PRESETS).catch(()=>[])},200,{'Cache-Control':'no-store'}),req,env);
 if(p==='/api/admin/presets'&&req.method==='PUT')return cors(await savePresetsMetadata(req,env,s),req,env);
 if(p==='/api/admin/upload'&&req.method==='POST')return cors(await upload(req,env,s,false),req,env);
@@ -134,11 +134,6 @@ async function publicPortfolio(u,env){
   let all=(Array.isArray(idx)?idx:[])
     .filter(x=>x&&x.category===cat&&x.file&&['gif','png','jpg','jpeg','webp'].includes(ext(x.file)))
     .map(x=>({...x,category:cat,file:x.file,width:Number(x.width||c.displayWidth||0),height:Number(x.height||c.displayHeight||0)}));
-
-  if(!all.length){
-    const fs=token?await ghList(env,token,`portfolio/${cat}`).catch(()=>[]):await publicList(env,`portfolio/${cat}`).catch(()=>[]);
-    all=fs.filter(f=>f&&f.type==='file'&&['gif','png','jpg','jpeg','webp'].includes(ext(f.path))).map(f=>item(f.path,cat,c))
-  }
 
   all=all.filter(x=>(pmeta[x.file]||{}).enabled!==false);
   const isFloating=cat==='floating-banner'||String(c.label||'').replace(/\s/g,'').includes('플로팅');
@@ -370,7 +365,49 @@ async function savePresetsMetadata(req,env,s){
   await saveJson(env,token,PRESETS,clean,'[CF-Pages-Skip] Update preset metadata');
   return json({ok:true,items:clean})
 }
-async function del(req,env,s,isPreset){const b=await req.json(),path=String(b.file||'');const allowed=isPreset?/^preset\/[^/]+\/[^/]+$/:/^portfolio\/[^/]+\/[^/]+$/;if(!allowed.test(path))throw new Error('허용되지 않은 경로입니다.');let missing=false,d=null;try{d=await ghGet(env,s.token,path)}catch(e){if(/GitHub 404/.test(String(e?.message||e)))missing=true;else throw e}if(!missing&&d){const r=await fetch(ghUrl(env,path),{method:'DELETE',headers:{...ghHeaders(s.token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Delete ${path.split('/').pop()}`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})});if(!r.ok&&r.status!==404)throw new Error(`GitHub ${r.status}`)}if(isPreset){let x=await ghJson(env,s.token,PRESETS).catch(()=>[]);x=x.filter(v=>v.file!==path);await saveJson(env,s.token,PRESETS,x,'[CF-Pages-Skip] Update presets')}else{let x=await ghJson(env,s.token,INDEX).catch(()=>[]);x=x.filter(v=>v.file!==path);await saveJson(env,s.token,INDEX,x,'[CF-Pages-Skip] Update portfolio index')}return json({ok:true,alreadyMissing:missing})}
+async function del(req,env,s,isPreset){
+  const b=await req.json(),path=String(b.file||'');
+  const allowed=isPreset?/^preset\/[^/]+\/[^/]+$/:/^portfolio\/[^/]+\/[^/]+$/;
+  if(!allowed.test(path))throw new Error('허용되지 않은 경로입니다.');
+  const token=env.GITHUB_TOKEN||s.token;
+  if(!token)throw new Error('GitHub 저장 토큰이 없습니다.');
+
+  if(!isPreset){
+    let idx=await ghJson(env,token,INDEX).catch(()=>[]);
+    idx=(Array.isArray(idx)?idx:[]).filter(v=>String(v?.file||'')!==path);
+    await saveJson(env,token,INDEX,idx,'[CF-Pages-Skip] Remove portfolio index entry');
+
+    const settings=await ghJson(env,token,SETTINGS).catch(()=>null);
+    if(settings&&typeof settings==='object'){
+      settings.portfolioOrder=(Array.isArray(settings.portfolioOrder)?settings.portfolioOrder:[]).filter(v=>String(v)!==path);
+      if(settings.portfolioMeta&&typeof settings.portfolioMeta==='object')delete settings.portfolioMeta[path];
+      await saveJson(env,token,SETTINGS,settings,'[CF-Pages-Skip] Remove portfolio metadata')
+    }
+
+    let missing=false,d=null,cleanupWarning='';
+    try{d=await ghGet(env,token,path)}
+    catch(e){if(/GitHub 404/.test(String(e?.message||e)))missing=true;else cleanupWarning=String(e?.message||e)}
+    if(!missing&&d){
+      try{
+        const resp=await fetch(ghUrl(env,path),{method:'DELETE',headers:{...ghHeaders(token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Delete ${path.split('/').pop()}`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})});
+        if(!resp.ok&&resp.status!==404)cleanupWarning=`GitHub ${resp.status}`
+      }catch(e){cleanupWarning=String(e?.message||e)}
+    }
+    return json({ok:true,alreadyMissing:missing,cleanupWarning})
+  }
+
+  let missing=false,d=null;
+  try{d=await ghGet(env,token,path)}
+  catch(e){if(/GitHub 404/.test(String(e?.message||e)))missing=true;else throw e}
+  if(!missing&&d){
+    const resp=await fetch(ghUrl(env,path),{method:'DELETE',headers:{...ghHeaders(token),'Content-Type':'application/json'},body:JSON.stringify({message:`[CF-Pages-Skip] Delete ${path.split('/').pop()}`,sha:d.sha,branch:env.GITHUB_BRANCH||'main'})});
+    if(!resp.ok&&resp.status!==404)throw new Error(`GitHub ${resp.status}`)
+  }
+  let x=await ghJson(env,token,PRESETS).catch(()=>[]);
+  x=(Array.isArray(x)?x:[]).filter(v=>String(v?.file||'')!==path);
+  await saveJson(env,token,PRESETS,x,'[CF-Pages-Skip] Update presets');
+  return json({ok:true,alreadyMissing:missing})
+}
 
 function siteImageSlot(settings,kind){
   if(kind==='about')return {get:()=>settings.aboutImage||'',set:v=>{settings.aboutImage=v}};
