@@ -3104,7 +3104,7 @@ async function savePresetMetaField(i,key,value,exclusiveStatus){
 }
 
 function portfolioAdminVisibleCategories(){
-  const cats=(S?.portfolioCategories||[]).filter(c=>c&&c.enabled!==false&&!c.hiddenLegacy&&c.id!=='type-guide-assets');
+  const cats=(S?.portfolioCategories||[]).filter(c=>c&&!c.hiddenLegacy&&c.id!=='type-guide-assets');
   const seen=new Set(),out=[];
   cats.forEach(c=>{
     const key=logicalPortfolioCategory(c.id);
