@@ -1,4 +1,4 @@
-const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',ADMIN_API='/admin-api';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={},quoteOrderEditing=false;let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1;let availabilityAdminView=null,availabilityAdminSelected=new Set(),availabilityAdminMulti=false,availabilityAdminStatus='available',availabilityAdminDirty=false,availabilityAdminUndo=null;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
+const C=window.ARTMUG_CONFIG||{},API=C.API_BASE||'',ADMIN_API='/admin-api';let S=null,items=[],presetItems=[],fixedItems=[],quoteState={},quoteOrderEditing=false;let portfolioAdminPage=1,presetAdminPage=1,fixedAdminPage=1,portfolioAdminCategory='all';let availabilityAdminView=null,availabilityAdminSelected=new Set(),availabilityAdminMulti=false,availabilityAdminStatus='available',availabilityAdminDirty=false,availabilityAdminUndo=null;const ADMIN_PAGE_SIZE=15;const QUOTE_BANNERS=[['top','상단배너'],['floating','플로팅배너'],['bottom1','하단배너 1칸'],['bottom3','하단배너 3칸'],['bottom6','하단배너 6칸']],QUOTE_OPTIONS=[['sameDay','당일마감'],['fast','빠른마감'],['private','포트폴리오 비공개']];const $=id=>document.getElementById(id);
 const PRESET_UPLOAD_EXTS=new Set(['gif','png','jpg','jpeg','webp']);
 const ADMIN_PAUSED_GIF='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 let adminGifObserver=null;
@@ -3103,12 +3103,47 @@ async function savePresetMetaField(i,key,value,exclusiveStatus){
   showToast('프리셋 설정이 저장되었습니다.')
 }
 
+function portfolioAdminVisibleCategories(){
+  const cats=(S?.portfolioCategories||[]).filter(c=>c&&c.enabled!==false&&!c.hiddenLegacy&&c.id!=='type-guide-assets');
+  const seen=new Set(),out=[];
+  cats.forEach(c=>{
+    const key=logicalPortfolioCategory(c.id);
+    if(seen.has(key))return;
+    seen.add(key);
+    out.push({id:key,label:c.label||c.id})
+  });
+  return out
+}
+function renderPortfolioAdminCategoryFilter(filteredCount){
+  const select=$('portfolioAdminCategoryFilter'),count=$('portfolioAdminCategoryCount');
+  if(!select)return;
+  const cats=portfolioAdminVisibleCategories();
+  const valid=portfolioAdminCategory==='all'||cats.some(c=>c.id===portfolioAdminCategory);
+  if(!valid)portfolioAdminCategory='all';
+  const signature=['all',...cats.map(c=>c.id+':'+c.label)].join('|');
+  if(select.dataset.signature!==signature){
+    select.innerHTML='<option value="all">전체 카테고리</option>'+cats.map(c=>'<option value="'+adminEsc(c.id)+'">'+adminEsc(c.label)+'</option>').join('');
+    select.dataset.signature=signature
+  }
+  select.value=portfolioAdminCategory;
+  select.onchange=()=>{
+    portfolioAdminCategory=select.value||'all';
+    portfolioAdminPage=1;
+    renderItems()
+  };
+  if(count)count.textContent=Number(filteredCount||0).toLocaleString('ko-KR')+'개'
+}
+function portfolioAdminFilteredItems(){
+  return items.map((x,i)=>({x,i})).filter(({x})=>portfolioAdminCategory==='all'||logicalPortfolioCategory(x.category)===portfolioAdminCategory)
+}
 function renderItems(){
   const typeOn=S?.bannerTypeEnabled!==false;
-  const totalPages=Math.max(1,Math.ceil(items.length/ADMIN_PAGE_SIZE));
+  const filtered=portfolioAdminFilteredItems();
+  const totalPages=Math.max(1,Math.ceil(filtered.length/ADMIN_PAGE_SIZE));
   portfolioAdminPage=Math.min(Math.max(1,portfolioAdminPage),totalPages);
   const start=(portfolioAdminPage-1)*ADMIN_PAGE_SIZE;
-  const pageItems=items.slice(start,start+ADMIN_PAGE_SIZE).map((x,local)=>({x,i:start+local}));
+  const pageItems=filtered.slice(start,start+ADMIN_PAGE_SIZE);
+  renderPortfolioAdminCategoryFilter(filtered.length);
   $('items').innerHTML=pageItems.map(({x,i})=>{
     const logical=logicalPortfolioCategory(x.category);
     const isProfile=logical==='profile',isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(x.category),meta=portfolioMetaFor(x),cat=(S.portfolioCategories||[]).find(c=>c.id===x.category);
