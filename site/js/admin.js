@@ -467,48 +467,6 @@ function collectEventItems(){
   });
   S.eventsItems=items
 }
-async function saveWorkStatusMode(mode,source){
-  mode=mode==='sleeping'?'sleeping':'working';
-  const previous=S.workStatusMode==='sleeping'?'sleeping':'working';
-  const radios=Array.from(document.querySelectorAll('input[name="workStatusMode"]'));
-  radios.forEach(r=>r.disabled=true);
-  try{
-    const saved=await queueSettingsMutation(latest=>{latest.workStatusMode=mode});
-    S.workStatusMode=saved.workStatusMode==='sleeping'?'sleeping':'working';
-    showToast(S.workStatusMode==='sleeping'?'취침중으로 저장되었습니다.':'작업중으로 저장되었습니다.')
-  }catch(e){
-    S.workStatusMode=previous;
-    const restore=document.querySelector('input[name="workStatusMode"][value="'+previous+'"]');
-    if(restore)restore.checked=true;
-    if(source)source.checked=false;
-    alert('현재 상태 저장에 실패했습니다.\n'+e.message)
-  }finally{
-    radios.forEach(r=>r.disabled=false)
-  }
-}
-function renderWorkStatusAdmin(){
-  if(!$('workStatusEnabled'))return;
-  $('workStatusEnabled').checked=S.workStatusEnabled===true;
-  const mode=S.workStatusMode==='sleeping'?'sleeping':'working';
-  const radio=document.querySelector('input[name="workStatusMode"][value="'+mode+'"]');
-  if(radio)radio.checked=true;
-  document.querySelectorAll('input[name="workStatusMode"]').forEach(radio=>{
-    if(radio.dataset.autoSaveBound==='1')return;
-    radio.dataset.autoSaveBound='1';
-    radio.addEventListener('change',()=>{
-      if(radio.checked)saveWorkStatusMode(radio.value,radio)
-    })
-  });
-  $('workStatusWorkingText').value=String(S.workStatusWorkingText??'');
-  $('workStatusSleepingText').value=String(S.workStatusSleepingText??'현재 취침 중으로 문의 답변이 조금 늦을 수 있어요.');
-}
-function collectWorkStatusAdmin(){
-  if(!$('workStatusEnabled'))return;
-  S.workStatusEnabled=$('workStatusEnabled').checked;
-  S.workStatusMode=document.querySelector('input[name="workStatusMode"]:checked')?.value==='sleeping'?'sleeping':'working';
-  S.workStatusWorkingText=$('workStatusWorkingText').value;
-  S.workStatusSleepingText=$('workStatusSleepingText').value;
-}
 function ensureScheduleExtras(){
   if(!Array.isArray(S.scheduleExtras))S.scheduleExtras=[];
   S.scheduleExtras=S.scheduleExtras.map(x=>String(x??''));
@@ -1278,7 +1236,7 @@ function render(){
  $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess);
  $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
  $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
- renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderFixedAdmin();renderBackgroundGuideAdmin();renderProfileTypeGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();
+ renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderFixedAdmin();renderBackgroundGuideAdmin();renderProfileTypeGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();
  $('authorEnabled').checked=!!S.authorEnabled;
  if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';
  $('authorText').value=S.authorText||'';
@@ -2161,7 +2119,7 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);collectNotices();(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
-  collect();collectInquiryV3Admin();collectWorkStatusAdmin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectProfileTypeGuideAdmin();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
+  collect();collectInquiryV3Admin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectProfileTypeGuideAdmin();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
   S.profileTypeEnabled=$('profileTypeEnabled')?$('profileTypeEnabled').checked:(S.profileTypeEnabled!==false);
   S.bannerTypeEnabled=$('bannerTypeEnabled')?$('bannerTypeEnabled').checked:(S.bannerTypeEnabled!==false);
   S.presetEnabled=false;
