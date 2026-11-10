@@ -386,7 +386,8 @@ function manageAnimatedMedia(root=document){
 }
 function itemCard(x,c){
  const k=layoutKey(c),type=typeEnabledForLayout(k)?portfolioTypeFor(x,k):'';
- const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">'+(k==='profile'?'A/B ':'TYPE ')+type+'</span></span>':'';
+ const badgeLabel=type?(k==='profile'?type+' · '+String(typeGuideConfig(k)[type]?.title||type):'TYPE '+type):'';
+ const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">'+esc(badgeLabel)+'</span></span>':'';
  const source=media(x.demoSrc||x.file),deferGif=k==='profile'&&isAnimatedMediaUrl(source);
  const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
