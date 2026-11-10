@@ -712,6 +712,11 @@
           "id": "qg-design-1792488162390",
           "name": "움짤프사 고정틀",
           "price": 15000
+        },
+        {
+          "id": "profile-b",
+          "name": "움짤프사 B",
+          "price": 20000
         }
       ],
       "banner": [
@@ -967,14 +972,10 @@
     "builderOrder": [
       "design:topBanner",
       "design:floatingBanner",
-      "bannerType:A",
-      "bannerType:B",
       "bottomType:bottom1",
       "bottomType:bottom3",
       "bottomType:bottom6",
       "option:textImageChange",
-      "profileType:A",
-      "profileType:B",
       "profileMode:fixed",
       "option:nameOnlyChange",
       "option:profileChange",
@@ -987,7 +988,8 @@
       "option:sameDay",
       "option:fast",
       "option:private",
-      "signatureType:direct"
+      "signatureType:direct",
+      "profileMode:custom"
     ]
   },
   "presetGroups": [
@@ -1925,7 +1927,7 @@
       ]
     }
   },
-  "profileTypeEnabled": true,
+  "profileTypeEnabled": false,
   "profileTypeGuide": {
     "A": {
       "title": "기본",
