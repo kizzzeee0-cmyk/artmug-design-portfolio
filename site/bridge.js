@@ -60,6 +60,15 @@
 
     const followerRightGap=quickNavRightGap();
     const frameHeight=Math.max(1,Math.round(frame.getBoundingClientRect().height||frame.offsetHeight||saved.height||1));
+
+    // When the menu becomes taller than the viewport, stop pinning it.
+    // It stays in normal document flow so every category remains visible
+    // as the page scrolls, matching a long vertical navigation rail.
+    if(frameHeight>Math.max(320,window.innerHeight-24)){
+      restoreQuickNavFrame(frame);
+      return
+    }
+
     const followerTop=Math.max(8,Math.min(QUICK_NAV_TOP,window.innerHeight-frameHeight-12));
     frame.style.setProperty('position','fixed','important');
     frame.style.setProperty('top',followerTop+'px','important');
