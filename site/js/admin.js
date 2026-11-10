@@ -1807,7 +1807,7 @@ function ensureQuoteConfig(){
     A:{id:'A',label:'TYPE A · '+String(bannerGuide.A?.title||'심플형'),price:quotePriceValue(bannerGuide.A?.price||0)},
     B:{id:'B',label:'TYPE B · '+String(bannerGuide.B?.title||'기존 디자인형'),price:quotePriceValue(bannerGuide.B?.price||0)}
   };
-  Object.entries(bannerTypeDefaults).forEach(([k,d])=>{p.bannerTypes[k]={...d,...(p.bannerTypes[k]||{}),label:d.label});
+  Object.entries(bannerTypeDefaults).forEach(([k,d])=>{p.bannerTypes[k]={...d,...(p.bannerTypes[k]||{}),label:d.label}});
   ['A','B'].forEach(t=>{bannerGuide[t].price=quotePriceValue(p.bannerTypes[t]?.price||0)});
   const bottomDefaults={
     bottom1:{id:'bottom1',label:'하단 1칸',price:0},
