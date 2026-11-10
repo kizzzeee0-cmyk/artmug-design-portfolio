@@ -899,7 +899,7 @@
         "nameOnlyChange": {
           "id": "nameOnlyChange",
           "label": "이름만 변경",
-          "price": 3000,
+          "price": 2000,
           "quantityField": "nameOnlyChangeQty"
         }
       },
