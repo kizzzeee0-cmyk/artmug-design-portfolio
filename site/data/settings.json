@@ -42,6 +42,15 @@
       "editorColor": "#69ADD2"
     },
     {
+      "icon": "",
+      "title": "",
+      "description": "원하시는 디자인 컨셉과 색상을 구체적으로 알려주실수록 더욱 만족스러운 디자인 제작이 가능합니다.",
+      "enabled": true,
+      "titleRich": "",
+      "descriptionRich": "<span style=\"color:rgb(50, 124, 170)\"><strong>원하시는 디자인 컨셉과 색상을 구체적으로</strong></span> 알려주실수록 더욱 만족스러운 디자인 제작이 가능합니다.",
+      "editorColor": "#327CAA"
+    },
+    {
       "icon": "📆",
       "title": "작업 일정",
       "description": "작업 기간은 작업 시작일 기준 최대 7일 이내 완료됩니다.",
