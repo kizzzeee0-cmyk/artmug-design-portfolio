@@ -136,15 +136,19 @@ async function publicPortfolio(u,env){
     .map(x=>({...x,category:cat,file:x.file,width:Number(x.width||c.displayWidth||0),height:Number(x.height||c.displayHeight||0)}));
 
   all=all.filter(x=>(pmeta[x.file]||{}).enabled!==false);
-  const isFloating=cat==='floating-banner'||String(c.label||'').replace(/\s/g,'').includes('플로팅');
+  const compactLabel=String(c.label||'').replace(/\s/g,''),isProfile=cat==='profile'||/^profile(?:-|$)/.test(cat)||compactLabel.includes('움짤프사')||compactLabel.includes('움짤프로필');
+  const isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(cat)||compactLabel.includes('배너');
+  const isFloating=cat==='floating-banner'||compactLabel.includes('플로팅');
+  const typeOn=isProfile?s.profileTypeEnabled!==false:isBanner?s.bannerTypeEnabled!==false:false;
   const classOf=x=>{
     const m=pmeta[x.file]||{};
     if(isFloating&&m.isFixed===true)return'FIXED';
+    if(isProfile)return ['A','B'].includes(m.profileType)?m.profileType:'A';
     return ['A','B'].includes(m.bannerType)?m.bannerType:'B'
   };
-  const availableFilters=['A','B'].filter(t=>all.some(x=>classOf(x)===t));
-  if(isFloating&&all.some(x=>classOf(x)==='FIXED'))availableFilters.push('FIXED');
-  if(['A','B','FIXED'].includes(filter))all=all.filter(x=>classOf(x)===filter);
+  const availableFilters=typeOn?['A','B'].filter(t=>all.some(x=>classOf(x)===t)):[];
+  if(typeOn&&isFloating&&all.some(x=>classOf(x)==='FIXED'))availableFilters.push('FIXED');
+  if(typeOn&&['A','B','FIXED'].includes(filter))all=all.filter(x=>classOf(x)===filter);
 
   // Regular portfolio is always newest upload first. Fixed/preset ordering is handled separately.
   all=sortPortfolioBySavedOrder(all,s.portfolioOrder,idx);
