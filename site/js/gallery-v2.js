@@ -1307,19 +1307,18 @@ function injectInquiryV3(card){
  };
  const modeOrder=state.settings?.inquiryV3?.designs?.profile?.modeOrder||['custom','fixed','preset','change'];
  const modeDefs=modeOrder.map(key=>modeMap[key]).filter(Boolean).filter(([,m])=>m.enabledInInquiry!==false);
- let html='';
+ let html='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">';
  if(profileTypeOn){
-  html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-type-field"><legend>움짤프사 A / B'+v3ProfileRequired(true)+'</legend><div class="choice-row">'+
-   ['A','B'].map(t=>{const x=v2ProfileType(t);return '<label class="choice-pill"><input type="radio" data-v3-field="profile.type" name="v3-profile-type-'+esc(card.dataset.requestId||'0')+'" value="'+t+'" '+(profileType===t?'checked':'')+'><span>'+esc(x.label)+'</span></label>'}).join('')+
-  '</div></fieldset>'
+  html+=['A','B'].map(t=>{const x=v2ProfileType(t),checked=profileModes.includes('custom')&&profileType===t;return '<label class="choice-pill '+(hasChange?'is-disabled':'')+'"><input type="checkbox" data-v2-profile-type-mode="'+t+'" value="'+t+'" '+(checked?'checked':'')+' '+(hasChange?'disabled':'')+'><span>'+esc(x.label)+'</span></label>'}).join('');
+  html+=modeDefs.filter(([value])=>value!=='custom').map(([value,m,disabled])=>modeChoice(value,m.label,disabled)).join('')
+ }else{
+  html+=modeDefs.map(([value,m,disabled])=>modeChoice(value,m.label,disabled)).join('')
  }
- html+='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">'+
-   modeDefs.map(([value,m,disabled])=>modeChoice(value,m.label,disabled)).join('')+
- '</div></fieldset>';
+ html+='</div></fieldset>';
  if(profileModes.includes('change')){
   html+='<div class="profile-reorder-only">'+v3ProfileModeFields(card,'change')+v3ProfileChangeQtyHtml(card)+'</div>'
  }else{
-  if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
+  if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(profileTypeOn?v2ProfileType(profileType).label:v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
   if(profileModes.includes('fixed')){
    const fixedProduct=selectedFixedProduct(card),fixedBase=String(fixedProduct?.name||'').split(' - ')[0].trim();
    const fixedTitle=fixedBase?'움짤프사 '+fixedBase:v2ProfileMode('fixed','고정틀 구매').label;
@@ -1335,6 +1334,17 @@ function injectInquiryV3(card){
  }
  if(slot.dataset.renderSignature!==html){slot.innerHTML=html;slot.dataset.renderSignature=html}
  upgradeMobileProfileNameInputs(slot);
+ slot.querySelectorAll('[data-v2-profile-type-mode]').forEach(i=>i.onchange=()=>{
+  if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
+  const type=String(i.dataset.v2ProfileTypeMode||i.value||'A').toUpperCase();
+  let modes=selectedProfileModes(card).filter(x=>x!=='change'&&x!=='custom');
+  if(i.checked){
+   modes.push('custom');
+   card.__v3State={...(card.__v3State||{}),'profile.type':['A','B'].includes(type)?type:'A'}
+  }
+  setSelectedProfileModes(card,modes);
+  window.refreshInquiryRequestFields?.(card)
+ });
  slot.querySelectorAll('[data-v2-mode]').forEach(i=>i.onchange=()=>{
   if(window.readV3Map)card.__v3State={...(card.__v3State||{}),...window.readV3Map(card)};
   let modes=selectedProfileModes(card),value=i.value;
