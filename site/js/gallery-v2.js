@@ -385,8 +385,8 @@ function manageAnimatedMedia(root=document){
  })
 }
 function itemCard(x,c){
- const k=layoutKey(c),m=pmeta(x),type=bannerTypeEnabled()&&bannerIds.has(k)?(m.bannerType||'B'):'';
- const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">TYPE '+type+'</span></span>':'';
+ const k=layoutKey(c),type=typeEnabledForLayout(k)?portfolioTypeFor(x,k):'';
+ const badge=type?'<span class="v2-type-badge"><span class="v2-badge-label">'+(k==='profile'?'A/B ':'TYPE ')+type+'</span></span>':'';
  const source=media(x.demoSrc||x.file),deferGif=k==='profile'&&isAnimatedMediaUrl(source);
  const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
@@ -424,9 +424,9 @@ function pagination(catId,total,page){
  return html+'</div><span class="v2-page-counter">'+page+' / '+total+'</span>'+
   '<button class="v2-page-arrow" type="button" aria-label="다음 페이지" data-v2-page="'+catId+':next" '+(page>=total?'disabled':'')+'>›</button></nav>'
 }
-function mixAB(items){
- const a=items.filter(x=>pmeta(x).bannerType==='A');
- const b=items.filter(x=>pmeta(x).bannerType==='B');
+function mixAB(items,k){
+ const a=items.filter(x=>portfolioTypeFor(x,k)==='A');
+ const b=items.filter(x=>portfolioTypeFor(x,k)==='B');
  if(!a.length||!b.length)return items;
  const out=[];let i=0,j=0;
  while(i<a.length||j<b.length){
@@ -436,16 +436,18 @@ function mixAB(items){
  return out
 }
 function guideHtml(cat){
- if(!bannerTypeEnabled()||!bannerIds.has(layoutKey(cat)))return'';
- const g=state.settings?.bannerTypeGuide||{},A=g.A||{},B=g.B||{};
- return '<details class="v2-type-guide"><summary>TYPE A / B 차이 보기</summary><div class="v2-type-guide-grid">'+
-  [['A',A,'장식과 패턴이 적은 깔끔한 구성'],['B',B,'패턴과 장식이 더 풍부한 구성']].map(([t,x,desc])=>{
-   const image=x.referenceImage||'';
+ const k=layoutKey(cat);
+ if(!typeEnabledForLayout(k))return'';
+ const g=typeGuideConfig(k);
+ return '<details class="v2-type-guide '+(g.kind==='profile'?'is-profile-type-guide':'')+'"><summary>'+esc(g.summary)+'</summary><div class="v2-type-guide-grid">'+
+  ['A','B'].map(t=>{
+   const x=g[t]||{},image=x.referenceImage||'';
    return '<div class="v2-type-guide-item">'+
-    (image?'<img src="'+esc(media(image))+'" alt="TYPE '+t+' 통합 대표 이미지" loading="lazy" decoding="async">':'')+
-    '<div><strong>TYPE '+t+'</strong><p>'+esc(x.description||desc)+'</p></div></div>'
+    (image?'<img src="'+esc(media(image))+'" alt="'+(g.kind==='profile'?'움짤프사 ':'TYPE ')+t+' 참고 이미지" loading="lazy" decoding="async">':'')+
+    '<div><strong>'+(g.kind==='profile'?'움짤프사 ':'TYPE ')+t+' · '+esc(x.title||t)+'</strong><p>'+esc(x.description||'')+'</p></div></div>'
   }).join('')+'</div></details>'
 }
+
 function imageSizeFor(x){
  if(x.__v2NaturalWidth&&x.__v2NaturalHeight)return Promise.resolve([x.__v2NaturalWidth,x.__v2NaturalHeight]);
  return new Promise(resolve=>{
