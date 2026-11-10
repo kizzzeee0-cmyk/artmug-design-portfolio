@@ -657,7 +657,7 @@ function showsContentField(t){
 }
 function inquiryPricing(){
   const p=S?.quoteConfig?.pricingV2;
-  return p&&typeof p==='object'?p:{designs:{},profileModes:{},bottomTypes:{},fourCutTypes:{},signatureTypes:{},options:{},customOptions:[]}
+  return p&&typeof p==='object'?p:{designs:{},profileModes:{},profileTypes:{},bannerTypes:{},bottomTypes:{},fourCutTypes:{},signatureTypes:{},options:{},customOptions:[]}
 }
 function inquiryPrice(v){return Math.max(0,Number(v||0))}
 function inquiryProfileModesFromCard(card){
@@ -673,6 +673,16 @@ function inquiryOption(key,fallbackLabel){
 function inquiryProfileMode(key,fallbackLabel){
   const x=inquiryPricing().profileModes?.[key]||{};
   return {...x,id:String(x.id||key),label:String(x.label||fallbackLabel||key),price:x.price==null?null:inquiryPrice(x.price)}
+}
+function inquiryProfileType(key){
+  key=['A','B'].includes(String(key).toUpperCase())?String(key).toUpperCase():'A';
+  const guide=S?.profileTypeGuide?.[key]||{},x=inquiryPricing().profileTypes?.[key]||{};
+  return {...x,id:key,label:String(x.label||('움짤프사 '+key+' · '+String(guide.title||(key==='A'?'기본':'심플')))),price:inquiryPrice(x.price)}
+}
+function inquiryBannerType(key){
+  key=['A','B'].includes(String(key).toUpperCase())?String(key).toUpperCase():'B';
+  const guide=S?.bannerTypeGuide?.[key]||{},x=inquiryPricing().bannerTypes?.[key]||{};
+  return {...x,id:key,label:String(x.label||('TYPE '+key+' · '+String(guide.title||key))),price:inquiryPrice(x.price)}
 }
 function inquiryBottomType(key,fallbackLabel){
   const x=inquiryPricing().bottomTypes?.[key]||{};
@@ -836,7 +846,7 @@ function renderV3BannerCard(card,design,state){
     html+='<div class="inquiry-v3-banner-types">'+selected.map(kind=>{
       const k=kinds.find(x=>x.id===kind),key='banner.type.'+kind,val=String(v3Value(state,key,'B'));
       return '<fieldset class="inquiry-v3-field inquiry-v3-choice-field"><legend>'+htmlAttr(k?.label||kind)+' TYPE</legend><div class="choice-row">'+
-        ['A','B'].map(t=>'<label class="choice-pill"><input type="radio" data-v3-field="'+htmlAttr(key)+'" name="v3-'+rid+'-'+htmlAttr(key)+'" value="'+t+'" '+(val===t?'checked':'')+'><span>TYPE '+t+'</span></label>').join('')+
+        ['A','B'].map(t=>{const type=inquiryBannerType(t);return '<label class="choice-pill"><input type="radio" data-v3-field="'+htmlAttr(key)+'" name="v3-'+rid+'-'+htmlAttr(key)+'" value="'+t+'" '+(val===t?'checked':'')+'><span>'+htmlAttr(type.label)+'</span></label>'}).join('')+
       '</div></fieldset>'
     }).join('')+'</div>'
   }
@@ -1066,6 +1076,10 @@ function selectedInquiryEstimateRows(card){
       modes.filter(mode=>mode&&mode!=='change').forEach(mode=>{
         const m=inquiryProfileMode(mode,mode);
         let label='움짤프사 · '+m.label,price=inquiryPrice(m.price),key='profile:'+mode;
+        if(mode==='custom'&&S?.profileTypeEnabled!==false){
+          const type=inquiryProfileType(v2.profileType||state['profile.type']||'A');
+          label=type.label;price=type.price;key='profileType:'+type.id
+        }
         if(mode==='fixed'&&v2.selectedFixedProductName){
           label='고정틀 · '+v2.selectedFixedProductName;
           key='fixed:'+String(v2.selectedFixedProductId||v2.selectedFixedProductName);
@@ -1083,14 +1097,15 @@ function selectedInquiryEstimateRows(card){
     if(t.id==='soopBanner'){
       const kinds=v3Array(state,'bannerKinds');
       kinds.forEach(kind=>{
+        const typeOn=S?.bannerTypeEnabled!==false,type=typeOn?inquiryBannerType(state['banner.type.'+kind]||'B'):null,typeExtra=typeOn?inquiryPrice(type?.price):0;
         if(kind==='bottomBanner'){
           v3Array(state,'bottomTypes').forEach(id=>{
-            const b=inquiryBottomType(id,id),key='bottom:'+b.id;
-            rows.push({key,label:'하단배너 · '+b.label,price:inquiryPrice(b.price),qty:estimateQty(key),adjustable:true})
+            const b=inquiryBottomType(id,id),key='bottom:'+b.id+(typeOn?':'+type.id:'');
+            rows.push({key,label:'하단배너 · '+b.label+(typeOn?' · '+type.label:''),price:inquiryPrice(b.price)+typeExtra,qty:estimateQty(key),adjustable:true})
           })
         }else{
-          const d=p.designs?.[kind]||{},key='design:'+kind;
-          rows.push({key,label:String(d.label||designs.soopBanner?.bannerKinds?.find(x=>x.id===kind)?.label||kind),price:inquiryPrice(d.price),qty:estimateQty(key),adjustable:true})
+          const d=p.designs?.[kind]||{},key='design:'+kind+(typeOn?':'+type.id:'');
+          rows.push({key,label:String(d.label||designs.soopBanner?.bannerKinds?.find(x=>x.id===kind)?.label||kind)+(typeOn?' · '+type.label:''),price:inquiryPrice(d.price)+typeExtra,qty:estimateQty(key),adjustable:true})
         }
       });
       return
@@ -1217,6 +1232,7 @@ function requestText(card){
 
       if(modes.includes('custom')){
         const items=v3FieldLines((design.modeFields?.custom||[]).filter(f=>f.id!=='frameKeep'),'profile.custom',state);
+        if(S?.profileTypeEnabled!==false)items.unshift('A/B 선택: '+inquiryProfileType(v2.profileType||state['profile.type']||'A').label);
         groups.push(['- '+inquiryProfileMode('custom','맞춤제작').label,...items].join('\n'))
       }
 
@@ -1264,7 +1280,7 @@ function requestText(card){
       }
       if(S?.bannerTypeEnabled!==false)kinds.forEach(id=>{
         const label=kindDefs.find(x=>x.id===id)?.label||id,val=v3FormatValue(state['banner.type.'+id]);
-        if(val)lines.push(label+' TYPE: '+val)
+        if(val)lines.push(label+' TYPE: '+inquiryBannerType(val).label)
       });
       const concept=v3FormatValue(state['banner.concept']),content=v3FormatValue(state['banner.content']);
       if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
