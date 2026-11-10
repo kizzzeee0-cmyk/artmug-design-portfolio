@@ -2431,6 +2431,124 @@ body{
   line-height:1!important;
 }
 
+
+/* 2026-11-10 QUICK MENU HEIGHT + COMPACT SPACING V31 */
+/* Keep the current look, but tighten vertical rhythm so additional menu items fit. */
+.quick-shell{
+  padding-top:42px!important;
+  padding-bottom:2px!important;
+}
+.nav-list{
+  gap:2px!important;
+}
+.quick-nav-button,
+.quick-inquiry-button{
+  min-height:43px!important;
+}
+.quick-nav-icon,
+.quick-inquiry-button .quick-nav-icon,
+.quick-top-button{
+  width:39px!important;
+  height:39px!important;
+  min-width:39px!important;
+  min-height:39px!important;
+  max-width:39px!important;
+  max-height:39px!important;
+  flex-basis:39px!important;
+}
+.quick-nav-icon svg,
+.quick-inquiry-button .quick-nav-icon svg{
+  width:23px!important;
+  height:23px!important;
+  min-width:23px!important;
+  min-height:23px!important;
+  max-width:23px!important;
+  max-height:23px!important;
+}
+.quick-inquiry-button{
+  min-height:44px!important;
+  margin-top:1px!important;
+}
+.quick-top-wrap{
+  width:39px!important;
+  min-width:39px!important;
+  max-width:39px!important;
+  min-height:42px!important;
+  margin-top:2px!important;
+}
+.quick-top-button{
+  width:39px!important;
+  height:39px!important;
+}
+.quick-connector-line{
+  top:43px!important;
+  bottom:20px!important;
+}
+@media(max-height:780px){
+  .quick-shell{padding-top:40px!important}
+  .nav-list{gap:1px!important}
+  .quick-nav-button,
+  .quick-inquiry-button{min-height:40px!important}
+  .quick-nav-icon,
+  .quick-inquiry-button .quick-nav-icon,
+  .quick-top-button{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    min-height:36px!important;
+    max-width:36px!important;
+    max-height:36px!important;
+    flex-basis:36px!important;
+  }
+  .quick-nav-icon svg,
+  .quick-inquiry-button .quick-nav-icon svg{
+    width:22px!important;
+    height:22px!important;
+    min-width:22px!important;
+    min-height:22px!important;
+    max-width:22px!important;
+    max-height:22px!important;
+  }
+  .quick-inquiry-button{min-height:41px!important;margin-top:1px!important}
+  .quick-top-wrap{width:36px!important;min-width:36px!important;max-width:36px!important;min-height:39px!important;margin-top:1px!important}
+  .quick-top-button{width:36px!important;height:36px!important}
+  .quick-connector-line{top:41px!important;bottom:18px!important}
+}
+@media(max-height:640px){
+  .quick-shell{padding-top:38px!important}
+  .nav-list{gap:0!important}
+  .quick-nav-button,
+  .quick-inquiry-button{min-height:38px!important}
+  .quick-nav-icon,
+  .quick-inquiry-button .quick-nav-icon,
+  .quick-top-button{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+    max-width:34px!important;
+    max-height:34px!important;
+    flex-basis:34px!important;
+  }
+  .quick-nav-icon svg,
+  .quick-inquiry-button .quick-nav-icon svg{
+    width:21px!important;
+    height:21px!important;
+    min-width:21px!important;
+    min-height:21px!important;
+    max-width:21px!important;
+    max-height:21px!important;
+  }
+  .quick-nav-button .quick-nav-label,
+  .quick-inquiry-button .quick-nav-label{
+    font-size:13px!important;
+  }
+  .quick-inquiry-button{min-height:39px!important;margin-top:0!important}
+  .quick-top-wrap{width:34px!important;min-width:34px!important;max-width:34px!important;min-height:37px!important;margin-top:0!important}
+  .quick-top-button{width:34px!important;height:34px!important}
+  .quick-connector-line{top:39px!important;bottom:17px!important}
+}
+
 </style>
 </head>
 <body>
@@ -2472,6 +2590,18 @@ const root=document.getElementById('navList');
 const CACHE_KEY='artmug-nav-summary-v22';
 const ch=('BroadcastChannel' in window)?new BroadcastChannel('artmug-portfolio-section-nav'):null;
 let currentSummary={},liveWorkStatus=null,activeTarget='';
+let quickHeightRaf=0;
+function reportQuickMenuHeight(){
+ cancelAnimationFrame(quickHeightRaf);
+ quickHeightRaf=requestAnimationFrame(()=>{
+  const shell=document.querySelector('.quick-shell');
+  if(!shell)return;
+  const rect=shell.getBoundingClientRect();
+  const height=Math.max(1,Math.ceil(rect.bottom+4));
+  try{window.parent.postMessage({type:'artmug-portfolio-height',role:'sidebar',height},'*')}catch{}
+ })
+}
+
 
 const api=async p=>{
  const r=await fetch(API+p,{credentials:'include'});
@@ -2551,7 +2681,8 @@ function renderMenu(){
  root.querySelectorAll('.quick-nav-button,.quick-inquiry-button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.target)));
  const inquiry=document.getElementById('quickInquirySection');
  if(inquiry)inquiry.hidden=true;
- document.body.classList.add('menu-ready')
+ document.body.classList.add('menu-ready');
+ reportQuickMenuHeight()
 }
 function summaryFromNav(d){
  const cats=Array.isArray(d?.categories)?d.categories:[];
@@ -2671,6 +2802,12 @@ window.addEventListener('message',e=>{
  const d=e.data;
  if(d?.type==='artmug-active-section'&&d.target)setActiveTarget(d.target)
 });
+if('ResizeObserver' in window){
+ const shell=document.querySelector('.quick-shell');
+ if(shell)new ResizeObserver(reportQuickMenuHeight).observe(shell)
+}
+window.addEventListener('load',reportQuickMenuHeight);
+window.addEventListener('resize',reportQuickMenuHeight,{passive:true});
 init()
 })();
 </script>
