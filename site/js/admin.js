@@ -1007,6 +1007,23 @@ function syncAdminDetailsPersistence(root=document){
   })
 }
 
+function syncProfileTypeAdminUI(){
+  const on=S?.profileTypeEnabled!==false,toggle=$('profileTypeEnabled'),details=$('profileTypeAdminDetails');
+  if(toggle){
+    toggle.checked=on;
+    if(toggle.dataset.profileTypeBound!=='1'){
+      toggle.dataset.profileTypeBound='1';
+      toggle.addEventListener('change',()=>{
+        S.profileTypeEnabled=toggle.checked;
+        if(details)details.hidden=!toggle.checked;
+        updatePortfolioUploadHint();
+        renderItems();
+        renderQuoteAdmin()
+      })
+    }
+  }
+  if(details)details.hidden=!on
+}
 function syncBannerTypeAdminUI(){
   const on=S?.bannerTypeEnabled!==false,toggle=$('bannerTypeEnabled'),details=$('bannerTypeAdminDetails');
   if(toggle){
@@ -1017,7 +1034,8 @@ function syncBannerTypeAdminUI(){
         S.bannerTypeEnabled=toggle.checked;
         if(details)details.hidden=!toggle.checked;
         updatePortfolioUploadHint();
-        renderItems()
+        renderItems();
+        renderQuoteAdmin()
       })
     }
   }
