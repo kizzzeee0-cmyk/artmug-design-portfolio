@@ -287,26 +287,63 @@ function collectBackgroundGuide(){
     x.buttonLabel=document.querySelector(`[data-bg-button="${i}"]`)?.value||'';
   })
 }
-function ensureBannerTypeGuide(){
-  if(!S.bannerTypeGuide||typeof S.bannerTypeGuide!=='object')S.bannerTypeGuide={};
+function ensureProfileTypeGuide(target=S){
+  if(!target.profileTypeGuide||typeof target.profileTypeGuide!=='object'||Array.isArray(target.profileTypeGuide))target.profileTypeGuide={};
+  const defaults={
+    A:{title:'기본',description:'기존 제작 방식의 기본 움짤프사 디자인'},
+    B:{title:'심플',description:'장식과 요소를 줄여 더 간결하게 구성한 움짤프사 디자인'}
+  };
   ['A','B'].forEach(t=>{
-    if(!S.bannerTypeGuide[t]||typeof S.bannerTypeGuide[t]!=='object')S.bannerTypeGuide[t]={};
-    const x=S.bannerTypeGuide[t];
+    if(!target.profileTypeGuide[t]||typeof target.profileTypeGuide[t]!=='object')target.profileTypeGuide[t]={};
+    const x=target.profileTypeGuide[t],d=defaults[t];
+    if(x.title==null)x.title=d.title;
+    if(x.description==null)x.description=d.description
+  });
+  return target.profileTypeGuide
+}
+function renderProfileTypeGuideAdmin(){
+  const root=$('profileTypeGuideAdmin');if(!root)return;
+  const g=ensureProfileTypeGuide();
+  root.innerHTML=['A','B'].map(t=>{
+    const x=g[t]||{};
+    return '<div class="banner-type-admin-card profile-type-admin-card">'+
+      '<div class="banner-type-admin-card-head"><h4>움짤프사 '+t+'</h4><span class="muted">'+(t==='A'?'기본':'심플')+'</span></div>'+
+      '<label>표시 이름<input data-profile-guide-title="'+t+'" value="'+adminEsc(x.title||'')+'" placeholder="'+(t==='A'?'기본':'심플')+'"></label>'+
+      '<label class="banner-type-guide-description">설명<textarea rows="2" data-profile-guide-desc="'+t+'">'+adminEsc(x.description||'')+'</textarea></label>'+
+    '</div>'
+  }).join('')
+}
+function collectProfileTypeGuideAdmin(){
+  if(!$('profileTypeGuideAdmin'))return;
+  const g=ensureProfileTypeGuide();
+  ['A','B'].forEach(t=>{
+    const title=document.querySelector('[data-profile-guide-title="'+t+'"]');
+    const desc=document.querySelector('[data-profile-guide-desc="'+t+'"]');
+    if(title)g[t].title=title.value.trim()||(t==='A'?'기본':'심플');
+    if(desc)g[t].description=desc.value.trim()
+  })
+}
+function ensureBannerTypeGuide(target=S){
+  if(!target.bannerTypeGuide||typeof target.bannerTypeGuide!=='object')target.bannerTypeGuide={};
+  ['A','B'].forEach(t=>{
+    if(!target.bannerTypeGuide[t]||typeof target.bannerTypeGuide[t]!=='object')target.bannerTypeGuide[t]={};
+    const x=target.bannerTypeGuide[t];
     if(x.title==null)x.title=t==='A'?'심플형':'기존 디자인형';
     if(x.description==null)x.description=t==='A'?'장식과 패턴이 비교적 적고 깔끔하게 정돈된 디자인':'다양한 패턴과 장식을 조합한 기존 스타일의 디자인';
     if(x.price==null)x.price=0;
     if(x.referenceFile==null)x.referenceFile='';
     if(x.referenceImage==null)x.referenceImage=''
   });
-  return S.bannerTypeGuide
+  return target.bannerTypeGuide
 }
 function renderBannerTypeGuideAdmin(){
   const root=$('bannerTypeGuideAdmin');if(!root)return;
   const g=ensureBannerTypeGuide();
   root.innerHTML=['A','B'].map(t=>{
-    const x=g[t]||{},kind='type-guide-'+t.toLowerCase(),has=!!x.referenceImage;
+    const x=g[t]||{},has=!!x.referenceImage;
     return '<div class="banner-type-admin-card">'+
       '<div class="banner-type-admin-card-head"><h4>TYPE '+t+'</h4><span class="muted">통합 대표 이미지</span></div>'+
+      '<label>표시 이름<input data-banner-guide-title="'+t+'" value="'+adminEsc(x.title||'')+'" placeholder="'+(t==='A'?'심플형':'기존 디자인형')+'"></label>'+
       '<div class="banner-type-guide-preview '+(has?'has-image':'')+'">'+
         (has?'<img src="'+API+'/media/'+x.referenceImage.split('/').map(encodeURIComponent).join('/')+'" alt="TYPE '+t+' 대표 이미지" loading="lazy">':'<span>대표 이미지 없음</span>')+
       '</div>'+
@@ -315,7 +352,7 @@ function renderBannerTypeGuideAdmin(){
         '<button type="button" class="ghost admin-compact" data-upload-banner-guide="'+t+'">'+(has?'이미지 변경':'이미지 업로드')+'</button>'+
         '<button type="button" class="danger admin-compact" data-delete-banner-guide="'+t+'" '+(has?'':'disabled')+'>이미지 삭제</button>'+
       '</div>'+
-      '<label class="banner-type-guide-description">TYPE '+t+' 설명<textarea data-banner-guide-desc="'+t+'">'+adminEsc(x.description||'')+'</textarea></label>'+
+      '<label class="banner-type-guide-description">설명<textarea rows="2" data-banner-guide-desc="'+t+'">'+adminEsc(x.description||'')+'</textarea></label>'+
     '</div>'
   }).join('');
   root.querySelectorAll('[data-upload-banner-guide]').forEach(b=>b.onclick=()=>uploadBannerTypeGuideImage(b.dataset.uploadBannerGuide));
@@ -325,8 +362,10 @@ function collectBannerTypeGuideAdmin(){
   if(!$('bannerTypeGuideAdmin'))return;
   const g=ensureBannerTypeGuide();
   ['A','B'].forEach(t=>{
-    const d=document.querySelector('[data-banner-guide-desc="'+t+'"]');
-    if(d)g[t].description=d.value
+    const title=document.querySelector('[data-banner-guide-title="'+t+'"]');
+    const desc=document.querySelector('[data-banner-guide-desc="'+t+'"]');
+    if(title)g[t].title=title.value.trim()||(t==='A'?'심플형':'기존 디자인형');
+    if(desc)g[t].description=desc.value.trim()
   })
 }
 async function uploadBannerTypeGuideImage(t){
