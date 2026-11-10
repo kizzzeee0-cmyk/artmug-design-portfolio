@@ -2673,8 +2673,9 @@ function normalizeActiveTarget(target){
  if(target==='preset'||target==='showcase-preset'||target.startsWith('showcase-')||target==='fixed'||target==='seasonal-fixed')return'showcase';
  if(target==='banner:A'||target==='banner:B'||target==='banner:all')return'banner:all';
  if(target.startsWith('portfolio:')){
-  const id=target.split(':')[1];
-  if((currentSummary.bannerIds||[]).includes(id))return'banner:all'
+  const parts=target.split(':'),id=parts[1];
+  if((currentSummary.bannerIds||[]).includes(id))return'banner:all';
+  return 'portfolio:'+id
  }
  return target
 }
