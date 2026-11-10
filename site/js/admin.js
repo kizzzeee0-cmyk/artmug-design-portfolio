@@ -2045,7 +2045,7 @@ function quoteItemsUnordered(){
   const p=ensureQuoteConfig().pricingV2,out=[];
   ['topBanner','floatingBanner'].forEach(k=>{const x=p.designs[k];out.push({key:'design:'+k,label:x.label,price:quotePriceValue(x.price)})});
   if(S?.bannerTypeEnabled!==false){
-    ['A','B'].forEach(k=>{const x=p.bannerTypes?.[k];if(x)out.push({key:'bannerType:'+k,label:'배너 · '+x.label+' 추가금',price:quotePriceValue(x.price)})})
+    ['A','B'].forEach(k=>{const x=p.bannerTypes?.[k];if(x)out.push({key:'bannerType:'+k,label:'배너 · '+x.label+' 추가금',price:quotePriceValue(x.price),zeroAllowed:true})})
   }
   if(S?.profileTypeEnabled!==false){
     ['A','B'].forEach(k=>{const x=p.profileTypes?.[k];if(x)out.push({key:'profileType:'+k,label:x.label,price:quotePriceValue(x.price)})})
@@ -2140,7 +2140,7 @@ function renderQuotePreview(){
   const itemLines=[];
   let total=0,hasInquiryOnly=false;
   selected.forEach(x=>{
-    if(x.price>0){total+=x.price*x.qty;itemLines.push(`${x.label} : ${x.price.toLocaleString('ko-KR')}원${x.qty>1?` × ${x.qty}개`:''}`)}
+    if(x.price>0||x.zeroAllowed){total+=x.price*x.qty;itemLines.push(`${x.label} : ${x.price.toLocaleString('ko-KR')}원${x.qty>1?` × ${x.qty}개`:''}`)}
     else{hasInquiryOnly=true;itemLines.push(`${x.label} : 별도 문의${x.qty>1?` × ${x.qty}개`:''}`)}
   });
   const blocks=[];
