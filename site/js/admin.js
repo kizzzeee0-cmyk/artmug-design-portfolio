@@ -1278,7 +1278,7 @@ function render(){
  $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess);
  $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
  $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
- renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderFixedAdmin();renderBackgroundGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();
+ renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderFixedAdmin();renderBackgroundGuideAdmin();renderProfileTypeGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();renderWorkStatusAdmin();
  $('authorEnabled').checked=!!S.authorEnabled;
  if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';
  $('authorText').value=S.authorText||'';
@@ -1291,7 +1291,7 @@ function render(){
  $('eventsTitleFontSize').value=S.eventsTitleFontSize||22;
  $('eventsFontSize').value=S.eventsFontSize||15;
  $('api').textContent=API;
- syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems()
+ syncProfileTypeAdminUI();syncBannerTypeAdminUI();syncAdminVisibilityCollapse();syncPortfolioCategoryCollapse();loadItems()
 }
 const noticeSelectionRanges=new Map();
 const noticeColorTargets=new Map();
@@ -1646,9 +1646,18 @@ function updatePortfolioUploadHint(){
   if(!c){input.removeAttribute('accept');if(hint)hint.textContent='';if(classification)classification.hidden=true;return}
   const formats=(c.formats||[]).map(x=>String(x).toLowerCase());
   input.accept=formats.flatMap(x=>x==='jpeg'||x==='jpg'?['.jpg','.jpeg']:['.'+x]).join(',');
-  const isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(c.id);
-  const typeOn=S?.bannerTypeEnabled!==false;
-  if(classification)classification.hidden=!isBanner||!typeOn;
+  const logical=logicalPortfolioCategory(c.id),isProfile=logical==='profile',isBanner=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(c.id);
+  const profileOn=S?.profileTypeEnabled!==false,bannerOn=S?.bannerTypeEnabled!==false;
+  if(classification){
+    const guide=isProfile?ensureProfileTypeGuide():ensureBannerTypeGuide(),enabled=(isProfile&&profileOn)||(isBanner&&bannerOn);
+    classification.hidden=!enabled;
+    classification.dataset.classificationKind=isProfile?'profile':isBanner?'banner':'';
+    if(enabled){
+      const defaultType=isProfile?'A':'B';
+      classification.innerHTML=['A','B'].map(t=>'<option value="'+t+'">'+(isProfile?'움짤프사 ':'TYPE ')+t+' · '+adminEsc(guide[t]?.title||(isProfile?(t==='A'?'기본':'심플'):t))+(t===defaultType?' (기본)':'')+'</option>').join('');
+      classification.value=defaultType
+    }
+  }
   if(hint)hint.textContent='업로드 조건: '+formats.join(', ').toUpperCase()+' · 파일 용량 제한 없음 · 이미지 픽셀 크기 제한 없음'
 }
 function renderCats(){
@@ -2118,7 +2127,8 @@ async function copyQuote(){
 function collect(){document.querySelectorAll('[data-key]').forEach(e=>S[e.dataset.key]=e.value);collectNotices();(S.designTypes||[]).forEach((x,i)=>{const label=document.querySelector(`[data-type-label="${i}"]`),enabled=document.querySelector(`[data-type-enabled="${i}"]`),frame=document.querySelector(`[data-type-frame="${i}"]`),sign=document.querySelector(`[data-type-sign="${i}"]`),banner=document.querySelector(`[data-type-banner="${i}"]`),bannerText=document.querySelector(`[data-type-banner-text="${i}"]`);if(label)x.label=label.value;if(enabled)x.enabled=enabled.checked;if(frame)x.showFrameRetention=frame.checked;if(sign)x.showSignatureFields=sign.checked;if(banner)x.showBannerFields=banner.checked;if(bannerText)x.showBannerTextField=bannerText.checked})}
 function collectCats(arr,prefix){arr.forEach((c,i)=>{const label=document.querySelector(`[data-${prefix}-label="${i}"]`),id=document.querySelector(`[data-${prefix}-id="${i}"]`),w=document.querySelector(`[data-${prefix}-w="${i}"]`),h=document.querySelector(`[data-${prefix}-h="${i}"]`),enabled=document.querySelector(`[data-${prefix}-enabled="${i}"]`),pcCols=document.querySelector(`[data-${prefix}-pc-cols="${i}"]`),pcPage=document.querySelector(`[data-${prefix}-pc-page="${i}"]`),moCols=document.querySelector(`[data-${prefix}-mo-cols="${i}"]`),moPage=document.querySelector(`[data-${prefix}-mo-page="${i}"]`);if(label)c.label=label.value;if(id)c.id=id.value;if(w)c.displayWidth=Number(w.value||c.displayWidth||200);if(h)c.displayHeight=Number(h.value||c.displayHeight||200);if(enabled)c.enabled=enabled.checked;if(pcCols)c.pcColumns=Math.max(1,Number(pcCols.value||4));if(pcPage)c.pcPerPage=Math.max(1,Number(pcPage.value||16));if(moCols)c.mobileColumns=Math.max(1,Number(moCols.value||2));if(moPage)c.mobilePerPage=Math.max(1,Number(moPage.value||10))})}
 async function saveSettings(){
-  collect();collectInquiryV3Admin();collectWorkStatusAdmin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
+  collect();collectInquiryV3Admin();collectWorkStatusAdmin();collectScheduleAdmin();collectAvailabilityCalendarAdmin();collectBackgroundGuide();collectProfileTypeGuideAdmin();collectBannerTypeGuideAdmin();collectCats(S.portfolioCategories||[],'cat');
+  S.profileTypeEnabled=$('profileTypeEnabled')?$('profileTypeEnabled').checked:(S.profileTypeEnabled!==false);
   S.bannerTypeEnabled=$('bannerTypeEnabled')?$('bannerTypeEnabled').checked:(S.bannerTypeEnabled!==false);
   S.presetEnabled=false;
   S.showcasePresetEnabled=false;
@@ -3194,7 +3204,7 @@ function portfolioAdminFilteredItems(){
   return items.map((x,i)=>({x,i})).filter(({x})=>portfolioAdminCategory==='all'||logicalPortfolioCategory(x.category)===portfolioAdminCategory)
 }
 function renderItems(){
-  const typeOn=S?.bannerTypeEnabled!==false;
+  const bannerTypeOn=S?.bannerTypeEnabled!==false,profileTypeOn=S?.profileTypeEnabled!==false;
   const filtered=portfolioAdminFilteredItems();
   const totalPages=Math.max(1,Math.ceil(filtered.length/ADMIN_PAGE_SIZE));
   portfolioAdminPage=Math.min(Math.max(1,portfolioAdminPage),totalPages);
@@ -3211,7 +3221,8 @@ function renderItems(){
         <div class="muted portfolio-item-category">${adminEsc(cat?.label||(isProfile?'움짤프사':x.category))}</div>
         <div class="portfolio-admin-meta">
           <label class="mini-toggle"><input type="checkbox" data-portfolio-enabled="${i}" ${meta.enabled?'checked':''}> 공개</label>
-          ${isBanner&&typeOn?'<label class="portfolio-classification-field">TYPE<select data-portfolio-banner-type="'+i+'"><option value="A" '+(meta.bannerType==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(meta.bannerType!=='A'?'selected':'')+'>TYPE B</option></select></label>':''}
+          ${isProfile&&profileTypeOn?'<label class="portfolio-classification-field">A/B<select data-portfolio-profile-type="'+i+'"><option value="A" '+(meta.profileType!=='B'?'selected':'')+'>A · '+adminEsc(ensureProfileTypeGuide().A.title||'기본')+'</option><option value="B" '+(meta.profileType==='B'?'selected':'')+'>B · '+adminEsc(ensureProfileTypeGuide().B.title||'심플')+'</option></select></label>':''}
+          ${isBanner&&bannerTypeOn?'<label class="portfolio-classification-field">TYPE<select data-portfolio-banner-type="'+i+'"><option value="A" '+(meta.bannerType==='A'?'selected':'')+'>TYPE A</option><option value="B" '+(meta.bannerType!=='A'?'selected':'')+'>TYPE B</option></select></label>':''}
         </div>
       </div>
       <div class="item-actions">
@@ -3223,6 +3234,7 @@ function renderItems(){
   bindAdminPagination('itemsPagination','portfolio',portfolioAdminPage,totalPages);
   document.querySelectorAll('[data-replace-portfolio]').forEach(b=>b.onclick=()=>replaceMediaFile('portfolio',+b.dataset.replacePortfolio));
   document.querySelectorAll('[data-portfolio-enabled]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioEnabled,{enabled:el.checked}));
+  document.querySelectorAll('[data-portfolio-profile-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioProfileType,{profileType:el.value}));
   document.querySelectorAll('[data-portfolio-banner-type]').forEach(el=>el.onchange=()=>savePortfolioMeta(+el.dataset.portfolioBannerType,{bannerType:el.value}));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('이 작업물을 삭제할까요?'))return;const file=decodeURIComponent(b.dataset.delete);S.portfolioOrder=(S.portfolioOrder||[]).filter(x=>x!==file);await api('/api/admin/delete',{method:'POST',body:JSON.stringify({file})});await queueSettingsMutation(latest=>{latest.portfolioOrder=(latest.portfolioOrder||[]).filter(x=>x!==file);if(latest.portfolioMeta&&typeof latest.portfolioMeta==='object')delete latest.portfolioMeta[file]}).catch(()=>{});loadItems()});
   manageAdminGifs($('items'))
@@ -3276,8 +3288,11 @@ async function uploadFiles(kind){
       if(d.path)uploadedPaths.push(String(d.path))
     }
     if(uploadedPaths.length){
-      const selectedType=$('portfolioUploadBannerType')?.value||'B',isBannerUpload=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(cat);
-      const classificationPatch=isBannerUpload?{bannerType:['A','B'].includes(selectedType)?selectedType:'B'}:{};
+      const classification=$('portfolioUploadBannerType'),selectedType=classification?.value||'';
+      const isProfileUpload=logicalPortfolioCategory(cat)==='profile',isBannerUpload=['top-banner','floating-banner','bottom-banner','bottom-split'].includes(cat);
+      let classificationPatch={};
+      if(isProfileUpload&&S?.profileTypeEnabled!==false)classificationPatch={profileType:['A','B'].includes(selectedType)?selectedType:'A'};
+      else if(isBannerUpload&&S?.bannerTypeEnabled!==false)classificationPatch={bannerType:['A','B'].includes(selectedType)?selectedType:'B'};
       const saved=await queueSettingsMutation(latest=>{
         const current=Array.isArray(latest.portfolioOrder)?latest.portfolioOrder:[],fresh=[...uploadedPaths].reverse(),newSet=new Set(fresh);
         latest.portfolioOrder=[...fresh,...current.filter(v=>!newSet.has(v))];
