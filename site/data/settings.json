@@ -938,16 +938,43 @@
           "label": "직접 입력",
           "price": 0
         }
+      },
+      "profileTypes": {
+        "A": {
+          "id": "A",
+          "label": "움짤프사 A · 기본",
+          "price": 20000
+        },
+        "B": {
+          "id": "B",
+          "label": "움짤프사 B · 심플",
+          "price": 20000
+        }
+      },
+      "bannerTypes": {
+        "A": {
+          "id": "A",
+          "label": "TYPE A · 심플형",
+          "price": 0
+        },
+        "B": {
+          "id": "B",
+          "label": "TYPE B · 기존 디자인형",
+          "price": 0
+        }
       }
     },
     "builderOrder": [
       "design:topBanner",
       "design:floatingBanner",
+      "bannerType:A",
+      "bannerType:B",
       "bottomType:bottom1",
       "bottomType:bottom3",
       "bottomType:bottom6",
       "option:textImageChange",
-      "profileMode:custom",
+      "profileType:A",
+      "profileType:B",
       "profileMode:fixed",
       "option:nameOnlyChange",
       "option:profileChange",
@@ -1240,7 +1267,8 @@
       "isFixed": true
     },
     "portfolio/profile/20261012022933-LHOOp_VP-_________.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/floating-banner/20261013090907-a70kro1mdlg6c-_______.png": {
       "enabled": true,
@@ -1251,7 +1279,8 @@
       "bannerType": "B"
     },
     "portfolio/profile/20261013093918-pmbDUNSg-______.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/4cutframe/20261015054611-9dycD7KT-_______2.png": {
       "enabled": true
@@ -1259,7 +1288,9 @@
     "portfolio/4cutframe/20261019111248-dxu0sc1l00y6c-________.png": {
       "enabled": true
     },
-    "portfolio/profile/20261019184630-mrNSL5tl-______.gif": {},
+    "portfolio/profile/20261019184630-mrNSL5tl-______.gif": {
+      "profileType": "A"
+    },
     "portfolio/top-banner/20261021092145-r86z791c5h4hj-__.png": {
       "enabled": true,
       "bannerType": "B"
@@ -1277,13 +1308,16 @@
       "bannerType": "B"
     },
     "portfolio/profile/20261023160243-fieygo1g9ql7s-________.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/profile/20261024124111-9u0upoeawjav-__.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/profile/20261025004018-z3o49e16tn2q3-__.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/4cutframe/20261025142949-k5tnf81e44dv1-_________.png": {
       "enabled": true
@@ -1313,17 +1347,20 @@
       "bannerType": "B"
     },
     "portfolio/profile/20261027092256-5ts5ie1961pua-_______.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/bottom-banner/20261027092930-1pi0b29odj6t4-_________.png": {
       "enabled": true,
       "bannerType": "B"
     },
     "portfolio/profile/20261029111853-16xqg1o13coiw0-___ver.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/profile/20261030231926-g12v5f1vdmnwf-____.gif": {
-      "enabled": true
+      "enabled": true,
+      "profileType": "A"
     },
     "portfolio/top-banner/20261103191114921-o0jzxt9wbq73-_________.png": {
       "enabled": true,
@@ -1859,6 +1896,17 @@
         "fast",
         "private"
       ]
+    }
+  },
+  "profileTypeEnabled": true,
+  "profileTypeGuide": {
+    "A": {
+      "title": "기본",
+      "description": "기존 제작 방식의 기본 움짤프사 디자인"
+    },
+    "B": {
+      "title": "심플",
+      "description": "장식과 요소를 줄여 더 간결하게 구성한 움짤프사 디자인"
     }
   }
 }
