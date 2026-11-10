@@ -4653,3 +4653,40 @@ body.v2-fixed-detail-open{
     line-height:1!important;
   }
 }
+
+
+/* 2026-11-11 COMPACT PROFILE A/B GUIDE */
+.v2-type-guide.is-profile-type-guide{
+  margin:7px 0 12px!important;
+}
+.v2-type-guide.is-profile-type-guide>summary{
+  min-height:32px;
+  padding:6px 10px!important;
+  font-size:11.5px!important;
+}
+.v2-type-guide.is-profile-type-guide .v2-type-guide-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+  padding:8px!important;
+}
+.v2-type-guide.is-profile-type-guide .v2-type-guide-item{
+  min-height:0!important;
+  padding:8px 10px!important;
+  gap:5px!important;
+}
+.v2-type-guide.is-profile-type-guide .v2-type-guide-item strong{
+  font-size:11.5px!important;
+}
+.v2-type-guide.is-profile-type-guide .v2-type-guide-item p{
+  margin-top:2px!important;
+  font-size:10.5px!important;
+  line-height:1.45!important;
+}
+.inquiry-profile-type-field{
+  margin-bottom:8px!important;
+}
+@media(max-width:680px){
+  .v2-type-guide.is-profile-type-guide .v2-type-guide-grid{
+    grid-template-columns:1fr!important;
+  }
+}
