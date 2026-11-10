@@ -227,36 +227,7 @@ async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 const MEDIA_VERSION='20261015-live-media-v1';
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:''}
-function renderSettings(s){S=s;renderWorkStatus(s);set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);renderAvailabilityCalendar(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
-function renderWorkStatus(s){
-  const box=$('workStatus');
-  const enabled=s.workStatusEnabled===true;
-  const mode=s.workStatusMode==='sleeping'?'sleeping':'working';
-  const description=String(
-    mode==='sleeping'
-      ? (s.workStatusSleepingText??'현재 취침 중으로 문의 답변이 조금 늦을 수 있어요.')
-      : (s.workStatusWorkingText??'')
-  ).trim();
-  try{
-    if('BroadcastChannel'in window){
-      window.__artmugWorkStatusChannel=window.__artmugWorkStatusChannel||new BroadcastChannel('artmug-portfolio-section-nav');
-      window.__artmugWorkStatusChannel.postMessage({type:'work-status',enabled,mode,description})
-    }
-  }catch{}
-  if(!box)return;
-  box.hidden=!enabled;
-  box.dataset.status=mode;
-  if(!enabled)return;
-
-  const label=$('workStatusLabel');
-  const descriptionEl=$('workStatusDescription');
-  if(label)label.textContent=mode==='sleeping'?'취침중':'작업중';
-
-  if(descriptionEl){
-    descriptionEl.textContent=description;
-    descriptionEl.hidden=!description;
-  }
-}
+function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);renderAvailabilityCalendar(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
 function koreaNowParts(){
   const parts=new Intl.DateTimeFormat('en-CA',{
     timeZone:'Asia/Seoul',
