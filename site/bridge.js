@@ -59,8 +59,10 @@
     }
 
     const followerRightGap=quickNavRightGap();
+    const frameHeight=Math.max(1,Math.round(frame.getBoundingClientRect().height||frame.offsetHeight||saved.height||1));
+    const followerTop=Math.max(8,Math.min(QUICK_NAV_TOP,window.innerHeight-frameHeight-12));
     frame.style.setProperty('position','fixed','important');
-    frame.style.setProperty('top',QUICK_NAV_TOP+'px','important');
+    frame.style.setProperty('top',followerTop+'px','important');
     frame.style.setProperty('right',followerRightGap+'px','important');
     frame.style.setProperty('left','auto','important');
     frame.style.setProperty('transform','none','important');
@@ -169,6 +171,7 @@
         parent.style.setProperty('overflow-y','visible','important')
       }
     }
+    if(isDesktopQuickNavFrame(frame))applyQuickNavFollower(frame);
     return true
   }
 
