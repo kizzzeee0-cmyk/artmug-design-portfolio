@@ -511,7 +511,7 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  sec.dataset.v2Hydrated='1';
  sec.classList.remove('is-pending');
  portfolioHydrationObserver?.unobserve?.(sec);
- const typeOn=bannerTypeEnabled()&&bannerIds.has(k);
+ const typeOn=typeEnabledForLayout(k);
  if(!typeOn&&data.filter!=='ALL'){data.filter='ALL';data.page=1}
  if(data.remote&&loadRemote){
   sec.setAttribute('aria-busy','true');
@@ -524,8 +524,8 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
   filterValues=typeOn?['ALL',...(data.availableFilters||[]).filter(v=>v==='A'||v==='B')]:[];
  }else{
   items=(data.items||[]).filter(x=>pmeta(x).enabled);
-  if(typeOn&&(data.filter==='A'||data.filter==='B'))items=items.filter(x=>pmeta(x).bannerType===data.filter);
-  const presentTypes=typeOn?['A','B'].filter(t=>(data.items||[]).some(x=>pmeta(x).bannerType===t)):[];
+  if(typeOn&&(data.filter==='A'||data.filter==='B'))items=items.filter(x=>portfolioTypeFor(x,k)===data.filter);
+  const presentTypes=typeOn?['A','B'].filter(t=>(data.items||[]).some(x=>portfolioTypeFor(x,k)===t)):[];
   filterValues=typeOn?['ALL',...presentTypes]:[];
   pages=Math.max(1,Math.ceil(items.length/cfg.perPage));
   data.page=Math.min(Math.max(1,data.page||1),pages);
@@ -533,7 +533,9 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  }
  if(typeOn&&data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1;if(data.remote)return renderPortfolioCategory(id,scroll,true)}
  data.page=Math.min(Math.max(1,data.page||1),pages);
- const controls=typeOn?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+(v==='ALL'?'전체':'TYPE '+v)+'</button>').join('')+'</div>':'';
+ const guide=typeGuideConfig(k);
+ const typeButtonLabel=v=>v==='ALL'?'전체':(k==='profile'?'움짤프사 '+v+' · '+String(guide[v]?.title||v):'TYPE '+v+' · '+String(guide[v]?.title||v));
+ const controls=typeOn?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+esc(typeButtonLabel(v))+'</button>').join('')+'</div>':'';
  sec.hidden=false;
  sec.innerHTML='<div class="v2-cat-head"><h3>'+esc(cat.label)+'</h3>'+controls+'</div>'+guideHtml(cat)+
   '<div class="v2-cat-grid v2-layout-'+k+' '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+items.map(x=>itemCard(x,cat)).join('')+'</div>'+
