@@ -94,10 +94,11 @@ function portfolioNewestFirst(items){
  return source.sort((a,b)=>(pos.get(a.file)??Number.MAX_SAFE_INTEGER)-(pos.get(b.file)??Number.MAX_SAFE_INTEGER))
 }
 function pmeta(x){
- const m=state.settings?.portfolioMeta?.[x.file]||{};
+ const m=state.settings?.portfolioMeta?.[x.file]||{},k=layoutKey({id:x.category,label:x.category});
  return {
   enabled:m.enabled!==false,
-  bannerType:['A','B'].includes(m.bannerType)?m.bannerType:(bannerIds.has(layoutKey({id:x.category,label:x.category}))?'B':''),
+  profileType:['A','B'].includes(m.profileType)?m.profileType:(k==='profile'?'A':''),
+  bannerType:['A','B'].includes(m.bannerType)?m.bannerType:(bannerIds.has(k)?'B':''),
   featured:m.featured===true
  }
 }
@@ -254,7 +255,34 @@ function portfolioRankForSalesCategory(cat,ownCategories){
 }
 function portfolioRankForPresetCategory(cat){return portfolioRankForSalesCategory(cat,state.settings?.presetCategories||[])}
 function portfolioRankForFixedCategory(cat){return portfolioRankForSalesCategory(cat,state.settings?.fixedCategories||[])}
+function profileTypeEnabled(){return state.settings?.profileTypeEnabled!==false}
 function bannerTypeEnabled(){return state.settings?.bannerTypeEnabled!==false}
+function typeEnabledForLayout(k){
+ if(k==='profile')return profileTypeEnabled();
+ return bannerIds.has(k)&&bannerTypeEnabled()
+}
+function portfolioTypeFor(x,k){
+ const m=pmeta(x);
+ return k==='profile'?(m.profileType||'A'):(m.bannerType||'B')
+}
+function typeGuideConfig(k){
+ if(k==='profile'){
+  const g=state.settings?.profileTypeGuide||{};
+  return {
+   kind:'profile',
+   summary:'A / B 차이 보기',
+   A:{title:String(g.A?.title||'기본'),description:String(g.A?.description||'기존 제작 방식의 기본 움짤프사 디자인')},
+   B:{title:String(g.B?.title||'심플'),description:String(g.B?.description||'장식과 요소를 줄여 더 간결하게 구성한 움짤프사 디자인')}
+  }
+ }
+ const g=state.settings?.bannerTypeGuide||{};
+ return {
+  kind:'banner',
+  summary:'TYPE A / B 차이 보기',
+  A:{title:String(g.A?.title||'심플형'),description:String(g.A?.description||'장식과 패턴이 적은 깔끔한 구성'),referenceImage:String(g.A?.referenceImage||'')},
+  B:{title:String(g.B?.title||'기존 디자인형'),description:String(g.B?.description||'패턴과 장식이 더 풍부한 구성'),referenceImage:String(g.B?.referenceImage||'')}
+ }
+}
 function isAnimatedMediaUrl(url){
  return /\.gif(?:$|[?#])/i.test(String(url||''))
 }
