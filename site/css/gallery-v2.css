@@ -4690,3 +4690,41 @@ body.v2-fixed-detail-open{
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* 2026-11-11 SLOW NETWORK RECOVERY */
+.v2-load-failed{
+  min-height:92px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:18px;
+  text-align:center;
+  color:#6f8592;
+  font-size:12px;
+}
+.v2-load-failed p{
+  margin:0;
+}
+.v2-load-failed button{
+  min-height:34px;
+  padding:6px 13px;
+  border:1px solid #b8dcef;
+  border-radius:999px;
+  background:#fff;
+  color:#5794b8;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+}
+.v2-load-failed button:hover,
+.v2-load-failed button:focus-visible{
+  background:#f2f9fd;
+  border-color:#8fc7e5;
+  outline:none;
+}
+.v2-media img.is-media-error{
+  opacity:.35;
+}
