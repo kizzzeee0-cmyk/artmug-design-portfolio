@@ -18,3 +18,7 @@
 /bridge.js
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
+
+
+/portfolio-lite.html
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
