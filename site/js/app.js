@@ -224,6 +224,74 @@ function initArtmugSectionNavigation(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugSectionNavigation,{once:true});else initArtmugSectionNavigation();
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
+const PUBLIC_CATALOG_CACHE_KEY='artmug-public-catalog-v4';
+const PUBLIC_CATALOG_FRESH_MS=5*60*1000;
+const PUBLIC_CATALOG_STALE_MS=7*24*60*60*1000;
+const PUBLIC_RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/';
+function readPublicCatalogCache(){
+  try{
+    const x=JSON.parse(localStorage.getItem(PUBLIC_CATALOG_CACHE_KEY)||'null');
+    if(!x||!x.data||!x.time)return null;
+    return {data:x.data,age:Date.now()-Number(x.time||0)}
+  }catch{return null}
+}
+function writePublicCatalogCache(data){
+  if(!data||typeof data!=='object')return;
+  try{localStorage.setItem(PUBLIC_CATALOG_CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}
+}
+async function fetchPublicJson(url,timeout=6500){
+  const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+  const timer=ctrl?setTimeout(()=>ctrl.abort(),timeout):0;
+  try{
+    const r=await fetch(url,{credentials:url.startsWith(API)?'include':'omit',cache:'default',signal:ctrl?.signal});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return await r.json()
+  }finally{if(timer)clearTimeout(timer)}
+}
+async function fetchPublicCatalogNetwork(){
+  let last;
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const data=await fetchPublicJson(API+'/api/public/catalog',attempt?8500:5500);
+      if(data&&data.settings){
+        writePublicCatalogCache(data);
+        return data
+      }
+      throw new Error('Invalid catalog')
+    }catch(e){
+      last=e;
+      if(attempt===0)await new Promise(resolve=>setTimeout(resolve,350))
+    }
+  }
+  throw last||new Error('Catalog unavailable')
+}
+async function fetchPublicCatalogStaticFallback(){
+  const settingsUrl=new URL('/data/settings.json',location.href).href;
+  const [settingsResult,indexResult,presetResult]=await Promise.allSettled([
+    fetchPublicJson(settingsUrl,7000),
+    fetchPublicJson(PUBLIC_RAW+'portfolio/index.json',8000),
+    fetchPublicJson(PUBLIC_RAW+'site/data/presets.json',8000)
+  ]);
+  if(settingsResult.status!=='fulfilled')throw settingsResult.reason||new Error('Static settings unavailable');
+  const data={
+    settings:settingsResult.value||{},
+    portfolioIndex:indexResult.status==='fulfilled'&&Array.isArray(indexResult.value)?indexResult.value:null,
+    presetIndex:presetResult.status==='fulfilled'&&Array.isArray(presetResult.value)?presetResult.value:null
+  };
+  writePublicCatalogCache(data);
+  return data
+}
+function loadPublicCatalogResilient(){
+  const cached=readPublicCatalogCache();
+  if(cached&&cached.age<PUBLIC_CATALOG_FRESH_MS){
+    fetchPublicCatalogNetwork().catch(()=>{});
+    return Promise.resolve(cached.data)
+  }
+  return fetchPublicCatalogNetwork().catch(async()=>{
+    if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return cached.data;
+    return fetchPublicCatalogStaticFallback()
+  })
+}
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 const MEDIA_VERSION='20261015-live-media-v1';
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:''}
@@ -1666,7 +1734,7 @@ $('copyButton').onclick=async()=>{
   if(ok){$('copyStatus').textContent='';showCopied(btn)}
   else{$('copyStatus').textContent='복사에 실패했습니다.'}
 };
-const publicSettingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/catalog?fresh='+Date.now()));
+const publicSettingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=loadPublicCatalogResilient());
 (async()=>{try{
   const d=await publicSettingsPromise;
   renderSettings(d.settings);
