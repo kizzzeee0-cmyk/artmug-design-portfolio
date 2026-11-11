@@ -4728,3 +4728,13 @@ body.v2-fixed-detail-open{
 .v2-media img.is-media-error{
   opacity:.35;
 }
+
+
+/* Slow GIF placeholder: preserve a visible card while the real animation is queued. */
+.v2-work-card.is-profile .v2-media:has(img.is-gif-paused){
+  background:#f5fafd;
+  border:1px solid rgba(143,201,232,.16);
+}
+.v2-work-card.is-profile img.is-gif-paused{
+  opacity:0;
+}
