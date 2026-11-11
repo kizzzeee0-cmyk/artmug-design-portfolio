@@ -875,7 +875,7 @@ function v3QtyHtml(fieldKey,label,value){
   const n=Math.max(0,Math.floor(Number(value||0)));
   return '<div class="inquiry-qty-row inquiry-v3-qty-row"><span class="inquiry-qty-label">'+htmlAttr(label)+'</span><div class="inquiry-qty-control">'+
     '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(fieldKey)+'" data-qty-delta="-1" aria-label="'+htmlAttr(label)+' 수량 감소">−</button>'+
-    '<input class="inquiry-qty-input" data-field="'+htmlAttr(fieldKey)+'" data-v3-field="'+htmlAttr(fieldKey==='textChangeQty'?'banner.textChangeQty':fieldKey==='sameDesignColorChangeQty'?'fourCut.colorChangeQty':fieldKey)+'" type="number" min="0" step="1" inputmode="numeric" value="'+n+'" aria-label="'+htmlAttr(label)+' 수량">'+
+    '<input class="inquiry-qty-input" data-field="'+htmlAttr(fieldKey)+'" data-v3-field="'+htmlAttr(fieldKey==='textChangeQty'?'banner.textChangeQty':fieldKey==='sameDesignColorChangeQty'?'fourCut.colorChangeQty':fieldKey==='chekiColorChangeQty'?'cheki.colorChangeQty':fieldKey)+'" type="number" min="0" step="1" inputmode="numeric" value="'+n+'" aria-label="'+htmlAttr(label)+' 수량">'+
     '<button type="button" class="inquiry-qty-button" data-qty-field="'+htmlAttr(fieldKey)+'" data-qty-delta="1" aria-label="'+htmlAttr(label)+' 수량 증가">+</button>'+
   '</div></div>'
 }
@@ -919,6 +919,18 @@ function renderV3FourCutCard(card,design,state){
     '<div class="inquiry-v3-field-grid">'+v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:false,placeholder:S?.conceptPlaceholder||'',wide:true},'fourCut',rid,state)+'</div>'+
     '<div class="inquiry-v3-design-options">'+v3QtyHtml('sameDesignColorChangeQty',inquiryOption('sameDesignColorChange',design.colorChangeLabel||'동일 디자인 · 색상 변경').label,v3Value(state,'fourCut.colorChangeQty',0))+'</div>';
   (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml({...field,required:false},'fourCut.custom',rid,state)});
+  return html+'</section>'
+}
+function renderV3ChekiCard(card,design,state){
+  const rid=card.dataset.requestId||'0';
+  let html='<section class="inquiry-design-detail-card" data-design-card="cheki">'+v3DesignCardHead(design.label||'체키틀')+
+    '<div class="inquiry-v3-field-grid">'+
+      v3FieldHtml({id:'concept',label:design.conceptLabel||'원하는 디자인 컨셉 및 색상',type:'textarea',required:false,placeholder:S?.conceptPlaceholder||'',wide:true},'cheki',rid,state)+
+    '</div>'+
+    '<div class="inquiry-v3-design-options">'+
+      v3QtyHtml('chekiColorChangeQty',design.colorChangeLabel||'색상 변경',v3Value(state,'cheki.colorChangeQty',0))+
+    '</div>';
+  (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml({...field,required:false},'cheki.custom',rid,state)});
   return html+'</section>'
 }
 function renderV3SignatureCard(card,design,state){
@@ -983,6 +995,7 @@ function renderRequestFieldsV3(card,typeIds,prev){
       if(design.id==='profile')html+='<section class="inquiry-design-detail-card" data-design-card="profile">'+v3DesignCardHead(design.label||'움짤프사')+'<div data-v3-profile-slot></div></section>';
       else if(design.id==='soopBanner')html+=renderV3BannerCard(card,design,state);
       else if(design.id==='fourCut')html+=renderV3FourCutCard(card,design,state);
+      else if(design.id==='cheki')html+=renderV3ChekiCard(card,design,state);
       else if(design.id==='signature')html+=renderV3SignatureCard(card,design,state);
       else html+=renderV3GenericCard(card,design,state);
     });
@@ -1083,6 +1096,7 @@ function readRequestValues(card){
     profileChangeQty:Math.max(0,Number((q('[data-field="profileChangeQty"]')||{}).value||v3['profile.change.fullQty']||0)),
     textChangeQty:Math.max(0,Number((q('[data-field="textChangeQty"]')||{}).value||v3['banner.textChangeQty']||0)),
     sameDesignColorChangeQty:Math.max(0,Number((q('[data-field="sameDesignColorChangeQty"]')||{}).value||v3['fourCut.colorChangeQty']||0)),
+    chekiColorChangeQty:Math.max(0,Number((q('[data-field="chekiColorChangeQty"]')||{}).value||v3['cheki.colorChangeQty']||0)),
     options:qa('input[data-field="extraOption"]:checked').map(x=>x.value),
     optionIds:qa('input[data-field="extraOption"]:checked').map(x=>x.dataset.quoteOptionId||'').filter(Boolean),
     v3
@@ -1170,6 +1184,11 @@ function selectedInquiryEstimateRows(card){
       });
       return
     }
+    if(t.id==='cheki'){
+      const x=p.designs?.cheki;
+      if(x)rows.push({key:'design:cheki',label:String(x.label||'체키틀'),price:inquiryPrice(x.price),qty:estimateQty('design:cheki'),adjustable:true});
+      return
+    }
     if(t.id==='signature'){
       const id=String(v3Value(state,'signature.count',''));if(!id)return;
       if(id==='custom'){
@@ -1193,6 +1212,10 @@ function selectedInquiryEstimateRows(card){
     const o=inquiryOption(pair[0],pair[0]),qty=Math.max(0,Number(v[pair[1]]||0));
     if(qty>0)rows.push({key:'option:'+o.id,label:o.label,price:o.price,qty,adjustable:false})
   });
+  if(v.chekiColorChangeQty>0){
+    const o=inquiryOption('sameDesignColorChange','색상 변경'),label=String(designs.cheki?.colorChangeLabel||'색상 변경');
+    rows.push({key:'option:'+o.id+':cheki',label:'체키틀 · '+label,price:o.price,qty:v.chekiColorChangeQty,adjustable:false})
+  }
   const workCount=Math.max(1,rows.filter(x=>!String(x.key||'').startsWith('option:')).reduce((sum,x)=>sum+Math.max(1,Number(x.qty||1)),0));
   card.querySelectorAll('input[data-field="extraOption"]:checked').forEach(input=>{
     const id=String(input.dataset.quoteOptionId||''),built=p.options?.[id],custom=(p.customOptions||[]).find(x=>String(x.id)===id),o=built||custom;
@@ -1354,6 +1377,15 @@ function requestText(card){
       lines.push(...v3FieldLines(design.customFields,'fourCut.custom',state));
       const header='['+(design.label||type.label||'인생네컷')+']'+(typeLabels.length?' - '+typeLabels.join(', '):'');
       blocks.push(header+(lines.length?'\n'+lines.join('\n'):''));
+      return
+    }
+
+    if(type.id==='cheki'){
+      const lines=[],concept=v3FormatValue(state['cheki.concept']);
+      if(concept)lines.push((design.conceptLabel||'원하는 디자인 컨셉 및 색상')+': '+concept);
+      if(v.chekiColorChangeQty>0)lines.push((design.colorChangeLabel||'색상 변경')+': × '+v.chekiColorChangeQty+'개');
+      lines.push(...v3FieldLines(design.customFields,'cheki.custom',state));
+      blocks.push('['+(design.label||type.label||'체키틀')+']'+(lines.length?'\n'+lines.join('\n'):''));
       return
     }
 
