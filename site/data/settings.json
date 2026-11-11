@@ -812,6 +812,12 @@
           "label": "시그풍",
           "typeId": "signature-style",
           "pricing": "signatureType"
+        },
+        "cheki": {
+          "id": "cheki",
+          "label": "체키틀",
+          "typeId": "",
+          "price": 15000
         }
       },
       "profileModes": {
