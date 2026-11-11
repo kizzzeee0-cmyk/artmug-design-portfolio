@@ -4738,3 +4738,63 @@ body.v2-fixed-detail-open{
 .v2-work-card.is-profile img.is-gif-paused{
   opacity:0;
 }
+
+
+/* 2026-11-12 LITE PORTFOLIO FALLBACK */
+.portfolio-lite-notice{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 12px;
+  padding:9px 12px;
+  border:1px solid rgba(143,201,232,.28);
+  border-radius:13px;
+  background:#f8fcfe;
+  color:#71818c;
+  font-size:11px;
+  line-height:1.45;
+  text-align:center;
+}
+.portfolio-lite-notice a,
+.portfolio-lite-legacy-link a,
+.v2-load-failed a{
+  color:#5794b8;
+  font-weight:800;
+  text-decoration:none;
+}
+.portfolio-lite-notice a:hover,
+.portfolio-lite-legacy-link a:hover,
+.v2-load-failed a:hover{
+  text-decoration:underline;
+}
+.portfolio-lite-legacy-link{
+  margin:4px 0 12px;
+  text-align:center;
+  font-size:11px;
+}
+.v2-load-failed-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.v2-load-failed-actions a,
+.v2-load-failed>a{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:6px 13px;
+  border:1px solid #c8e2f0;
+  border-radius:999px;
+  background:#fff;
+}
+@media(max-width:680px){
+  .portfolio-lite-notice{
+    margin-bottom:9px;
+    padding:8px 10px;
+    font-size:10.5px;
+  }
+}
