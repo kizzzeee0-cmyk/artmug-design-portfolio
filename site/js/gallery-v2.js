@@ -3,7 +3,22 @@
 const C=window.ARTMUG_CONFIG||{};
 const API=C.API_BASE||'';
 const RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/';
-const rawJson=path=>fetch(RAW+path,{cache:'default'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
+const rawJson=async path=>{
+ let last;
+ for(let attempt=0;attempt<2;attempt++){
+  const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+  const timer=ctrl?setTimeout(()=>ctrl.abort(),attempt?10000:7000):0;
+  try{
+   const r=await fetch(RAW+path,{cache:'default',signal:ctrl?.signal});
+   if(!r.ok)throw new Error('HTTP '+r.status);
+   return await r.json()
+  }catch(e){
+   last=e;
+   if(attempt===0)await new Promise(resolve=>setTimeout(resolve,350))
+  }finally{if(timer)clearTimeout(timer)}
+ }
+ throw last||new Error('Raw data unavailable')
+};
 const $=s=>document.querySelector(s);
 const $=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
