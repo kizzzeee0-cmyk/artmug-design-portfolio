@@ -982,6 +982,7 @@
       "bottomType:bottom3",
       "bottomType:bottom6",
       "option:textImageChange",
+      "profileMode:custom",
       "profileMode:fixed",
       "option:nameOnlyChange",
       "option:profileChange",
@@ -995,7 +996,6 @@
       "option:fast",
       "option:private",
       "signatureType:direct",
-      "profileMode:custom",
       "design:cheki"
     ]
   },
