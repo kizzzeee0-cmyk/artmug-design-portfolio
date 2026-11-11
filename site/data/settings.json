@@ -1173,6 +1173,7 @@
     "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
   ],
   "portfolioOrder": [
+    "portfolio/top-banner/20261111182349021-pm20fl1vwbveu-_______________.png",
     "portfolio/top-banner/20261103191114921-o0jzxt9wbq73-_________.png",
     "portfolio/top-banner/20261102163828684-15s98cuqk70sl-_________.png",
     "portfolio/top-banner/20261026091635-1wzbznu1bnkil1-________.png",
@@ -1400,6 +1401,9 @@
     },
     "portfolio/profile/20261103190804156-1khim6u1r1plc6-____________.gif": {
       "profileType": "A"
+    },
+    "portfolio/top-banner/20261111182349021-pm20fl1vwbveu-_______________.png": {
+      "enabled": true
     }
   },
   "bannerTypeEnabled": false,
