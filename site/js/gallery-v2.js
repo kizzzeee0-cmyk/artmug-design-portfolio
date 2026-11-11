@@ -24,7 +24,7 @@ const $=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const MEDIA_VERSION='20261015-live-media-v1';
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
-const rawMedia=path=>path?RAW+String(path).split('/').map(encodeURIComponent).join('/'):'';
+const rawMedia=path=>{const v=String(path||'');return !v?'':/^https?:\/\//i.test(v)?v:RAW+v.split('/').map(encodeURIComponent).join('/')};
 const api=async path=>{
  let last;
  for(let attempt=0;attempt<2;attempt++){
