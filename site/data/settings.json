@@ -733,7 +733,7 @@
         {
           "id": "bottom1",
           "name": "하단배너 1칸",
-          "price": 10000
+          "price": 8000
         },
         {
           "id": "bottom3",
@@ -851,7 +851,7 @@
         "bottom1": {
           "id": "bottom1",
           "label": "하단 1칸",
-          "price": 10000
+          "price": 8000
         },
         "bottom3": {
           "id": "bottom3",
@@ -995,7 +995,8 @@
       "option:fast",
       "option:private",
       "signatureType:direct",
-      "profileMode:custom"
+      "profileMode:custom",
+      "design:cheki"
     ]
   },
   "presetGroups": [
