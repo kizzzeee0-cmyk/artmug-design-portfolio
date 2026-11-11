@@ -1739,6 +1739,7 @@ function ensureQuoteConfig(){
     floatingBanner:{id:'floatingBanner',label:'플로팅배너',typeId:'',price:0},
     bottomBanner:{id:'bottomBanner',label:'하단배너',typeId:'',pricing:'bottomType'},
     fourCut:{id:'fourCut',label:'인생네컷',typeId:'',pricing:'fourCutType',price:0},
+    cheki:{id:'cheki',label:'체키틀',typeId:'',price:15000},
     signature:{id:'signature',label:'시그풍',typeId:'signature-style',pricing:'signatureType'}
   };
   Object.entries(designDefaults).forEach(([k,d])=>{p.designs[k]={...d,...(p.designs[k]||{})}});
@@ -1748,6 +1749,7 @@ function ensureQuoteConfig(){
     if(key==='profile')label=iq3.profile?.label||'';
     else if(['topBanner','floatingBanner','bottomBanner'].includes(key))label=bannerKinds.find(x=>String(x.id)===key)?.label||'';
     else if(key==='fourCut')label=iq3.fourCut?.label||'';
+    else if(key==='cheki')label=iq3.cheki?.label||'체키틀';
     else if(key==='signature')label=iq3.signature?.label||'';
     else label=iq3[key]?.label||'';
     const t=(S.designTypes||[]).find(x=>String(x.id)===String(d.typeId||''));
@@ -1896,6 +1898,7 @@ function renderQuoteAdmin(){
     quoteAdminRow('designs','floatingBanner',p.designs.floatingBanner,{editable:false})+
     quoteAdminRow('designs','bottomBanner',p.designs.bottomBanner,{locked:true,note:'하단배너 종류에서 계산',editable:false})+
     quoteAdminRow('designs','fourCut',p.designs.fourCut,{locked:true,note:'인생네컷 종류에서 계산',editable:false})+
+    quoteAdminRow('designs','cheki',p.designs.cheki,{editable:false})+
     quoteAdminRow('designs','signature',p.designs.signature,{locked:true,note:'시그풍 종류/수량에서 계산',editable:false});
   const profileTypeOn=S?.profileTypeEnabled!==false,bannerTypeOn=S?.bannerTypeEnabled!==false;
   const profileRows=
