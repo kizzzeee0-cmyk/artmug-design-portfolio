@@ -42,7 +42,7 @@ const api=async path=>{
  throw last||new Error('Network unavailable')
 };
 const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all'},expanded:{preset:false,fixed:false},presetVariantSelection:{},fixedVariantSelection:{},showcasePage:{fixed:1,preset:1},mobile:matchMedia('(max-width:680px)').matches};
-const V2_CATALOG_CACHE_KEY='artmug-public-catalog-v5';
+const V2_CATALOG_CACHE_KEY='artmug-public-catalog-v6';
 function v2ReadCatalogCache(){
  try{
   const x=JSON.parse(localStorage.getItem(V2_CATALOG_CACHE_KEY)||'null');
@@ -54,7 +54,7 @@ function v2WriteCatalogCache(data){
 }
 async function loadCatalogResilientV2(){
  try{
-  const data=await api('/api/public/catalog');
+  const data=await api('/api/public/catalog?cv=6');
   if(data&&data.settings){v2WriteCatalogCache(data);return data}
  }catch{}
  const cached=v2ReadCatalogCache();
