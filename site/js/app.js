@@ -226,7 +226,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 const PUBLIC_CATALOG_CACHE_KEY='artmug-public-catalog-v4';
 const PUBLIC_CATALOG_FRESH_MS=2*60*1000;
-const PUBLIC_CATALOG_FAST_STALE_MS=30*60*1000;
+const PUBLIC_CATALOG_FAST_STALE_MS=5*60*1000;
 const PUBLIC_CATALOG_STALE_MS=7*24*60*60*1000;
 const PUBLIC_RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/';
 function readPublicCatalogCache(){
