@@ -20,7 +20,7 @@ const rawJson=async path=>{
  throw last||new Error('Raw data unavailable')
 };
 const $=s=>document.querySelector(s);
-const $=(s,root=document)=>Array.from(root.querySelectorAll(s));
+const qsa=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const MEDIA_VERSION='20261015-live-media-v1';
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
@@ -547,7 +547,7 @@ async function preclassifyBottomSplit(items){
  return out
 }
 function arrangeSplit(root){
- const cards=$$('.v2-work-card',root);
+ const cards=qsa('.v2-work-card',root);
  if(!cards.length)return;
  const place=rows=>{
   const left=rows.filter(x=>x.slot==='left'),right=rows.filter(x=>x.slot==='right'),other=rows.filter(x=>x.slot!=='left'&&x.slot!=='right');
