@@ -1129,7 +1129,7 @@ function inquiryV3FieldsPanel(title,path,fields,note=''){
   '<div class="inquiry-v3-admin-fields-list">'+((fields||[]).length?(fields||[]).map((field,i)=>inquiryV3FieldAdminHtml(normalizeInquiryField(field),path,i)).join(''):'<p class="muted">추가 입력 항목이 없습니다.</p>')+'</div></section>'
 }
 function renderInquiryV3DesignCard(id,d,index,total){
- const builtIn=['profile','soopBanner','fourCut','signature'].includes(id);
+ const builtIn=['profile','soopBanner','fourCut','cheki','signature'].includes(id);
  let body='';
  if(id==='profile'){
   const mf=d.modeFields||{},modes=ensureQuoteConfig().pricingV2.profileModes||{};
@@ -1153,6 +1153,12 @@ function renderInquiryV3DesignCard(id,d,index,total){
     (d.types||[]).map((x,j)=>'<div class="inquiry-v3-nested-choice-row"><label>종류 '+(j+1)+'<input data-iq3-array-label="fourCut:types:'+j+'" value="'+adminEsc(x.label||'')+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-array-enabled="fourCut:types:'+j+'" '+(x.enabled!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-array-move="fourCut:types:'+j+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-array-move="fourCut:types:'+j+'" data-dir="1" '+(j===(d.types||[]).length-1?'disabled':'')+'>↓</button><button type="button" class="danger admin-compact" data-iq3-array-delete="fourCut:types:'+j+'">삭제</button></div></div>').join('')+
     '<label>컨셉 항목명<input data-iq3-setting="fourCut:conceptLabel" value="'+adminEsc(d.conceptLabel||'')+'"></label>'+
     '<label>색상 변경 옵션명<input data-iq3-setting="fourCut:colorChangeLabel" value="'+adminEsc(d.colorChangeLabel||'')+'"></label>'+
+   '</div></section>'
+  }
+  if(id==='cheki'){
+   body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>체키틀 기본 항목</h5><p class="muted">체키틀 선택 시 표시할 입력 항목명을 수정합니다.</p></div></div><div class="fields">'+
+    '<label>컨셉 항목명<input data-iq3-setting="cheki:conceptLabel" value="'+adminEsc(d.conceptLabel||'원하는 디자인 컨셉 및 색상')+'"></label>'+
+    '<label>색상 변경 옵션명<input data-iq3-setting="cheki:colorChangeLabel" value="'+adminEsc(d.colorChangeLabel||'색상 변경')+'"></label>'+
    '</div></section>'
   }
   if(id==='signature'){
