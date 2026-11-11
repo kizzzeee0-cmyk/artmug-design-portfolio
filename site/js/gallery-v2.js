@@ -23,8 +23,10 @@ const $=s=>document.querySelector(s);
 const qsa=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const MEDIA_VERSION='20261015-live-media-v1';
-const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
 const rawMedia=path=>{const v=String(path||'');return !v?'':/^https?:\/\//i.test(v)?v:RAW+v.split('/').map(encodeURIComponent).join('/')};
+const workerMedia=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
+const media=path=>SLOW_NETWORK?rawMedia(path):workerMedia(path);
+const fallbackMedia=path=>SLOW_NETWORK?workerMedia(path):rawMedia(path);
 const api=async path=>{
  let last;
  for(let attempt=0;attempt<2;attempt++){
@@ -467,7 +469,7 @@ function itemCard(x,c){
  const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
-   '<div class="v2-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' data-v2-media-path="'+esc(x.demoSrc||x.file)+'" data-v2-fallback-src="'+esc(rawMedia(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+   '<div class="v2-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' data-v2-media-path="'+esc(x.demoSrc||x.file)+'" data-v2-fallback-src="'+esc(fallbackMedia(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
    (badge?'<div class="v2-work-tags">'+badge+'</div>':'')+
   '</article>'
 }
@@ -609,7 +611,7 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
      return renderPortfolioCategory(id,scroll,false)
     }
    }catch{}
-   sec.innerHTML='<div class="v2-load-failed"><p>네트워크가 느려 작품을 불러오지 못했습니다.</p><button type="button" data-v2-retry="'+esc(id)+'">다시 불러오기</button></div>';
+   sec.innerHTML='<div class="v2-load-failed"><p>네트워크가 느려 작품을 불러오지 못했습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-retry="'+esc(id)+'">다시 불러오기</button><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div></div>';
    sec.removeAttribute('aria-busy');
    sec.querySelector('[data-v2-retry]')?.addEventListener('click',()=>{
     sec.innerHTML='<p class="v2-loading">작품을 다시 불러오는 중…</p>';
@@ -719,7 +721,7 @@ async function renderPortfolio(){
    }
    readyIds.push(cat.id)
   }catch(e){
-   if(sec)sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'
+   if(sec)sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div>'
   }
  }
 
@@ -733,7 +735,7 @@ async function renderPortfolio(){
   const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');
   if(!sec||sec.hidden||sec.dataset.v2Hydrated==='1')return;
   renderPortfolioCategory(id,false,!indexed).catch(()=>{
-   sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>'
+   sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div>'
   })
  };
 
@@ -1646,7 +1648,7 @@ async function init(){
 function showPortfolioBootFailure(error){
  console.error(error);
  const root=$('#portfolioAllSections');
- if(root)root.innerHTML='<div class="v2-load-failed is-boot-failed"><p>네트워크 연결이 불안정합니다.</p><button type="button" data-v2-boot-retry>포트폴리오 다시 불러오기</button></div>';
+ if(root)root.innerHTML='<div class="v2-load-failed is-boot-failed"><p>네트워크 연결이 불안정합니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-boot-retry>포트폴리오 다시 불러오기</button><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div></div>';
  document.querySelector('[data-v2-boot-retry]')?.addEventListener('click',()=>location.reload(),{once:true})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init().catch(showPortfolioBootFailure),{once:true});else init().catch(showPortfolioBootFailure);
