@@ -3,13 +3,29 @@
 const C=window.ARTMUG_CONFIG||{};
 const API=C.API_BASE||'';
 const RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/';
-const rawJson=path=>fetch(RAW+path,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
+const rawJson=path=>fetch(RAW+path,{cache:'default'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
 const $=s=>document.querySelector(s);
-const $$=(s,root=document)=>Array.from(root.querySelectorAll(s));
+const $=(s,root=document)=>Array.from(root.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const MEDIA_VERSION='20261015-live-media-v1';
 const media=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
-const api=async path=>{const r=await fetch(API+path,{credentials:'include'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()};
+const rawMedia=path=>path?RAW+String(path).split('/').map(encodeURIComponent).join('/'):'';
+const api=async path=>{
+ let last;
+ for(let attempt=0;attempt<2;attempt++){
+  const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+  const timer=ctrl?setTimeout(()=>ctrl.abort(),attempt?9000:6000):0;
+  try{
+   const r=await fetch(API+path,{credentials:'include',cache:'default',signal:ctrl?.signal});
+   if(!r.ok)throw new Error('HTTP '+r.status);
+   return await r.json()
+  }catch(e){
+   last=e;
+   if(attempt===0)await new Promise(resolve=>setTimeout(resolve,300))
+  }finally{if(timer)clearTimeout(timer)}
+ }
+ throw last||new Error('Network unavailable')
+};
 const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all'},expanded:{preset:false,fixed:false},presetVariantSelection:{},fixedVariantSelection:{},showcasePage:{fixed:1,preset:1},mobile:matchMedia('(max-width:680px)').matches};
 const portfolioPageCache=new Map();
 let portfolioHydrationObserver=null;
@@ -18,7 +34,8 @@ const animatedMediaTimers=new WeakMap();
 const animatedMediaQueue=[];
 let animatedMediaActiveLoads=0;
 const connectionInfo=navigator.connection||navigator.mozConnection||navigator.webkitConnection||null;
-const ANIMATED_MEDIA_LOAD_LIMIT=(connectionInfo?.saveData||/^(?:slow-)?2g$|^3g$/i.test(String(connectionInfo?.effectiveType||'')))?1:2;
+const SLOW_NETWORK=!!(connectionInfo?.saveData||/^(?:slow-)?2g$|^3g$/i.test(String(connectionInfo?.effectiveType||'')));
+const ANIMATED_MEDIA_LOAD_LIMIT=SLOW_NETWORK?1:2;
 const PAUSED_MEDIA_SRC='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 let presetSourcePromise=null;
 let fixedPage=1;
@@ -44,9 +61,11 @@ function layoutKey(c){
 }
 function catConfig(c){
  const k=layoutKey(c),d=defaults[k]||{pcColumns:4,pcPerPage:16,mobileColumns:2,mobilePerPage:10};
+ const configured=state.mobile?Number(c.mobilePerPage||d.mobilePerPage):Number(c.pcPerPage||d.pcPerPage);
+ const slowCap=k==='profile'?8:k==='floating-banner'?10:k==='four-cut'?6:8;
  return {
   columns:state.mobile?Number(c.mobileColumns||d.mobileColumns):Number(c.pcColumns||d.pcColumns),
-  perPage:state.mobile?Number(c.mobilePerPage||d.mobilePerPage):Number(c.pcPerPage||d.pcPerPage)
+  perPage:SLOW_NETWORK?Math.max(4,Math.min(configured,slowCap)):configured
  }
 }
 function visibleCats(){
@@ -360,7 +379,7 @@ function ensureAnimatedMediaObserver(){
    },700);
    animatedMediaTimers.set(img,timer)
   })
- },{root:null,rootMargin:'280px 0px 280px 0px',threshold:0});
+ },{root:null,rootMargin:SLOW_NETWORK?'80px 0px 80px 0px':'280px 0px 280px 0px',threshold:0});
  return animatedMediaObserver
 }
 function manageAnimatedMedia(root=document){
@@ -384,6 +403,21 @@ function manageAnimatedMedia(root=document){
   else restoreAnimatedMedia(img)
  })
 }
+function bindPortfolioMediaFallbacks(root){
+ if(!root)return;
+ root.querySelectorAll('img[data-v2-fallback-src]').forEach(img=>{
+  if(img.dataset.v2FallbackBound==='1')return;
+  img.dataset.v2FallbackBound='1';
+  img.addEventListener('error',()=>{
+   if(img.dataset.v2FallbackTried==='1'){img.classList.add('is-media-error');return}
+   const fallback=img.dataset.v2FallbackSrc;
+   if(!fallback)return;
+   img.dataset.v2FallbackTried='1';
+   if(img.dataset.v2AnimatedSrc)img.dataset.v2AnimatedSrc=fallback;
+   img.src=fallback
+  })
+ })
+}
 function itemCard(x,c){
  const k=layoutKey(c),type=typeEnabledForLayout(k)?portfolioTypeFor(x,k):'';
  const badgeLabel=type?(k==='profile'?type+' · '+String(typeGuideConfig(k)[type]?.title||type):'TYPE '+type):'';
@@ -392,7 +426,7 @@ function itemCard(x,c){
  const imgSrc=deferGif?PAUSED_MEDIA_SRC:source;
  const gifAttrs=deferGif?' data-v2-animated-src="'+esc(source)+'" data-v2-gif-active="0" class="is-gif-paused"':'';
  return '<article class="v2-work-card '+(k==='profile'?'is-profile':'')+'"'+(x.__v2SplitSlot?' data-split-slot="'+x.__v2SplitSlot+'"':'')+'>'+
-   '<div class="v2-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
+   '<div class="v2-media"><img src="'+esc(imgSrc)+'"'+gifAttrs+' data-v2-media-path="'+esc(x.demoSrc||x.file)+'" data-v2-fallback-src="'+esc(rawMedia(x.demoSrc||x.file))+'" alt="'+esc(x.alt||x.originalName||c.label)+'" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>'+
    (badge?'<div class="v2-work-tags">'+badge+'</div>':'')+
   '</article>'
 }
@@ -542,6 +576,7 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
   '<div class="v2-cat-grid v2-layout-'+k+' '+(k==='bottom-split'?'is-bottom-split':'')+'" style="--v2-cols:'+cfg.columns+'">'+items.map(x=>itemCard(x,cat)).join('')+'</div>'+
   pagination(id,pages,data.page);
  const grid=sec.querySelector('.v2-cat-grid');if(k==='bottom-split'&&grid&&items.length)arrangeSplit(grid);
+ bindPortfolioMediaFallbacks(sec);
  sec.querySelectorAll('[data-v2-filter]').forEach(b=>b.onclick=async()=>{
   const [,f]=b.dataset.v2Filter.split(':');data.filter=f;data.page=1;
   await renderPortfolioCategory(id,true,true);announceActive('portfolio:'+id+':'+f)
@@ -645,7 +680,7 @@ async function renderPortfolio(){
     const id=entry.target.getAttribute('data-v2-cat');
     if(id)hydrate(id)
    })
-  },{root:null,rootMargin:'650px 0px',threshold:0});
+  },{root:null,rootMargin:SLOW_NETWORK?'140px 0px':'650px 0px',threshold:0});
   pending.forEach(id=>{
    const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');
    if(sec)portfolioHydrationObserver.observe(sec)
