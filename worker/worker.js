@@ -117,7 +117,7 @@ async function publicCatalog(env){
     settings:sanitizePublicSettings(settings||{}),
     portfolioIndex:Array.isArray(portfolioIndex)?portfolioIndex:[],
     presetIndex:Array.isArray(presetIndex)?presetIndex:[]
-  },200,{'Cache-Control':'public, max-age=15, stale-while-revalidate=60'})
+  },200,{'Cache-Control':'public, max-age=60, stale-while-revalidate=3600'})
 }
 async function publicPortfolio(u,env){
   const cat=u.searchParams.get('category')||'profile';
@@ -153,7 +153,7 @@ async function publicPortfolio(u,env){
   // Regular portfolio is always newest upload first. Fixed/preset ordering is handled separately.
   all=sortPortfolioBySavedOrder(all,s.portfolioOrder,idx);
   const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);
-  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'no-store'})
+  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'public, max-age=45, stale-while-revalidate=1800'})
 }
 async function publicPresets(u,env){
   const token=env.GITHUB_TOKEN||'';
