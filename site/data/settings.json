@@ -1694,9 +1694,9 @@
     "designOrder": [
       "profile",
       "soopBanner",
+      "signature",
       "fourCut",
-      "cheki",
-      "signature"
+      "cheki"
     ],
     "designs": {
       "profile": {
