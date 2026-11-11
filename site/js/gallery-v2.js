@@ -1617,10 +1617,10 @@ async function init(){
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
  const portfolioPart=document.body.classList.contains('artmug-part-portfolio');
- const fixedPromise=renderFixed();
+ const fixedPromise=portfolioPart?Promise.resolve():renderFixed();
  const portfolioPromise=inquiryPart?Promise.resolve():renderPortfolio();
  await fixedPromise;
- await renderShowcase();
+ if(!portfolioPart)await renderShowcase();
  if(!portfolioPart)initInquiryObserver();
  await portfolioPromise;
  // Only the complete all-in-one page may announce a menu snapshot.
@@ -1630,7 +1630,8 @@ async function init(){
  document.addEventListener('dragstart',e=>{if(e.target.closest?.('.v2-media,.v2-showcase-media,.v2-product-grid,.fixed-product-preview-media'))e.preventDefault()});
  document.addEventListener('click',e=>{if(presetColorPopover&&!e.target.closest('.v2-preset-color-popover')&&!e.target.closest('[data-preset-color-menu]')&&!e.target.closest('[data-fixed-variant-menu]'))closePresetColorPopover()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePresetColorPopover();closePresetDetailModal();closeFixedDetailModal()}});
- let showcaseResizeTimer=0;window.addEventListener('resize',()=>{closePresetColorPopover();clearTimeout(showcaseResizeTimer);showcaseResizeTimer=setTimeout(()=>{state.showcasePage.fixed=1;state.showcasePage.preset=1;renderShowcase();requestHeight()},120)},{passive:true});
+ let showcaseResizeTimer=0;
+ if(!portfolioPart)window.addEventListener('resize',()=>{closePresetColorPopover();clearTimeout(showcaseResizeTimer);showcaseResizeTimer=setTimeout(()=>{state.showcasePage.fixed=1;state.showcasePage.preset=1;renderShowcase();requestHeight()},120)},{passive:true});
  window.addEventListener('scroll',closePresetColorPopover,{passive:true});
  document.addEventListener('visibilitychange',()=>{
   document.querySelectorAll('img[data-v2-animated-src]').forEach(img=>{
@@ -1642,7 +1643,11 @@ async function init(){
   })
  });
  const mq=matchMedia('(max-width:680px)');
- mq.addEventListener?.('change',e=>{state.mobile=e.matches;state.showcasePage.fixed=1;state.showcasePage.preset=1;renderShowcase();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
+ mq.addEventListener?.('change',e=>{
+  state.mobile=e.matches;
+  if(!portfolioPart){state.showcasePage.fixed=1;state.showcasePage.preset=1;renderShowcase()}
+  if(!inquiryPart){state.portfolio.forEach(d=>{d.page=1});renderPortfolio()}
+ });
  requestHeight()
 }
 function showPortfolioBootFailure(error){
