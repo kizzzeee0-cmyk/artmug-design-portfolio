@@ -611,7 +611,7 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
      return renderPortfolioCategory(id,scroll,false)
     }
    }catch{}
-   sec.innerHTML='<div class="v2-load-failed"><p>네트워크가 느려 작품을 불러오지 못했습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-retry="'+esc(id)+'">다시 불러오기</button><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div></div>';
+   sec.innerHTML='<div class="v2-load-failed"><p>네트워크가 느려 작품을 불러오지 못했습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-retry="'+esc(id)+'">다시 불러오기</button></div></div>';
    sec.removeAttribute('aria-busy');
    sec.querySelector('[data-v2-retry]')?.addEventListener('click',()=>{
     sec.innerHTML='<p class="v2-loading">작품을 다시 불러오는 중…</p>';
@@ -721,7 +721,7 @@ async function renderPortfolio(){
    }
    readyIds.push(cat.id)
   }catch(e){
-   if(sec)sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div>'
+   if(sec)sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p></div>'
   }
  }
 
@@ -735,7 +735,7 @@ async function renderPortfolio(){
   const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');
   if(!sec||sec.hidden||sec.dataset.v2Hydrated==='1')return;
   renderPortfolioCategory(id,false,!indexed).catch(()=>{
-   sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div>'
+   sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p></div>'
   })
  };
 
@@ -746,11 +746,11 @@ async function renderPortfolio(){
    const data=state.portfolio.get(id);
    if(!sec||!data)return;
    sec.classList.remove('is-pending');
-   sec.innerHTML='<div class="v2-load-failed"><p>저속 인터넷 환경에서는 작품 이미지를 자동으로 불러오지 않습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-slow-load="'+esc(id)+'">이 카테고리만 불러오기</button><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오</a><a href="/portfolio-low/" target="_blank" rel="noopener">초저속 목록</a></div></div>';
+   sec.innerHTML='<div class="v2-load-failed"><p>저속 인터넷 환경에서는 작품 이미지를 자동으로 불러오지 않습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-slow-load="'+esc(id)+'">이 카테고리만 불러오기</button></div></div>';
    sec.querySelector('[data-v2-slow-load]')?.addEventListener('click',()=>{
     sec.innerHTML='<p class="v2-loading">선택한 카테고리를 불러오는 중…</p>';
     renderPortfolioCategory(id,false,!indexed).catch(()=>{
-     sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><div class="v2-load-failed-actions"><a href="/portfolio-low/" target="_blank" rel="noopener">초저속 목록으로 보기</a></div></div>'
+     sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p></div>'
     })
    },{once:true})
   });
@@ -1672,7 +1672,7 @@ async function init(){
 function showPortfolioBootFailure(error){
  console.error(error);
  const root=$('#portfolioAllSections');
- if(root)root.innerHTML='<div class="v2-load-failed is-boot-failed"><p>네트워크 연결이 불안정합니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-boot-retry>포트폴리오 다시 불러오기</button><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div></div>';
+ if(root)root.innerHTML='<div class="v2-load-failed is-boot-failed"><p>네트워크 연결이 불안정합니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-boot-retry>포트폴리오 다시 불러오기</button></div></div>';
  document.querySelector('[data-v2-boot-retry]')?.addEventListener('click',()=>location.reload(),{once:true})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init().catch(showPortfolioBootFailure),{once:true});else init().catch(showPortfolioBootFailure);
