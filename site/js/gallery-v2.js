@@ -25,8 +25,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const MEDIA_VERSION='20261015-live-media-v1';
 const rawMedia=path=>{const v=String(path||'');return !v?'':/^https?:\/\//i.test(v)?v:RAW+v.split('/').map(encodeURIComponent).join('/')};
 const workerMedia=path=>path?API+'/media/'+String(path).split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:'';
-const media=path=>SLOW_NETWORK?rawMedia(path):workerMedia(path);
-const fallbackMedia=path=>SLOW_NETWORK?workerMedia(path):rawMedia(path);
+const media=path=>workerMedia(path);
+const fallbackMedia=path=>rawMedia(path);
 const api=async path=>{
  let last;
  for(let attempt=0;attempt<2;attempt++){
@@ -738,6 +738,25 @@ async function renderPortfolio(){
    sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오 보기</a></div>'
   })
  };
+
+ // On slow/save-data connections, do not download portfolio media automatically.
+ if(SLOW_NETWORK){
+  readyIds.forEach(id=>{
+   const sec=document.querySelector('[data-v2-cat="'+CSS.escape(id)+'"]');
+   const data=state.portfolio.get(id);
+   if(!sec||!data)return;
+   sec.classList.remove('is-pending');
+   sec.innerHTML='<div class="v2-load-failed"><p>저속 인터넷 환경에서는 작품 이미지를 자동으로 불러오지 않습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-slow-load="'+esc(id)+'">이 카테고리만 불러오기</button><a href="/portfolio-lite.html" target="_blank" rel="noopener">가벼운 포트폴리오</a><a href="/portfolio-low/" target="_blank" rel="noopener">초저속 목록</a></div></div>';
+   sec.querySelector('[data-v2-slow-load]')?.addEventListener('click',()=>{
+    sec.innerHTML='<p class="v2-loading">선택한 카테고리를 불러오는 중…</p>';
+    renderPortfolioCategory(id,false,!indexed).catch(()=>{
+     sec.innerHTML='<div class="v2-load-failed"><p>작품을 불러오지 못했습니다.</p><div class="v2-load-failed-actions"><a href="/portfolio-low/" target="_blank" rel="noopener">초저속 목록으로 보기</a></div></div>'
+    })
+   },{once:true})
+  });
+  sendDetailedSectionMap();requestHeight();
+  return
+ }
 
  // Render only the first category immediately. Remaining categories hydrate near the viewport.
  hydrate(readyIds[0]);
