@@ -308,7 +308,29 @@ function loadPublicCatalogResilient(){
 function set(id,v){if($(id))$(id).textContent=esc(v)}
 const MEDIA_VERSION='20261015-live-media-v1';
 function media(path){return path?API+'/media/'+path.split('/').map(encodeURIComponent).join('/')+'?v='+MEDIA_VERSION:''}
-function renderSettings(s){S=s;set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');renderSchedule(s);renderAvailabilityCalendar(s);armScheduleCutoffRefresh();set('noticeTitle',s.noticeTitle);set('noticeText',s.noticeText||'');set('formTitle',s.formTitle);set('formDescription',s.formDescription);set('copyButton',s.copyButton);set('portfolioTitle',s.portfolioTitle);set('footerText',s.footerText);renderAuthorIntro(s);renderEvents(s);renderNotices(s.noticeItems||[]);renderInquiryForm();requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))}
+function renderSettings(s){
+ S=s;
+ set('portfolioTitle',s.portfolioTitle);
+ set('footerText',s.footerText);
+ if(document.body.classList.contains('artmug-part-portfolio')){
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')));
+  return
+ }
+ set('scheduleTitle',s.scheduleTitle||'작업 일정 안내');
+ renderSchedule(s);
+ renderAvailabilityCalendar(s);
+ armScheduleCutoffRefresh();
+ set('noticeTitle',s.noticeTitle);
+ set('noticeText',s.noticeText||'');
+ set('formTitle',s.formTitle);
+ set('formDescription',s.formDescription);
+ set('copyButton',s.copyButton);
+ renderAuthorIntro(s);
+ renderEvents(s);
+ renderNotices(s.noticeItems||[]);
+ renderInquiryForm();
+ requestAnimationFrame(()=>window.dispatchEvent(new Event('artmug-sections-changed')))
+}
 function koreaNowParts(){
   const parts=new Intl.DateTimeFormat('en-CA',{
     timeZone:'Asia/Seoul',
