@@ -22,3 +22,6 @@
 
 /portfolio-lite.html
   Cache-Control: public, max-age=300, stale-while-revalidate=86400
+
+/portfolio-low/*
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
