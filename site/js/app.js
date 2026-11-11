@@ -225,7 +225,8 @@ function initArtmugSectionNavigation(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initArtmugSectionNavigation,{once:true});else initArtmugSectionNavigation();
 async function api(path,opt={}){const r=await fetch(API+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`HTTP ${r.status}`);return r.json()}
 const PUBLIC_CATALOG_CACHE_KEY='artmug-public-catalog-v4';
-const PUBLIC_CATALOG_FRESH_MS=5*60*1000;
+const PUBLIC_CATALOG_FRESH_MS=2*60*1000;
+const PUBLIC_CATALOG_FAST_STALE_MS=30*60*1000;
 const PUBLIC_CATALOG_STALE_MS=7*24*60*60*1000;
 const PUBLIC_RAW='https://raw.githubusercontent.com/kizzzeee0-cmyk/artmug-design-portfolio/main/';
 function readPublicCatalogCache(){
@@ -287,9 +288,21 @@ function loadPublicCatalogResilient(){
     fetchPublicCatalogNetwork().catch(()=>{});
     return Promise.resolve(cached.data)
   }
-  return fetchPublicCatalogNetwork().catch(async()=>{
+  if(cached&&cached.age<PUBLIC_CATALOG_FAST_STALE_MS){
+    fetchPublicCatalogNetwork().catch(()=>{});
+    return Promise.resolve(cached.data)
+  }
+  const network=fetchPublicCatalogNetwork();
+  const staticFallback=new Promise(resolve=>setTimeout(resolve,900)).then(()=>fetchPublicCatalogStaticFallback());
+  if(typeof Promise.any==='function'){
+    return Promise.any([network,staticFallback]).catch(()=>{
+      if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return cached.data;
+      throw new Error('Public catalog unavailable')
+    })
+  }
+  return network.catch(()=>staticFallback).catch(()=>{
     if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return cached.data;
-    return fetchPublicCatalogStaticFallback()
+    throw new Error('Public catalog unavailable')
   })
 }
 function set(id,v){if($(id))$(id).textContent=esc(v)}
