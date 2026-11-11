@@ -27,6 +27,32 @@ const api=async path=>{
  throw last||new Error('Network unavailable')
 };
 const state={settings:null,portfolioIndex:null,presetIndex:null,portfolio:new Map(),showcase:{preset:[],fixed:[]},presetFilter:{kind:'all',id:''},fixedFilter:{design:'all'},expanded:{preset:false,fixed:false},presetVariantSelection:{},fixedVariantSelection:{},showcasePage:{fixed:1,preset:1},mobile:matchMedia('(max-width:680px)').matches};
+const V2_CATALOG_CACHE_KEY='artmug-public-catalog-v4';
+function v2ReadCatalogCache(){
+ try{
+  const x=JSON.parse(localStorage.getItem(V2_CATALOG_CACHE_KEY)||'null');
+  return x&&x.data?x.data:null
+ }catch{return null}
+}
+function v2WriteCatalogCache(data){
+ try{if(data&&data.settings)localStorage.setItem(V2_CATALOG_CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}
+}
+async function loadCatalogResilientV2(){
+ try{
+  const data=await api('/api/public/catalog');
+  if(data&&data.settings){v2WriteCatalogCache(data);return data}
+ }catch{}
+ const cached=v2ReadCatalogCache();
+ if(cached&&cached.settings)return cached;
+ const settings=await rawJson('site/data/settings.json');
+ const [portfolioIndex,presetIndex]=await Promise.all([
+  rawJson('portfolio/index.json').catch(()=>null),
+  rawJson('site/data/presets.json').catch(()=>null)
+ ]);
+ const data={settings,portfolioIndex,presetIndex};
+ v2WriteCatalogCache(data);
+ return data
+}
 const portfolioPageCache=new Map();
 let portfolioHydrationObserver=null;
 let animatedMediaObserver=null;
@@ -550,7 +576,33 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  if(!typeOn&&data.filter!=='ALL'){data.filter='ALL';data.page=1}
  if(data.remote&&loadRemote){
   sec.setAttribute('aria-busy','true');
-  try{await loadRemotePortfolioPage(data)}catch(e){sec.innerHTML='<p class="v2-loading">작품을 불러오지 못했습니다.</p>';sec.removeAttribute('aria-busy');return}
+  try{
+   await loadRemotePortfolioPage(data)
+  }catch(e){
+   try{
+    const fallbackIndex=await rawJson('portfolio/index.json');
+    if(Array.isArray(fallbackIndex)){
+     state.portfolioIndex=fallbackIndex;
+     let localItems;
+     if(k==='profile'){
+      const physical=new Set((state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).map(c=>c.id));
+      localItems=fallbackIndex.filter(x=>physical.has(x.category))
+     }else localItems=fallbackIndex.filter(x=>x.category===cat.id);
+     localItems=portfolioNewestFirst(localItems).filter(x=>pmeta(x).enabled);
+     data.remote=false;data.items=localItems;data.page=1;data.total=localItems.length;
+     sec.removeAttribute('aria-busy');
+     return renderPortfolioCategory(id,scroll,false)
+    }
+   }catch{}
+   sec.innerHTML='<div class="v2-load-failed"><p>네트워크가 느려 작품을 불러오지 못했습니다.</p><button type="button" data-v2-retry="'+esc(id)+'">다시 불러오기</button></div>';
+   sec.removeAttribute('aria-busy');
+   sec.querySelector('[data-v2-retry]')?.addEventListener('click',()=>{
+    sec.innerHTML='<p class="v2-loading">작품을 다시 불러오는 중…</p>';
+    data.remote=true;
+    renderPortfolioCategory(id,false,true)
+   },{once:true});
+   return
+  }
  }
  let items,pages,filterValues;
  if(data.remote){
@@ -1538,7 +1590,7 @@ window.__ARTMUG_V2__={
 };
 async function init(){
  initNav();
- const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=api('/api/public/catalog?fresh='+Date.now()));
+ const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=loadCatalogResilientV2());
  const d=await settingsPromise;
  state.settings=d.settings||{};
  // One catalog request carries the live settings and lightweight media indexes.
@@ -1576,5 +1628,11 @@ async function init(){
  mq.addEventListener?.('change',e=>{state.mobile=e.matches;state.showcasePage.fixed=1;state.showcasePage.preset=1;renderShowcase();state.portfolio.forEach(d=>{d.page=1});renderPortfolio()});
  requestHeight()
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init().catch(console.error),{once:true});else init().catch(console.error);
+function showPortfolioBootFailure(error){
+ console.error(error);
+ const root=$('#portfolioAllSections');
+ if(root)root.innerHTML='<div class="v2-load-failed is-boot-failed"><p>네트워크 연결이 불안정합니다.</p><button type="button" data-v2-boot-retry>포트폴리오 다시 불러오기</button></div>';
+ document.querySelector('[data-v2-boot-retry]')?.addEventListener('click',()=>location.reload(),{once:true})
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init().catch(showPortfolioBootFailure),{once:true});else init().catch(showPortfolioBootFailure);
 })();
