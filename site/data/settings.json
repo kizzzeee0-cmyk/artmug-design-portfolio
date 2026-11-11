@@ -1695,6 +1695,7 @@
       "profile",
       "soopBanner",
       "fourCut",
+      "cheki",
       "signature"
     ],
     "designs": {
@@ -1911,6 +1912,16 @@
           }
         ],
         "customFields": []
+      },
+      "cheki": {
+        "id": "cheki",
+        "label": "체키틀",
+        "enabled": true,
+        "icon": "cheki",
+        "conceptLabel": "원하는 디자인 컨셉 및 색상",
+        "colorChangeLabel": "색상 변경",
+        "customFields": [],
+        "comingSoon": false
       }
     },
     "common": {
