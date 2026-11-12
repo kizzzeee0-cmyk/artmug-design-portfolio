@@ -915,13 +915,7 @@
         }
       },
       "customOptions": [],
-      "standaloneItems": [
-        {
-          "id": "qstand-1794472266047",
-          "label": "움짤프사 고정틀 B",
-          "price": 12000
-        }
-      ],
+      "standaloneItems": [],
       "fourCutTypes": {
         "large": {
           "id": "large",
@@ -990,6 +984,7 @@
       "option:textImageChange",
       "profileMode:custom",
       "profileMode:fixed",
+      "standalone:qstand-1794472266047",
       "option:nameOnlyChange",
       "option:profileChange",
       "fourCutType:large",
@@ -1002,8 +997,7 @@
       "option:fast",
       "option:private",
       "signatureType:direct",
-      "design:cheki",
-      "standalone:qstand-1794472266047"
+      "design:cheki"
     ]
   },
   "presetGroups": [
