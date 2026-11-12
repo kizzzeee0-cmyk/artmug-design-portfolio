@@ -915,7 +915,13 @@
         }
       },
       "customOptions": [],
-      "standaloneItems": [],
+      "standaloneItems": [
+        {
+          "id": "qstand-1794472266047",
+          "label": "움짤프사 고정틀 B",
+          "price": 12000
+        }
+      ],
       "fourCutTypes": {
         "large": {
           "id": "large",
