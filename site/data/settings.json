@@ -738,7 +738,7 @@
         {
           "id": "bottom3",
           "name": "하단배너 3칸",
-          "price": 15000
+          "price": 13000
         },
         {
           "id": "bottom6",
@@ -856,7 +856,7 @@
         "bottom3": {
           "id": "bottom3",
           "label": "하단 3칸",
-          "price": 15000
+          "price": 13000
         },
         "bottom6": {
           "id": "bottom6",
