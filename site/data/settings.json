@@ -375,7 +375,7 @@
   "eventsText": "문의 시 참여 여부를 선택해 주세요",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
-  "fixedEnabled": false,
+  "fixedEnabled": true,
   "fixedTitle": "고정틀",
   "fixedCategories": [
     {
@@ -1076,53 +1076,8 @@
     "preset/fixed-store-profile/20261016163600-17prn5818yn018-___________.gif": {
       "name": "프리셋 01"
     },
-    "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif": {
-      "name": " 청록",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
-    "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif": {
-      "name": "블랙&퍼플 / 레이스",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
     "preset/fixed-store-profile/20261019195717-803ogyd94gpn-___________.gif": {
       "name": "노랑",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
-    "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif": {
-      "name": "핑크 / 레이스",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
-    "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif": {
-      "name": "노랑",
-      "description": "",
-      "enabled": true,
-      "showcaseKind": "fixed",
-      "fixedProductId": "product-mvb2jx7t-2gb2f6",
-      "fixedPreviewCategory": "profile",
-      "colorChangeAvailable": false
-    },
-    "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif": {
-      "name": "브라운",
       "description": "",
       "enabled": true,
       "showcaseKind": "fixed",
@@ -1169,11 +1124,6 @@
   },
   "presetOrder": [
     "preset/fixed-store-profile/20261019195717-803ogyd94gpn-___________.gif",
-    "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
-    "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
-    "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
-    "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
-    "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
     "preset/fixed-store-profile/20261106235959894-1e7x94kcv2pe4-_______.gif",
     "preset/fixed-store-profile/20261019200302-oellbf1jh93qs-background__6_.gif",
     "preset/fixed-store-profile/20261019200208-6wzm551eeud8y-background__3_.gif",
@@ -1419,144 +1369,6 @@
   "fixedNotice": "배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.\n※ 완성된 틀만 별도로 판매하는 방식이 아닌, 해당 디자인을 기반으로 제작해드리는 상품입니다.",
   "fixedProducts": [
     {
-      "id": "product-mvb2jx7t-2gb2f6",
-      "name": "고정틀 A - 패턴 체크",
-      "description": "",
-      "enabled": true,
-      "pcColumns": 6,
-      "mobileColumns": 2,
-      "showPreviewNames": true,
-      "changeableOptions": [
-        {
-          "id": "opt-mvb489jt-21jtph",
-          "label": "배경 디자인 외의 모든 부분은 자유롭게 변경하실 수 있습니다",
-          "detail": "",
-          "choices": []
-        }
-      ],
-      "fixedOptions": [],
-      "note": "배경 디자인 외의 모든 부분은 자유롭게 변경하실 수 있습니다",
-      "price": 15000,
-      "priceVisible": true,
-      "priceNote": "",
-      "priceScope": "",
-      "inquiryFields": [
-        {
-          "id": "lace",
-          "label": "레이스 여부",
-          "type": "radio",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": [
-            "O",
-            "X"
-          ]
-        },
-        {
-          "id": "backgroundPatternColor",
-          "label": "배경 & 패턴 색상",
-          "type": "text",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "ex) 배경 색상: 블랙 / 패턴: 레드 하트",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": []
-        },
-        {
-          "id": "frameBorder",
-          "label": "원형 프레임 테두리 디자인",
-          "type": "text",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "원하는 테두리 디자인이 있으면 작성해주세요",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": []
-        },
-        {
-          "id": "name",
-          "label": "이름 입력",
-          "type": "text",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "프사에 적용할 이름을 모두 입력해주세요",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": []
-        },
-        {
-          "id": "frameKeep",
-          "label": "움짤프사 파일 보관 여부",
-          "type": "radio",
-          "required": true,
-          "enabled": true,
-          "wide": false,
-          "placeholder": "",
-          "help": "",
-          "conditionKey": "",
-          "conditionValue": "",
-          "options": [
-            "O",
-            "X"
-          ]
-        }
-      ],
-      "previews": [
-        {
-          "id": "preview-mvb5arkc-tdfosv",
-          "file": "preset/fixed-store-profile/20261018084936-1a72rf5cpv9cv-background__19_.gif",
-          "category": "profile",
-          "name": "블랙&퍼플 / 레이스",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mvb380i3-d6hfkg",
-          "file": "preset/fixed-store-profile/20261017202218-cymise1ox4frr-background__14_.gif",
-          "category": "profile",
-          "name": " 청록",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mvb38zjq-arckn5",
-          "file": "preset/fixed-store-profile/20261019195935-1e2w40a13dooyh-___________.gif",
-          "category": "profile",
-          "name": "노랑",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mvctdh5y-4dnr3i",
-          "file": "preset/fixed-store-profile/20261019195735-1ydb9jp1x2ndmx-background__18_.gif",
-          "category": "profile",
-          "name": "핑크 / 레이스",
-          "description": "",
-          "enabled": true
-        },
-        {
-          "id": "preview-mvfohvlx-g0zg2m",
-          "file": "preset/fixed-store-profile/20261019195954-p1dkyb1nh25wl-________1_.gif",
-          "category": "profile",
-          "name": "브라운",
-          "description": "",
-          "enabled": true
-        }
-      ]
-    },
-    {
       "id": "product-mvfojfsv-rhhe9w",
       "name": "고정틀 B - 기본 체크",
       "description": "",
@@ -1664,7 +1476,7 @@
       ]
     }
   ],
-  "fixedInquiryPatternProductId": "product-mvb2jx7t-2gb2f6",
+  "fixedInquiryPatternProductId": "",
   "presetColorGroups": [],
   "availabilityCalendar": {
     "enabled": true,
