@@ -873,6 +873,7 @@ function v3FieldVisible(field,state){
 }
 function v3FieldHtml(field,prefix,rid,state){
   if(!v3FieldVisible(field,state))return'';
+  if(String(field?.id||'')==='concept'||String(field?.label||'').includes('원하는 디자인 컨셉 및 색상'))field={...field,placeholder:'원하시는 디자인 요소와 색상을 각각 최소 1가지 이상 전달해 주세요'};
   const key=prefix+'.'+String(field.id||'field'),label=String(field.label||'항목'),type=String(field.type||'text'),value=v3Value(state,key,''),help=String(field.help||'').trim(),helpHtml=help?'<small class="field-help">'+htmlAttr(help)+'</small>':'';
   const cls='inquiry-v3-field '+(field.wide?'is-wide':'')+(field.required?' is-required':'');
   if(type==='radio'||type==='multi'){
@@ -970,7 +971,7 @@ function renderV3SignatureCard(card,design,state){
       v3FieldHtml({id:'content',label:'시그풍 숫자 및 내용',type:'textarea',required:true,placeholder:'숫자와 문구를 여러 줄로 작성해주세요',wide:true},'signature',rid,state)+
       (mode==='omakase'
         ?v3FieldHtml({id:'colors',label:'색상 입력',type:'textarea',required:true,placeholder:'원하는 색상 / 싫어하는 색상을 작성해주세요',wide:true},'signature',rid,state)
-        :v3FieldHtml({id:'concept',label:'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:'원하는 컨셉, 키워드, 색상을 작성해주세요',wide:true},'signature',rid,state))+
+        :v3FieldHtml({id:'concept',label:'원하는 디자인 컨셉 및 색상',type:'textarea',required:true,placeholder:'원하시는 디자인 요소와 색상을 각각 최소 1가지 이상 전달해 주세요',wide:true},'signature',rid,state))+
     '</div>'
   }
   (design.customFields||[]).filter(x=>x.enabled!==false).forEach(field=>{html+=v3FieldHtml(field,'signature.custom',rid,state)});
