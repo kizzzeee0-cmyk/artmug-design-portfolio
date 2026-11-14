@@ -377,13 +377,28 @@ function armScheduleCutoffRefresh(){
     armScheduleCutoffRefresh();
   },msUntilNextKorea22())
 }
+function availabilityNextWorkDate(s,startDate){
+  const cfg=s?.availabilityCalendar&&typeof s.availabilityCalendar==='object'&&!Array.isArray(s.availabilityCalendar)?s.availabilityCalendar:{};
+  const dates=cfg.dates&&typeof cfg.dates==='object'&&!Array.isArray(cfg.dates)?cfg.dates:{};
+  let candidate=String(startDate||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(candidate))return candidate;
+  for(let guard=0;guard<370;guard++){
+    const m=candidate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const dayOfWeek=new Date(Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]))).getUTCDay();
+    const isWeekend=dayOfWeek===0||dayOfWeek===6;
+    const isOff=dates[candidate]==='off';
+    if(!isWeekend&&!isOff)return candidate;
+    candidate=addDaysYmd(candidate,1)
+  }
+  return candidate
+}
 function availabilityAutoScheduleDate(s,minimumDate){
   const dates=s?.availabilityCalendar?.dates;
   if(!dates||typeof dates!=='object'||Array.isArray(dates))return'';
   const reserved=Object.keys(dates)
     .filter(ymd=>/^\d{4}-\d{2}-\d{2}$/.test(ymd)&&dates[ymd]==='reserved'&&ymd>=minimumDate)
     .sort();
-  return reserved.length?addDaysYmd(reserved[reserved.length-1],1):''
+  return reserved.length?availabilityNextWorkDate(s,addDaysYmd(reserved[reserved.length-1],1)):''
 }
 function renderSchedule(s){
   const card=document.querySelector('.schedule-card');
