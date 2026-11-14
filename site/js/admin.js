@@ -690,7 +690,7 @@ function renderScheduleAdmin(){
     <div class="wide schedule-admin-top">
       <label class="toggle schedule-enabled-toggle"><input id="scheduleEnabled" type="checkbox" ${S.scheduleEnabled!==false?'checked':''}> 작업 일정 안내 표시</label>
     </div>
-    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"><small class="field-note">공개 페이지는 한국 시간 기준 밤 10시 전에는 오늘, 밤 10시 이후에는 다음날보다 과거인 날짜를 자동으로 보정해 표시합니다. 일정 달력에 예약이 있으면 가장 마지막 예약일의 다음 날이 작업 시작일로 자동 우선 적용됩니다.</small></label>
+    <label><span>기준 날짜</span><input id="scheduleDate" type="date" value="${adminEsc(S.scheduleDate||'')}"><small class="field-note">공개 페이지는 한국 시간 기준 밤 10시 전에는 오늘, 밤 10시 이후에는 다음날보다 과거인 날짜를 자동으로 보정해 표시합니다. 일정 달력에 예약이 있으면 가장 마지막 예약일 다음 날부터 확인하여, 토·일 및 휴무로 지정된 날짜를 건너뛴 첫 작업 가능일이 작업 시작일로 자동 적용됩니다.</small></label>
     <div class="wide schedule-date-color-admin">
       <div class="schedule-date-color-controls">
         <label class="schedule-date-color-picker">날짜 강조 색상 <input id="scheduleDateColorPicker" type="color" value="${scheduleDateColor.toLowerCase()}"></label>
