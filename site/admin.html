@@ -25,7 +25,7 @@
 <div class="legacy-inquiry-type-admin" hidden aria-hidden="true"><button id="addType" type="button">+ 종류 추가</button><div id="types"></div></div>
 </div>
 
-<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오 표시 문구</h3><p class="muted">작업물 자체의 업로드와 카테고리는 ‘포트폴리오 · 고정틀’ 탭에서 관리합니다.</p></div></div><div id="portfolioTextFields" class="fields"></div></div>
+<div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">06</span><div><h3>포트폴리오 표시 문구</h3><p class="muted">작업물 자체의 업로드와 카테고리는 ‘포트폴리오’ 탭에서 관리합니다.</p></div></div><div id="portfolioTextFields" class="fields"></div></div>
 
 <div class="sub card-in admin-block"><div class="admin-block-title"><span class="order-chip">08</span><div><h3>하단 문구</h3><p class="muted">페이지 맨 아래에 표시되는 문구입니다.</p></div></div><div id="footerFields" class="fields"></div></div>
 </div>
@@ -62,21 +62,6 @@
   </div>
 </div>
 <div class="inner-divider"></div><h4>작업물 업로드</h4><div class="upload-row"><select id="uploadCat"></select><select id="portfolioUploadBannerType" aria-label="A/B 분류"><option value="A">A</option><option value="B">B</option></select><input id="files" type="file" multiple><button id="upload" class="primary-button">선택 파일 업로드</button></div><p id="portfolioUploadHint" class="muted" aria-live="polite"></p><p id="uploadStatus" class="status"></p><div class="portfolio-admin-filter"><label for="portfolioAdminCategoryFilter">카테고리별 보기</label><select id="portfolioAdminCategoryFilter" aria-label="포트폴리오 카테고리 필터"><option value="all">전체 카테고리</option></select><span id="portfolioAdminCategoryCount" class="muted"></span></div><div id="items"></div><nav id="itemsPagination" class="admin-pagination" aria-label="포트폴리오 관리자 페이지"></nav></div>
-<div class="sub card-in admin-block seasonal-fixed-admin fixed-product-admin" id="fixedAdminBlock">
-  <div class="admin-block-title"><span class="order-chip">08</span><div><h3>고정틀 상품 관리</h3><p class="muted">하나의 상품 안에 여러 이미지·GIF를 묶고, 상품별 옵션과 가격을 설정합니다.</p></div><div class="fixed-admin-title-actions"><button id="addFixedProduct" class="ghost admin-compact" type="button">+ 고정틀 추가</button><label class="toggle"><input id="fixedEnabled" type="checkbox"> 고정틀 공개</label></div></div>
-  <div class="fields fixed-global-fields">
-    <label>큰 제목<input id="fixedTitle" placeholder="고정틀"></label>
-    <label class="wide">고정틀 안내 문구 <span class="muted">· 공개 쇼케이스의 고정틀 제목 아래에 표시 · 줄바꿈 유지 · 비워두면 숨김</span><textarea id="fixedNotice" rows="3" placeholder="예: 배경 디자인 외 모든 요소는 자유롭게 변경 가능합니다.\n※ 완성된 틀만 별도로 판매하는 방식이 아닌, 해당 디자인을 기반으로 제작해드리는 상품입니다."></textarea></label>
-  </div>
-  <div class="head"><div><h4>디자인 종류</h4><p class="muted">미리보기 파일마다 지정하며 공개 필터에도 사용됩니다.</p></div><button id="addFixedCat" class="ghost admin-compact" type="button">+ 종류 추가</button></div>
-  <div id="fixedCats"></div>
-  <button id="saveFixedSettings" type="button" class="primary-button">고정틀 기본 설정 저장</button>
-  <div class="inner-divider"></div>
-  <div class="head"><div><h4>등록된 고정틀 상품</h4><p class="muted">편집을 눌러 여러 미리보기와 옵션을 관리합니다.</p></div></div>
-  <div id="fixedItems" class="fixed-product-admin-list"></div>
-  <nav id="fixedItemsPagination" class="admin-pagination" aria-label="고정틀 상품 관리자 페이지"></nav>
-</div>
-
 </section>
 
 <section class="card admin-section quote-admin" data-section="quote" hidden>
@@ -111,4 +96,4 @@
 </section>
 
 <section class="card admin-section" data-section="status" hidden><span class="section-kicker">CONNECTION</span><h2>연결 상태</h2><dl><div><dt>API</dt><dd id="api"></dd></div><div><dt>GitHub 관리자</dt><dd id="githubUser"></dd></div><div><dt>Worker</dt><dd id="health">확인 중…</dd></div></dl></section>
-</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261115-workday-schedule-v1"></script></body></html>
+</div></main><script src="./js/config.js"></script><script src="./js/admin.js?v=20261115-remove-fixed-v1"></script></body></html>
