@@ -831,7 +831,7 @@
           "id": "fixed",
           "label": "고정틀 구매",
           "price": 15000,
-          "enabledInInquiry": true
+          "enabledInInquiry": false
         },
         "preset": {
           "id": "preset",
@@ -1228,7 +1228,7 @@
     }
   },
   "showcasePresetEnabled": false,
-  "showcaseFixedEnabled": true,
+  "showcaseFixedEnabled": false,
   "showcasePresetExpandEnabled": false,
   "showcaseFixedExpandEnabled": true,
   "portfolioMeta": {
@@ -1561,7 +1561,6 @@
         "icon": "profile",
         "modeOrder": [
           "custom",
-          "fixed",
           "change"
         ],
         "modeFields": {
