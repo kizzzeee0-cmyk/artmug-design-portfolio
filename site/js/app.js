@@ -749,10 +749,10 @@ function inquiryPricing(){
 }
 function inquiryPrice(v){return Math.max(0,Number(v||0))}
 function inquiryProfileModesFromCard(card){
-  const raw=String(card?.dataset?.profileModes||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const raw=String(card?.dataset?.profileModes||'').split(',').map(x=>x.trim()).filter(x=>x&&x!=='fixed');
   if(raw.length)return [...new Set(raw)];
   const legacy=String(card?.dataset?.profileMode||'').trim();
-  return legacy?[legacy]:[]
+  return legacy&&legacy!=='fixed'?[legacy]:[]
 }
 function inquiryOption(key,fallbackLabel){
   const x=inquiryPricing().options?.[key]||{};
@@ -1346,13 +1346,6 @@ function requestText(card){
         const items=v3FieldLines((design.modeFields?.custom||[]).filter(f=>f.id!=='frameKeep'),'profile.custom',state);
         if(S?.profileTypeEnabled!==false)items.unshift('A/B 선택: '+inquiryProfileType(v2.profileType||state['profile.type']||'A').label);
         groups.push(['- '+inquiryProfileMode('custom','맞춤제작').label,...items].join('\n'))
-      }
-
-      if(modes.includes('fixed')){
-        const product=(S.fixedProducts||[]).find(x=>String(x.id)===String(v2.selectedFixedProductId||''));
-        const fixedTitle=v2.selectedFixedProductName||inquiryProfileMode('fixed','고정틀 구매').label;
-        const items=v3FieldLines((product?.inquiryFields||[]).filter(f=>f.id!=='frameKeep'),'profile.fixed.'+String(v2.selectedFixedProductId||''),state);
-        groups.push(['- '+fixedTitle,...items].join('\n'))
       }
 
       if(modes.includes('preset')){
