@@ -653,15 +653,14 @@ function guideDefaults(){
   return {
     enabled:true,kicker:'PROFILE OPTIONS',title:'움짤 프사 옵션 구성',subtitle:'',
     options:[
-      {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
-      {key:'b',badge:'B',title:'고정틀형 움짤 프사',description:'준비된 고정틀 디자인을 바탕으로 색상과 이름 등을 변경해 제작하는 방식입니다.',details:['고정틀별 변경 가능한 항목은 상품 안내에서 확인할 수 있습니다.'],note:'',referenceImage:'',buttonLabel:'고정틀 보러가기',targetKind:'fixed',targetCategory:'profile'}
+      {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'}
     ]
   }
 }
 function renderBackgroundGuide(s){
   const sec=$('backgroundTypeSection');if(!sec)return;
   const d=guideDefaults(),raw=s.backgroundGuide&&typeof s.backgroundGuide==='object'?s.backgroundGuide:{},g={...d,...raw};
-  g.options=d.options.map((base,i)=>({...base,...((raw.options||[])[i]||{})}));
+  g.options=d.options.map((base,i)=>({...base,...((raw.options||[])[i]||{})})).filter(x=>String(x.targetKind||'')!=='fixed');
   sec.hidden=g.enabled===false;
   if(sec.hidden)return;
   set('backgroundGuideKicker',g.kicker||'');
