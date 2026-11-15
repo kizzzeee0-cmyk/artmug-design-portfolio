@@ -1298,13 +1298,13 @@ function selectedPresetPrice(card){
  const x=selectedPresetProduct(card);return x?Math.max(0,Number(smeta(x).price||0)):0
 }
 function selectedProfileModes(card){
- const raw=String(card?.dataset?.profileModes||'').split(',').map(x=>x.trim()).filter(Boolean);
+ const raw=String(card?.dataset?.profileModes||'').split(',').map(x=>x.trim()).filter(x=>x&&x!=='fixed');
  if(raw.length)return [...new Set(raw)];
  const legacy=String(card?.dataset?.profileMode||'').trim();
- return legacy?[legacy]:[]
+ return legacy&&legacy!=='fixed'?[legacy]:[]
 }
 function setSelectedProfileModes(card,modes){
- const list=[...new Set((modes||[]).filter(x=>['custom','fixed','change'].includes(x)))];
+ const list=[...new Set((modes||[]).filter(x=>['custom','change'].includes(x)))];
  card.dataset.profileModes=list.join(',');
  if(list.length===1)card.dataset.profileMode=list[0];else delete card.dataset.profileMode;
  return list
@@ -1425,11 +1425,10 @@ function injectInquiryV3(card){
  const modeChoice=(value,label,disabled)=>'<label class="choice-pill '+(disabled?'is-disabled':'')+'"><input type="checkbox" data-v2-mode="profile" data-v3-field="profileModes" value="'+value+'" '+(profileModes.includes(value)?'checked':'')+' '+(disabled?'disabled':'')+'><span>'+esc(label)+'</span></label>';
  const modeMap={
    custom:['custom',v2ProfileMode('custom','맞춤제작'),hasChange],
-   fixed:['fixed',v2ProfileMode('fixed','고정틀 구매'),hasChange],
    preset:['preset',v2ProfileMode('preset','프리셋 구매'),hasChange],
    change:['change',v2ProfileMode('change','(재주문) 이름/움짤만 변경'),hasOrderMode]
  };
- const modeOrder=state.settings?.inquiryV3?.designs?.profile?.modeOrder||['custom','fixed','preset','change'];
+ const modeOrder=state.settings?.inquiryV3?.designs?.profile?.modeOrder||['custom','preset','change'];
  const modeDefs=modeOrder.filter(key=>key!=='fixed').map(key=>modeMap[key]).filter(Boolean).filter(([,m])=>m.enabledInInquiry!==false);
  let html='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">';
  if(profileTypeOn){
@@ -1443,11 +1442,6 @@ function injectInquiryV3(card){
   html+='<div class="profile-reorder-only">'+v3ProfileModeFields(card,'change')+v3ProfileChangeQtyHtml(card)+'</div>'
  }else{
   if(profileModes.includes('custom'))html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(profileTypeOn?v2ProfileType(profileType).label:v2ProfileMode('custom','맞춤제작').label)+'</strong>'+v3ProfileModeFields(card,'custom')+'</div>';
-  if(profileModes.includes('fixed')){
-   const fixedProduct=selectedFixedProduct(card),fixedBase=String(fixedProduct?.name||'').split(' - ')[0].trim();
-   const fixedTitle=fixedBase?'움짤프사 '+fixedBase:v2ProfileMode('fixed','고정틀 구매').label;
-   html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(fixedTitle)+'</strong>'+fixedSelectionHtml(card)+v3FixedInquiryFields(card)+'</div>'
-  }
   if(profileModes.includes('preset')){
    html+='<div class="profile-mode-subcard"><strong class="profile-mode-subtitle">'+esc(v2ProfileMode('preset','프리셋 구매').label)+'</strong>'+selectionHtml(card.dataset.selectedPresetFile)+presetInquiryColorHtml(card)+v3ProfileModeFields(card,'preset')+'</div>'
   }
@@ -1615,10 +1609,9 @@ window.__ARTMUG_V2__={
  inquiryLines(card){
   const d=this.inquiryData(card),out=[],modes=d.profileModes||[];
   if(d.profileSelected&&modes.length){
-   const labels=modes.map(mode=>v2ProfileMode(mode,mode==='fixed'?'고정틀 구매':mode==='change'?'(재주문) 이름/움짤만 변경':'맞춤제작').label);
+   const labels=modes.map(mode=>v2ProfileMode(mode,mode==='change'?'(재주문) 이름/움짤만 변경':'맞춤제작').label);
    out.push('움짤프사 신청 방식: '+labels.join(', '));
    if(profileTypeEnabled()&&modes.includes('custom'))out.push('움짤프사 A/B: '+v2ProfileType(d.profileType||'A').label);
-   if(modes.includes('fixed')&&d.selectedFixedProductName)out.push('선택 고정틀: '+d.selectedFixedProductName);
   }
   d.bannerTypes.forEach(x=>out.push(x.label+' TYPE: '+x.type));
   return out
