@@ -375,7 +375,7 @@
   "eventsText": "문의 시 참여 여부를 선택해 주세요",
   "eventsTitleFontSize": 22,
   "eventsFontSize": 15,
-  "fixedEnabled": true,
+  "fixedEnabled": false,
   "fixedTitle": "고정틀",
   "fixedCategories": [
     {
