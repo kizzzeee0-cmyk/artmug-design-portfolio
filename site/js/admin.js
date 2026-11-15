@@ -224,11 +224,10 @@ function ensureBackgroundGuide(){
   const g=S.backgroundGuide;
   if(g.enabled===undefined)g.enabled=true;
   const defaults=[
-    {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'},
-    {key:'b',badge:'B',title:'고정틀형 움짤 프사',description:'준비된 고정틀 디자인을 바탕으로 색상과 이름 등을 변경해 제작하는 방식입니다.',details:['고정틀별 변경 가능한 항목은 상품 안내에서 확인할 수 있습니다.'],note:'',referenceImage:'',buttonLabel:'고정틀 보러가기',targetKind:'fixed',targetCategory:'profile'}
+    {key:'a',badge:'A',title:'기본 움짤 프사',description:'원하시는 색상과 키워드를 바탕으로, 분위기에 어울리는 디자인 요소를 더해 제작하는 방식입니다.',details:['간단한 키워드만 전달해 주셔도 전체적인 무드에 맞춰 오마카세 형식으로 제작해드립니다.'],note:'',referenceImage:'',buttonLabel:'디자인 보러가기',targetKind:'portfolio',targetCategory:'profile'}
   ];
   if(!Array.isArray(g.options))g.options=[];
-  g.options=defaults.map((d,i)=>({...d,...(g.options[i]||{}),details:Array.isArray(g.options[i]?.details)?g.options[i].details:d.details}));
+  g.options=defaults.map((d,i)=>({...d,...(g.options[i]||{}),details:Array.isArray(g.options[i]?.details)?g.options[i].details:d.details})).filter(x=>String(x.targetKind||'')!=='fixed');
   return g
 }
 function renderBackgroundGuideAdmin(){
@@ -239,8 +238,8 @@ function renderBackgroundGuideAdmin(){
     '<label><span>상단 작은 문구</span><input id="backgroundGuideKickerInput" value="'+adminEsc(g.kicker||'')+'"></label>'+
     '<label><span>큰 제목</span><input id="backgroundGuideTitleInput" value="'+adminEsc(g.title||'')+'"></label>'+
     '<label class="wide"><span>부제목</span><input id="backgroundGuideSubtitleInput" value="'+adminEsc(g.subtitle||'')+'"></label>';
-  const targetNames=['포트폴리오 · 움짤프사','고정틀 · 움짤프사'];
-  $('backgroundGuideOptions').innerHTML=g.options.slice(0,2).map((x,i)=>{
+  const targetNames=['포트폴리오 · 움짤프사'];
+  $('backgroundGuideOptions').innerHTML=g.options.slice(0,1).map((x,i)=>{
     const ref=x.referenceImage||(i===0?S.comparisonAImage:S.comparisonBImage)||'',src=ref?API+'/media/'+ref.split('/').map(encodeURIComponent).join('/'):'';
     return `
     <div class="background-guide-admin-card">
@@ -278,7 +277,7 @@ function collectBackgroundGuide(){
   g.kicker=$('backgroundGuideKickerInput')?.value||'';
   g.title=$('backgroundGuideTitleInput')?.value||'';
   g.subtitle=$('backgroundGuideSubtitleInput')?.value||'';
-  g.options.slice(0,2).forEach((x,i)=>{
+  g.options.slice(0,1).forEach((x,i)=>{
     x.badge=document.querySelector(`[data-bg-badge="${i}"]`)?.value||'';
     x.title=document.querySelector(`[data-bg-title="${i}"]`)?.value||'';
     x.description=document.querySelector(`[data-bg-description="${i}"]`)?.value||'';
@@ -1021,7 +1020,7 @@ function ensureInquiryV3(target=S){
 function inquiryV3ConditionOptions(pathKey,field){
  const design=String(pathKey||'').split('.')[0],current=(field.conditionKey&&field.conditionValue)?field.conditionKey+':'+field.conditionValue:'';
  const options=[['','항상 표시']];
- if(design==='profile')options.push(['profileModes:custom','맞춤제작 선택 시'],['profileModes:fixed','고정틀 구매 선택 시'],['profileModes:change','재주문 선택 시']);
+ if(design==='profile')options.push(['profileModes:custom','맞춤제작 선택 시'],['profileModes:change','재주문 선택 시']);
  if(design==='soopBanner')options.push(['bannerKinds:topBanner','상단배너 선택 시'],['bannerKinds:floatingBanner','플로팅배너 선택 시'],['bannerKinds:bottomBanner','하단배너 선택 시'],['bottomTypes:bottom1','하단 1칸 선택 시'],['bottomTypes:bottom3','하단 3칸 선택 시'],['bottomTypes:bottom6','하단 6칸 선택 시']);
  if(design==='fourCut')options.push(['fourCut.type:large','인생네컷 대형 선택 시'],['fourCut.type:small','인생네컷 소형 선택 시']);
  if(design==='signature')options.push(['signature.mode:omakase','오마카세 선택 시'],['signature.mode:direct','직접 입력 선택 시'],['signature.count:one','1개 선택 시'],['signature.count:three','3개 선택 시'],['signature.count:six','6개 선택 시'],['signature.count:custom','갯수 직접입력 선택 시']);
@@ -1134,11 +1133,11 @@ function renderInquiryV3DesignCard(id,d,index,total){
  if(id==='profile'){
   const mf=d.modeFields||{},modes=ensureQuoteConfig().pricingV2.profileModes||{};
   body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>움짤프사 신청 방식</h5><p class="muted">표시 이름과 공개 여부를 관리합니다.</p></div></div><div class="inquiry-v3-mode-admin-list">'+
-   (Array.isArray(d.modeOrder)?d.modeOrder:['custom','fixed','change']).filter(key=>key!=='preset').map((key,j,arr)=>{const m=modes[key]||{label:key};return '<div class="inquiry-v3-mode-admin-row"><label>표시 이름<input data-iq3-profile-mode-label="'+key+'" value="'+adminEsc(m.label||key)+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-profile-mode-enabled="'+key+'" '+(m.enabledInInquiry!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-profile-mode-move="'+key+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-profile-mode-move="'+key+'" data-dir="1" '+(j===arr.length-1?'disabled':'')+'>↓</button></div></div>'}).join('')+
+   (Array.isArray(d.modeOrder)?d.modeOrder:['custom','change']).filter(key=>key!=='preset'&&key!=='fixed').map((key,j,arr)=>{const m=modes[key]||{label:key};return '<div class="inquiry-v3-mode-admin-row"><label>표시 이름<input data-iq3-profile-mode-label="'+key+'" value="'+adminEsc(m.label||key)+'"></label><label class="mini-toggle"><input type="checkbox" data-iq3-profile-mode-enabled="'+key+'" '+(m.enabledInInquiry!==false?'checked':'')+'> 공개</label><div class="inquiry-v3-nested-actions"><button type="button" class="ghost cat-order-button" data-iq3-profile-mode-move="'+key+'" data-dir="-1" '+(j===0?'disabled':'')+'>↑</button><button type="button" class="ghost cat-order-button" data-iq3-profile-mode-move="'+key+'" data-dir="1" '+(j===arr.length-1?'disabled':'')+'>↓</button></div></div>'}).join('')+
   '</div></section>';
   body+=inquiryV3FieldsPanel('맞춤제작 상세 입력','profile.modeFields.custom',mf.custom||[],'맞춤제작을 선택했을 때만 표시');
   body+=inquiryV3FieldsPanel('(재주문) 이름/움짤만 변경 상세 입력','profile.modeFields.change',mf.change||[],'재주문을 선택했을 때만 표시');
-  body+='<p class="muted inquiry-v3-admin-link-note">고정틀 구매 전용 항목은 ‘고정틀 상품 관리 → 문의 양식 입력 항목’에서 상품별로 설정합니다.</p>'
+
  }else{
   if(id==='soopBanner'){
    body+='<section class="inquiry-v3-admin-fields-panel"><div class="head"><div><h5>SOOP 배너 기본 항목</h5><p class="muted">종류 이름과 공통 입력 항목명을 수정합니다.</p></div><button type="button" class="ghost admin-compact" data-iq3-array-add="soopBanner:bannerKinds">+ 배너 종류 추가</button></div><div class="fields">'+
@@ -1242,7 +1241,7 @@ function render(){
  $('formFields').innerHTML=input('문의양식 제목','formTitle',S.formTitle)+area('문의양식 설명','formDescription',S.formDescription,true)+input('복사 버튼','copyButton',S.copyButton)+input('복사 완료 문구','copySuccess',S.copySuccess);
  $('portfolioTextFields').innerHTML=input('포트폴리오 제목','portfolioTitle',S.portfolioTitle,true);
  $('footerFields').innerHTML=input('하단 문구','footerText',S.footerText,true);
- renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderFixedAdmin();renderBackgroundGuideAdmin();renderProfileTypeGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();
+ renderNotices();renderTypes();renderInquiryV3Admin();renderCats();renderBackgroundGuideAdmin();renderProfileTypeGuideAdmin();renderBannerTypeGuideAdmin();renderQuoteAdmin();renderEventItems();
  $('authorEnabled').checked=!!S.authorEnabled;
  if($('authorName'))$('authorName').value=S.authorName||'CHILGONG DESIGN';
  $('authorText').value=S.authorText||'';
@@ -1903,7 +1902,6 @@ function renderQuoteAdmin(){
   const profileTypeOn=S?.profileTypeEnabled!==false,bannerTypeOn=S?.bannerTypeEnabled!==false;
   const profileRows=
     (profileTypeOn?quoteAdminRow('profileModes','custom',p.profileModes.custom,{locked:true,note:'A/B 단가에서 계산',editable:false}):quoteAdminRow('profileModes','custom',p.profileModes.custom))+
-    quoteAdminRow('profileModes','fixed',p.profileModes.fixed,{tag:'개별 고정틀 가격 우선'})+
     quoteAdminRow('profileModes','change',p.profileModes.change,{locked:true,note:'추가 옵션에서 계산'});
   const profileTypeRows=profileTypeOn?
     quoteAdminRow('profileTypes','A',p.profileTypes.A,{editable:false})+
@@ -2019,7 +2017,7 @@ function quoteItemsUnordered(){
   }else{
     const x=p.profileModes.custom;if(x)out.push({key:'profileMode:custom',label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})
   }
-  ['fixed'].forEach(k=>{const x=p.profileModes[k];if(x)out.push({key:'profileMode:'+k,label:'움짤프사 · '+x.label,price:quotePriceValue(x.price)})});
+
   Object.entries(p.bottomTypes||{}).forEach(([k,x])=>out.push({key:'bottomType:'+k,label:'하단배너 · '+String(x?.label||k),price:quotePriceValue(x?.price)}));
   Object.entries(p.fourCutTypes||{}).forEach(([k,x])=>out.push({key:'fourCutType:'+k,label:String(x?.label||k),price:quotePriceValue(x?.price)}));
   Object.entries(p.signatureTypes||{}).forEach(([k,x])=>out.push({key:'signatureType:'+k,label:String(x?.label||k),price:quotePriceValue(x?.price)}));
@@ -2135,7 +2133,10 @@ async function saveSettings(){
   S.showcasePresetEnabled=false;
   S.showcasePresetExpandEnabled=false;
   if(S.quoteConfig?.pricingV2?.profileModes?.preset)S.quoteConfig.pricingV2.profileModes.preset.enabledInInquiry=false;
-  if(Array.isArray(S.inquiryV3?.designs?.profile?.modeOrder))S.inquiryV3.designs.profile.modeOrder=S.inquiryV3.designs.profile.modeOrder.filter(x=>x!=='preset');
+  S.fixedEnabled=false;
+  S.showcaseFixedEnabled=false;
+  if(S.quoteConfig?.pricingV2?.profileModes?.fixed)S.quoteConfig.pricingV2.profileModes.fixed.enabledInInquiry=false;
+  if(Array.isArray(S.inquiryV3?.designs?.profile?.modeOrder))S.inquiryV3.designs.profile.modeOrder=S.inquiryV3.designs.profile.modeOrder.filter(x=>x!=='preset'&&x!=='fixed');
   
   S.authorEnabled=$('authorEnabled').checked;
   S.authorName=$('authorName')?$('authorName').value.trim():(S.authorName||'CHILGONG DESIGN');
@@ -2150,7 +2151,6 @@ async function saveSettings(){
   delete S.eventsBenefitLabel;delete S.eventsOldPrice;delete S.eventsNewPrice;
   S.eventsTitleFontSize=Number($('eventsTitleFontSize').value||22);
   S.eventsFontSize=Number($('eventsFontSize').value||15);
-  collectFixedAdmin();ensureFixedProducts().forEach((_,i)=>collectFixedProductFromDom(i));
   syncQuoteLegacyMirrors(ensureQuoteConfig());
   syncQuoteInquiryOptionLabels(S);
   const snapshot=JSON.parse(JSON.stringify(S));
