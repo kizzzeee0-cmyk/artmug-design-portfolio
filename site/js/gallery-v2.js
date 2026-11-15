@@ -1430,7 +1430,7 @@ function injectInquiryV3(card){
    change:['change',v2ProfileMode('change','(재주문) 이름/움짤만 변경'),hasOrderMode]
  };
  const modeOrder=state.settings?.inquiryV3?.designs?.profile?.modeOrder||['custom','fixed','preset','change'];
- const modeDefs=modeOrder.map(key=>modeMap[key]).filter(Boolean).filter(([,m])=>m.enabledInInquiry!==false);
+ const modeDefs=modeOrder.filter(key=>key!=='fixed').map(key=>modeMap[key]).filter(Boolean).filter(([,m])=>m.enabledInInquiry!==false);
  let html='<fieldset class="v2-mode-field choice-field inquiry-plain-choice inquiry-profile-mode-field"><legend>움짤프사 신청 방식'+v3ProfileRequired(true)+'</legend><div class="choice-row">';
  if(profileTypeOn){
   html+=['A','B'].map(t=>{const x=v2ProfileType(t),checked=profileModes.includes('custom')&&profileType===t;return '<label class="choice-pill '+(hasChange?'is-disabled':'')+'"><input type="checkbox" data-v2-profile-type-mode="'+t+'" value="'+t+'" '+(checked?'checked':'')+' '+(hasChange?'disabled':'')+'><span>'+esc(x.label)+'</span></label>'}).join('');
