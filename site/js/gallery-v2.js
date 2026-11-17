@@ -553,7 +553,7 @@ function arrangeSplit(root){
  if(!cards.length)return;
  const place=rows=>{
   const left=rows.filter(x=>x.slot==='left'),right=rows.filter(x=>x.slot==='right'),other=rows.filter(x=>x.slot!=='left'&&x.slot!=='right');
-  root.innerHTML='<div class="v2-split-col" data-col="left"></div><div class="v2-split-col" data-col="right"></div>';
+  root.innerHTML='<div class="v2-split-col" data-col="left"><div class="v2-split-subtitle">3분할</div></div><div class="v2-split-col" data-col="right"><div class="v2-split-subtitle">6분할</div></div>';
   const L=root.querySelector('[data-col="left"]'),R=root.querySelector('[data-col="right"]');
   if(left.length&&right.length){
    left.forEach(x=>L.appendChild(x.card));right.forEach(x=>R.appendChild(x.card));other.forEach((x,i)=>(i%2?R:L).appendChild(x.card))
