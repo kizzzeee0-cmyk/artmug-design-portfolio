@@ -1175,7 +1175,8 @@
     "portfolio/profile/20261002125539-tDvEHLdk-___.gif",
     "portfolio/profile-c/20260929161950-Y4d55zXL-__.gif",
     "portfolio/profile-c/20260929161929-6XLkQ8V9-___.gif",
-    "portfolio/floating-banner/20261029101655-1m4s7w10f4nyj-________.png"
+    "portfolio/floating-banner/20261029101655-1m4s7w10f4nyj-________.png",
+    "portfolio/top-banner/20261117171927083-z76xgJL--_______.png"
   ],
   "eventsItems": [
     {
@@ -1378,7 +1379,8 @@
     },
     "portfolio/profile/20261115084207728-3p4uh73cdkhe-__.gif": {
       "enabled": true
-    }
+    },
+    "portfolio/top-banner/20261117171927083-z76xgJL--_______.png": {}
   },
   "bannerTypeEnabled": false,
   "authorName": "KIZE DESIGN",
