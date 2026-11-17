@@ -246,12 +246,12 @@
 .v2-split-col{display:grid;gap:12px;align-content:start}
 .v2-split-subtitle{
   grid-column:1/-1;
-  margin:0 0 -2px;
-  color:#8aa0ad;
-  font-size:10px;
-  font-weight:700;
-  line-height:1.2;
-  letter-spacing:.04em;
+  margin:0 0 2px;
+  color:#718894;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.25;
+  letter-spacing:.01em;
   text-align:center;
 }
 /* Bottom split: 720x450 stays in the left half, but uses two smaller columns.
