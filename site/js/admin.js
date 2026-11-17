@@ -2802,6 +2802,7 @@ async function replaceMediaFile(kind,index){
   const isPreset=kind==='preset'||kind==='fixed',endpoint=isPreset?'/api/admin/preset-upload':'/api/admin/upload',deleteEndpoint=isPreset?'/api/admin/preset-delete':'/api/admin/delete';
   const targetCategory=!isPreset&&isProfilePortfolioCategory(x.category)?'profile':x.category;
   const fd=new FormData();fd.append('category',targetCategory);fd.append('file',file);
+  if(!isPreset)fd.append('replaceFile',x.file);
   let newPath='',metadataMoved=false;
   try{
     showToast('새 파일을 업로드하고 있습니다.');
@@ -2829,7 +2830,9 @@ async function replaceMediaFile(kind,index){
         if(!latest.portfolioMeta||typeof latest.portfolioMeta!=='object'||Array.isArray(latest.portfolioMeta))latest.portfolioMeta={};
         latest.portfolioMeta[newPath]={...(latest.portfolioMeta[x.file]||{})};
         delete latest.portfolioMeta[x.file];
-        latest.portfolioOrder=replaceOrderPath(latest.portfolioOrder,x.file,newPath)
+        const currentOrder=list.map(v=>v.file);
+        currentOrder[index]=newPath;
+        latest.portfolioOrder=currentOrder
       }
     });
     metadataMoved=true;
