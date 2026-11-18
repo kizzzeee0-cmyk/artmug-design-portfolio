@@ -252,7 +252,7 @@
       "pcColumns": 8,
       "pcPerPage": 8,
       "mobileColumns": 5,
-      "mobilePerPage": 15
+      "mobilePerPage": 10
     },
     {
       "id": "bottom-banner",
