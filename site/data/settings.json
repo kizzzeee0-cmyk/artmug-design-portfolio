@@ -151,7 +151,7 @@
       "pcColumns": 6,
       "pcPerPage": 24,
       "mobileColumns": 4,
-      "mobilePerPage": 16
+      "mobilePerPage": 10
     },
     {
       "id": "profile-b",
@@ -250,9 +250,9 @@
       "emptyText": "등록된 플로팅 배너 작업물이 아직 없습니다.",
       "enabled": true,
       "pcColumns": 8,
-      "pcPerPage": 24,
+      "pcPerPage": 8,
       "mobileColumns": 5,
-      "mobilePerPage": 15
+      "mobilePerPage": 10
     },
     {
       "id": "bottom-banner",
@@ -346,8 +346,8 @@
       "displayHeight": 2400,
       "pcColumns": 6,
       "pcPerPage": 18,
-      "mobileColumns": 2,
-      "mobilePerPage": 10,
+      "mobileColumns": 4,
+      "mobilePerPage": 8,
       "strictSize": false,
       "uploadWidth": 0,
       "uploadHeight": 0,
@@ -989,7 +989,6 @@
       "bottomType:bottom6",
       "option:textImageChange",
       "profileMode:custom",
-      "profileMode:fixed",
       "standalone:qstand-1794472266047",
       "option:nameOnlyChange",
       "option:profileChange",
