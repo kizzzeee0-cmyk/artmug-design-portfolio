@@ -1129,6 +1129,7 @@
     "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
   ],
   "portfolioOrder": [
+    "portfolio/cheki/20261118181210489-15fcnle18087yz-17950178780_Re.jpg",
     "portfolio/top-banner/20261118084304644-tbqm6fysylyg-_________.png",
     "portfolio/floating-banner/20261118072009041-meo41ogth520-__________.png",
     "portfolio/top-banner/20261118071951164-12tv65h1l8dp2d-_________.png",
@@ -1137,6 +1138,7 @@
     "portfolio/profile/20261115084207728-3p4uh73cdkhe-__.gif",
     "portfolio/floating-banner/20261026091709-rw7uyz1112xff-_________.png",
     "portfolio/cheki/20261114220414237-5WUNlFpk-_______.png",
+    "portfolio/cheki/20261113065709964-98kson1gt1ces-_______.png",
     "portfolio/profile/20261113042411737-1undmh4lbzatp-_______.gif",
     "portfolio/top-banner/20261117171927083-z76xgJL--_______.png",
     "portfolio/top-banner/20261111182506365-1h9dw6j18rl1gw-_______.png",
@@ -1379,6 +1381,9 @@
     "portfolio/profile/20261113042411737-1undmh4lbzatp-_______.gif": {
       "enabled": true
     },
+    "portfolio/cheki/20261113065709964-98kson1gt1ces-_______.png": {
+      "enabled": true
+    },
     "portfolio/cheki/20261114220414237-5WUNlFpk-_______.png": {
       "enabled": true
     },
@@ -1387,6 +1392,9 @@
     },
     "portfolio/top-banner/20261117171927083-z76xgJL--_______.png": {},
     "portfolio/top-banner/20261118084304644-tbqm6fysylyg-_________.png": {
+      "enabled": true
+    },
+    "portfolio/cheki/20261118181210489-15fcnle18087yz-17950178780_Re.jpg": {
       "enabled": true
     }
   },
