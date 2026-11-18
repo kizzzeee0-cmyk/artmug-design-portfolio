@@ -1129,6 +1129,7 @@
     "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
   ],
   "portfolioOrder": [
+    "portfolio/top-banner/20261118084304644-tbqm6fysylyg-_________.png",
     "portfolio/floating-banner/20261118072009041-meo41ogth520-__________.png",
     "portfolio/top-banner/20261118071951164-12tv65h1l8dp2d-_________.png",
     "portfolio/bottom-split/20261117170853143-1avis214hau6t-________.png",
@@ -1388,7 +1389,10 @@
     "portfolio/profile/20261115084207728-3p4uh73cdkhe-__.gif": {
       "enabled": true
     },
-    "portfolio/top-banner/20261117171927083-z76xgJL--_______.png": {}
+    "portfolio/top-banner/20261117171927083-z76xgJL--_______.png": {},
+    "portfolio/top-banner/20261118084304644-tbqm6fysylyg-_________.png": {
+      "enabled": true
+    }
   },
   "bannerTypeEnabled": false,
   "authorName": "KIZE DESIGN",
