@@ -33,7 +33,8 @@ const api=async path=>{
   const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
   const timer=ctrl?setTimeout(()=>ctrl.abort(),attempt?9000:6000):0;
   try{
-   const r=await fetch(API+path,{credentials:'include',cache:'default',signal:ctrl?.signal});
+   const freshPublic=/\/api\/public\/(?:portfolio(?:-index)?|catalog|settings)/.test(path);
+   const r=await fetch(API+path,{credentials:'include',cache:freshPublic?'no-store':'default',signal:ctrl?.signal});
    if(!r.ok)throw new Error('HTTP '+r.status);
    return await r.json()
   }catch(e){
@@ -64,18 +65,18 @@ async function v2MergeFreshSettings(data){
 }
 async function loadCatalogResilientV2(){
  try{
-  let data=await api('/api/public/catalog?cv=7');
+  let data=await api('/api/public/catalog?cv=8&fresh='+Date.now());
   data=await v2MergeFreshSettings(data);
-  if(data&&data.settings){v2WriteCatalogCache(data);return data}
+  if(data&&data.settings){data={...data,portfolioIndex:null};v2WriteCatalogCache(data);return data}
  }catch{}
  const cached=v2ReadCatalogCache();
- if(cached&&cached.settings){const data=await v2MergeFreshSettings(cached);v2WriteCatalogCache(data);return data}
+ if(cached&&cached.settings){const data=await v2MergeFreshSettings({...cached,portfolioIndex:null});v2WriteCatalogCache(data);return data}
  const settings=await rawJson('site/data/settings.json');
  const [portfolioIndex,presetIndex]=await Promise.all([
   rawJson('portfolio/index.json').catch(()=>null),
   rawJson('site/data/presets.json').catch(()=>null)
  ]);
- const data={settings,portfolioIndex,presetIndex};
+ const data={settings,portfolioIndex:null,presetIndex};
  v2WriteCatalogCache(data);
  return data
 }
@@ -137,11 +138,7 @@ async function fetchAll(kind,category){
  return [...(first.items||[]),...rest.flatMap(d=>d.items||[])]
 }
 async function fetchPortfolioPage(category,page,perPage,filter='ALL'){
- const key=[category,page,perPage,filter].join('|');
- if(portfolioPageCache.has(key))return portfolioPageCache.get(key);
- const promise=api('/api/public/portfolio?category='+encodeURIComponent(category)+'&page='+page+'&perPage='+perPage+'&filter='+encodeURIComponent(filter)).catch(e=>{portfolioPageCache.delete(key);throw e});
- portfolioPageCache.set(key,promise);
- return promise
+ return api('/api/public/portfolio?category='+encodeURIComponent(category)+'&page='+page+'&perPage='+perPage+'&filter='+encodeURIComponent(filter)+'&fresh='+Date.now())
 }
 function applyOrder(items,order){
  const pos=new Map((order||[]).map((x,i)=>[x,i]));
@@ -605,21 +602,6 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
   try{
    await loadRemotePortfolioPage(data)
   }catch(e){
-   try{
-    const fallbackIndex=await rawJson('portfolio/index.json');
-    if(Array.isArray(fallbackIndex)){
-     state.portfolioIndex=fallbackIndex;
-     let localItems;
-     if(k==='profile'){
-      const physical=new Set((state.settings.portfolioCategories||[]).filter(c=>/^profile(?:-|$)/.test(String(c.id||''))).map(c=>c.id));
-      localItems=fallbackIndex.filter(x=>physical.has(x.category))
-     }else localItems=fallbackIndex.filter(x=>x.category===cat.id);
-     localItems=portfolioNewestFirst(localItems).filter(x=>pmeta(x).enabled);
-     data.remote=false;data.items=localItems;data.page=1;data.total=localItems.length;
-     sec.removeAttribute('aria-busy');
-     return renderPortfolioCategory(id,scroll,false)
-    }
-   }catch{}
    sec.innerHTML='<div class="v2-load-failed"><p>네트워크가 느려 작품을 불러오지 못했습니다.</p><div class="v2-load-failed-actions"><button type="button" data-v2-retry="'+esc(id)+'">다시 불러오기</button></div></div>';
    sec.removeAttribute('aria-busy');
    sec.querySelector('[data-v2-retry]')?.addEventListener('click',()=>{
