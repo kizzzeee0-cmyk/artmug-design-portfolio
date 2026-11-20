@@ -1637,34 +1637,50 @@ function applyManualOrder(items,order){
 function setupBottomSplitGrid(g){
   if(!g)return;
   const cards=Array.from(g.querySelectorAll('.work-card'));
-  const arrange=()=>{
-    let leftRow=0,rightRow=0;
-    cards.forEach(card=>{
-      const slot=card.dataset.bottomSplitSlot||'';
-      if(slot==='left'){
-        card.style.gridColumn='1';
-        card.style.gridRow=String(++leftRow)
-      }else if(slot==='right'){
-        card.style.gridColumn='2';
-        card.style.gridRow=String(++rightRow)
-      }
-    })
+  if(!cards.length)return;
+  cards.forEach(card=>{const img=card.querySelector('img');if(img)img.loading='eager'});
+  const rows=cards.map(card=>({card,slot:card.dataset.bottomSplitSlot||''}));
+  const labelCard=(card,slot)=>{
+    card.classList.remove('is-three-split','is-six-split','is-split-other');
+    if(slot==='three')card.classList.add('is-three-split');
+    else if(slot==='six')card.classList.add('is-six-split');
+    else card.classList.add('is-split-other');
+    let label=card.querySelector('.bottom-split-card-label');
+    if(slot==='three'||slot==='six'){
+      if(!label){label=document.createElement('span');label.className='bottom-split-card-label';card.appendChild(label)}
+      label.textContent=slot==='three'?'3분할':'6분할'
+    }else if(label)label.remove()
   };
-  cards.forEach(card=>{
-    const img=card.querySelector('img');
-    if(!img)return;
+  const arrange=()=>{
+    const consumed=new Set(),units=[];
+    rows.forEach((row,index)=>{
+      if(consumed.has(row.card))return;
+      labelCard(row.card,row.slot||'other');
+      if(row.slot==='three'){
+        const mate=rows.slice(index+1).find(x=>x.slot==='three'&&!consumed.has(x.card));
+        const pair=document.createElement('div');
+        pair.className='bottom-split-pair';
+        pair.appendChild(row.card);consumed.add(row.card);
+        if(mate){labelCard(mate.card,'three');pair.appendChild(mate.card);consumed.add(mate.card)}
+        else{const empty=document.createElement('div');empty.className='bottom-split-half-empty';empty.setAttribute('aria-hidden','true');pair.appendChild(empty)}
+        units.push(pair)
+      }else{consumed.add(row.card);units.push(row.card)}
+    });
+    g.replaceChildren(...units)
+  };
+  let loaded=0;
+  rows.forEach(row=>{
+    if(row.slot){if(++loaded===rows.length)arrange();return}
+    const img=row.card.querySelector('img');
     const classify=()=>{
-      const w=Number(img.naturalWidth||0),h=Number(img.naturalHeight||0);
-      let slot='';
-      if(w===720&&h===450)slot='left';
-      else if(w===1440&&h===450)slot='right';
-      else if(w&&h)slot=(w/h>2.4?'right':'left');
-      if(!slot)return;
-      card.dataset.bottomSplitSlot=slot;
-      arrange()
+      const w=Number(img?.naturalWidth||0),h=Number(img?.naturalHeight||0);
+      row.slot=w===720&&h===450?'three':w===1440&&h===450?'six':(w&&h?(w/h>2.4?'six':'three'):'other');
+      row.card.dataset.bottomSplitSlot=row.slot;
+      if(++loaded===rows.length)arrange()
     };
-    if(img.complete&&img.naturalWidth)classify();
-    else img.addEventListener('load',classify,{once:true})
+    if(img?.complete&&img.naturalWidth)classify();
+    else if(img)img.addEventListener('load',classify,{once:true});
+    else classify()
   })
 }
 function grid(items,cat){
