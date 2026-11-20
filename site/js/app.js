@@ -269,6 +269,7 @@ async function fetchPublicCatalogNetwork(){
       let data=await fetchPublicJson(API+'/api/public/catalog?cv=7',attempt?8500:5500);
       data=await mergeLatestPublicSettings(data);
       if(data&&data.settings){
+        data={...data,portfolioIndex:null};
         writePublicCatalogCache(data);
         return data
       }
@@ -288,11 +289,12 @@ async function fetchPublicCatalogStaticFallback(){
     fetchPublicJson(PUBLIC_RAW+'site/data/presets.json',8000)
   ]);
   if(settingsResult.status!=='fulfilled')throw settingsResult.reason||new Error('Static settings unavailable');
-  const data={
+  let data={
     settings:settingsResult.value||{},
-    portfolioIndex:indexResult.status==='fulfilled'&&Array.isArray(indexResult.value)?indexResult.value:null,
+    portfolioIndex:null,
     presetIndex:presetResult.status==='fulfilled'&&Array.isArray(presetResult.value)?presetResult.value:null
   };
+  data=await mergeLatestPublicSettings(data);
   writePublicCatalogCache(data);
   return data
 }
@@ -300,7 +302,7 @@ function loadPublicCatalogResilient(){
   const cached=readPublicCatalogCache();
   if(cached&&cached.age<PUBLIC_CATALOG_FRESH_MS){
     fetchPublicCatalogNetwork().catch(()=>{});
-    return mergeLatestPublicSettings(cached.data).then(data=>{writePublicCatalogCache(data);return data})
+    return mergeLatestPublicSettings({...cached.data,portfolioIndex:null}).then(data=>{writePublicCatalogCache(data);return data})
   }
   if(cached&&cached.age<PUBLIC_CATALOG_FAST_STALE_MS){
     fetchPublicCatalogNetwork().catch(()=>{});
