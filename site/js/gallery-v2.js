@@ -545,39 +545,71 @@ function imageSizeFor(x){
 async function preclassifyBottomSplit(items){
  await Promise.all(items.map(async x=>{
   const [w,h]=await imageSizeFor(x);
-  x.__v2SplitSlot=w===720&&h===450?'left':w===1440&&h===450?'right':'other'
+  x.__v2SplitSlot=w===720&&h===450?'three':w===1440&&h===450?'six':(w&&h?(w/h>2.4?'six':'three'):'other')
  }));
- const left=items.filter(x=>x.__v2SplitSlot==='left'),right=items.filter(x=>x.__v2SplitSlot==='right'),other=items.filter(x=>x.__v2SplitSlot==='other');
- if(!left.length||!right.length)return items;
- const out=[];let i=0,j=0;
- while(i<left.length||j<right.length){if(i<left.length)out.push(left[i++]);if(j<right.length)out.push(right[j++])}
- out.push(...other);
- return out
+ return items
+}
+function splitCardLabel(card,slot){
+ if(!card)return;
+ card.classList.remove('is-three-split','is-six-split','is-split-other');
+ if(slot==='three')card.classList.add('is-three-split');
+ else if(slot==='six')card.classList.add('is-six-split');
+ else card.classList.add('is-split-other');
+ let label=card.querySelector('.v2-split-card-label');
+ if(slot==='three'||slot==='six'){
+  if(!label){label=document.createElement('span');label.className='v2-split-card-label';card.appendChild(label)}
+  label.textContent=slot==='three'?'3분할':'6분할'
+ }else if(label)label.remove()
 }
 function arrangeSplit(root){
  const cards=qsa('.v2-work-card',root);
  if(!cards.length)return;
  const place=rows=>{
-  const left=rows.filter(x=>x.slot==='left'),right=rows.filter(x=>x.slot==='right'),other=rows.filter(x=>x.slot!=='left'&&x.slot!=='right');
-  root.innerHTML='<div class="v2-split-col" data-col="left"><div class="v2-split-subtitle">3분할</div></div><div class="v2-split-col" data-col="right"><div class="v2-split-subtitle">6분할</div></div>';
-  const L=root.querySelector('[data-col="left"]'),R=root.querySelector('[data-col="right"]');
-  if(left.length&&right.length){
-   left.forEach(x=>L.appendChild(x.card));right.forEach(x=>R.appendChild(x.card));other.forEach((x,i)=>(i%2?R:L).appendChild(x.card))
-  }else{
-   rows.forEach((x,i)=>(i%2?R:L).appendChild(x.card))
-  }
+  const consumed=new Set(),units=[];
+  rows.forEach((row,index)=>{
+   if(consumed.has(row.card))return;
+   const slot=row.slot||'other';
+   splitCardLabel(row.card,slot);
+   if(slot==='three'){
+    const mate=rows.slice(index+1).find(x=>x.slot==='three'&&!consumed.has(x.card));
+    const pair=document.createElement('div');
+    pair.className='v2-split-pair';
+    pair.appendChild(row.card);
+    consumed.add(row.card);
+    if(mate){
+     splitCardLabel(mate.card,'three');
+     pair.appendChild(mate.card);
+     consumed.add(mate.card)
+    }else{
+     const empty=document.createElement('div');
+     empty.className='v2-split-half-empty';
+     empty.setAttribute('aria-hidden','true');
+     pair.appendChild(empty)
+    }
+    units.push(pair)
+   }else{
+    consumed.add(row.card);
+    units.push(row.card)
+   }
+  });
+  root.replaceChildren(...units)
  };
  const known=cards.map(card=>({card,slot:card.dataset.splitSlot||''}));
  if(known.every(x=>x.slot)){place(known);return}
- let loaded=0;const rows=[];
- cards.forEach(card=>{
-  const img=card.querySelector('img');
+ let loaded=0;
+ const rows=cards.map(card=>({card,slot:card.dataset.splitSlot||''}));
+ rows.forEach((row,index)=>{
+  if(row.slot){if(++loaded===rows.length)place(rows);return}
+  const img=row.card.querySelector('img');
   const done=()=>{
    const w=img?.naturalWidth||0,h=img?.naturalHeight||0;
-   rows.push({card,slot:w===720&&h===450?'left':w===1440&&h===450?'right':'other'});
-   if(++loaded===cards.length)place(rows)
+   row.slot=w===720&&h===450?'three':w===1440&&h===450?'six':(w&&h?(w/h>2.4?'six':'three'):'other');
+   row.card.dataset.splitSlot=row.slot;
+   if(++loaded===rows.length)place(rows)
   };
-  if(img?.complete&&img.naturalWidth)done();else if(img)img.addEventListener('load',done,{once:true});else done()
+  if(img?.complete&&img.naturalWidth)done();
+  else if(img)img.addEventListener('load',done,{once:true});
+  else done()
  })
 }
 async function loadRemotePortfolioPage(data){
@@ -628,6 +660,7 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  }
  if(typeOn&&data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1;if(data.remote)return renderPortfolioCategory(id,scroll,true)}
  data.page=Math.min(Math.max(1,data.page||1),pages);
+ if(k==='bottom-split'&&items.length)items=await preclassifyBottomSplit(items);
  const guide=typeGuideConfig(k);
  const typeButtonLabel=v=>v==='ALL'?'전체':(k==='profile'?'움짤프사 '+v+' · '+String(guide[v]?.title||v):'TYPE '+v+' · '+String(guide[v]?.title||v));
  const controls=typeOn?'<div class="v2-type-filter">'+filterValues.map(v=>'<button type="button" data-v2-filter="'+id+':'+v+'" class="'+((data.filter||'ALL')===v?'is-active':'')+'">'+esc(typeButtonLabel(v))+'</button>').join('')+'</div>':'';
