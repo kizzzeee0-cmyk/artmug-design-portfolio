@@ -141,17 +141,17 @@ function isSettingsConflict(err){
 const settingsDelay=ms=>new Promise(r=>setTimeout(r,ms));
 async function fetchFreshSettings(){
   const d=await api('/api/admin/settings?fresh='+Date.now());
-  return d.settings||{}
+  return {settings:d.settings||{},revision:String(d.revision||'')}
 }
 function queueSettingsMutation(mutator){
   const run=settingsWriteQueue.then(async()=>{
     let lastError;
     for(let attempt=0;attempt<8;attempt++){
-      const latest=await fetchFreshSettings();
-      const next=JSON.parse(JSON.stringify(latest));
+      const fresh=await fetchFreshSettings();
+      const next=JSON.parse(JSON.stringify(fresh.settings||{}));
       mutator(next);
       try{
-        const saved=await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:next})});
+        const saved=await api('/api/admin/settings',{method:'PUT',body:JSON.stringify({settings:next,expectedSha:fresh.revision})});
         return saved.settings||next
       }catch(e){
         lastError=e;
