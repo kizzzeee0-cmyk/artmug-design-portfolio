@@ -306,18 +306,18 @@ function loadPublicCatalogResilient(){
   }
   if(cached&&cached.age<PUBLIC_CATALOG_FAST_STALE_MS){
     fetchPublicCatalogNetwork().catch(()=>{});
-    return mergeLatestPublicSettings(cached.data).then(data=>{writePublicCatalogCache(data);return data})
+    return mergeLatestPublicSettings({...cached.data,portfolioIndex:null}).then(data=>{writePublicCatalogCache(data);return data})
   }
   const network=fetchPublicCatalogNetwork();
   const staticFallback=new Promise(resolve=>setTimeout(resolve,900)).then(()=>fetchPublicCatalogStaticFallback());
   if(typeof Promise.any==='function'){
     return Promise.any([network,staticFallback]).catch(()=>{
-      if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return cached.data;
+      if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return {...cached.data,portfolioIndex:null};
       throw new Error('Public catalog unavailable')
     })
   }
   return network.catch(()=>staticFallback).catch(()=>{
-    if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return cached.data;
+    if(cached&&cached.age<PUBLIC_CATALOG_STALE_MS)return {...cached.data,portfolioIndex:null};
     throw new Error('Public catalog unavailable')
   })
 }
