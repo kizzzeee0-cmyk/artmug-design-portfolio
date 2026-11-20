@@ -1645,27 +1645,23 @@ function setupBottomSplitGrid(g){
     if(slot==='three')card.classList.add('is-three-split');
     else if(slot==='six')card.classList.add('is-six-split');
     else card.classList.add('is-split-other');
-    let label=card.querySelector('.bottom-split-card-label');
-    if(slot==='three'||slot==='six'){
-      if(!label){label=document.createElement('span');label.className='bottom-split-card-label';card.appendChild(label)}
-      label.textContent=slot==='three'?'3분할':'6분할'
-    }else if(label)label.remove()
+    card.querySelector('.bottom-split-card-label')?.remove()
   };
   const arrange=()=>{
-    const consumed=new Set(),units=[];
-    rows.forEach((row,index)=>{
-      if(consumed.has(row.card))return;
-      labelCard(row.card,row.slot||'other');
-      if(row.slot==='three'){
-        const mate=rows.slice(index+1).find(x=>x.slot==='three'&&!consumed.has(x.card));
-        const pair=document.createElement('div');
-        pair.className='bottom-split-pair';
-        pair.appendChild(row.card);consumed.add(row.card);
-        if(mate){labelCard(mate.card,'three');pair.appendChild(mate.card);consumed.add(mate.card)}
-        else{const empty=document.createElement('div');empty.className='bottom-split-half-empty';empty.setAttribute('aria-hidden','true');pair.appendChild(empty)}
-        units.push(pair)
-      }else{consumed.add(row.card);units.push(row.card)}
-    });
+    const units=[];
+    const threes=rows.filter(x=>(x.slot||'other')==='three');
+    const rest=rows.filter(x=>(x.slot||'other')!=='three');
+    for(let i=0;i<threes.length;i+=2){
+      const pair=document.createElement('div');
+      pair.className='bottom-split-pair';
+      const first=threes[i],second=threes[i+1];
+      labelCard(first.card,'three');
+      pair.appendChild(first.card);
+      if(second){labelCard(second.card,'three');pair.appendChild(second.card)}
+      else{const empty=document.createElement('div');empty.className='bottom-split-half-empty';empty.setAttribute('aria-hidden','true');pair.appendChild(empty)}
+      units.push(pair)
+    }
+    rest.forEach(row=>{labelCard(row.card,row.slot||'other');units.push(row.card)});
     g.replaceChildren(...units)
   };
   let loaded=0;
