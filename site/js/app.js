@@ -1645,7 +1645,6 @@ function setupBottomSplitGrid(g){
     if(slot==='three')card.classList.add('is-three-split');
     else if(slot==='six')card.classList.add('is-six-split');
     else card.classList.add('is-split-other');
-    card.querySelector('.bottom-split-card-label')?.remove()
   };
   const arrange=()=>{
     const units=[];
