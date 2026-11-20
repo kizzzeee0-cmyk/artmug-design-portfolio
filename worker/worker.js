@@ -142,9 +142,11 @@ async function publicPortfolio(u,env){
   ]);
   const c=(s.portfolioCategories||[]).find(x=>x.id===cat)||{};
   const pmeta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
+  const compactRequested=String(c.label||'').replace(/\s/g,''),profileRequest=cat==='profile'||/^profile(?:-|$)/.test(cat)||compactRequested.includes('움짤프사')||compactRequested.includes('움짤프로필');
+  const profilePhysical=new Set((s.portfolioCategories||[]).filter(x=>x.enabled!==false&&!x.hiddenLegacy&&(/^profile(?:-|$)/.test(String(x.id||''))||String(x.label||'').replace(/\s/g,'').includes('움짤프사'))).map(x=>String(x.id||'')));
   let all=(Array.isArray(idx)?idx:[])
-    .filter(x=>x&&x.category===cat&&x.file&&['gif','png','jpg','jpeg','webp'].includes(ext(x.file)))
-    .map(x=>({...x,category:cat,file:x.file,width:Number(x.width||c.displayWidth||0),height:Number(x.height||c.displayHeight||0)}));
+    .filter(x=>x&&(profileRequest?profilePhysical.has(String(x.category||'')):x.category===cat)&&x.file&&['gif','png','jpg','jpeg','webp'].includes(ext(x.file)))
+    .map(x=>({...x,category:x.category||cat,file:x.file,width:Number(x.width||c.displayWidth||0),height:Number(x.height||c.displayHeight||0)}));
 
   all=all.filter(x=>(pmeta[x.file]||{}).enabled!==false);
   const compactLabel=String(c.label||'').replace(/\s/g,''),isProfile=cat==='profile'||/^profile(?:-|$)/.test(cat)||compactLabel.includes('움짤프사')||compactLabel.includes('움짤프로필');
