@@ -6,6 +6,7 @@ if(p==='/health')return cors(json({ok:true,version:'1.1.0',vars:{owner:!!env.GIT
 if(p==='/auth/login'&&req.method==='POST')return passwordLogin(req,env);if(p==='/auth/logout'&&req.method==='POST')return logout(req,env);
 if(p==='/api/public/settings'){const settings=env.GITHUB_TOKEN?await ghJson(env,env.GITHUB_TOKEN,SETTINGS).catch(()=>publicJson(env,SETTINGS)):await publicJson(env,SETTINGS);return cors(json({settings:sanitizePublicSettings(settings)},200,{'Cache-Control':'no-store'}),req,env);}
 if(p==='/api/public/catalog')return cors(await publicCatalog(env),req,env);
+if(p==='/api/public/portfolio-index')return cors(await publicPortfolioIndex(env),req,env);
 if(p==='/api/public/portfolio')return cors(await publicPortfolio(u,env),req,env);
 if(p==='/api/public/presets')return cors(await publicPresets(u,env),req,env);
 if(p==='/api/public/nav-summary')return cors(await publicNavSummary(env),req,env);
@@ -110,14 +111,24 @@ async function publicCatalog(env){
   const token=env.GITHUB_TOKEN||'';
   const [settings,portfolioIndex,presetIndex]=await Promise.all([
     token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
-    token?ghJson(env,token,INDEX).catch(()=>publicJson(env,INDEX).catch(()=>[])):publicJson(env,INDEX).catch(()=>[]),
+    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[]),
     token?ghJson(env,token,PRESETS).catch(()=>publicJson(env,PRESETS).catch(()=>[])):publicJson(env,PRESETS).catch(()=>[])
   ]);
   return json({
     settings:sanitizePublicSettings(settings||{}),
     portfolioIndex:Array.isArray(portfolioIndex)?portfolioIndex:[],
     presetIndex:Array.isArray(presetIndex)?presetIndex:[]
-  },200,{'Cache-Control':'public, max-age=60, stale-while-revalidate=3600'})
+  },200,{'Cache-Control':'no-store, no-cache, must-revalidate, max-age=0'})
+}
+async function publicPortfolioIndex(env){
+  const token=env.GITHUB_TOKEN||'';
+  const [s,idx]=await Promise.all([
+    token?ghJson(env,token,SETTINGS):publicJson(env,SETTINGS),
+    token?ghJson(env,token,INDEX):publicJson(env,INDEX)
+  ]);
+  const cats=(s.portfolioCategories||[]).filter(c=>c.enabled!==false&&!c.hiddenLegacy),allowed=new Set(cats.map(c=>String(c.id||''))),meta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
+  const items=(Array.isArray(idx)?idx:[]).filter(x=>x&&x.file&&allowed.has(String(x.category||''))&&(meta[x.file]||{}).enabled!==false&&['gif','png','jpg','jpeg','webp'].includes(ext(x.file)));
+  return json(sortPortfolioBySavedOrder(items,s.portfolioOrder,idx),200,{'Cache-Control':'no-store, no-cache, must-revalidate, max-age=0'})
 }
 async function publicPortfolio(u,env){
   const cat=u.searchParams.get('category')||'profile';
@@ -153,7 +164,7 @@ async function publicPortfolio(u,env){
   // Regular portfolio is always newest upload first. Fixed/preset ordering is handled separately.
   all=sortPortfolioBySavedOrder(all,s.portfolioOrder,idx);
   const total=all.length,tp=Math.max(1,Math.ceil(total/per)),pg=Math.min(page,tp);
-  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'public, max-age=45, stale-while-revalidate=1800'})
+  return json({items:all.slice((pg-1)*per,pg*per),total,page:pg,perPage:per,totalPages:tp,availableFilters},200,{'Cache-Control':'no-store, no-cache, must-revalidate, max-age=0'})
 }
 async function publicPresets(u,env){
   const token=env.GITHUB_TOKEN||'';
