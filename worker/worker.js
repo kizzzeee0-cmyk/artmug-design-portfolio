@@ -138,7 +138,7 @@ async function publicPortfolio(u,env){
   const token=env.GITHUB_TOKEN||'';
   const [s,idx]=await Promise.all([
     token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
-    token?ghJson(env,token,INDEX).catch(()=>publicJson(env,INDEX).catch(()=>[])):publicJson(env,INDEX).catch(()=>[])
+    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[])
   ]);
   const c=(s.portfolioCategories||[]).find(x=>x.id===cat)||{};
   const pmeta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
@@ -189,7 +189,7 @@ async function publicNavSummary(env){
   const token=env.GITHUB_TOKEN||'';
   const [s,idx,presets]=await Promise.all([
     token?ghJson(env,token,SETTINGS).catch(()=>publicJson(env,SETTINGS)):publicJson(env,SETTINGS),
-    token?ghJson(env,token,INDEX).catch(()=>publicJson(env,INDEX).catch(()=>[])):publicJson(env,INDEX).catch(()=>[]),
+    token?ghJson(env,token,INDEX).catch(()=>[]):publicJson(env,INDEX).catch(()=>[]),
     token?ghJson(env,token,PRESETS).catch(()=>publicJson(env,PRESETS).catch(()=>[])):publicJson(env,PRESETS).catch(()=>[])
   ]);
   const meta=s.portfolioMeta&&typeof s.portfolioMeta==='object'?s.portfolioMeta:{};
