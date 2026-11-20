@@ -54,13 +54,22 @@ function v2ReadCatalogCache(){
 function v2WriteCatalogCache(data){
  try{if(data&&data.settings)localStorage.setItem(V2_CATALOG_CACHE_KEY,JSON.stringify({time:Date.now(),data}))}catch{}
 }
+async function v2MergeFreshSettings(data){
+ if(!data||typeof data!=='object')return data;
+ try{
+  const fresh=await api('/api/public/settings?fresh='+Date.now());
+  if(fresh?.settings)return {...data,settings:fresh.settings}
+ }catch{}
+ return data
+}
 async function loadCatalogResilientV2(){
  try{
-  const data=await api('/api/public/catalog?cv=6');
+  let data=await api('/api/public/catalog?cv=7');
+  data=await v2MergeFreshSettings(data);
   if(data&&data.settings){v2WriteCatalogCache(data);return data}
  }catch{}
  const cached=v2ReadCatalogCache();
- if(cached&&cached.settings)return cached;
+ if(cached&&cached.settings){const data=await v2MergeFreshSettings(cached);v2WriteCatalogCache(data);return data}
  const settings=await rawJson('site/data/settings.json');
  const [portfolioIndex,presetIndex]=await Promise.all([
   rawJson('portfolio/index.json').catch(()=>null),
