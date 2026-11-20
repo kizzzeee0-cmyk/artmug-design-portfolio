@@ -555,7 +555,6 @@ function splitCardLabel(card,slot){
  if(slot==='three')card.classList.add('is-three-split');
  else if(slot==='six')card.classList.add('is-six-split');
  else card.classList.add('is-split-other');
- card.querySelector('.v2-split-card-label')?.remove()
 }
 function arrangeSplit(root){
  const cards=qsa('.v2-work-card',root);
