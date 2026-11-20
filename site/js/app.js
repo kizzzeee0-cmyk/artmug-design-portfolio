@@ -244,16 +244,30 @@ async function fetchPublicJson(url,timeout=6500){
   const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
   const timer=ctrl?setTimeout(()=>ctrl.abort(),timeout):0;
   try{
-    const r=await fetch(url,{credentials:url.startsWith(API)?'include':'omit',cache:'default',signal:ctrl?.signal});
+    const freshSettings=url.startsWith(API)&&url.includes('/api/public/settings');
+    const r=await fetch(url,{credentials:url.startsWith(API)?'include':'omit',cache:freshSettings?'no-store':'default',signal:ctrl?.signal});
     if(!r.ok)throw new Error('HTTP '+r.status);
     return await r.json()
   }finally{if(timer)clearTimeout(timer)}
+}
+async function fetchLatestPublicSettings(timeout=5000){
+  const d=await fetchPublicJson(API+'/api/public/settings?fresh='+Date.now(),timeout);
+  if(!d||!d.settings)throw new Error('Fresh settings unavailable');
+  return d.settings
+}
+async function mergeLatestPublicSettings(data){
+  if(!data||typeof data!=='object')return data;
+  try{
+    const settings=await fetchLatestPublicSettings();
+    return {...data,settings}
+  }catch{return data}
 }
 async function fetchPublicCatalogNetwork(){
   let last;
   for(let attempt=0;attempt<2;attempt++){
     try{
-      const data=await fetchPublicJson(API+'/api/public/catalog?cv=6',attempt?8500:5500);
+      let data=await fetchPublicJson(API+'/api/public/catalog?cv=7',attempt?8500:5500);
+      data=await mergeLatestPublicSettings(data);
       if(data&&data.settings){
         writePublicCatalogCache(data);
         return data
@@ -286,11 +300,11 @@ function loadPublicCatalogResilient(){
   const cached=readPublicCatalogCache();
   if(cached&&cached.age<PUBLIC_CATALOG_FRESH_MS){
     fetchPublicCatalogNetwork().catch(()=>{});
-    return Promise.resolve(cached.data)
+    return mergeLatestPublicSettings(cached.data).then(data=>{writePublicCatalogCache(data);return data})
   }
   if(cached&&cached.age<PUBLIC_CATALOG_FAST_STALE_MS){
     fetchPublicCatalogNetwork().catch(()=>{});
-    return Promise.resolve(cached.data)
+    return mergeLatestPublicSettings(cached.data).then(data=>{writePublicCatalogCache(data);return data})
   }
   const network=fetchPublicCatalogNetwork();
   const staticFallback=new Promise(resolve=>setTimeout(resolve,900)).then(()=>fetchPublicCatalogStaticFallback());
