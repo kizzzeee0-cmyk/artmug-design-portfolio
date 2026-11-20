@@ -555,42 +555,35 @@ function splitCardLabel(card,slot){
  if(slot==='three')card.classList.add('is-three-split');
  else if(slot==='six')card.classList.add('is-six-split');
  else card.classList.add('is-split-other');
- let label=card.querySelector('.v2-split-card-label');
- if(slot==='three'||slot==='six'){
-  if(!label){label=document.createElement('span');label.className='v2-split-card-label';card.appendChild(label)}
-  label.textContent=slot==='three'?'3분할':'6분할'
- }else if(label)label.remove()
+ card.querySelector('.v2-split-card-label')?.remove()
 }
 function arrangeSplit(root){
  const cards=qsa('.v2-work-card',root);
  if(!cards.length)return;
  const place=rows=>{
-  const consumed=new Set(),units=[];
-  rows.forEach((row,index)=>{
-   if(consumed.has(row.card))return;
-   const slot=row.slot||'other';
-   splitCardLabel(row.card,slot);
-   if(slot==='three'){
-    const mate=rows.slice(index+1).find(x=>x.slot==='three'&&!consumed.has(x.card));
-    const pair=document.createElement('div');
-    pair.className='v2-split-pair';
-    pair.appendChild(row.card);
-    consumed.add(row.card);
-    if(mate){
-     splitCardLabel(mate.card,'three');
-     pair.appendChild(mate.card);
-     consumed.add(mate.card)
-    }else{
-     const empty=document.createElement('div');
-     empty.className='v2-split-half-empty';
-     empty.setAttribute('aria-hidden','true');
-     pair.appendChild(empty)
-    }
-    units.push(pair)
+  const units=[];
+  const threes=rows.filter(x=>(x.slot||'other')==='three');
+  const rest=rows.filter(x=>(x.slot||'other')!=='three');
+  for(let i=0;i<threes.length;i+=2){
+   const pair=document.createElement('div');
+   pair.className='v2-split-pair';
+   const first=threes[i],second=threes[i+1];
+   splitCardLabel(first.card,'three');
+   pair.appendChild(first.card);
+   if(second){
+    splitCardLabel(second.card,'three');
+    pair.appendChild(second.card)
    }else{
-    consumed.add(row.card);
-    units.push(row.card)
+    const empty=document.createElement('div');
+    empty.className='v2-split-half-empty';
+    empty.setAttribute('aria-hidden','true');
+    pair.appendChild(empty)
    }
+   units.push(pair)
+  }
+  rest.forEach(row=>{
+   splitCardLabel(row.card,row.slot||'other');
+   units.push(row.card)
   });
   root.replaceChildren(...units)
  };
@@ -659,6 +652,14 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
   items=items.slice((data.page-1)*cfg.perPage,data.page*cfg.perPage)
  }
  if(typeOn&&data.filter!=='ALL'&&!filterValues.includes(data.filter)){data.filter='ALL';data.page=1;if(data.remote)return renderPortfolioCategory(id,scroll,true)}
+ if((data.filter||'ALL')==='ALL'&&Number(data.total??items.length)===0){
+  sec.hidden=true;
+  sec.innerHTML='';
+  sec.removeAttribute('aria-busy');
+  refreshVisiblePortfolioCategoryEdges();
+  sendDetailedSectionMap();requestHeight();
+  return
+ }
  data.page=Math.min(Math.max(1,data.page||1),pages);
  if(k==='bottom-split'&&items.length)items=await preclassifyBottomSplit(items);
  const guide=typeGuideConfig(k);
@@ -682,8 +683,15 @@ async function renderPortfolioCategory(id,scroll,loadRemote=true){
  sec.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',requestHeight,{once:true})});
  manageAnimatedMedia(sec);
  sec.removeAttribute('aria-busy');
+ refreshVisiblePortfolioCategoryEdges();
  sendDetailedSectionMap();requestHeight();
  if(scroll)scrollToElement(sec)
+}
+function refreshVisiblePortfolioCategoryEdges(){
+ const sections=qsa('.v2-portfolio-category');
+ sections.forEach(x=>x.classList.remove('is-first-visible'));
+ const first=sections.find(x=>!x.hidden);
+ if(first)first.classList.add('is-first-visible')
 }
 async function renderPortfolio(){
  const root=$('#portfolioAllSections');if(!root)return;
@@ -722,6 +730,7 @@ async function renderPortfolio(){
    '<p class="v2-loading">작품을 불러오는 중…</p>'+
   '</section>'
  ).join('');
+ refreshVisiblePortfolioCategoryEdges();
 
  const readyIds=[];
  for(const cat of cats){
@@ -1646,9 +1655,13 @@ async function init(){
  const settingsPromise=window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__||(window.__ARTMUG_PUBLIC_SETTINGS_PROMISE__=loadCatalogResilientV2());
  const d=await settingsPromise;
  state.settings=d.settings||{};
- // One catalog request carries the live settings and lightweight media indexes.
- // This avoids fetching every category separately as the library grows.
- state.portfolioIndex=Array.isArray(d.portfolioIndex)?d.portfolioIndex:null;
+ // Portfolio visibility/order must use the newest live index so deleted or empty categories never flash.
+ let livePortfolioIndex=null;
+ try{
+  const freshIndex=await api('/api/public/portfolio-index?fresh='+Date.now());
+  if(Array.isArray(freshIndex))livePortfolioIndex=freshIndex
+ }catch{}
+ state.portfolioIndex=livePortfolioIndex;
  state.presetIndex=Array.isArray(d.presetIndex)?d.presetIndex:null;
  const title=$('#portfolioAllTitle');if(title)title.textContent=state.settings.portfolioTitle||'포트폴리오';
  const inquiryPart=document.body.classList.contains('artmug-part-inquiry');
