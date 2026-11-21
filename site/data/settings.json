@@ -1130,7 +1130,6 @@
   ],
   "portfolioOrder": [
     "portfolio/floating-banner/20261120124937439-1kjsj8zaaqh2i-______.png",
-    "portfolio/top-banner/20261120135636011-z_sQXbj7-____.png",
     "portfolio/profile/20261118202349799-jwmrm114qvzlp-__.gif",
     "portfolio/profile/20261118202333930-ub08dl1ajorio-___.gif",
     "portfolio/cheki/20261118181210489-15fcnle18087yz-17950178780_Re.jpg",
@@ -1403,9 +1402,6 @@
       "enabled": true
     },
     "portfolio/floating-banner/20261120124937439-1kjsj8zaaqh2i-______.png": {
-      "enabled": true
-    },
-    "portfolio/top-banner/20261120135636011-z_sQXbj7-____.png": {
       "enabled": true
     }
   },
