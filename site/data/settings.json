@@ -11,10 +11,10 @@
     {
       "icon": "",
       "title": "",
-      "description": "모든 작업물의 저작권은 키제 작가에게 있으며, 사전 협의 없는 2차 가공 및 재배포를 금지합니다.",
+      "description": "모든 작업물의 저작권은 키제 작가에게 있으며, AI 활용 및 사전 협의 없는 2차 가공·재배포를 금지합니다.",
       "enabled": true,
       "titleRich": "",
-      "descriptionRich": "모든 작업물의 <span style=\"color:rgb(105, 173, 210)\"><strong>저작권은 키제 작가</strong></span>에게 있으며, 사전 협의 없는 <span style=\"color:rgb(95, 189, 236)\"><strong><span style=\"color:rgb(105, 173, 210)\">2차 가공 및 재배포를 금지</span></strong></span>합니다.",
+      "descriptionRich": "모든 작업물의 <span style=\"color:rgb(105, 173, 210)\"><strong>저작권은 키제 작가</strong></span>에게 있으며, <span style=\"color:rgb(105, 173, 210)\"><strong>AI 활용 및 사전 협의 없는 2차 가공·재배포를 금지</strong></span>합니다.<span style=\"color:#69add2\"><strong><span style=\"color:rgb(71, 85, 105)\"></span></strong></span>",
       "editorColor": "#69ADD2"
     },
     {
