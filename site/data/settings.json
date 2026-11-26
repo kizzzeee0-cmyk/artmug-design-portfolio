@@ -1129,6 +1129,7 @@
     "preset/fixed-store-profile/20261019200325-1fyw724119hahl-background__5_.gif"
   ],
   "portfolioOrder": [
+    "portfolio/cheki/20261126104956465-1sys1vvccufqy-_______.png",
     "portfolio/4cutframe/20261124092007460-1netnptxlpgzy-________.png",
     "portfolio/profile/20261124091944706-3l8zm61b3z60j-______.gif",
     "portfolio/profile/20261122060949608-1c4oc361vz40ci-___.gif",
@@ -1414,6 +1415,9 @@
       "enabled": true
     },
     "portfolio/4cutframe/20261124092007460-1netnptxlpgzy-________.png": {
+      "enabled": true
+    },
+    "portfolio/cheki/20261126104956465-1sys1vvccufqy-_______.png": {
       "enabled": true
     }
   },
